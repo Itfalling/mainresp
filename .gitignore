@@ -1,0 +1,12 @@
+# Build outputs
+*.rbxl
+*.rbxlx
+*.rbxm
+*.rbxmx
+!assets/**/*.rbxm
+!assets/**/*.rbxmx
+
+# Tooling
+sourcemap.json
+/roblox.d.luau
+/.luau-analyze-cache

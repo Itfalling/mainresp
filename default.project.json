@@ -1,0 +1,67 @@
+{
+  "name": "BuildYourIsland",
+  "tree": {
+    "$className": "DataModel",
+
+    "ReplicatedStorage": {
+      "Shared": {
+        "$path": "src/ReplicatedStorage/Shared"
+      }
+    },
+
+    "ServerScriptService": {
+      "Server": {
+        "$path": "src/ServerScriptService/Server"
+      }
+    },
+
+    "ServerStorage": {
+      "Buildings": { "$className": "Folder" },
+      "NPCs": { "$className": "Folder" },
+      "Animals": { "$className": "Folder" },
+      "Resources": { "$className": "Folder" },
+      "Tools": { "$className": "Folder" },
+      "Islands": {
+        "$className": "Folder",
+        "Props": { "$className": "Folder" }
+      },
+      "VFX": { "$className": "Folder" }
+    },
+
+    "StarterPlayer": {
+      "$properties": {
+        "CameraMaxZoomDistance": 70,
+        "CameraMinZoomDistance": 6,
+        "CharacterWalkSpeed": 16
+      },
+      "StarterPlayerScripts": {
+        "Client": {
+          "$path": "src/StarterPlayer/StarterPlayerScripts/Client"
+        }
+      }
+    },
+
+    "Players": {
+      "$properties": {
+        "CharacterAutoLoads": false
+      }
+    },
+
+    "Workspace": {
+      "$properties": {
+        "StreamingEnabled": true
+      },
+      "Islands": { "$className": "Folder" },
+      "ResourceZones": { "$className": "Folder" },
+      "NPCs": { "$className": "Folder" },
+      "FishingZones": { "$className": "Folder" },
+      "World": { "$className": "Folder" }
+    },
+
+    "Lighting": {
+      "$properties": {
+        "Technology": "Future"
+      }
+    }
+  }
+}
