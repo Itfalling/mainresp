@@ -9,8 +9,9 @@
 	InputController.Trigger(actionName). Gameplay code only ever listens to
 	actions, never to raw keys — that is what keeps mobile/console support free.
 
-	Note: the ProximityPrompt interact key is E (Roblox default). Build mode
-	pauses prompts while it is open so Q / E can rotate the preview.
+	There are no ProximityPrompts: you CLICK things (InteractionController).
+	E / F / ButtonX use whatever you're looking at. Build mode blocks
+	Interact while it is open so Q / E can rotate the preview.
 ]]
 
 local TableUtil = require(script.Parent.Parent.Util.TableUtil)

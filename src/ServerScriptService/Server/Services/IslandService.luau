@@ -500,6 +500,7 @@ function IslandService.TryExpand(player: Player, cx: any, cz: any): (boolean, st
 	local minX, maxX, minZ, maxZ = IslandTerrain.ChunkBounds(cx, cz)
 	local centerWorld = IslandService.ToWorld(island, Vector3.new(cx * IslandConfig.ChunkSize, IslandConfig.LandHeight, cz * IslandConfig.ChunkSize))
 	GameSoundService.PlayAt("AreaUnlock", centerWorld)
+	GameSoundService.PlayAt("LandRise", centerWorld)
 	VFXService.PlayAt("AreaUnlock", centerWorld)
 	VFXService.ShakeCamera(player, 0.35, 0.8)
 	task.spawn(function()
@@ -520,7 +521,7 @@ function IslandService.TryExpand(player: Player, cx: any, cz: any): (boolean, st
 		IslandService.ChunkAdded:Fire(player, island, cx, cz)
 	end)
 
-	ProgressionService.Award(player, "UnlockArea")
+	ProgressionService.Award(player, "ExpandIsland")
 	Notify.Toast(player, ("New land! (%d/%d)"):format(count + 1, maxChunks), "🏝️")
 	return true, nil
 end

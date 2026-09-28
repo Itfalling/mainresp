@@ -99,59 +99,132 @@ end)
 test("RemoteConfig lists every spec remote once", function()
 	local RemoteConfig = require(Shared.Config.RemoteConfig)
 	for _, name in {
-		"BuildRequest", "DeleteBuildRequest", "MoveBuildRequest", "GatherRequest", "PlantCropRequest",
-		"WaterCropRequest", "HarvestCropRequest", "AnimalInteractRequest", "MilkAnimalRequest", "FishingRequest",
-		"SellItemRequest", "CraftRequest", "UpgradeRequest", "PurchaseRequest", "QuestRequest",
-		"IslandPermissionRequest", "IslandVisitRequest", "EquipToolRequest",
+		"InteractRequest", "SwingRequest", "EquipToolRequest", "HotbarRequest", "EmoteRequest",
+		"CreateIslandRequest", "ExpandIslandRequest", "PaintTerrainRequest", "RenameIslandRequest", "IslandSettingsRequest",
+		"RemoveNodeRequest", "BuildRequest", "DeleteBuildRequest", "MoveBuildRequest", "FishingRequest",
+		"SellItemRequest", "PurchaseRequest", "VisitRequest", "LikeRequest", "TradeRequest", "SettingsRequest",
 	} do
 		eq(RemoteConfig.Known[name], "ClientToServer", name)
 	end
 	eq(RemoteConfig.Known.StateSync, "ServerToClient", "StateSync")
+	eq(RemoteConfig.Known.TradeEvent, "ServerToClient", "TradeEvent")
 end)
 
-test("island layout: slots, areas overlap the starter island, markers on land", function()
+test("island slots are far apart", function()
 	local IslandConfig = require(Shared.Config.IslandConfig)
 	local IslandLayout = require(Shared.Util.IslandLayout)
 	local slot5 = IslandLayout.GetSlotOrigin(5).Position
 	eq(slot5.X, 0, "slot 5 X")
 	eq(slot5.Z, IslandConfig.SlotSpacing, "slot 5 Z")
-	local starter = IslandConfig.Areas.Starter
-	for _, areaId in IslandConfig.AreaOrder do
-		local area = IslandConfig.Areas[areaId]
-		assert(area, "AreaOrder references unknown area " .. areaId)
-		if areaId ~= "Starter" then
-			local center = IslandLayout.GetAreaCenter(areaId)
-			assert(center.Magnitude < starter.Radius + area.Radius, areaId .. " does not touch the starter island")
-			assert(center.Magnitude + area.Radius + IslandConfig.ShallowsWidth < IslandConfig.SlotSpacing / 2, areaId .. " would reach a neighbouring slot")
-			local marker = IslandLayout.GetAreaMarkerPosition(areaId)
-			assert(IslandLayout.IsInArea("Starter", marker, 1), areaId .. " marker is not on starter land")
-			local requires = area.Unlock and area.Unlock.RequiresArea
-			if requires then
-				assert(table.find(IslandConfig.AreaOrder, requires) < table.find(IslandConfig.AreaOrder, areaId), areaId .. " requires a later area")
-			end
-		end
-	end
-	-- The front (+Z) stays open ocean for the dock.
-	local dock = IslandConfig.StarterLayout.Dock.Start
-	for _, areaId in IslandConfig.AreaOrder do
-		if areaId ~= "Starter" then
-			assert(not IslandLayout.IsInArea(areaId, dock + Vector2.new(0, 20)), "dock would be covered by " .. areaId)
-		end
-	end
-	assert(IslandLayout.IsOnUnlockedLand({ Starter = true }, Vector2.new(0, 0), 4))
-	assert(not IslandLayout.IsOnUnlockedLand({ Starter = true }, IslandLayout.GetAreaCenter("Mainland"), 4))
+	-- A fully grown island never reaches the neighbouring slot.
+	assert(IslandLayout.GetMaxExtent() * 2 < IslandConfig.SlotSpacing, "max island fits its slot")
 end)
 
-test("starter layout props sit on starter land", function()
+test("IslandGen: every seed / shape grows a connected, unique starter island", function()
 	local IslandConfig = require(Shared.Config.IslandConfig)
-	local IslandLayout = require(Shared.Util.IslandLayout)
-	local layout = IslandConfig.StarterLayout
-	for label, point in { Spawn = layout.Spawn, Chest = layout.StarterChest, Sign = layout.IslandSign, House = layout.HousePlot.Center, Farm = layout.FarmPlot.Center } do
-		assert(IslandLayout.IsInArea("Starter", point, 10), label .. " is too close to the shore")
+	local IslandGen = require(Shared.Util.IslandGen)
+	local signatures = {}
+	for _, shape in IslandConfig.ShapeOrder do
+		for seed = 1, 6 do
+			local chunks = IslandGen.GenerateStarter(seed * 7919, shape)
+			local again = IslandGen.GenerateStarter(seed * 7919, shape)
+			local count = IslandGen.CountChunks(chunks)
+			assert(count >= IslandConfig.StarterChunks, shape .. " too small: " .. count)
+			eq(count, IslandGen.CountChunks(again), shape .. " deterministic count")
+			for key in chunks do
+				assert(again[key], shape .. " deterministic chunk " .. key)
+				local cx, cz = IslandGen.ParseKey(key)
+				assert(cx and cz and IslandGen.InGrid(cx, cz), "chunk in grid " .. key)
+			end
+			assert(chunks[IslandGen.Key(0, 0)], "plaza chunk owned")
+			-- Connected: flood fill from the centre reaches every chunk.
+			local seen, stack, reached = { [IslandGen.Key(0, 0)] = true }, { { 0, 0 } }, 1
+			while #stack > 0 do
+				local cell = table.remove(stack)
+				for _, d in { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } } do
+					local key = IslandGen.Key(cell[1] + d[1], cell[2] + d[2])
+					if chunks[key] and not seen[key] then
+						seen[key] = true
+						reached += 1
+						table.insert(stack, { cell[1] + d[1], cell[2] + d[2] })
+					end
+				end
+			end
+			eq(reached, count, shape .. " seed " .. seed .. " is one connected island")
+			local keys = {}
+			for key in chunks do
+				table.insert(keys, key)
+			end
+			table.sort(keys)
+			signatures[table.concat(keys, ",")] = true
+		end
 	end
-	for index, palm in layout.Palms do
-		assert(IslandLayout.IsInArea("Starter", palm, 4), "palm " .. index .. " is off the island")
+	local distinct = 0
+	for _ in signatures do
+		distinct += 1
 	end
+	assert(distinct >= #IslandConfig.ShapeOrder * 6 - 2, "islands should almost never repeat (" .. distinct .. " distinct)")
+end)
+
+test("IslandGen: sampler, buildable land, spots and starter layout", function()
+	local IslandConfig = require(Shared.Config.IslandConfig)
+	local IslandGen = require(Shared.Util.IslandGen)
+	local ResourceConfig = require(Shared.Config.ResourceConfig)
+	for _, themeId in IslandConfig.ThemeOrder do
+		local seed = 424242
+		local chunks = IslandGen.GenerateStarter(seed, "Round")
+		local sampler = IslandGen.NewSampler({ Seed = seed, Theme = themeId, Chunks = chunks, Paint = {} })
+		local layout = IslandConfig.StarterLayout
+		for label, point in { Spawn = layout.Spawn, Chest = layout.StarterChest, Sign = layout.IslandSign, Stall = layout.MarketStall.Position } do
+			assert(IslandGen.IsBuildable(sampler, point.X, point.Y), themeId .. ": " .. label .. " must be on flat land")
+		end
+		for index, tile in layout.SoilTiles do
+			assert(IslandGen.IsBuildable(sampler, tile.X, tile.Y), themeId .. ": soil tile " .. index .. " off the land")
+		end
+		assert(IslandGen.IsWater(sampler, 30 * IslandConfig.ChunkSize, 0), "far away is sea")
+		local spawnHeight = sampler:Sample(layout.Spawn.X, layout.Spawn.Y).Height
+		assert(math.abs(spawnHeight - IslandConfig.LandHeight) < 0.5, themeId .. " spawn plaza is flat")
+		-- Resource spots: on their island, unique, never on the plaza, real node types.
+		local spots = IslandGen.AllSpots(sampler, nil)
+		assert(#spots > 10, themeId .. " has resources (" .. #spots .. ")")
+		local ids = {}
+		for _, spot in spots do
+			assert(not ids[spot.Id], "duplicate spot " .. spot.Id)
+			ids[spot.Id] = true
+			assert(ResourceConfig.Nodes[spot.Type], themeId .. " unknown node " .. tostring(spot.Type))
+			assert(spot.Position.Magnitude > IslandConfig.StarterLayout.KeepClearRadius - 0.01, "spot inside the keep-clear plaza")
+		end
+		-- Removed nodes stay removed.
+		local removed = { [spots[1].Id] = true }
+		eq(#IslandGen.AllSpots(sampler, removed), #spots - 1, "removed spot skipped")
+		-- Theme node weights only name real nodes.
+		for nodeType in IslandConfig.Themes[themeId].Nodes do
+			assert(ResourceConfig.Nodes[nodeType], themeId .. " weights unknown node " .. nodeType)
+		end
+	end
+end)
+
+test("IslandGen: painting, expansion candidates and costs", function()
+	local IslandConfig = require(Shared.Config.IslandConfig)
+	local IslandGen = require(Shared.Util.IslandGen)
+	local chunks = IslandGen.GenerateStarter(99, "Long")
+	local painted = IslandGen.NewSampler({ Seed = 99, Theme = "Meadow", Chunks = chunks, Paint = { ["0_1"] = "Brick" } })
+	eq(painted:Sample(4, 12).Material, "Brick", "paint overrides the ground material")
+	local candidates = IslandGen.ExpansionCandidates(chunks)
+	assert(#candidates > 8, "plenty of directions to grow")
+	for _, candidate in candidates do
+		local key = IslandGen.Key(candidate.X, candidate.Z)
+		assert(not chunks[key], "candidate already owned " .. key)
+		assert(IslandGen.IsAdjacent(chunks, candidate.X, candidate.Z), "candidate touches the island " .. key)
+	end
+	assert(not IslandGen.IsAdjacent(chunks, 12, 12), "far chunk is not adjacent")
+	local count = IslandGen.CountChunks(chunks)
+	assert(IslandGen.ExpansionCost(count) >= IslandConfig.Expansion.BaseCost, "cost floor")
+	assert(IslandGen.ExpansionCost(count + 50) > IslandGen.ExpansionCost(count), "land gets pricier")
+	eq(IslandGen.ExpansionCost(count) % 10, 0, "rounded price")
+	assert(IslandGen.MaxChunks(1) > count, "room to expand at level 1")
+	assert(IslandGen.MaxChunks(10) > IslandGen.MaxChunks(1), "levels unlock more land")
+	assert(IslandGen.MaxChunks(1000) <= IslandConfig.Expansion.MaxChunks, "hard cap")
 end)
 
 test("DataSchema template is valid and saveable", function()
@@ -159,7 +232,8 @@ test("DataSchema template is valid and saveable", function()
 	local GameConfig = require(Shared.Config.GameConfig)
 	local data = DataSchema.Sanitize(nil)
 	eq(data.Coins, GameConfig.StartingCoins, "starting coins")
-	eq(data.Island.UnlockedAreas.Starter, true, "starter unlocked")
+	eq(data.Island.Created, false, "new players see the island creator")
+	eq(next(data.Island.Chunks), nil, "no land before creation")
 	assert(DataSchema.IsSaveable(data))
 	-- Template() hands out independent copies.
 	local a, b = DataSchema.Template(), DataSchema.Template()
@@ -171,7 +245,7 @@ test("DataSchema repairs corrupt data without destroying progress", function()
 	local DataSchema = require(Server.Data.DataSchema)
 	local nan = 0 / 0
 	local corrupt = {
-		Version = 1,
+		Version = DataSchema.CurrentVersion,
 		Coins = "lots",
 		Gems = -50,
 		Level = nan,
@@ -181,7 +255,17 @@ test("DataSchema repairs corrupt data without destroying progress", function()
 			Hotbar = { "WoodenAxe", "FakeTool", "WoodenAxe", 42 },
 			Equipped = "FakeTool",
 		},
-		Island = { Name = "Sunny Meadows", Level = 7, UnlockedAreas = { Forest = true, Atlantis = true, Starter = false } },
+		Island = {
+			Name = "Sunny Meadows",
+			Level = 7,
+			Created = true,
+			Seed = 1234,
+			Theme = "Lava",
+			Shape = "Round",
+			Chunks = { ["0_0"] = true, ["99_99"] = true, bogus = true, ["1_0"] = "yes" },
+			Paint = { ["1_2"] = "Brick", ["3_4"] = "Lava", nope = "Grass" },
+			Access = { Visitors = "Pirates", Helpers = { ["123"] = true, abc = true } },
+		},
 		Flags = "broken",
 	}
 	local data = DataSchema.Sanitize(corrupt)
@@ -200,9 +284,17 @@ test("DataSchema repairs corrupt data without destroying progress", function()
 	eq(data.Tools.Equipped, "", "equipped unknown tool cleared")
 	eq(data.Island.Name, "Sunny Meadows", "valid island name kept")
 	eq(data.Island.Level, 7, "valid island level kept")
-	eq(data.Island.UnlockedAreas.Forest, true, "valid area kept")
-	eq(data.Island.UnlockedAreas.Starter, true, "starter always unlocked")
-	eq(data.Quarantine.Areas.Atlantis, true, "unknown area quarantined")
+	eq(data.Island.Theme, "Tropical", "unknown theme reset")
+	eq(data.Island.Chunks["99_99"], nil, "out-of-grid chunk dropped")
+	assert(data.Island.Chunks["0_0"], "centre chunk kept")
+	local IslandGen = require(Shared.Util.IslandGen)
+	assert(IslandGen.CountChunks(data.Island.Chunks) >= 4, "a broken island is regrown from its seed")
+	eq(data.Island.Paint["1_2"], "Brick", "valid paint kept")
+	eq(data.Island.Paint["3_4"], nil, "unknown paint material removed")
+	eq(data.Island.Paint.nope, nil, "bad paint key removed")
+	eq(data.Island.Access.Visitors, "Everyone", "bad visitor mode reset")
+	eq(data.Island.Access.Helpers["123"], true, "valid helper kept")
+	eq(data.Island.Access.Helpers.abc, nil, "bad helper removed")
 	eq(type(data.Flags), "table", "wrong-typed table rebuilt")
 	eq(data.Flags.StarterChestClaimed, false, "rebuilt table has defaults")
 	assert(DataSchema.IsSaveable(data))
@@ -278,32 +370,47 @@ test("progression curves and titles", function()
 	eq(ProgressionConfig.GetIslandTitle(12), "Established Island")
 end)
 
-test("AnimationPlayer virtual track fires markers then Ended (placeholder ids)", function()
-	local AnimationPlayer = require(Shared.Animation.AnimationPlayer)
-	local rig = { FindFirstChildOfClass = function() return nil end, GetFullName = function() return "Rig" end }
-	local player = AnimationPlayer.new(rig)
-	local events = {}
-	local handle = player:Play("HammerSwing", {
-		Markers = { HammerHit = function() table.insert(events, "HammerHit") end },
-	})
-	assert(handle, "handle returned for placeholder animation")
-	handle.Ended:Connect(function() table.insert(events, "Ended") end)
-	assert(player:IsPlaying("HammerSwing"))
-	__advance(0.2)
-	eq(#events, 0, "nothing before the marker time")
-	__advance(0.2)
-	eq(events[1], "HammerHit", "marker fired at config time")
-	__advance(0.5)
-	eq(events[2], "Ended", "ended after Length")
-	assert(not player:IsPlaying("HammerSwing"))
-
-	-- Speed scales the timeline.
-	local fast = {}
-	local h2 = player:Play("HammerSwing", { Speed = 2, Markers = { HammerHit = function() table.insert(fast, true) end } })
-	__advance(0.16)
-	eq(#fast, 1, "marker at 0.31/2 with Speed 2")
-	h2:Stop()
-	assert(not player:IsPlaying("HammerSwing"), "Stop ends the handle")
+test("keyframe animations: every action has real keyframes on real R15 joints", function()
+	local Keyframes = require(Shared.Animation.Keyframes)
+	local AnimationConfig = require(Shared.Config.AnimationConfig)
+	local ToolConfig = require(Shared.Config.ToolConfig)
+	local valid = {}
+	for _, list in { Keyframes.UpperJoints, Keyframes.LegJoints } do
+		for _, joint in list do
+			valid[joint] = true
+		end
+	end
+	local function checkAction(name, action)
+		assert(#action.Keys >= 2, name .. " needs at least two keys")
+		local last = -1
+		for _, key in action.Keys do
+			assert(key.T >= 0 and key.T <= 1 and key.T >= last, name .. " key times must rise within 0..1")
+			last = key.T
+			for joint, pose in key.Pose do
+				assert(valid[joint], name .. " uses unknown joint " .. joint)
+				assert(#pose == 3 or #pose == 6, name .. "." .. joint .. " pose needs 3 or 6 numbers")
+			end
+		end
+	end
+	for name, action in Keyframes.Actions do
+		checkAction(name, action)
+	end
+	checkAction("NPCIdle", Keyframes.NPCIdle)
+	-- Everything tools and emotes play is animated.
+	for toolId, tool in ToolConfig.Tools do
+		-- (Idle is replaced by the hold poses below.)
+		for _, slot in { "Use", "Heavy" } do
+			local animationName = tool.Animations[slot]
+			assert(animationName == nil or Keyframes.Actions[animationName], toolId .. " plays " .. tostring(animationName) .. " which has no keyframes")
+		end
+	end
+	for _, name in { "Wave", "Cheer", "Point", "Dance", "OpenChest", "PlantSeed", "HarvestCrop", "FeedAnimal", "PetAnimal", "MilkCow", "FishingCast", "FishingReel", "FishingCatch" } do
+		assert(Keyframes.Actions[name], name .. " has no keyframes")
+		assert(AnimationConfig.Get(name), name .. " has no AnimationConfig entry")
+	end
+	for _, hold in { "HoldAxe", "HoldPickaxe", "HoldHammer", "HoldShovel", "HoldHoe", "HoldCan", "HoldRod", "HoldBucket", "HoldTool", "HoldItem" } do
+		assert(Keyframes.Holds[hold], hold .. " hold pose missing")
+	end
 end)
 
 ---------------------------------------------------------------------------
@@ -371,7 +478,10 @@ test("every item / tool / sound / effect a config references exists", function()
 			assert(ItemConfig.Exists(itemId), buildingId .. " costs unknown item " .. itemId)
 			assert(amount > 0, buildingId .. " cost amount")
 		end
-		assert(building.Steps >= 1, buildingId .. " needs at least one step")
+		assert(building.Steps >= 1 or building.Node or building.Id == "SoilTile" or building.Hidden, buildingId .. " needs at least one step")
+		if building.Node then
+			assert(ResourceConfig.Nodes[building.Node], buildingId .. " plants unknown node " .. building.Node)
+		end
 	end
 	for itemId in GameConfig.StarterKit.Items do
 		assert(ItemConfig.Exists(itemId), "starter kit item " .. itemId)
@@ -402,7 +512,7 @@ test("shop items grant real things and prices are sane", function()
 		elseif grant.Animal then
 			assert(AnimalConfig.Animals[grant.Animal], shopId .. " grants unknown animal")
 		elseif grant.Upgrade then
-			assert(grant.Upgrade == "FarmTiles" or grant.Upgrade == "Capacity", shopId .. " unknown upgrade")
+			eq(grant.Upgrade, "Capacity", shopId .. " unknown upgrade")
 		else
 			error(shopId .. " grants nothing")
 		end
@@ -448,7 +558,9 @@ test("quest chain references real events and targets", function()
 		BuyTool = function(t) return ShopConfig.Items[t] ~= nil and ShopConfig.Items[t].Grant.Tool ~= nil end,
 		FeedAnimal = function(t) return AnimalConfig.Animals[t] ~= nil end,
 		CollectProduce = function(t) return ItemConfig.Exists(t) end,
-		UnlockArea = function(t) return IslandConfig.Areas[t] ~= nil end,
+		ExpandIsland = function(t) return t == nil end,
+		PaintTerrain = function(t) return t == nil end,
+		RenameIsland = function(t) return t == nil end,
 		IslandLevel = function(t) return t == nil end,
 	}
 	for _, questId in QuestConfig.Chain do
@@ -466,40 +578,6 @@ test("quest chain references real events and targets", function()
 	end
 	eq(QuestConfig.NextQuest(QuestConfig.Chain[1]), QuestConfig.Chain[2], "chain order")
 	eq(QuestConfig.NextQuest(QuestConfig.Chain[#QuestConfig.Chain]), nil, "chain end")
-end)
-
-test("island content: deterministic nodes, spaced out, on their own area", function()
-	local IslandContent = require(Shared.Util.IslandContent)
-	local IslandConfig = require(Shared.Config.IslandConfig)
-	local IslandLayout = require(Shared.Util.IslandLayout)
-	local CropConfig = require(Shared.Config.CropConfig)
-	for _, areaId in IslandConfig.AreaOrder do
-		local first = IslandContent.AreaNodes(areaId)
-		local second = IslandContent.AreaNodes(areaId)
-		eq(#first, #second, areaId .. " node count stable")
-		local ids = {}
-		for index, spot in first do
-			eq(spot.Position.X, second[index].Position.X, areaId .. " deterministic X")
-			eq(spot.Id, second[index].Id, areaId .. " deterministic id")
-			assert(not ids[spot.Id], "duplicate node id " .. spot.Id)
-			ids[spot.Id] = true
-			assert(IslandLayout.IsInArea(areaId, spot.Position, 2), spot.Id .. " is outside its area")
-		end
-		local content = IslandConfig.Areas[areaId].Content
-		if areaId ~= "Starter" and content and content.Nodes then
-			local wanted = 0
-			for _, count in content.Nodes do
-				wanted += count
-			end
-			eq(#first, wanted, areaId .. " placed every configured node")
-		end
-	end
-	local plots = IslandContent.FarmPlots()
-	eq(plots[1].Id, "S", "starter farm plot first")
-	eq(#IslandContent.FarmTilePositions(plots[1].Center), CropConfig.Farm.Columns * CropConfig.Farm.Rows, "tile count")
-	local dockSpot = IslandContent.FishingSpots()[1]
-	eq(dockSpot.AreaId, "Starter", "first fishing spot is the dock")
-	assert(dockSpot.OnDock, "starter spot is on the dock")
 end)
 
 test("crop growth from timestamps (watering speeds it up)", function()
@@ -550,8 +628,10 @@ test("build placement grid math", function()
 		eq(edgeX, math.floor(edgeX), "left edge on grid for " .. footprint.X)
 		eq(edgeZ, math.floor(edgeZ), "top edge on grid for " .. footprint.Y)
 	end
-	assert(Placement.IsOnUnlockedLand({ Starter = true }, Vector2.new(0, 0), Vector2.new(10, 10)), "centre of starter island is buildable")
-	assert(not Placement.IsOnUnlockedLand({ Starter = true }, Vector2.new(5000, 0), Vector2.new(10, 10)), "the sea is not buildable")
+	local IslandGen = require(Shared.Util.IslandGen)
+	local sampler = IslandGen.NewSampler({ Seed = 7, Theme = "Tropical", Chunks = IslandGen.GenerateStarter(7, "Round"), Paint = {} })
+	assert(Placement.IsOnLand(sampler, Vector2.new(0, 0), Vector2.new(10, 10)), "centre of the island is buildable")
+	assert(not Placement.IsOnLand(sampler, Vector2.new(5000, 0), Vector2.new(10, 10)), "the sea is not buildable")
 end)
 
 test("fishing: zones are valid and the anti-cheat floor is beatable", function()
@@ -612,9 +692,12 @@ test("DataSchema quarantines broken buildings / crops / animals", function()
 		B1 = { BuildingId = "SmallCottage", Position = { X = 0, Y = 0, Z = 0 }, Rotation = 0, Progress = 99, State = "Constructing" },
 		B2 = { BuildingId = "Skyscraper", Position = { X = 0, Y = 0, Z = 0 }, Rotation = 0 },
 	}
+	data.Island.Buildings.S1 = { BuildingId = "SoilTile", Position = { X = 20, Y = 3, Z = 0 }, Rotation = 0, State = "Complete", Progress = 0 }
+	data.Island.Buildings.S2 = { BuildingId = "SoilTile", Position = { X = 25, Y = 3, Z = 0 }, Rotation = 0, State = "Complete", Progress = 0 }
 	data.Island.Crops = {
 		S1 = { State = "Planted", CropId = "Wheat", PlantedAt = 10, WateredAt = "wet" },
 		S2 = { State = "Planted", CropId = "Moonberry", PlantedAt = 10 },
+		Gone = { State = "Planted", CropId = "Wheat", PlantedAt = 10 },
 	}
 	data.Island.Animals = { A1 = { AnimalId = "Cow", Happiness = 500 }, A2 = { AnimalId = "Dragon" } }
 	local clean = DataSchema.Sanitize(data)
@@ -624,10 +707,59 @@ test("DataSchema quarantines broken buildings / crops / animals", function()
 	eq(clean.Island.Buildings.B2, nil, "unknown building removed")
 	assert(clean.Quarantine.Buildings.B2, "unknown building quarantined")
 	eq(clean.Island.Crops.S1.WateredAt, 0, "bad watered time repaired")
+	eq(clean.Island.Crops.Gone, nil, "crop without a soil tile removed")
 	assert(clean.Quarantine.Crops.S2 and clean.Island.Crops.S2 == nil, "unknown crop quarantined")
 	eq(clean.Island.Animals.A1.Happiness, 100, "happiness clamped")
 	assert(clean.Quarantine.Animals.A2 and clean.Island.Animals.A2 == nil, "unknown animal quarantined")
 	assert(DataSchema.IsSaveable(clean))
+end)
+
+test("DataSchema v2 -> v3 migration turns areas into a unique chunk island", function()
+	local DataSchema = require(Server.Data.DataSchema)
+	local IslandGen = require(Shared.Util.IslandGen)
+	local IslandConfig = require(Shared.Config.IslandConfig)
+	local old = {
+		Version = 2,
+		Coins = 900,
+		Island = {
+			IslandId = "abc-123",
+			Name = "Old Island",
+			Level = 4,
+			UnlockedAreas = { Starter = true, Forest = true },
+			FarmTiles = 6,
+			Buildings = {
+				House1 = { BuildingId = "SmallCottage", UniqueId = "House1", Position = { X = 60, Y = 3, Z = -40 }, Rotation = 0, State = "Complete", Progress = 0 },
+			},
+			Crops = { S2 = { State = "Planted", CropId = "Wheat", PlantedAt = 50, WateredAt = 0 } },
+			Upgrades = { FarmTiles = 1, Capacity = 2 },
+		},
+	}
+	local data = DataSchema.Sanitize(old)
+	eq(data.Version, DataSchema.CurrentVersion, "migrated")
+	local island = data.Island
+	eq(island.Created, true, "old players skip the island creator")
+	eq(island.Name, "Old Island", "name kept")
+	eq(island.UnlockedAreas, nil, "areas removed")
+	eq(island.FarmTiles, nil, "farm tile count removed")
+	assert(IslandGen.CountChunks(island.Chunks) >= IslandConfig.StarterChunks + 10, "extra area became extra land")
+	local sampler = IslandGen.NewSampler({ Seed = island.Seed, Theme = island.Theme, Chunks = island.Chunks, Paint = {} })
+	local cx, cz = IslandGen.ChunkOf(60, -40)
+	assert(sampler:IsOwnedChunk(cx, cz), "the old house is still on owned land")
+	assert(island.Buildings.House1, "house kept")
+	local soil = 0
+	for _, entry in island.Buildings do
+		if entry.BuildingId == "SoilTile" then
+			soil += 1
+		end
+	end
+	eq(soil, 6, "old farm tiles became soil tiles")
+	eq(island.Crops.SoilS2.CropId, "Wheat", "growing crop moved to its soil tile")
+	eq(island.Upgrades.Capacity, 2, "other upgrades kept")
+	eq(island.Upgrades.FarmTiles, nil, "farm upgrade removed")
+	assert(DataSchema.IsSaveable(data))
+	-- Deterministic: the same save migrates to the same island.
+	local again = DataSchema.Sanitize(old)
+	eq(IslandGen.CountChunks(again.Island.Chunks), IslandGen.CountChunks(island.Chunks), "stable migration")
 end)
 
 print(("\n%d passed, %d failed"):format(passed, failed))

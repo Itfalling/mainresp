@@ -502,7 +502,7 @@ function DataService.Increment(player: Player, path: Path, delta: number): numbe
 end
 
 -- transform(oldValue) -> newValue. Handy for table edits:
--- DataService.Update(player, {"Island","UnlockedAreas"}, function(t) t.Forest = true return t end)
+-- DataService.Update(player, {"Island","Paint"}, function(t) t["3_4"] = "Brick" return t end)
 function DataService.Update(player: Player, path: Path, transform: (any) -> any): boolean
 	local current = DataService.Get(player, path)
 	return DataService.Set(player, path, transform(current))

@@ -77,7 +77,6 @@ local tooltipSub: TextLabel
 local reticle: Frame
 local pauseCount = 0
 local hover: Target? = nil
-local hoverHint: Hint? = nil
 local clickHandlers: { (Target?) -> boolean } = {}
 local localBusyUntil = 0
 local lastSwing = 0
@@ -375,7 +374,7 @@ end
 local function updateHover()
 	if pauseCount > 0 or UIController.IsAnyModalOpen() or InputController.IsTouch() then
 		hover = nil
-		hoverHint = nil
+
 		setHighlight(nil, COLORS.Ok)
 		showTooltip(nil, nil)
 		reticle.Visible = false
@@ -388,14 +387,14 @@ local function updateHover()
 	local object = target and target.Object
 	if object then
 		local hint = hintFor(object)
-		hoverHint = hint
+
 		setHighlight(if hint.State == "Hidden" then nil else object, COLORS[hint.State] or COLORS.Neutral)
 		local mouse = if gamepad
 			then (workspace.CurrentCamera :: Camera).ViewportSize / 2
 			else UserInputService:GetMouseLocation()
 		showTooltip(hint, UIController.ViewportToDesign(mouse))
 	else
-		hoverHint = nil
+
 		setHighlight(nil, COLORS.Ok)
 		-- Holding a rod over water shows where you'd cast.
 		local held = ToolController.GetHeld()

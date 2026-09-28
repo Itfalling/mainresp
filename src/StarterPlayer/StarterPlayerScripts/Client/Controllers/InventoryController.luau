@@ -85,24 +85,13 @@ function InventoryController.Init()
 		end,
 	})
 
-	local bagButton = Components.Button({
-		Name = "BagButton",
-		Text = "🎒",
-		Color = Theme.Colors.Orange,
-		Size = UDim2.fromOffset(76, 76),
-		TextSize = 40,
+	Components.IconButton({
+		Icon = "🎒",
+		Caption = "Bag",
+		Color = Theme.Colors.Blue,
 		Parent = UIController.GetSlot("Left"),
+		LayoutOrder = 1,
 		OnClick = InventoryController.Toggle,
-	})
-	bagButton.LayoutOrder = 1
-	Components.Corner(bagButton, UDim.new(1, 0))
-	Components.Label({
-		Text = "Bag",
-		Size = UDim2.new(1, 0, 0, 18),
-		Position = UDim2.new(0, 0, 1, -4),
-		TextSize = Theme.TextSize.Small,
-		TextColor3 = Theme.Colors.TextLight,
-		Parent = bagButton,
 	})
 end
 

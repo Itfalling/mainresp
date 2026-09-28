@@ -12,10 +12,12 @@
 		ClientState, InputController, AudioController, VFXController, CameraController
 		AnimationController
 		UIController
-		InteractionController, ToolController
-		InventoryController, IslandController, QuestController
-		GatherController, BuildController, FarmController, FishingController,
-		AnimalController, ShopController
+		ToolController
+		InteractionController
+		InventoryController, BuildController (+ Client/Build/LandEditor)
+		IslandController, QuestController, FarmController, FishingController,
+		AnimalController, ShopController, TradeController
+		PlayersController, SocialController, IslandCreatorController
 ]]
 
 local StarterGui = game:GetService("StarterGui")
@@ -46,17 +48,20 @@ local ORDER: { ModuleScript } = {
 	Controllers.CameraController,
 	Controllers.AnimationController,
 	Controllers.UIController,
-	Controllers.InteractionController,
 	Controllers.ToolController,
+	Controllers.InteractionController,
 	Controllers.InventoryController,
+	Controllers.BuildController,
 	Controllers.IslandController,
 	Controllers.QuestController,
-	Controllers.GatherController,
-	Controllers.BuildController,
 	Controllers.FarmController,
 	Controllers.FishingController,
 	Controllers.AnimalController,
 	Controllers.ShopController,
+	Controllers.TradeController,
+	Controllers.PlayersController,
+	Controllers.SocialController,
+	Controllers.IslandCreatorController,
 }
 
 -- One broken controller must not take the whole client down with it:

@@ -31,7 +31,7 @@ local ProgressionConfig = {
 	-- XP granted per action. Player = player XP, Island = island XP.
 	Sources = {
 		StarterChest = { Player = 25, Island = 40 },
-		UnlockArea = { Player = 100, Island = 150 },
+		ExpandIsland = { Player = 30, Island = 60 },
 		ChopTree = { Player = 3, Island = 2 },
 		MineRock = { Player = 3, Island = 2 },
 		GatherFiber = { Player = 2, Island = 1 },

@@ -5,10 +5,10 @@
 	WHERE:        ReplicatedStorage/Shared/Util/AssetId
 	DEPENDENCIES: none
 
-	This project ships WITHOUT real animation / sound asset IDs. Every asset
-	slot uses the literal "rbxassetid://PLACEHOLDER". Systems call
-	AssetId.IsPlaceholder() and gracefully fall back instead of erroring,
-	so the game keeps working until real IDs are pasted into the configs.
+	Some asset slots have no verified asset yet and use the literal
+	"rbxassetid://PLACEHOLDER". Systems call AssetId.IsPlaceholder() and
+	skip / fall back instead of erroring. Built-in "rbxasset://" paths and
+	real "rbxassetid://<number>" ids are never placeholders.
 ]]
 
 local AssetId = {}

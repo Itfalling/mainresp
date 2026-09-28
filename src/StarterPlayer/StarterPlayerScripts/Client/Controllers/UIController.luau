@@ -242,6 +242,9 @@ function UIController.Init()
 	Components.SetClickSound(function()
 		AudioController.Play("UIClick")
 	end)
+	Components.SetHoverSound(function()
+		AudioController.Play("UIHover")
+	end)
 end
 
 -- If the server failed to boot, say so on screen instead of showing an empty world.

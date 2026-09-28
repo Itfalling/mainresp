@@ -180,7 +180,7 @@ local function execute(session: Session)
 	end
 	for _, player in session.Players do
 		DataService.Increment(player, { "Social", "TradesCompleted" }, 1)
-		GameSoundService.PlayFor(player, "QuestComplete")
+		GameSoundService.PlayFor(player, "TradeComplete")
 		Notify.Banner(player, "TRADE COMPLETE!", "Traded with " .. other(session, player).DisplayName, "Reward")
 	end
 	print(("[TradeService] %s <-> %s: %s | %s"):format(a.Name, b.Name, HttpService:JSONEncode(offerA), HttpService:JSONEncode(offerB)))

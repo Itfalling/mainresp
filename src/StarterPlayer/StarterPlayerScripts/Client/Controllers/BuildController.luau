@@ -3,9 +3,9 @@
 	SCRIPT TYPE:  ModuleScript (client controller)
 	WHERE:        StarterPlayerScripts/Client/Controllers/BuildController
 	DEPENDENCIES: Shared.Net, Shared.Building.BuildingModels, Shared.Config.{BuildingConfig, BuildConfig,
-	              ItemConfig}, Shared.Util.{Placement, IslandLayout, Format}, Client.ClientState,
-	              InputController, UIController, CameraController, InteractionController, AudioController,
-	              Client.UI.{Components, Theme}
+	              ItemConfig, IslandConfig}, Shared.Util.{Placement, Format, R15}, Client.ClientState,
+	              Client.Build.LandEditor, InputController, UIController, CameraController,
+	              InteractionController, AudioController, Client.UI.{Components, Theme}
 
 	BUILD MODE (spec §7-§9, §46-§48, §84). Press B (or the 🔨 button).
 
@@ -17,7 +17,10 @@
 	  Bottom  control hints
 
 	  R rotate · Q / E turn · click (or PLACE) to build · X cancel · B exit
-	  EDIT tab: click one of your buildings → MOVE or DELETE (50% refund).
+	  EXPAND tab: glowing squares on the sea — click one to buy that land.
+	  PAINT tab:  pick a material, click / drag over your land to paint it.
+	  EDIT tab:   click one of your buildings → MOVE or DELETE (50% refund),
+	              or a natural tree / rock → CLEAR it for good.
 
 	The preview runs the SAME rules as the server (Shared/Util/Placement,
 	BuildConfig) so what looks valid is valid — but the server re-checks all of it.
@@ -34,12 +37,14 @@ local BuildingModels = require(Shared.Building.BuildingModels)
 local BuildingConfig = require(Shared.Config.BuildingConfig)
 local BuildConfig = require(Shared.Config.BuildConfig)
 local ItemConfig = require(Shared.Config.ItemConfig)
+local IslandConfig = require(Shared.Config.IslandConfig)
 local Placement = require(Shared.Util.Placement)
 local Format = require(Shared.Util.Format)
 local R15 = require(Shared.Util.R15)
 
 local Client = script.Parent.Parent
 local ClientState = require(Client.ClientState)
+local LandEditor = require(Client.Build.LandEditor)
 local InputController = require(script.Parent.InputController)
 local UIController = require(script.Parent.UIController)
 local CameraController = require(script.Parent.CameraController)
@@ -74,13 +79,14 @@ type Refs = {
 	CancelButton: TextButton,
 	MoveButton: TextButton,
 	DeleteButton: TextButton,
+	ClearButton: TextButton,
 	Hints: TextLabel,
 	BuildButton: TextButton,
 }
 
 local refs: Refs
 local active = false
-local mode = "Menu" -- Menu | Placing | Editing | Moving
+local mode = "Menu" -- Menu | Placing | Editing | Moving | Expand | Paint
 local category = "Homes"
 local selectedId: string? = nil
 local rotation = 0
@@ -93,6 +99,8 @@ local pointer: Vector2? = nil -- last touch position (screen space)
 local cards: { TextButton } = {}
 local editTarget: Model? = nil
 local deleteArmedUntil = 0
+local clearArmedUntil = 0
+local landConnection: RBXScriptConnection? = nil
 
 local current = { Valid = false, Reason = "", Center = Vector2.zero, Key = "" }
 local lastValidation = 0
@@ -127,6 +135,15 @@ local function affordable(def: any): (boolean, string)
 		table.insert(lines, ("%s %d/%d %s %s"):format(if has then "✔" else "✖", math.min(owned, amount), amount, if item then item.Icon else "", if item then item.DisplayName else itemId))
 	end
 	return ok, table.concat(lines, "\n")
+end
+
+local function alreadyOwned(buildingId: string): boolean
+	for _, entry in ClientState.Get("Island", "Buildings") or {} do
+		if type(entry) == "table" and entry.BuildingId == buildingId then
+			return true
+		end
+	end
+	return false
 end
 
 local function islandLevel(): number
@@ -207,9 +224,9 @@ end
 -- Runs the same checks the server will run.
 local function validate(def: any, island: Model, center: Vector2, localY: number, worldCFrame: CFrame, checkCost: boolean): (boolean, string)
 	local size = Placement.FootprintSize(def.Footprint, rotation)
-	local unlocked = ClientState.Get("Island", "UnlockedAreas") or { Starter = true }
-	if not Placement.IsOnUnlockedLand(unlocked, center, size) then
-		return false, "Not on your unlocked land"
+	local sampler = LandEditor.GetSampler()
+	if not sampler or not Placement.IsOnLand(sampler, center, size) then
+		return false, "Must be on solid land (not the beach)"
 	end
 	local origin = island:GetPivot()
 	local lowest, highest = localY, localY
@@ -242,6 +259,9 @@ local function validate(def: any, island: Model, center: Vector2, localY: number
 		return false, "Step out of the way"
 	end
 	if checkCost then
+		if def.Unique and alreadyOwned(def.Id) then
+			return false, "You already have one"
+		end
 		if islandLevel() < def.UnlockLevel then
 			return false, ("Needs Island Level %d"):format(def.UnlockLevel)
 		end
@@ -324,6 +344,30 @@ local function stopRender()
 	end
 end
 
+-- Expand / Paint run the LandEditor every frame and mirror its status line.
+local function startLand()
+	if landConnection then
+		return
+	end
+	landConnection = RunService.RenderStepped:Connect(function()
+		local text, ok = LandEditor.Step()
+		refs.Status.Text = text
+		refs.Status.TextColor3 = if ok then Theme.Colors.Green else Theme.Colors.Red
+	end)
+end
+
+local function stopLand()
+	if landConnection then
+		landConnection:Disconnect()
+		landConnection = nil
+	end
+	LandEditor.Exit()
+end
+
+local function isLandMode(): boolean
+	return mode == "Expand" or mode == "Paint"
+end
+
 ---------------------------------------------------------------------------
 -- UI state
 ---------------------------------------------------------------------------
@@ -331,32 +375,63 @@ end
 local renderList: () -> ()
 
 local function showInfo(def: any?)
+	if mode == "Expand" then
+		local count, maxChunks, cost = LandEditor.ExpansionInfo()
+		refs.InfoIcon.Text = "🗺️"
+		refs.InfoName.Text = "EXPAND LAND"
+		refs.InfoDescription.Text = "Click a glowing square on the sea to raise new land there. Grow your island in any direction you like!"
+		refs.InfoCost.Text = ("Land chunks: %d / %d\nNext chunk: %s 🪙\nLevel up your island for more room."):format(count, maxChunks, Format.Commas(cost))
+		return
+	elseif mode == "Paint" then
+		local paint = IslandConfig.Paint[LandEditor.Material]
+		refs.InfoIcon.Text = if paint then paint.Icon else "🧽"
+		refs.InfoName.Text = "PAINT TERRAIN"
+		refs.InfoDescription.Text = "Pick a material on the left, then click or drag across your land. Paths, plazas, gardens — it's free!"
+		refs.InfoCost.Text = if paint then "Brush: " .. paint.DisplayName else "Eraser: restores the natural ground."
+		return
+	end
 	if not def then
 		refs.InfoIcon.Text = "🔨"
 		refs.InfoName.Text = if mode == "Editing" then "EDIT MODE" else "Pick a building"
-		refs.InfoDescription.Text = if mode == "Editing" then "Click one of your buildings to move or remove it." else "Choose something from the list on the left."
+		refs.InfoDescription.Text = if mode == "Editing" then "Click one of your buildings to move or remove it, or a wild tree / rock to clear it." else "Choose something from the list on the left."
 		refs.InfoCost.Text = ""
 		return
 	end
 	local _, costText = affordable(def)
 	refs.InfoIcon.Text = def.Icon
 	refs.InfoName.Text = string.upper(def.DisplayName)
-	refs.InfoDescription.Text = ("%s\nFootprint %dx%d · %d hammer hits"):format(def.Description, def.Footprint.X, def.Footprint.Y, def.Steps)
+	refs.InfoDescription.Text = if def.Steps > 0
+		then ("%s\nFootprint %dx%d · %d hammer hits"):format(def.Description, def.Footprint.X, def.Footprint.Y, def.Steps)
+		else ("%s\nFootprint %dx%d · instant"):format(def.Description, def.Footprint.X, def.Footprint.Y)
 	refs.InfoCost.Text = if mode == "Moving" then "Moving is free." else costText
+end
+
+local function editIsNatural(): boolean
+	return editTarget ~= nil and editTarget:GetAttribute("UniqueId") == nil and editTarget:GetAttribute("NodeId") ~= nil
 end
 
 local function updateButtons()
 	local placing = mode == "Placing" or mode == "Moving"
+	local editing = mode == "Editing" and editTarget ~= nil
+	local natural = editing and editIsNatural()
+	local editDef = editing and not natural and editTarget and BuildingConfig.Get(editTarget:GetAttribute("BuildingId"))
 	refs.PlaceButton.Visible = placing
 	refs.PlaceButton.Text = if mode == "Moving" then "MOVE HERE" else "PLACE"
 	refs.RotateButton.Visible = placing
-	refs.CancelButton.Visible = placing or (mode == "Editing" and editTarget ~= nil)
-	refs.MoveButton.Visible = mode == "Editing" and editTarget ~= nil
-	refs.DeleteButton.Visible = mode == "Editing" and editTarget ~= nil
-	refs.Status.Visible = placing
+	refs.CancelButton.Visible = placing or editing
+	refs.MoveButton.Visible = editing and not natural
+	refs.DeleteButton.Visible = editing and not natural and not (editDef and editDef.NoDelete)
+	refs.ClearButton.Visible = natural
+	refs.Status.Visible = placing or isLandMode()
 	refs.Left.Visible = not placing
-	refs.Banner.Text = "🔨 BUILD MODE · " .. (if mode == "Editing" or mode == "Moving" then "EDIT" else string.upper(category))
-	if InputController.IsTouch() then
+	local label = if mode == "Editing" or mode == "Moving" then "EDIT" elseif isLandMode() then string.upper(mode) else string.upper(category)
+	refs.Banner.Text = "🔨 BUILD MODE · " .. label
+	local touch = InputController.IsTouch()
+	if mode == "Expand" then
+		refs.Hints.Text = if touch then "Tap a glowing square to buy land · ✕ to leave" else "Click a glowing square to buy land · B exit"
+	elseif mode == "Paint" then
+		refs.Hints.Text = if touch then "Tap / drag on your land to paint" else "Click or drag on your land to paint · B exit"
+	elseif touch then
 		refs.Hints.Text = if placing then "Tap the ground to move · ⟳ to rotate · PLACE to build" else "Pick a building · tap ✕ to leave"
 	else
 		refs.Hints.Text = if placing then "Click to place · R rotate · Q/E turn · X cancel · B exit" else "Pick a building · B to exit"
@@ -364,7 +439,14 @@ local function updateButtons()
 end
 
 local function setMode(newMode: string)
+	local wasLand = isLandMode()
 	mode = newMode
+	if isLandMode() then
+		LandEditor.Enter(mode)
+		startLand()
+	elseif wasLand then
+		stopLand()
+	end
 	if mode == "Placing" or mode == "Moving" then
 		startRender()
 	else
@@ -415,8 +497,8 @@ local function confirmPlacement()
 	end
 	Net.FireServer("BuildRequest", { Op = "Place", BuildingId = def.Id, X = current.Center.X, Z = current.Center.Y, Rotation = rotation })
 	AudioController.Play("UIClick")
-	-- Decorations keep placing (fences, paths...); big buildings return to the menu.
-	if def.Category == "Decoration" then
+	-- Decorations and nature keep placing (fences, trees...); big buildings return to the menu.
+	if def.Category == "Decoration" or def.Category == "Nature" or def.Id == "SoilTile" then
 		current.Key = ""
 	else
 		BuildController.Exit()
@@ -438,6 +520,9 @@ local function cancel()
 		setMode("Editing")
 	elseif mode == "Editing" and editTarget then
 		setMode("Editing")
+	elseif isLandMode() then
+		setMode("Menu")
+		renderList()
 	else
 		BuildController.Exit()
 	end
@@ -448,13 +533,24 @@ local function selectForEdit(model: Model)
 	selectionHighlight.Adornee = model
 	selectionHighlight.Enabled = true
 	deleteArmedUntil = 0
+	clearArmedUntil = 0
 	refs.DeleteButton.Text = "DELETE"
+	refs.ClearButton.Text = "🪓 CLEAR IT"
 	updateButtons()
+	if editIsNatural() then
+		local nodeType = tostring(model:GetAttribute("NodeType"))
+		refs.InfoIcon.Text = "🌲"
+		refs.InfoName.Text = string.upper(nodeType)
+		refs.InfoDescription.Text = "Part of your island's wild nature. Clearing it removes it for good (you keep a little of what it drops)."
+		refs.InfoCost.Text = "Clearing is free."
+		return
+	end
 	local def = BuildingConfig.Get(model:GetAttribute("BuildingId"))
 	showInfo(def)
 	if def then
-		local refundText = ("Delete refunds %d%% of the cost."):format(math.floor(BuildingConfig.RefundPercent * 100))
-		refs.InfoCost.Text = refundText
+		refs.InfoCost.Text = if def.NoDelete
+			then "This one can be moved, but not removed."
+			else ("Delete refunds %d%% of the cost."):format(math.floor(BuildingConfig.RefundPercent * 100))
 	end
 end
 
@@ -471,21 +567,24 @@ local function tryPickBuilding(screenPosition: Vector2?)
 		end)()
 	local island = myIsland()
 	local buildings = island and island:FindFirstChild("Buildings")
-	if not buildings then
+	local resources = island and island:FindFirstChild("Resources")
+	if not buildings or not resources then
 		return
 	end
 	local params = RaycastParams.new()
 	params.FilterType = Enum.RaycastFilterType.Include
-	params.FilterDescendantsInstances = { buildings }
+	params.FilterDescendantsInstances = { buildings, resources }
 	local hit = workspace:Raycast(ray.Origin, ray.Direction * 400, params)
 	if not hit then
 		return
 	end
+	local folder = if hit.Instance:IsDescendantOf(buildings) then buildings else resources
 	local model = hit.Instance:FindFirstAncestorOfClass("Model")
-	while model and model.Parent ~= buildings do
+	while model and model.Parent ~= folder do
 		model = model:FindFirstAncestorOfClass("Model")
 	end
 	if model and model:GetAttribute("OwnerUserId") == player.UserId then
+		AudioController.Play("UIClick")
 		selectForEdit(model)
 	end
 end
@@ -515,14 +614,17 @@ local function buildUI()
 	Components.TextStroke(banner)
 
 	-- LEFT: categories + list
-	local left = Create("Frame", { Name = "Left", Size = UDim2.fromOffset(300, 470), Position = UDim2.fromOffset(110, 125), BackgroundColor3 = Theme.Colors.Panel, Parent = root })
+	local left = Create("Frame", { Name = "Left", Size = UDim2.fromOffset(300, 500), Position = UDim2.fromOffset(110, 125), BackgroundColor3 = Theme.Colors.Panel, Parent = root })
 	Components.Corner(left)
 	Components.Stroke(left)
-	local tabRow = Create("Frame", { Size = UDim2.new(1, -16, 0, 84), Position = UDim2.fromOffset(8, 8), BackgroundTransparency = 1, Parent = left }, {
-		Create("UIGridLayout", { CellSize = UDim2.fromOffset(88, 38), CellPadding = UDim2.fromOffset(6, 6), SortOrder = Enum.SortOrder.LayoutOrder }),
+	Components.Gradient(left, Color3.new(1, 1, 1), Theme.Colors.PanelAlt)
+	local tabRow = Create("Frame", { Size = UDim2.new(1, -16, 0, 130), Position = UDim2.fromOffset(8, 8), BackgroundTransparency = 1, Parent = left }, {
+		Create("UIGridLayout", { CellSize = UDim2.fromOffset(90, 38), CellPadding = UDim2.fromOffset(4, 6), SortOrder = Enum.SortOrder.LayoutOrder }),
 	})
 	local tabs = {}
 	local tabDefs = table.clone(BuildingConfig.Categories)
+	table.insert(tabDefs, { Id = "Expand", DisplayName = "Expand", Icon = "🗺️" })
+	table.insert(tabDefs, { Id = "Paint", DisplayName = "Paint", Icon = "🖌️" })
 	table.insert(tabDefs, { Id = "Edit", DisplayName = "Edit", Icon = "✏️" })
 	for index, cat in tabDefs do
 		local button = Components.Button({
@@ -532,9 +634,12 @@ local function buildUI()
 			TextColor = Theme.Colors.Text,
 			TextSize = Theme.TextSize.Small,
 			Parent = tabRow,
+			Flat = true,
 			OnClick = function()
 				if cat.Id == "Edit" then
 					setMode("Editing")
+				elseif cat.Id == "Expand" or cat.Id == "Paint" then
+					setMode(cat.Id)
 				else
 					category = cat.Id
 					setMode("Menu")
@@ -543,17 +648,12 @@ local function buildUI()
 			end,
 		})
 		button.LayoutOrder = index
-		for _, child in button:GetChildren() do
-			if child:IsA("UIStroke") and child.ApplyStrokeMode == Enum.ApplyStrokeMode.Contextual then
-				child:Destroy()
-			end
-		end
 		tabs[cat.Id] = button
 	end
 	local list = Create("ScrollingFrame", {
 		Name = "List",
-		Size = UDim2.new(1, -16, 1, -104),
-		Position = UDim2.fromOffset(8, 98),
+		Size = UDim2.new(1, -16, 1, -152),
+		Position = UDim2.fromOffset(8, 146),
 		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
 		ScrollBarThickness = 6,
@@ -568,6 +668,7 @@ local function buildUI()
 	local right = Create("Frame", { Name = "Right", Size = UDim2.fromOffset(280, 430), Position = UDim2.new(1, -12, 0, 125), AnchorPoint = Vector2.new(1, 0), BackgroundColor3 = Theme.Colors.Panel, Parent = root })
 	Components.Corner(right)
 	Components.Stroke(right)
+	Components.Gradient(right, Color3.new(1, 1, 1), Theme.Colors.PanelAlt)
 	Components.Padding(right, 12)
 	local infoIcon = Components.Label({ Size = UDim2.new(1, 0, 0, 56), TextSize = 48, Text = "🔨", Parent = right })
 	local infoName = Components.Label({ Size = UDim2.new(1, 0, 0, 28), Position = UDim2.fromOffset(0, 56), TextSize = Theme.TextSize.Large, Text = "", Parent = right })
@@ -602,6 +703,19 @@ local function buildUI()
 		Net.FireServer("DeleteBuildRequest", editTarget:GetAttribute("UniqueId"))
 		setMode("Editing")
 	end })
+	local clearButton = Components.Button({ Text = "🪓 CLEAR IT", Color = Theme.Colors.Orange, Size = UDim2.new(1, 0, 0, 48), Position = UDim2.fromOffset(0, 274), Parent = right, OnClick = function()
+		if not editTarget then
+			return
+		end
+		local now = os.clock()
+		if now > clearArmedUntil then
+			clearArmedUntil = now + 3
+			refs.ClearButton.Text = "SURE? (can't undo)"
+			return
+		end
+		Net.FireServer("RemoveNodeRequest", editTarget:GetAttribute("NodeId"))
+		setMode("Editing")
+	end })
 
 	local hints = Components.Label({
 		Name = "Hints",
@@ -617,21 +731,17 @@ local function buildUI()
 	})
 	Components.Corner(hints, UDim.new(1, 0))
 
-	-- HUD button (left slot, under the bag).
-	local buildButton = Components.Button({
-		Name = "BuildButton",
-		Text = "🔨",
-		Color = Theme.Colors.Blue,
-		Size = UDim2.fromOffset(76, 76),
-		TextSize = 40,
+	-- HUD button (left menu, under the bag).
+	local buildButton = Components.IconButton({
+		Icon = "🔨",
+		Caption = "Build",
+		Color = Theme.Colors.Orange,
 		Parent = UIController.GetSlot("Left"),
+		LayoutOrder = 2,
 		OnClick = function()
 			BuildController.Toggle()
 		end,
 	})
-	buildButton.LayoutOrder = 2
-	Components.Corner(buildButton, UDim.new(1, 0))
-	Components.Label({ Text = "Build", Size = UDim2.new(1, 0, 0, 18), Position = UDim2.new(0, 0, 1, -4), TextSize = Theme.TextSize.Small, TextColor3 = Theme.Colors.TextLight, Parent = buildButton })
 
 	refs = {
 		Root = root,
@@ -650,20 +760,74 @@ local function buildUI()
 		CancelButton = cancelButton,
 		MoveButton = moveButton,
 		DeleteButton = deleteButton,
+		ClearButton = clearButton,
 		Hints = hints,
 		BuildButton = buildButton,
 	}
 end
 
+local paintCards: { TextButton } = {}
+
+local function renderPalette()
+	local entries = { "" }
+	for _, material in IslandConfig.PaintOrder do
+		table.insert(entries, material)
+	end
+	for index, material in entries do
+		local card = paintCards[index]
+		if not card then
+			card = Create("TextButton", { Name = "Paint", Size = UDim2.new(1, -8, 0, 46), BackgroundColor3 = Theme.Colors.PanelAlt, AutoButtonColor = true, Text = "", Parent = refs.List })
+			Components.Corner(card, Theme.SmallCorner)
+			Components.Stroke(card, Theme.Colors.Outline, 2)
+			local swatch = Create("Frame", { Name = "Swatch", Size = UDim2.fromOffset(34, 34), Position = UDim2.fromOffset(6, 6), Parent = card })
+			Components.Corner(swatch, UDim.new(0, 8))
+			Components.Stroke(swatch, Theme.Colors.Outline, 2)
+			Components.Label({ Name = "Title", Size = UDim2.new(1, -56, 1, 0), Position = UDim2.fromOffset(50, 0), TextXAlignment = Enum.TextXAlignment.Left, TextSize = Theme.TextSize.Medium, Parent = card })
+			card.Activated:Connect(function()
+				local value = card:GetAttribute("Material")
+				if type(value) == "string" then
+					AudioController.Play("UIClick")
+					LandEditor.SetMaterial(value)
+					showInfo(nil)
+					renderList()
+				end
+			end)
+			paintCards[index] = card
+		end
+		card.Visible = true
+		card.LayoutOrder = 100 + index
+		card:SetAttribute("Material", material)
+		local swatch = card:FindFirstChild("Swatch") :: Frame
+		local title = card:FindFirstChild("Title") :: TextLabel
+		local paint = IslandConfig.Paint[material]
+		swatch.BackgroundColor3 = LandEditor.MaterialColors[material] or Theme.Colors.Panel
+		title.Text = if paint then paint.DisplayName else "🧽 Eraser (natural)"
+		card.BackgroundColor3 = if LandEditor.Material == material then Theme.Colors.Coins else Theme.Colors.PanelAlt
+	end
+end
+
 renderList = function()
 	for id, button in refs.Tabs do
-		local selected = (id == "Edit" and (mode == "Editing" or mode == "Moving")) or (id == category and mode ~= "Editing" and mode ~= "Moving")
-		button.BackgroundColor3 = if selected then Theme.Colors.Coins else Theme.Colors.PanelAlt
+		local selected
+		if mode == "Editing" or mode == "Moving" then
+			selected = id == "Edit"
+		elseif isLandMode() then
+			selected = id == mode
+		else
+			selected = id == category
+		end
+		Components.SetButtonColor(button, if selected then Theme.Colors.Coins else Theme.Colors.PanelAlt)
+	end
+	for _, card in paintCards do
+		card.Visible = false
+	end
+	if mode == "Paint" then
+		renderPalette()
 	end
 	local defs = {}
-	if mode ~= "Editing" then
+	if mode == "Menu" or mode == "Placing" then
 		for _, def in BuildingConfig.Buildings do
-			if def.Category == category then
+			if def.Category == category and not def.Hidden then
 				table.insert(defs, def)
 			end
 		end
@@ -707,8 +871,9 @@ renderList = function()
 			local item = ItemConfig.Get(itemId)
 			table.insert(parts, amount .. " " .. (if item then item.Icon else itemId))
 		end
-		cost.Text = if locked then ("🔒 Island Level %d"):format(def.UnlockLevel) else table.concat(parts, "  ")
-		cost.TextColor3 = if locked then Theme.Colors.TextMuted elseif canAfford then Theme.Colors.Green else Theme.Colors.Red
+		local owned = def.Unique and alreadyOwned(def.Id)
+		cost.Text = if locked then ("🔒 Island Level %d"):format(def.UnlockLevel) elseif owned then "✔ Already on your island" else table.concat(parts, "  ")
+		cost.TextColor3 = if locked or owned then Theme.Colors.TextMuted elseif canAfford then Theme.Colors.Green else Theme.Colors.Red
 		card.BackgroundColor3 = if locked then Theme.Colors.PanelDark else Theme.Colors.PanelAlt
 	end
 	for index = #defs + 1, #cards do
@@ -735,6 +900,7 @@ function BuildController.Enter()
 	CameraController.SetMode("Build")
 	table.insert(releases, InteractionController.PausePrompts())
 	table.insert(releases, InputController.Block("UseTool"))
+	table.insert(releases, InputController.Block("Interact"))
 	setMode("Menu")
 	renderList()
 end
@@ -753,6 +919,25 @@ function BuildController.Exit()
 		release()
 	end
 	table.clear(releases)
+end
+
+-- Opens build mode straight on a tab ("Expand", "Paint", "Edit" or a category).
+function BuildController.Open(tab: string?)
+	if not active then
+		BuildController.Enter()
+	end
+	if not active or not tab then
+		return
+	end
+	if tab == "Expand" or tab == "Paint" then
+		setMode(tab)
+	elseif tab == "Edit" then
+		setMode("Editing")
+	else
+		category = tab
+		setMode("Menu")
+	end
+	renderList()
 end
 
 function BuildController.Toggle()
@@ -805,6 +990,8 @@ function BuildController.Start()
 		end
 		if mode == "Editing" then
 			tryPickBuilding(nil)
+		elseif isLandMode() then
+			LandEditor.Click(nil)
 		else
 			confirmPlacement()
 		end
@@ -817,13 +1004,18 @@ function BuildController.Start()
 		current.Key = ""
 		if mode == "Editing" then
 			tryPickBuilding(position)
+		elseif isLandMode() then
+			LandEditor.Click(position)
 		end
 	end)
+	LandEditor.Start()
 	-- Keep costs / locks fresh while the menu is open.
 	for _, key in { "Coins", "Inventory", "Island" } do
 		ClientState.Observe(key, function()
-			if active and mode == "Menu" then
+			if active and (mode == "Menu" or mode == "Paint") then
 				renderList()
+			elseif active and mode == "Expand" then
+				showInfo(nil)
 			end
 		end)
 	end

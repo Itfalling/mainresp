@@ -6,8 +6,10 @@
 
 	Plays every sound from SoundConfig through small pools (2D + 3D), applying
 	category volume, the player's SFX volume setting and a little random pitch.
-	Placeholder ids are skipped silently (logged once when Debug is on), so the
-	game runs cleanly before real audio is added.
+	Also keeps the background MUSIC and the sea AMBIENCE looping, following
+	the player's Music volume setting (Settings window).
+	Entries without a verified source are skipped silently (logged once when
+	Debug is on).
 ]]
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -30,6 +32,7 @@ local pool3D: { { Part: Part, Sound: Sound } } = {}
 local next2D, next3D = 1, 1
 local warned: { [string]: boolean } = {}
 local random = Random.new()
+local loops: { [string]: Sound } = {}
 
 local function resolve(name: string): any
 	local def = SoundConfig.Sounds[name]
@@ -52,8 +55,9 @@ end
 
 local function volumeFor(def: any): number
 	local category = SoundConfig.Categories[def.Category] or 1
-	local sfx = ClientState.Get("Settings", "SfxVolume")
-	return def.Volume * category * (if type(sfx) == "number" then sfx else 0.8)
+	local key = if def.Category == "Music" then "MusicVolume" else "SfxVolume"
+	local setting = ClientState.Get("Settings", key)
+	return def.Volume * category * (if type(setting) == "number" then setting else (if key == "MusicVolume" then 0.5 else 0.8))
 end
 
 local function configure(sound: Sound, def: any)
@@ -91,6 +95,39 @@ function AudioController.PlayAt(name: string, position: Vector3)
 	emitter.Sound:Play()
 end
 
+-- Starts (or re-levels) a looping 2D track such as the music or ambience.
+function AudioController.SetLoop(name: string, playing: boolean)
+	local def = resolve(name)
+	local sound = loops[name]
+	if not def then
+		return
+	end
+	if not sound then
+		sound = Instance.new("Sound")
+		sound.Name = "Loop_" .. name
+		sound.SoundId = def.Id
+		sound.Looped = true
+		sound.PlaybackSpeed = def.PlaybackSpeed
+		sound.Parent = RobloxSoundService
+		loops[name] = sound
+	end
+	sound.Volume = volumeFor(def)
+	if playing and not sound.IsPlaying then
+		sound:Play()
+	elseif not playing and sound.IsPlaying then
+		sound:Stop()
+	end
+end
+
+local function refreshLoops()
+	for name, sound in loops do
+		local def = resolve(name)
+		if def then
+			sound.Volume = volumeFor(def)
+		end
+	end
+end
+
 function AudioController.Init()
 	for index = 1, POOL_SIZE_2D do
 		local sound = Instance.new("Sound")
@@ -119,6 +156,11 @@ function AudioController.Init()
 end
 
 function AudioController.Start()
+	ClientState.Observe("Settings", refreshLoops)
+	task.defer(function()
+		AudioController.SetLoop("MusicMain", true)
+		AudioController.SetLoop("AmbienceOcean", true)
+	end)
 	Net.OnClientEvent("PlaySound", function(name: string, position: Vector3?)
 		if typeof(position) == "Vector3" then
 			AudioController.PlayAt(name, position)

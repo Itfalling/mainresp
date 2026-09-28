@@ -486,7 +486,7 @@ end
 
 function IslandGen.MaxChunks(islandLevel: number): number
 	local expansion = IslandConfig.Expansion
-	return math.min(expansion.MaxChunks, IslandConfig.StarterChunks + math.max(0, islandLevel - 1) * expansion.ChunksPerIslandLevel)
+	return math.min(expansion.MaxChunks, IslandConfig.StarterChunks + expansion.BaseAllowance + math.max(0, islandLevel - 1) * expansion.ChunksPerIslandLevel)
 end
 
 return IslandGen

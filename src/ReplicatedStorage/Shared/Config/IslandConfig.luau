@@ -46,7 +46,10 @@ local IslandConfig = {
 		BaseCost = 100,
 		Linear = 10,
 		Quadratic = 0.2,
-		ChunksPerIslandLevel = 12, -- max land = StarterChunks + (level-1) * this
+		-- Max land = StarterChunks + BaseAllowance + (level-1) * ChunksPerIslandLevel.
+		-- (A starter island is 52-64 chunks, so level 1 can always grow a bit.)
+		BaseAllowance = 24,
+		ChunksPerIslandLevel = 12,
 		MaxChunks = 600,
 	},
 

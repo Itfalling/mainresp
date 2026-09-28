@@ -139,7 +139,7 @@ function InputController.Start()
 
 	UserInputService.InputBegan:Connect(function(input, gameProcessed)
 		if gameProcessed then
-			return -- typing in chat, clicking a GUI button, a ProximityPrompt key...
+			return -- typing in chat, clicking a GUI button, a text box...
 		end
 		-- Keys/buttons bind by KeyCode; mouse buttons bind by UserInputType.
 		local actions = bindings[input.KeyCode] or bindings[input.UserInputType]

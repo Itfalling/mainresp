@@ -395,7 +395,11 @@ function InventoryPanel:_renderDetails()
 		self.EquipButton.Text = if equipped then "UNEQUIP" else "EQUIP"
 	else
 		self.DetailStats.Text = ("Amount: %s\nSells for: %s 🪙 each"):format(Format.Commas(entry.Count), Format.Commas(entry.Value))
-		self.EquipButton.Visible = false
+		-- Seeds and crops can be held: plant by clicking soil, feed animals.
+		local holdable = ItemConfig.IsHoldable(entry.Id)
+		local held = self.State.Equipped == entry.Id
+		self.EquipButton.Visible = holdable
+		self.EquipButton.Text = if held then "PUT AWAY" else "✋ HOLD"
 	end
 end
 

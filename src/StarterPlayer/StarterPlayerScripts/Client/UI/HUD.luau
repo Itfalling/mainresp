@@ -8,7 +8,7 @@
 		Top     island level, coins, gems
 		Right   slot for the island/quest panel (IslandController)
 		Bottom  slot for the tool hotbar (ToolController)
-		Left    slot for menu buttons (InventoryController)
+		Left    slot for the menu buttons (Bag, Build, Players, Emotes, Settings)
 	Controllers fill the slots; UIController updates the values.
 ]]
 
@@ -95,14 +95,15 @@ function HUD.Create(parent: Instance): HUDRefs
 		}),
 		Left = Create("Frame", {
 			Name = "LeftSlot",
-			Size = UDim2.fromOffset(90, 300),
-			Position = UDim2.new(0, 12, 0.5, 0),
+			Size = UDim2.fromOffset(84, 480),
+			Position = UDim2.new(0, 14, 0.5, 10),
 			AnchorPoint = Vector2.new(0, 0.5),
 			BackgroundTransparency = 1,
 			Parent = root,
 		}, {
 			Create("UIListLayout", {
-				Padding = UDim.new(0, 12),
+				Padding = UDim.new(0, 24),
+				HorizontalAlignment = Enum.HorizontalAlignment.Center,
 				VerticalAlignment = Enum.VerticalAlignment.Center,
 				SortOrder = Enum.SortOrder.LayoutOrder,
 			}),
