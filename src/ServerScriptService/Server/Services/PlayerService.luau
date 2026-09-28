@@ -99,14 +99,15 @@ local function convertToR15(player: Player, oldCharacter: Model): boolean
 	end
 
 	model.Name = player.Name
-	if not model:FindFirstChild("Animate") then
-		local template = StarterPlayer:FindFirstChild("StarterCharacterScripts")
-		local animate = template and template:FindFirstChild("Animate")
-		if animate then
-			animate:Clone().Parent = model
-		else
-			warn("[PlayerService] R15 character has no Animate script. Set Game Settings > Avatar to R15.")
+	-- Use the game's own Animate (our movement animations), never the default one.
+	local template = StarterPlayer:FindFirstChild("StarterCharacterScripts")
+	local animate = template and template:FindFirstChild("Animate")
+	if animate then
+		local existing = model:FindFirstChild("Animate")
+		if existing then
+			existing:Destroy()
 		end
+		animate:Clone().Parent = model
 	end
 	model:PivotTo(oldCharacter:GetPivot())
 	player.Character = model

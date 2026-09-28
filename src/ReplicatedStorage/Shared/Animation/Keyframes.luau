@@ -643,6 +643,80 @@ A.ShearsSnipHigh = {
 	},
 }
 
+---------------------------------------------------------------------------
+-- Mia the Merchant
+---------------------------------------------------------------------------
+
+local MIA_REST = merge(STAND, { Waist = { 0, 0, 0 }, Neck = { 0, 0, 0 }, RightShoulder = { 28, 0, -14 }, RightElbow = { 70, 0, 0 }, RightWrist = { 0, 0, 0 }, LeftShoulder = { 28, 0, 14 }, LeftElbow = { 70, 0, 0 }, LeftWrist = { 0, 0, 0 } })
+
+-- Idle behind the counter: hands clasped, swaying, humming, looking around (looped).
+A.MiaIdle = {
+	Keys = {
+		{ T = 0, Pose = merge(MIA_REST, { Root = { 0, 0, 2, 0, 0, 0 }, Waist = { 0, 4, 0 }, Neck = { 0, -6, 4 } }) },
+		{ T = 0.25, Pose = merge(MIA_REST, { Root = { 0, 0, -2, 0, 0.04, 0 }, Waist = { 2, -4, 0 }, Neck = { 4, 10, -4 } }) },
+		{ T = 0.5, Pose = merge(MIA_REST, { Root = { 0, 0, 2, 0, 0, 0 }, Waist = { 0, 4, 0 }, Neck = { -4, 24, 2 } }) },
+		{ T = 0.62, Pose = merge(MIA_REST, { Root = { 0, 0, 1, 0, 0.02, 0 }, Waist = { 1, 2, 0 }, Neck = { 6, 20, 0 } }) },
+		{ T = 0.75, Pose = merge(MIA_REST, { Root = { 0, 0, -2, 0, 0.04, 0 }, Waist = { 2, -4, 0 }, Neck = { 0, -18, -4 } }) },
+		{ T = 1, Pose = merge(MIA_REST, { Root = { 0, 0, 2, 0, 0, 0 }, Waist = { 0, 4, 0 }, Neck = { 0, -6, 4 } }) },
+	},
+}
+
+-- Big happy two-step wave on her toes, other hand on her hip.
+A.MiaWave = {
+	Legs = true,
+	Keys = {
+		{ T = 0, Pose = MIA_REST },
+		{ T = 0.14, Ease = "Out", Pose = merge(STAND, { Root = { 0, 0, 0, 0, 0.2, 0 }, RightAnkle = { -16, 0, 0 }, LeftAnkle = { -16, 0, 0 }, Waist = { 4, 8, -4 }, Neck = { 6, 10, 6 }, RightShoulder = { 20, 0, 150 }, RightElbow = { 30, 0, 0 }, LeftShoulder = { -10, 0, -30 }, LeftElbow = { 90, 0, 0 } }) },
+		{ T = 0.28, Pose = merge(STAND, { Root = { 0, 0, 0, 0, 0.2, 0 }, RightAnkle = { -16, 0, 0 }, LeftAnkle = { -16, 0, 0 }, Waist = { 4, 8, -4 }, Neck = { 6, 10, 6 }, RightShoulder = { 20, 0, 150 }, RightElbow = { 30, 0, 0 }, RightWrist = { 0, 0, 30 }, LeftShoulder = { -10, 0, -30 }, LeftElbow = { 90, 0, 0 } }) },
+		{ T = 0.42, Pose = merge(STAND, { Root = { 0, 0, 0, 0, 0.05, 0 }, Waist = { 4, 8, 4 }, Neck = { 6, 10, -6 }, RightShoulder = { 20, 0, 150 }, RightElbow = { 30, 0, 0 }, RightWrist = { 0, 0, -30 }, LeftShoulder = { -10, 0, -30 }, LeftElbow = { 90, 0, 0 } }) },
+		{ T = 0.56, Pose = merge(STAND, { Root = { 0, 0, 0, 0, 0.2, 0 }, RightAnkle = { -16, 0, 0 }, LeftAnkle = { -16, 0, 0 }, Waist = { 4, 8, -4 }, Neck = { 6, 10, 6 }, RightShoulder = { 20, 0, 150 }, RightElbow = { 30, 0, 0 }, RightWrist = { 0, 0, 30 }, LeftShoulder = { -10, 0, -30 }, LeftElbow = { 90, 0, 0 } }) },
+		{ T = 0.7, Pose = merge(STAND, { Root = { 0, 0, 0, 0, 0.05, 0 }, Waist = { 4, 8, 4 }, Neck = { 6, 10, -6 }, RightShoulder = { 20, 0, 150 }, RightElbow = { 30, 0, 0 }, RightWrist = { 0, 0, -30 }, LeftShoulder = { -10, 0, -30 }, LeftElbow = { 90, 0, 0 } }) },
+		{ T = 1, Pose = MIA_REST },
+	},
+}
+
+-- "Take a look!": arms sweep open palms-up over the goods, a little bow.
+A.MiaPresent = {
+	Keys = {
+		{ T = 0, Pose = MIA_REST },
+		{ T = 0.25, Ease = "Out", Pose = merge(MIA_REST, { Waist = { 8, 0, 0 }, Neck = { 6, 0, 0 }, RightShoulder = { 40, 0, 20 }, RightElbow = { 40, 0, 0 }, LeftShoulder = { 40, 0, -20 }, LeftElbow = { 40, 0, 0 } }) },
+		{ T = 0.5, Ease = "Out", Pose = merge(MIA_REST, { Waist = { -16, 0, 0 }, Neck = { -6, 0, 0 }, RightShoulder = { 60, 0, 55 }, RightElbow = { 12, 0, 0 }, RightWrist = { 0, 0, -20 }, LeftShoulder = { 60, 0, -55 }, LeftElbow = { 12, 0, 0 }, LeftWrist = { 0, 0, 20 } }) },
+		{ T = 0.72, Pose = merge(MIA_REST, { Waist = { -10, 16, 0 }, Neck = { -14, 10, 0 }, RightShoulder = { 70, 0, 20 }, RightElbow = { 6, 0, 0 }, RightWrist = { -30, 0, 0 }, LeftShoulder = { 20, 0, -20 }, LeftElbow = { 60, 0, 0 } }) },
+		{ T = 1, Pose = MIA_REST },
+	},
+}
+
+-- "Thank you!": three happy claps, then a hop.
+local CLAP_OPEN = { RightShoulder = { 70, 0, 26 }, RightElbow = { 40, 0, 0 }, LeftShoulder = { 70, 0, -26 }, LeftElbow = { 40, 0, 0 } }
+local CLAP_SHUT = { RightShoulder = { 72, 0, -8 }, RightElbow = { 40, 0, 0 }, LeftShoulder = { 72, 0, 8 }, LeftElbow = { 40, 0, 0 } }
+A.MiaSold = {
+	Legs = true,
+	Keys = {
+		{ T = 0, Pose = MIA_REST },
+		{ T = 0.1, Pose = merge(STAND, CLAP_OPEN, { Neck = { 8, 0, 8 } }) },
+		{ T = 0.18, Pose = merge(STAND, CLAP_SHUT, { Neck = { 8, 0, 8 } }) },
+		{ T = 0.28, Pose = merge(STAND, CLAP_OPEN, { Neck = { 8, 0, -8 } }) },
+		{ T = 0.36, Pose = merge(STAND, CLAP_SHUT, { Neck = { 8, 0, -8 } }) },
+		{ T = 0.46, Pose = merge(STAND, CLAP_OPEN, { Neck = { 8, 0, 8 } }) },
+		{ T = 0.54, Pose = merge(STAND, CLAP_SHUT, { Neck = { 8, 0, 8 } }) },
+		{ T = 0.64, Ease = "Out", Pose = merge(CROUCH, { Root = { 0, 0, 0, 0, -0.5, 0 }, RightHip = { 30, 0, 4 }, RightKnee = { -50, 0, 0 }, LeftHip = { 30, 0, -4 }, LeftKnee = { -50, 0, 0 }, RightAnkle = { 20, 0, 0 }, LeftAnkle = { 20, 0, 0 }, RightShoulder = { 20, 0, 20 }, LeftShoulder = { 20, 0, -20 } }) },
+		{ T = 0.78, Ease = "Out", Pose = merge(STAND, { Root = { 0, 0, 0, 0, 1.2, 0 }, RightKnee = { -30, 0, 0 }, LeftKnee = { -30, 0, 0 }, Neck = { 12, 0, 0 }, RightShoulder = { 160, 0, 30 }, RightElbow = { 10, 0, 0 }, LeftShoulder = { 160, 0, -30 }, LeftElbow = { 10, 0, 0 } }) },
+		{ T = 1, Pose = MIA_REST },
+	},
+}
+
+-- Chatty hands: gesturing while she gives a tip.
+A.MiaTalk = {
+	Keys = {
+		{ T = 0, Pose = MIA_REST },
+		{ T = 0.18, Pose = merge(MIA_REST, { Neck = { 6, 6, 0 }, RightShoulder = { 50, 0, 20 }, RightElbow = { 70, 0, 0 }, RightWrist = { 0, 0, -20 } }) },
+		{ T = 0.36, Pose = merge(MIA_REST, { Neck = { -4, -4, 0 }, RightShoulder = { 40, 0, 10 }, RightElbow = { 90, 0, 0 }, LeftShoulder = { 50, 0, -20 }, LeftElbow = { 70, 0, 0 } }) },
+		{ T = 0.54, Pose = merge(MIA_REST, { Neck = { 6, 8, 6 }, RightShoulder = { 60, 0, 30 }, RightElbow = { 50, 0, 0 }, LeftShoulder = { 40, 0, -10 }, LeftElbow = { 90, 0, 0 } }) },
+		{ T = 0.72, Pose = merge(MIA_REST, { Neck = { 10, 0, 0 }, RightShoulder = { 90, 0, 0 }, RightElbow = { 20, 0, 0 }, LeftShoulder = { 28, 0, 14 }, LeftElbow = { 70, 0, 0 } }) },
+		{ T = 1, Pose = MIA_REST },
+	},
+}
+
 Keyframes.Actions = A
 
 -- Idle life for NPC rigs (no Animate script): breathing + looking around.

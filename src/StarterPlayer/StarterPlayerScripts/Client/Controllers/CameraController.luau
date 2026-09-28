@@ -16,9 +16,15 @@
 	  Punch(amount)           a springy field-of-view pop (level ups)
 	  SetMode(mode)           Default / Build / Fishing field of view
 
-	Everything runs through one damped spring, applied after the default
-	camera script each frame, so offsets never accumulate. Rotation effects
-	respect the player's "Camera shake" setting; FOV pops always play.
+	Everything runs through one damped spring. IMPORTANT: Roblox's camera
+	script reads the camera's current rotation every frame, so an offset
+	left on the camera would be fed back in and ADD UP (the view slowly
+	tipped towards the ground). We therefore remove last frame's offset
+	just BEFORE the camera script runs and add the new one just AFTER it:
+	the player's own camera angle is never changed. Rotation effects respect
+	the "Camera shake" setting; FOV pops always play.
+
+	Sprinting widens the field of view a little (SetSprint).
 ]]
 
 local Players = game:GetService("Players")
@@ -30,7 +36,8 @@ local Net = require(Shared:WaitForChild("Net"))
 local GameConfig = require(Shared.Config.GameConfig)
 local ClientState = require(script.Parent.Parent.ClientState)
 
-local BIND_NAME = "IslandCameraJuice"
+local BIND_UNDO = "IslandCameraJuiceUndo"
+local BIND_APPLY = "IslandCameraJuice"
 
 local MODES = {
 	Default = { FieldOfView = GameConfig.Camera.DefaultFieldOfView },
@@ -43,7 +50,8 @@ local STIFFNESS = 170
 local DAMPING = 11
 local FOV_STIFFNESS = 120
 local FOV_DAMPING = 9
-local MAX_ANGLE = math.rad(9)
+local MAX_ANGLE = math.rad(4.5)
+local SPRINT_FOV = 7
 
 local CameraController = {}
 
@@ -60,9 +68,21 @@ local noiseSeed = math.random() * 1000
 -- Wobbles: several can overlap (a tree falling while you mine).
 type Wobble = { Start: number, Duration: number, Strength: number, Phase: number }
 local wobbles: { Wobble } = {}
+-- The rotation offset currently applied on top of the camera script's result.
+local appliedOffset = CFrame.identity
+local sprinting = false
 
 local function shakeAllowed(): boolean
 	return ClientState.Get("Settings", "CameraShake") ~= false
+end
+
+-- Before the camera script: take last frame's offset back off.
+local function undo()
+	local cam = workspace.CurrentCamera
+	if cam and appliedOffset ~= CFrame.identity then
+		cam.CFrame *= appliedOffset:Inverse()
+	end
+	appliedOffset = CFrame.identity
 end
 
 local function step(dt: number)
@@ -72,8 +92,9 @@ local function step(dt: number)
 	end
 	dt = math.min(dt, 1 / 20)
 
-	-- Base field of view eases towards the mode's FOV.
-	baseFov += (targetFov - baseFov) * math.min(1, dt * 8)
+	-- Base field of view eases towards the mode's FOV (+ a bit while sprinting).
+	local wanted = targetFov + (if sprinting then SPRINT_FOV else 0)
+	baseFov += (wanted - baseFov) * math.min(1, dt * 8)
 
 	-- Springs.
 	local accel = -angle * STIFFNESS - angleVelocity * DAMPING
@@ -95,9 +116,9 @@ local function step(dt: number)
 		else
 			local decay = (1 - t / wobble.Duration) ^ 2
 			local s = wobble.Strength * decay
-			roll += math.sin(t * 17 + wobble.Phase) * 0.055 * s
-			pitch += math.sin(t * 23 + wobble.Phase * 2) * 0.03 * s
-			yaw += math.sin(t * 11 + wobble.Phase) * 0.012 * s
+			roll += math.sin(t * 17 + wobble.Phase) * 0.032 * s
+			pitch += math.sin(t * 23 + wobble.Phase * 2) * 0.014 * s
+			yaw += math.sin(t * 11 + wobble.Phase) * 0.008 * s
 		end
 	end
 
@@ -105,9 +126,9 @@ local function step(dt: number)
 	if trauma > 0 then
 		local time = now * 25
 		local strength = trauma * trauma
-		pitch += math.noise(noiseSeed, time) * 0.035 * strength
-		yaw += math.noise(noiseSeed + 10, time) * 0.035 * strength
-		roll += math.noise(noiseSeed + 20, time) * 0.02 * strength
+		pitch += math.noise(noiseSeed, time) * 0.025 * strength
+		yaw += math.noise(noiseSeed + 10, time) * 0.025 * strength
+		roll += math.noise(noiseSeed + 20, time) * 0.015 * strength
 		trauma = math.max(0, trauma - dt / math.max(traumaDuration, 0.05))
 	end
 
@@ -115,7 +136,8 @@ local function step(dt: number)
 	yaw = math.clamp(yaw, -MAX_ANGLE, MAX_ANGLE)
 	roll = math.clamp(roll, -MAX_ANGLE, MAX_ANGLE)
 	if math.abs(pitch) + math.abs(yaw) + math.abs(roll) > 1e-5 then
-		cam.CFrame *= CFrame.Angles(pitch, yaw, roll)
+		appliedOffset = CFrame.Angles(pitch, yaw, roll)
+		cam.CFrame *= appliedOffset
 	end
 	cam.FieldOfView = math.clamp(baseFov + fovOffset, 30, 110)
 end
@@ -123,12 +145,12 @@ end
 -- A springy nod when YOUR hit lands.
 function CameraController.Kick(strength: number?)
 	local s = math.clamp(strength or 1, 0, 3)
-	fovVelocity -= 34 * s -- quick zoom-in squash
+	fovVelocity -= 18 * s -- quick little zoom-in squash
 	if not shakeAllowed() then
 		return
 	end
 	local side = if math.random() < 0.5 then -1 else 1
-	angleVelocity += Vector3.new(-0.55 * s, 0.12 * s * side, 0.35 * s * side)
+	angleVelocity += Vector3.new(-0.3 * s, 0.06 * s * side, 0.22 * s * side)
 end
 
 -- A decaying, bouncy wobble (tree falls, rocks shatter, land rises).
@@ -145,7 +167,7 @@ function CameraController.Wobble(strength: number, duration: number?)
 	if #wobbles > 4 then
 		table.remove(wobbles, 1)
 	end
-	angleVelocity += Vector3.new(-0.4 * strength, 0, 0)
+	angleVelocity += Vector3.new(-0.2 * strength, 0, 0)
 end
 
 function CameraController.Shake(intensity: number, duration: number?)
@@ -169,6 +191,11 @@ function CameraController.GetMode(): string
 	return mode
 end
 
+-- Slightly wider view while sprinting (speed feel).
+function CameraController.SetSprint(isSprinting: boolean)
+	sprinting = isSprinting
+end
+
 -- Springy FOV pop for level ups / unlocks.
 function CameraController.Punch(amount: number?)
 	fovVelocity += 55 * (amount or 4) / 4
@@ -181,8 +208,9 @@ function CameraController.Init()
 end
 
 function CameraController.Start()
-	-- After the default camera script, every frame.
-	RunService:BindToRenderStep(BIND_NAME, Enum.RenderPriority.Camera.Value + 1, step)
+	-- Undo just before the default camera script, re-apply just after it.
+	RunService:BindToRenderStep(BIND_UNDO, Enum.RenderPriority.Camera.Value - 1, undo)
+	RunService:BindToRenderStep(BIND_APPLY, Enum.RenderPriority.Camera.Value + 1, step)
 	Net.OnClientEvent("CameraShake", function(intensity: any, duration: any, style: any)
 		if type(intensity) ~= "number" then
 			return

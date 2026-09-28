@@ -67,6 +67,9 @@ local function applyHit(player: Player, node: any, tool: any)
 	local def = node.Def
 	local damage = if tool then tool.Power * def.DamagePerPower else def.Health
 	local root = R15.GetRootPart(player.Character)
+	if tool then
+		AnimationService.Recoil(player.Character, if node.Def.ToolType == "Pickaxe" then 1.2 else 1)
+	end
 	local broke = ResourceService.Damage(node, damage, root and root.Position)
 	if not broke then
 		return

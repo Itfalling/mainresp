@@ -32,6 +32,7 @@ local GameConfig = {
 		ForceR15 = true,
 		RespawnDelay = 3,
 		WalkSpeed = 16,
+		SprintSpeed = 25, -- hold Shift / L3 (within AntiExploit's speed allowance)
 		JumpHeight = 7.2,
 	},
 

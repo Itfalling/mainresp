@@ -80,6 +80,15 @@ function AnimationService.IsPlaying(rig: Model, name: string): boolean
 	return currentName(rig) == name
 end
 
+-- "Hit animation": the arms bounce back off what a swing just hit (every
+-- client plays it when this attribute changes).
+function AnimationService.Recoil(rig: Model?, strength: number?)
+	if rig then
+		sequence += 1
+		rig:SetAttribute("Recoil", ("%.2f;%d"):format(math.clamp(strength or 1, 0, 2), sequence))
+	end
+end
+
 -- What the character's hands hold (drives the hold pose on every client).
 function AnimationService.SetHoldPose(rig: Model, pose: string?)
 	rig:SetAttribute("HoldPose", pose)

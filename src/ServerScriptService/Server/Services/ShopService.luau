@@ -50,6 +50,7 @@ local ShopService = {}
 
 ShopService.ItemsSold = Signal.new() -- (player, itemId, quantity, coins)
 ShopService.Purchased = Signal.new() -- (player, shopItemId, def)
+ShopService.MarketOpened = Signal.new() -- (player, stallModel) someone clicked a market stall
 
 -- The market stall the player stands next to (any island), or nil.
 local function nearbyStall(player: Player): Model?
@@ -250,8 +251,9 @@ function ShopService.Init()
 		Permission = "Market",
 		MaxDistance = 10,
 		Cooldown = 0.5,
-		Handler = function(player: Player)
+		Handler = function(player: Player, stall: Instance)
 			Net.FireClient("OpenUI", player, { Screen = "Market", Tab = "Sell" })
+			ShopService.MarketOpened:Fire(player, stall)
 		end,
 	})
 	Net.OnServerEvent("SellItemRequest", ShopService.Sell)

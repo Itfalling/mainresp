@@ -16,6 +16,10 @@
 	Length and Markers here drive BOTH the keyframes (impact frames sit on the
 	markers) and the server's gameplay timing (AnimationService.PerformAction).
 
+	MOVEMENT (idle / walk / run / jump / fall / swim / climb) is procedural:
+	Client/Animation/Locomotion, which replaces Roblox's default Animate
+	script. The Movement entries below are kept as documentation.
+
 	Field reference (spec §74):
 		Id            rbxassetid:// of the uploaded animation
 		Purpose       what gameplay it supports
@@ -180,6 +184,15 @@ local AnimationConfig = {
 			Point = anim({ Purpose = "Point at something", Priority = "Action3", Length = 1.2, Fallback = "Point" }),
 			Dance = anim({ Purpose = "Happy island dance (emote)", Priority = "Action3", Length = 0.9, Repeat = 4, BodyParts = FULL_BODY }),
 			OpenChest = anim({ Purpose = "Lift a chest lid", Priority = "Action2", Length = 1.1, Markers = { Open = 0.75 }, MarkerEffects = { Open = { Sound = "ChestOpen" } }, BodyParts = FULL_BODY }),
+		},
+
+		-- Mia the Merchant (NPC rig, keyframed like players).
+		Merchant = {
+			MiaIdle = anim({ Purpose = "Mia waiting behind her counter", Priority = "Idle", Looped = true, Length = 5, BodyParts = FULL_BODY }),
+			MiaWave = anim({ Purpose = "Mia greets a player who walks up", Priority = "Action3", Length = 1.6, BodyParts = FULL_BODY }),
+			MiaPresent = anim({ Purpose = "Mia shows off her goods (market opened)", Priority = "Action2", Length = 1.4, Markers = { Present = 0.7 }, MarkerEffects = { Present = { VFX = "Sparkle" } } }),
+			MiaSold = anim({ Purpose = "Mia claps and hops after a sale", Priority = "Action3", Length = 1.5, BodyParts = FULL_BODY, Markers = { Clap = 0.27, Hop = 1.17 }, MarkerEffects = { Clap = { Sound = "CoinGain" }, Hop = { VFX = "CoinBurst" } } }),
+			MiaTalk = anim({ Purpose = "Mia chats while giving a tip", Priority = "Action2", Length = 2 }),
 		},
 
 		-- Non-humanoid rigs (AnimationController). Used from Phase 6.

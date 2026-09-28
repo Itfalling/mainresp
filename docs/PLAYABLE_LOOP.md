@@ -33,6 +33,7 @@ There are **no proximity prompts**. You hold something and **click** the thing y
 | Rotate building | R · Q / E | X · D-pad ← → | ⟳ ROTATE |
 | Backpack | **I** / **G** or 🎒 | Y | 🎒 |
 | Players (visit / trade) | **P** or 👥 | — | 👥 |
+| Sprint | hold **Shift** | press left stick (L3) | — |
 | Emotes (Wave, Cheer, Point, Dance) | **T** or 😀 | D-pad down | 😀 |
 | Settings (music, sound, camera shake) | ⚙️ | — | ⚙️ |
 | Cancel / close / stop fishing | **X** | B | ✕ buttons |
@@ -120,6 +121,10 @@ Hold the rod and click the water. The bobber lands where you clicked (up to 36 s
 
 ## Animations, effects and sounds
 
+**Character animations.** The game has its own R15 movement animations in place of Roblox's defaults. Idle breathes and looks around, walk swings arms and legs in time with your speed (no foot sliding), and **sprint** (hold Shift) switches to a leaning run with pumping arms, dust puffs and a slightly wider view. Jumping tucks the knees and throws the arms up, falling flails, and landing squashes (a bigger drop means a bigger squash, plus a dust puff). There's also swimming (front crawl, or treading water when still), climbing, sitting, and a lean into turns. When a swing **connects**, your arms bounce back off the tree, rock or site (the hit animation). Everyone sees everyone's animations.
+
+**Mia the Merchant** has a real avatar: braided hair, a straw sun hat with a flower, a coral top, an apron, a skirt and boots, plus a name tag and a speech bubble. She sways and hums while waiting, turns her head to watch you, waves and says hi when you walk up, shows off her goods when you open the market, chats with her hands when you click her, and claps and hops after every sale or purchase.
+
 **Game feel (cartoon juice).**
 - Every tool has **three swings** (for example the axe has a diagonal chop, an overhead chop and a flat slash). Each swing picks one at random and never repeats the last one. Everyone sees the same swing: your client picks it, plays it instantly and tells the server which one.
 - Swings leave a **trail** in the tool's tier colour (water drops for the watering can) and make a whoosh.
@@ -176,6 +181,9 @@ In Studio everyone can use these; in a live game only `GameConfig.AdminUserIds` 
 - [ ] Chopping a tree: it sways on each hit, then crashes down with a bounce, dust, leaves and a camera wobble.
 - [ ] Mining a rock: it squashes on each hit, then shatters into bouncing chunks with a wobble.
 - [ ] The island creator fills the whole screen on a small Studio window and on a phone.
+- [ ] Chopping 20 times in a row never tips the camera: it nods a little on each hit and always returns to your angle.
+- [ ] Walk, sprint (Shift), jump, fall off something tall, swim: each has its own animation, and a 2-player test shows the same on the other player.
+- [ ] Walk up to Mia: she turns to you, waves and says hi. Open the market: "Take a look!". Sell something: she claps and hops.
 
 ### Multiplayer (2-player test)
 - [ ] P lists the other player with their island name, theme, level and likes.
@@ -203,7 +211,7 @@ In Studio everyone can use these; in a live game only `GameConfig.AdminUserIds` 
 
 ### Automated
 ```bash
-./tests/run_logic_tests.sh     # 31 engine-free tests: island generator, migration, keyframes + swing variants, configs, math
+./tests/run_logic_tests.sh     # 32 engine-free tests: island generator, migration, keyframes + swing variants, locomotion, configs, math
 ```
 
 ---

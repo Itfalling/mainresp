@@ -671,6 +671,80 @@ A.ShearsSnipHigh = {
 	},
 }
 
+---------------------------------------------------------------------------
+-- Mia the Merchant
+---------------------------------------------------------------------------
+
+local MIA_REST = merge(STAND, { Waist = { 0, 0, 0 }, Neck = { 0, 0, 0 }, RightShoulder = { 28, 0, -14 }, RightElbow = { 70, 0, 0 }, RightWrist = { 0, 0, 0 }, LeftShoulder = { 28, 0, 14 }, LeftElbow = { 70, 0, 0 }, LeftWrist = { 0, 0, 0 } })
+
+-- Idle behind the counter: hands clasped, swaying, humming, looking around (looped).
+A.MiaIdle = {
+	Keys = {
+		{ T = 0, Pose = merge(MIA_REST, { Root = { 0, 0, 2, 0, 0, 0 }, Waist = { 0, 4, 0 }, Neck = { 0, -6, 4 } }) },
+		{ T = 0.25, Pose = merge(MIA_REST, { Root = { 0, 0, -2, 0, 0.04, 0 }, Waist = { 2, -4, 0 }, Neck = { 4, 10, -4 } }) },
+		{ T = 0.5, Pose = merge(MIA_REST, { Root = { 0, 0, 2, 0, 0, 0 }, Waist = { 0, 4, 0 }, Neck = { -4, 24, 2 } }) },
+		{ T = 0.62, Pose = merge(MIA_REST, { Root = { 0, 0, 1, 0, 0.02, 0 }, Waist = { 1, 2, 0 }, Neck = { 6, 20, 0 } }) },
+		{ T = 0.75, Pose = merge(MIA_REST, { Root = { 0, 0, -2, 0, 0.04, 0 }, Waist = { 2, -4, 0 }, Neck = { 0, -18, -4 } }) },
+		{ T = 1, Pose = merge(MIA_REST, { Root = { 0, 0, 2, 0, 0, 0 }, Waist = { 0, 4, 0 }, Neck = { 0, -6, 4 } }) },
+	},
+}
+
+-- Big happy two-step wave on her toes, other hand on her hip.
+A.MiaWave = {
+	Legs = true,
+	Keys = {
+		{ T = 0, Pose = MIA_REST },
+		{ T = 0.14, Ease = "Out", Pose = merge(STAND, { Root = { 0, 0, 0, 0, 0.2, 0 }, RightAnkle = { -16, 0, 0 }, LeftAnkle = { -16, 0, 0 }, Waist = { 4, 8, -4 }, Neck = { 6, 10, 6 }, RightShoulder = { 20, 0, 150 }, RightElbow = { 30, 0, 0 }, LeftShoulder = { -10, 0, -30 }, LeftElbow = { 90, 0, 0 } }) },
+		{ T = 0.28, Pose = merge(STAND, { Root = { 0, 0, 0, 0, 0.2, 0 }, RightAnkle = { -16, 0, 0 }, LeftAnkle = { -16, 0, 0 }, Waist = { 4, 8, -4 }, Neck = { 6, 10, 6 }, RightShoulder = { 20, 0, 150 }, RightElbow = { 30, 0, 0 }, RightWrist = { 0, 0, 30 }, LeftShoulder = { -10, 0, -30 }, LeftElbow = { 90, 0, 0 } }) },
+		{ T = 0.42, Pose = merge(STAND, { Root = { 0, 0, 0, 0, 0.05, 0 }, Waist = { 4, 8, 4 }, Neck = { 6, 10, -6 }, RightShoulder = { 20, 0, 150 }, RightElbow = { 30, 0, 0 }, RightWrist = { 0, 0, -30 }, LeftShoulder = { -10, 0, -30 }, LeftElbow = { 90, 0, 0 } }) },
+		{ T = 0.56, Pose = merge(STAND, { Root = { 0, 0, 0, 0, 0.2, 0 }, RightAnkle = { -16, 0, 0 }, LeftAnkle = { -16, 0, 0 }, Waist = { 4, 8, -4 }, Neck = { 6, 10, 6 }, RightShoulder = { 20, 0, 150 }, RightElbow = { 30, 0, 0 }, RightWrist = { 0, 0, 30 }, LeftShoulder = { -10, 0, -30 }, LeftElbow = { 90, 0, 0 } }) },
+		{ T = 0.7, Pose = merge(STAND, { Root = { 0, 0, 0, 0, 0.05, 0 }, Waist = { 4, 8, 4 }, Neck = { 6, 10, -6 }, RightShoulder = { 20, 0, 150 }, RightElbow = { 30, 0, 0 }, RightWrist = { 0, 0, -30 }, LeftShoulder = { -10, 0, -30 }, LeftElbow = { 90, 0, 0 } }) },
+		{ T = 1, Pose = MIA_REST },
+	},
+}
+
+-- "Take a look!": arms sweep open palms-up over the goods, a little bow.
+A.MiaPresent = {
+	Keys = {
+		{ T = 0, Pose = MIA_REST },
+		{ T = 0.25, Ease = "Out", Pose = merge(MIA_REST, { Waist = { 8, 0, 0 }, Neck = { 6, 0, 0 }, RightShoulder = { 40, 0, 20 }, RightElbow = { 40, 0, 0 }, LeftShoulder = { 40, 0, -20 }, LeftElbow = { 40, 0, 0 } }) },
+		{ T = 0.5, Ease = "Out", Pose = merge(MIA_REST, { Waist = { -16, 0, 0 }, Neck = { -6, 0, 0 }, RightShoulder = { 60, 0, 55 }, RightElbow = { 12, 0, 0 }, RightWrist = { 0, 0, -20 }, LeftShoulder = { 60, 0, -55 }, LeftElbow = { 12, 0, 0 }, LeftWrist = { 0, 0, 20 } }) },
+		{ T = 0.72, Pose = merge(MIA_REST, { Waist = { -10, 16, 0 }, Neck = { -14, 10, 0 }, RightShoulder = { 70, 0, 20 }, RightElbow = { 6, 0, 0 }, RightWrist = { -30, 0, 0 }, LeftShoulder = { 20, 0, -20 }, LeftElbow = { 60, 0, 0 } }) },
+		{ T = 1, Pose = MIA_REST },
+	},
+}
+
+-- "Thank you!": three happy claps, then a hop.
+local CLAP_OPEN = { RightShoulder = { 70, 0, 26 }, RightElbow = { 40, 0, 0 }, LeftShoulder = { 70, 0, -26 }, LeftElbow = { 40, 0, 0 } }
+local CLAP_SHUT = { RightShoulder = { 72, 0, -8 }, RightElbow = { 40, 0, 0 }, LeftShoulder = { 72, 0, 8 }, LeftElbow = { 40, 0, 0 } }
+A.MiaSold = {
+	Legs = true,
+	Keys = {
+		{ T = 0, Pose = MIA_REST },
+		{ T = 0.1, Pose = merge(STAND, CLAP_OPEN, { Neck = { 8, 0, 8 } }) },
+		{ T = 0.18, Pose = merge(STAND, CLAP_SHUT, { Neck = { 8, 0, 8 } }) },
+		{ T = 0.28, Pose = merge(STAND, CLAP_OPEN, { Neck = { 8, 0, -8 } }) },
+		{ T = 0.36, Pose = merge(STAND, CLAP_SHUT, { Neck = { 8, 0, -8 } }) },
+		{ T = 0.46, Pose = merge(STAND, CLAP_OPEN, { Neck = { 8, 0, 8 } }) },
+		{ T = 0.54, Pose = merge(STAND, CLAP_SHUT, { Neck = { 8, 0, 8 } }) },
+		{ T = 0.64, Ease = "Out", Pose = merge(CROUCH, { Root = { 0, 0, 0, 0, -0.5, 0 }, RightHip = { 30, 0, 4 }, RightKnee = { -50, 0, 0 }, LeftHip = { 30, 0, -4 }, LeftKnee = { -50, 0, 0 }, RightAnkle = { 20, 0, 0 }, LeftAnkle = { 20, 0, 0 }, RightShoulder = { 20, 0, 20 }, LeftShoulder = { 20, 0, -20 } }) },
+		{ T = 0.78, Ease = "Out", Pose = merge(STAND, { Root = { 0, 0, 0, 0, 1.2, 0 }, RightKnee = { -30, 0, 0 }, LeftKnee = { -30, 0, 0 }, Neck = { 12, 0, 0 }, RightShoulder = { 160, 0, 30 }, RightElbow = { 10, 0, 0 }, LeftShoulder = { 160, 0, -30 }, LeftElbow = { 10, 0, 0 } }) },
+		{ T = 1, Pose = MIA_REST },
+	},
+}
+
+-- Chatty hands: gesturing while she gives a tip.
+A.MiaTalk = {
+	Keys = {
+		{ T = 0, Pose = MIA_REST },
+		{ T = 0.18, Pose = merge(MIA_REST, { Neck = { 6, 6, 0 }, RightShoulder = { 50, 0, 20 }, RightElbow = { 70, 0, 0 }, RightWrist = { 0, 0, -20 } }) },
+		{ T = 0.36, Pose = merge(MIA_REST, { Neck = { -4, -4, 0 }, RightShoulder = { 40, 0, 10 }, RightElbow = { 90, 0, 0 }, LeftShoulder = { 50, 0, -20 }, LeftElbow = { 70, 0, 0 } }) },
+		{ T = 0.54, Pose = merge(MIA_REST, { Neck = { 6, 8, 6 }, RightShoulder = { 60, 0, 30 }, RightElbow = { 50, 0, 0 }, LeftShoulder = { 40, 0, -10 }, LeftElbow = { 90, 0, 0 } }) },
+		{ T = 0.72, Pose = merge(MIA_REST, { Neck = { 10, 0, 0 }, RightShoulder = { 90, 0, 0 }, RightElbow = { 20, 0, 0 }, LeftShoulder = { 28, 0, 14 }, LeftElbow = { 70, 0, 0 } }) },
+		{ T = 1, Pose = MIA_REST },
+	},
+}
+
 Keyframes.Actions = A
 
 -- Idle life for NPC rigs (no Animate script): breathing + looking around.
@@ -1338,6 +1412,10 @@ return TableUtil.DeepFreeze(AnimalConfig)
 	Length and Markers here drive BOTH the keyframes (impact frames sit on the
 	markers) and the server's gameplay timing (AnimationService.PerformAction).
 
+	MOVEMENT (idle / walk / run / jump / fall / swim / climb) is procedural:
+	Client/Animation/Locomotion, which replaces Roblox's default Animate
+	script. The Movement entries below are kept as documentation.
+
 	Field reference (spec §74):
 		Id            rbxassetid:// of the uploaded animation
 		Purpose       what gameplay it supports
@@ -1502,6 +1580,15 @@ local AnimationConfig = {
 			Point = anim({ Purpose = "Point at something", Priority = "Action3", Length = 1.2, Fallback = "Point" }),
 			Dance = anim({ Purpose = "Happy island dance (emote)", Priority = "Action3", Length = 0.9, Repeat = 4, BodyParts = FULL_BODY }),
 			OpenChest = anim({ Purpose = "Lift a chest lid", Priority = "Action2", Length = 1.1, Markers = { Open = 0.75 }, MarkerEffects = { Open = { Sound = "ChestOpen" } }, BodyParts = FULL_BODY }),
+		},
+
+		-- Mia the Merchant (NPC rig, keyframed like players).
+		Merchant = {
+			MiaIdle = anim({ Purpose = "Mia waiting behind her counter", Priority = "Idle", Looped = true, Length = 5, BodyParts = FULL_BODY }),
+			MiaWave = anim({ Purpose = "Mia greets a player who walks up", Priority = "Action3", Length = 1.6, BodyParts = FULL_BODY }),
+			MiaPresent = anim({ Purpose = "Mia shows off her goods (market opened)", Priority = "Action2", Length = 1.4, Markers = { Present = 0.7 }, MarkerEffects = { Present = { VFX = "Sparkle" } } }),
+			MiaSold = anim({ Purpose = "Mia claps and hops after a sale", Priority = "Action3", Length = 1.5, BodyParts = FULL_BODY, Markers = { Clap = 0.27, Hop = 1.17 }, MarkerEffects = { Clap = { Sound = "CoinGain" }, Hop = { VFX = "CoinBurst" } } }),
+			MiaTalk = anim({ Purpose = "Mia chats while giving a tip", Priority = "Action2", Length = 2 }),
 		},
 
 		-- Non-humanoid rigs (AnimationController). Used from Phase 6.
@@ -2114,6 +2201,7 @@ local GameConfig = {
 		ForceR15 = true,
 		RespawnDelay = 3,
 		WalkSpeed = 16,
+		SprintSpeed = 25, -- hold Shift / L3 (within AntiExploit's speed allowance)
 		JumpHeight = 7.2,
 	},
 
@@ -2285,6 +2373,8 @@ local InputConfig = {
 		Unequip = { Inputs = { Enum.KeyCode.Zero, Enum.KeyCode.Backquote }, Gamepad = {} },
 		Emotes = { Inputs = { Enum.KeyCode.T }, Gamepad = { Enum.KeyCode.DPadDown } },
 		PlayersMenu = { Inputs = { Enum.KeyCode.P }, Gamepad = {} },
+		-- Hold to sprint (run animation + wider view).
+		Sprint = { Inputs = { Enum.KeyCode.LeftShift, Enum.KeyCode.RightShift }, Gamepad = { Enum.KeyCode.ButtonL3 } },
 		-- Build mode
 		BuildPlace = { Inputs = { Enum.UserInputType.MouseButton1 }, Gamepad = { Enum.KeyCode.ButtonR2 } },
 		RotateBuild = { Inputs = { Enum.KeyCode.R }, Gamepad = { Enum.KeyCode.ButtonX } },
@@ -8344,6 +8434,15 @@ function AnimationService.IsPlaying(rig: Model, name: string): boolean
 	return currentName(rig) == name
 end
 
+-- "Hit animation": the arms bounce back off what a swing just hit (every
+-- client plays it when this attribute changes).
+function AnimationService.Recoil(rig: Model?, strength: number?)
+	if rig then
+		sequence += 1
+		rig:SetAttribute("Recoil", ("%.2f;%d"):format(math.clamp(strength or 1, 0, 2), sequence))
+	end
+end
+
 -- What the character's hands hold (drives the hold pose on every client).
 function AnimationService.SetHoldPose(rig: Model, pose: string?)
 	rig:SetAttribute("HoldPose", pose)
@@ -9154,6 +9253,7 @@ local function advance(player: Player, site: Site)
 	local def = site.Def
 	local offset = Vector3.new((math.random() - 0.5) * def.Footprint.X * 0.6, math.random() * def.Height * 0.6, (math.random() - 0.5) * def.Footprint.Y * 0.6)
 	local hitPoint = (pivot * CFrame.new(offset)).Position
+	AnimationService.Recoil(player.Character, 0.9)
 	VFXService.PlayAt("BuildDust", hitPoint)
 	VFXService.PlayAt("HitPop", hitPoint)
 	VFXService.PlayAt("Stars", hitPoint, { Count = 4 })
@@ -10427,6 +10527,7 @@ local function till(player: Player, tile: Tile, hoe: any)
 	AnimationService.PerformAction(player, hoe.Animations.Use or "HoeTill", "Till", function()
 		if tile.Entry == nil and tilesById[tile.Id] == tile then
 			setEntry(tile, { TileId = tile.Id, State = "Tilled" })
+			AnimationService.Recoil(player.Character, 0.6)
 			VFXService.PlayAt("DirtPuff", tile.Part.Position + Vector3.new(0, 0.5, 0))
 			VFXService.PlayAt("Puff", tile.Part.Position, { Scale = 0.45, Count = 5, Color = Color3.fromRGB(170, 130, 90) })
 			VFXService.Jiggle(tile.Part:FindFirstAncestorOfClass("Model"), "Squash")
@@ -11050,6 +11151,9 @@ local function applyHit(player: Player, node: any, tool: any)
 	local def = node.Def
 	local damage = if tool then tool.Power * def.DamagePerPower else def.Health
 	local root = R15.GetRootPart(player.Character)
+	if tool then
+		AnimationService.Recoil(player.Character, if node.Def.ToolType == "Pickaxe" then 1.2 else 1)
+	end
 	local broke = ResourceService.Damage(node, damage, root and root.Position)
 	if not broke then
 		return
@@ -12276,13 +12380,29 @@ return IslandService
 	SCRIPT NAME:  NPCService
 	SCRIPT TYPE:  ModuleScript (server service)
 	WHERE:        ServerScriptService/Server/Services/NPCService
-	DEPENDENCIES: BuildService, InteractionService, AnimationService, Shared.Net, Server.Util.Notify
+	DEPENDENCIES: BuildService, InteractionService, AnimationService, ShopService, Shared.Net,
+	              Shared.Config.GameConfig, Server.Util.Notify
 
-	Lightweight island NPCs (spec §51/§52): a friendly R15 merchant behind
-	every market stall (she follows the stall when you move it). Click her
-	for a tip and the Buy tab. Built from a HumanoidDescription (standard R15
-	rig), anchored root, tagged "NPCRig" so every client plays her idle
-	breathing / look-around keyframes and her wave.
+	MIA THE MERCHANT — a real R15 character behind every market stall (she
+	follows the stall when you move it).
+
+	AVATAR: a standard R15 body from a HumanoidDescription (skin + outfit
+	colours, the built-in default face) dressed with parts welded to her
+	body: wavy brown hair with bangs and two braids, a straw sun hat with a
+	red ribbon and a flower, a cream apron with a pocket, puffy sleeves, a
+	skirt and boots. No uploaded assets are needed. A name tag and a speech
+	bubble float above her.
+
+	ANIMATIONS (keyframes in Shared/Animation/Keyframes, played on every
+	client like the players' own):
+	  MiaIdle     hands clasped, swaying and humming, looking around (loop)
+	  MiaWave     big two-step wave on her toes when you walk up
+	  MiaPresent  "Take a look!" — arms sweep over her goods (market opened)
+	  MiaSold     three claps and a happy hop after you buy or sell
+	  MiaTalk     chatty hand gestures while she gives you a tip
+	She also turns her head and body towards the nearest player (LookAt
+	attribute, animated smoothly on each client) and says things in her
+	speech bubble.
 ]]
 
 local CollectionService = game:GetService("CollectionService")
@@ -12290,15 +12410,30 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Net = require(ReplicatedStorage.Shared.Net)
+local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
 
 local Services = script.Parent
 local BuildService = require(Services.BuildService)
 local InteractionService = require(Services.InteractionService)
 local AnimationService = require(Services.AnimationService)
+local ShopService = require(Services.ShopService)
 local Notify = require(script.Parent.Parent.Util.Notify)
-local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
 
 local MERCHANT_NAME = "Mia the Merchant"
+local GREET_RANGE = 16
+local LOOK_RANGE = 22
+local GREET_COOLDOWN = 45
+local REACT_RANGE = 30
+local BUBBLE_TIME = 3.5
+
+local SKIN = Color3.fromRGB(241, 194, 160)
+local HAIR = Color3.fromRGB(112, 66, 40)
+local TOP = Color3.fromRGB(236, 112, 100)
+local PANTS = Color3.fromRGB(70, 82, 130)
+local APRON = Color3.fromRGB(252, 246, 232)
+local STRAW = Color3.fromRGB(236, 204, 128)
+local RIBBON = Color3.fromRGB(214, 62, 80)
+local BOOTS = Color3.fromRGB(118, 78, 48)
 
 local TIPS = {
 	"Welcome! Click my stall any time to buy and sell.",
@@ -12307,22 +12442,206 @@ local TIPS = {
 	"Build a Barn, then come back and I'll sell you a cow.",
 	"Better tools gather faster. A Stone Axe chops trees in half the hits!",
 	"Expand your island in any direction — new land grows new trees and rocks.",
-	"Visit friends' islands from the 🌍 menu. Their waters hold different fish!",
+	"Visit friends' islands from the 👥 menu. Their waters hold different fish!",
 	"Hold seeds in your hand and click tilled soil to plant them.",
+	"Hold Shift to sprint!",
+}
+
+local GREETINGS = { "Hi %s! 👋", "Welcome back, %s!", "Hello %s! Fresh goods today!", "Oh, hi %s! 🌼" }
+local THANKS_SELL = { "Thank you! 💰", "Pleasure doing business!", "Ooh, lovely! 🧺", "Come back soon!" }
+local THANKS_BUY = { "Enjoy! 😊", "Great choice!", "Thank you, %s! 💖", "Use it well!" }
+
+type Merchant = {
+	Model: Model,
+	Site: any,
+	Bubble: BillboardGui,
+	BubbleText: TextLabel,
+	BubbleToken: number,
+	BusyUntil: number,
+	Greeted: { [Player]: number },
 }
 
 local NPCService = {}
 
+local merchants: { [string]: Merchant } = {} -- stall site UniqueId -> merchant
 local tipIndex: { [Player]: number } = setmetatable({}, { __mode = "k" }) :: any
+local random = Random.new()
+
+---------------------------------------------------------------------------
+-- Avatar
+---------------------------------------------------------------------------
+
+type Piece = {
+	Size: Vector3,
+	Offset: CFrame,
+	Color: Color3,
+	Material: Enum.Material?,
+	Shape: string?, -- "Ball" | "Cylinder" | "Sphere" (mesh) | nil (block)
+}
+
+local function attach(bodyPart: BasePart, name: string, piece: Piece): Part
+	local part = Instance.new("Part")
+	part.Name = name
+	part.Size = piece.Size
+	part.Color = piece.Color
+	part.Material = piece.Material or Enum.Material.SmoothPlastic
+	part.TopSurface = Enum.SurfaceType.Smooth
+	part.BottomSurface = Enum.SurfaceType.Smooth
+	part.CanCollide = false
+	part.CanQuery = true
+	part.CanTouch = false
+	part.Massless = true
+	part.Anchored = false
+	if piece.Shape == "Ball" then
+		part.Shape = Enum.PartType.Ball
+	elseif piece.Shape == "Cylinder" then
+		part.Shape = Enum.PartType.Cylinder
+	elseif piece.Shape == "Sphere" then
+		local mesh = Instance.new("SpecialMesh")
+		mesh.MeshType = Enum.MeshType.Sphere
+		mesh.Parent = part
+	end
+	part.CFrame = bodyPart.CFrame * piece.Offset
+	local weld = Instance.new("Weld")
+	weld.Part0 = bodyPart
+	weld.Part1 = part
+	weld.C0 = piece.Offset
+	weld.Parent = part
+	part.Parent = bodyPart.Parent
+	return part
+end
+
+local VERTICAL = CFrame.Angles(0, 0, math.rad(90)) -- cylinders stand upright
+
+local function dress(model: Model)
+	local head = model:FindFirstChild("Head") :: BasePart?
+	local upperTorso = model:FindFirstChild("UpperTorso") :: BasePart?
+	local lowerTorso = model:FindFirstChild("LowerTorso") :: BasePart?
+	if not head or not upperTorso or not lowerTorso then
+		return
+	end
+	local h = head.Size.Y
+	-- Face: make sure she has one (the built-in default face).
+	if not head:FindFirstChildOfClass("Decal") then
+		local face = Instance.new("Decal")
+		face.Name = "face"
+		face.Face = Enum.NormalId.Front
+		face.Texture = "rbxasset://textures/face.png"
+		face.Parent = head
+	end
+
+	-- Hair: cap, bangs, long back, two braids with ribbon ties.
+	attach(head, "HairCap", { Size = Vector3.new(h * 1.12, h * 0.8, h * 1.12), Offset = CFrame.new(0, h * 0.2, h * 0.04), Color = HAIR, Shape = "Sphere" })
+	attach(head, "Bangs", { Size = Vector3.new(h * 0.95, h * 0.32, h * 0.42), Offset = CFrame.new(0, h * 0.36, -h * 0.34) * CFrame.Angles(math.rad(-15), 0, 0), Color = HAIR, Shape = "Sphere" })
+	attach(head, "HairBack", { Size = Vector3.new(h * 1.05, h * 1.05, h * 0.45), Offset = CFrame.new(0, -h * 0.12, h * 0.4), Color = HAIR, Shape = "Sphere" })
+	for index, side in { -1, 1 } do
+		attach(head, "Braid" .. index, { Size = Vector3.new(h * 0.26, h * 0.95, h * 0.26), Offset = CFrame.new(side * h * 0.5, -h * 0.55, h * 0.18), Color = HAIR, Shape = "Sphere" })
+		attach(head, "BraidTie" .. index, { Size = Vector3.new(h * 0.2, h * 0.2, h * 0.2), Offset = CFrame.new(side * h * 0.5, -h * 0.98, h * 0.18), Color = RIBBON, Shape = "Ball" })
+	end
+
+	-- Straw sun hat with a ribbon band and a flower.
+	attach(head, "HatBrim", { Size = Vector3.new(0.14, h * 2.3, h * 2.3), Offset = CFrame.new(0, h * 0.5, 0.02) * VERTICAL * CFrame.Angles(math.rad(-6), 0, 0), Color = STRAW, Material = Enum.Material.Fabric, Shape = "Cylinder" })
+	attach(head, "HatCrown", { Size = Vector3.new(h * 0.55, h * 1.12, h * 1.12), Offset = CFrame.new(0, h * 0.8, 0.02) * VERTICAL, Color = STRAW, Material = Enum.Material.Fabric, Shape = "Cylinder" })
+	attach(head, "HatBand", { Size = Vector3.new(h * 0.18, h * 1.16, h * 1.16), Offset = CFrame.new(0, h * 0.62, 0.02) * VERTICAL, Color = RIBBON, Shape = "Cylinder" })
+	attach(head, "HatFlower", { Size = Vector3.new(h * 0.3, h * 0.3, h * 0.3), Offset = CFrame.new(h * 0.56, h * 0.66, -h * 0.1), Color = Color3.fromRGB(255, 220, 90), Shape = "Ball" })
+	attach(head, "HatFlowerPetals", { Size = Vector3.new(h * 0.48, h * 0.48, h * 0.12), Offset = CFrame.new(h * 0.58, h * 0.66, -h * 0.1) * CFrame.Angles(0, math.rad(90), 0), Color = Color3.fromRGB(255, 255, 255), Shape = "Sphere" })
+
+	-- Apron over the top, waist tie, skirt, apron skirt with a pocket.
+	local ut = upperTorso.Size
+	local lt = lowerTorso.Size
+	attach(upperTorso, "ApronBib", { Size = Vector3.new(ut.X * 0.62, ut.Y * 0.7, 0.08), Offset = CFrame.new(0, -ut.Y * 0.1, -ut.Z / 2 - 0.05), Color = APRON, Material = Enum.Material.Fabric })
+	attach(lowerTorso, "Skirt", { Size = Vector3.new(lt.X * 1.28, lt.Y * 1.5, lt.Z * 1.35), Offset = CFrame.new(0, -lt.Y * 0.55, 0), Color = TOP, Material = Enum.Material.Fabric })
+	attach(lowerTorso, "WaistTie", { Size = Vector3.new(lt.X * 1.32, 0.18, lt.Z * 1.4), Offset = CFrame.new(0, lt.Y * 0.2, 0), Color = APRON, Material = Enum.Material.Fabric })
+	attach(lowerTorso, "ApronSkirt", { Size = Vector3.new(lt.X * 1.05, lt.Y * 1.45, 0.08), Offset = CFrame.new(0, -lt.Y * 0.5, -lt.Z * 0.68 - 0.05), Color = APRON, Material = Enum.Material.Fabric })
+	attach(lowerTorso, "ApronPocket", { Size = Vector3.new(lt.X * 0.45, lt.Y * 0.45, 0.06), Offset = CFrame.new(0, -lt.Y * 0.55, -lt.Z * 0.68 - 0.11), Color = Color3.fromRGB(236, 222, 196), Material = Enum.Material.Fabric })
+
+	-- Puffy sleeves and boots.
+	for _, side in { "Left", "Right" } do
+		local upperArm = model:FindFirstChild(side .. "UpperArm") :: BasePart?
+		if upperArm then
+			local a = upperArm.Size
+			attach(upperArm, "Sleeve", { Size = Vector3.new(a.X * 1.35, a.Y * 0.55, a.Z * 1.35), Offset = CFrame.new(0, a.Y * 0.2, 0), Color = TOP, Material = Enum.Material.Fabric, Shape = "Sphere" })
+		end
+		local foot = model:FindFirstChild(side .. "Foot") :: BasePart?
+		if foot then
+			local f = foot.Size
+			attach(foot, "Boot", { Size = Vector3.new(f.X * 1.15, f.Y * 1.35, f.Z * 1.12), Offset = CFrame.new(0, f.Y * 0.15, -f.Z * 0.03), Color = BOOTS, Material = Enum.Material.Leather })
+		end
+	end
+end
+
+local function makeGui(model: Model): (BillboardGui, TextLabel)
+	local head = model:FindFirstChild("Head") :: BasePart
+	-- Name tag.
+	local tag = Instance.new("BillboardGui")
+	tag.Name = "NameTag"
+	tag.Size = UDim2.fromOffset(200, 34)
+	tag.StudsOffset = Vector3.new(0, 3.1, 0)
+	tag.MaxDistance = 70
+	tag.Adornee = head
+	local tagFrame = Instance.new("Frame")
+	tagFrame.Size = UDim2.fromScale(1, 1)
+	tagFrame.BackgroundColor3 = Color3.fromRGB(255, 196, 40)
+	tagFrame.Parent = tag
+	Instance.new("UICorner").Parent = tagFrame
+	local tagStroke = Instance.new("UIStroke")
+	tagStroke.Thickness = 2.5
+	tagStroke.Color = Color3.fromRGB(62, 44, 30)
+	tagStroke.Parent = tagFrame
+	local tagText = Instance.new("TextLabel")
+	tagText.Size = UDim2.fromScale(1, 1)
+	tagText.BackgroundTransparency = 1
+	tagText.Font = Enum.Font.FredokaOne
+	tagText.TextScaled = true
+	tagText.TextColor3 = Color3.new(1, 1, 1)
+	tagText.Text = "🛒 " .. MERCHANT_NAME
+	tagText.Parent = tagFrame
+	local textStroke = Instance.new("UIStroke")
+	textStroke.Thickness = 1.5
+	textStroke.Color = Color3.fromRGB(62, 44, 30)
+	textStroke.Parent = tagText
+	tag.Parent = head
+
+	-- Speech bubble (hidden until she talks).
+	local bubble = Instance.new("BillboardGui")
+	bubble.Name = "Speech"
+	bubble.Size = UDim2.fromOffset(240, 60)
+	bubble.StudsOffset = Vector3.new(0, 5, 0)
+	bubble.MaxDistance = 50
+	bubble.Adornee = head
+	bubble.Enabled = false
+	local frame = Instance.new("Frame")
+	frame.Size = UDim2.fromScale(1, 1)
+	frame.BackgroundColor3 = Color3.new(1, 1, 1)
+	frame.Parent = bubble
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, 16)
+	corner.Parent = frame
+	local stroke = Instance.new("UIStroke")
+	stroke.Thickness = 3
+	stroke.Color = Color3.fromRGB(62, 44, 30)
+	stroke.Parent = frame
+	local text = Instance.new("TextLabel")
+	text.Size = UDim2.new(1, -16, 1, -8)
+	text.Position = UDim2.fromOffset(8, 4)
+	text.BackgroundTransparency = 1
+	text.Font = Enum.Font.FredokaOne
+	text.TextScaled = true
+	text.TextColor3 = Color3.fromRGB(58, 40, 26)
+	text.Text = ""
+	text.Parent = frame
+	bubble.Parent = head
+	return bubble, text
+end
 
 local function buildMerchant(): Model?
 	local description = Instance.new("HumanoidDescription")
-	description.HeadColor = Color3.fromRGB(234, 184, 146)
-	description.LeftArmColor = description.HeadColor
-	description.RightArmColor = description.HeadColor
-	description.LeftLegColor = Color3.fromRGB(80, 90, 140)
-	description.RightLegColor = Color3.fromRGB(80, 90, 140)
-	description.TorsoColor = Color3.fromRGB(90, 170, 110)
+	description.HeadColor = SKIN
+	description.LeftArmColor = SKIN
+	description.RightArmColor = SKIN
+	description.TorsoColor = TOP
+	description.LeftLegColor = PANTS
+	description.RightLegColor = PANTS
 	local ok, model = pcall(Players.CreateHumanoidModelFromDescription, Players, description, Enum.HumanoidRigType.R15)
 	if not ok or not model then
 		if GameConfig.Debug then
@@ -12334,48 +12653,137 @@ local function buildMerchant(): Model?
 	local humanoid = model:FindFirstChildOfClass("Humanoid")
 	if humanoid then
 		humanoid.DisplayName = MERCHANT_NAME
-		humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.Viewer
+		humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None -- our own name tag instead
 	end
 	local animate = model:FindFirstChild("Animate")
 	if animate then
-		animate:Destroy() -- server NPC: no LocalScript animation needed
+		animate:Destroy() -- every client animates her from keyframes
 	end
 	for _, descendant in model:GetDescendants() do
 		if descendant:IsA("BasePart") then
 			descendant.Anchored = descendant.Name == "HumanoidRootPart"
 		end
 	end
+	local ok2, err = pcall(dress, model)
+	if not ok2 then
+		warn("[NPCService] Could not dress the merchant: " .. tostring(err))
+	end
 	return model
 end
 
-local merchants: { [string]: Model } = {} -- stall site UniqueId -> merchant
+---------------------------------------------------------------------------
+-- Behaviour
+---------------------------------------------------------------------------
+
+local function say(merchant: Merchant, text: string)
+	merchant.BubbleToken += 1
+	local token = merchant.BubbleToken
+	merchant.BubbleText.Text = text
+	merchant.Bubble.Enabled = true
+	task.delay(BUBBLE_TIME, function()
+		if merchant.BubbleToken == token and merchant.Bubble.Parent then
+			merchant.Bubble.Enabled = false
+		end
+	end)
+end
+
+local function act(merchant: Merchant, animation: string, busy: number)
+	merchant.BusyUntil = os.clock() + busy
+	AnimationService.PlayAnimation(merchant.Model, animation)
+end
+
+local function pick(list: { string }, name: string?): string
+	local line = list[random:NextInteger(1, #list)]
+	return if string.find(line, "%%s") then line:format(name or "friend") else line
+end
 
 local function placeMerchant(site: any)
 	local merchant = merchants[site.UniqueId]
-	if merchant and merchant.Parent then
+	if merchant and merchant.Model.Parent then
 		-- Behind the counter, facing the same way as the stall's front.
-		merchant:PivotTo(site.Model:GetPivot() * CFrame.new(0, 3.1, 0.3))
+		merchant.Model:PivotTo(site.Model:GetPivot() * CFrame.new(0, 3.1, 0.3))
 	end
+end
+
+local function merchantNear(position: Vector3, range: number): Merchant?
+	local best, bestDistance = nil, range
+	for _, merchant in merchants do
+		if merchant.Model.Parent then
+			local distance = (merchant.Model:GetPivot().Position - position).Magnitude
+			if distance <= bestDistance then
+				best, bestDistance = merchant, distance
+			end
+		end
+	end
+	return best
+end
+
+local function playerPosition(player: Player): Vector3?
+	local character = player.Character
+	local root = character and character:FindFirstChild("HumanoidRootPart")
+	return if root and root:IsA("BasePart") then root.Position else nil
 end
 
 local function spawnMerchant(site: any)
 	if merchants[site.UniqueId] then
 		return
 	end
-	local merchant = buildMerchant()
-	if not merchant then
+	local model = buildMerchant()
+	if not model then
 		return
 	end
+	local bubble, bubbleText = makeGui(model)
+	local merchant: Merchant = {
+		Model = model,
+		Site = site,
+		Bubble = bubble,
+		BubbleText = bubbleText,
+		BubbleToken = 0,
+		BusyUntil = 0,
+		Greeted = setmetatable({}, { __mode = "k" }) :: any,
+	}
 	merchants[site.UniqueId] = merchant
-	merchant:SetAttribute("NPC", "Merchant")
-	CollectionService:AddTag(merchant, "NPCRig")
-	merchant.Parent = site.Island.Folders.Landmarks
+	model:SetAttribute("NPC", "Merchant")
+	model:SetAttribute("IdleAnim", "MiaIdle")
+	CollectionService:AddTag(model, "NPCRig")
+	model.Parent = site.Island.Folders.Landmarks
 	placeMerchant(site)
-	InteractionService.Attach(merchant, "MerchantTalk", { Label = MERCHANT_NAME, OwnerUserId = site.OwnerUserId })
+	InteractionService.Attach(model, "MerchantTalk", { Label = MERCHANT_NAME, OwnerUserId = site.OwnerUserId })
 	site.Model.Destroying:Once(function()
 		merchants[site.UniqueId] = nil
-		merchant:Destroy()
+		model:Destroy()
 	end)
+end
+
+-- Every half second: look at the nearest player, greet newcomers.
+local function tick()
+	local now = os.clock()
+	for _, merchant in merchants do
+		local model = merchant.Model
+		if not model.Parent then
+			continue
+		end
+		local origin = model:GetPivot().Position
+		local nearest, nearestDistance = nil, LOOK_RANGE
+		for _, player in Players:GetPlayers() do
+			local position = playerPosition(player)
+			if position then
+				local distance = (position - origin).Magnitude
+				if distance < nearestDistance then
+					nearest, nearestDistance = player, distance
+				end
+			end
+		end
+		model:SetAttribute("LookAt", if nearest then nearest.UserId else 0)
+		if nearest and nearestDistance <= GREET_RANGE and now >= merchant.BusyUntil then
+			local last = merchant.Greeted[nearest]
+			if not last or now - last > GREET_COOLDOWN then
+				merchant.Greeted[nearest] = now
+				act(merchant, "MiaWave", 1.6)
+				say(merchant, pick(GREETINGS, nearest.DisplayName))
+			end
+		end
+	end
 end
 
 function NPCService.Init()
@@ -12383,13 +12791,16 @@ function NPCService.Init()
 		Permission = "Market",
 		MaxDistance = 12,
 		Cooldown = 1,
-		Handler = function(player: Player, merchant: Instance)
+		Handler = function(player: Player, model: Instance)
 			local index = (tipIndex[player] or 0) % #TIPS + 1
 			tipIndex[player] = index
 			Notify.Toast(player, MERCHANT_NAME .. ": " .. TIPS[index], "💬")
 			Net.FireClient("OpenUI", player, { Screen = "Market", Tab = "Buy" })
-			if merchant:IsA("Model") then
-				AnimationService.PlayAnimation(merchant, "Wave")
+			for _, merchant in merchants do
+				if merchant.Model == model then
+					act(merchant, "MiaTalk", 2)
+					say(merchant, TIPS[index])
+				end
 			end
 		end,
 	})
@@ -12405,6 +12816,41 @@ function NPCService.Start()
 	BuildService.BuildingMoved:Connect(function(_player: Player, site: any)
 		if site.BuildingId == "MarketStall" then
 			placeMerchant(site)
+		end
+	end)
+
+	-- Opening the market: "Take a look!"
+	ShopService.MarketOpened:Connect(function(_player: Player, stall: Instance)
+		local uniqueId = stall:GetAttribute("UniqueId")
+		local merchant = if type(uniqueId) == "string" then merchants[uniqueId] else nil
+		if merchant and os.clock() >= merchant.BusyUntil then
+			act(merchant, "MiaPresent", 1.4)
+			say(merchant, "Take a look! 🧺")
+		end
+	end)
+	-- A sale or purchase: claps and a hop (once per burst of sales).
+	local function celebrate(player: Player, line: string)
+		local position = playerPosition(player)
+		local merchant = position and merchantNear(position, REACT_RANGE)
+		if merchant and os.clock() >= merchant.BusyUntil - 1 then
+			act(merchant, "MiaSold", 1.5)
+			say(merchant, line)
+		end
+	end
+	ShopService.ItemsSold:Connect(function(player: Player)
+		celebrate(player, pick(THANKS_SELL, player.DisplayName))
+	end)
+	ShopService.Purchased:Connect(function(player: Player)
+		celebrate(player, pick(THANKS_BUY, player.DisplayName))
+	end)
+
+	task.spawn(function()
+		while true do
+			task.wait(0.5)
+			local ok, err = pcall(tick)
+			if not ok then
+				warn("[NPCService] " .. tostring(err))
+			end
 		end
 	end)
 end
@@ -12517,14 +12963,15 @@ local function convertToR15(player: Player, oldCharacter: Model): boolean
 	end
 
 	model.Name = player.Name
-	if not model:FindFirstChild("Animate") then
-		local template = StarterPlayer:FindFirstChild("StarterCharacterScripts")
-		local animate = template and template:FindFirstChild("Animate")
-		if animate then
-			animate:Clone().Parent = model
-		else
-			warn("[PlayerService] R15 character has no Animate script. Set Game Settings > Avatar to R15.")
+	-- Use the game's own Animate (our movement animations), never the default one.
+	local template = StarterPlayer:FindFirstChild("StarterCharacterScripts")
+	local animate = template and template:FindFirstChild("Animate")
+	if animate then
+		local existing = model:FindFirstChild("Animate")
+		if existing then
+			existing:Destroy()
 		end
+		animate:Clone().Parent = model
 	end
 	model:PivotTo(oldCharacter:GetPivot())
 	player.Character = model
@@ -13566,6 +14013,7 @@ local ShopService = {}
 
 ShopService.ItemsSold = Signal.new() -- (player, itemId, quantity, coins)
 ShopService.Purchased = Signal.new() -- (player, shopItemId, def)
+ShopService.MarketOpened = Signal.new() -- (player, stallModel) someone clicked a market stall
 
 -- The market stall the player stands next to (any island), or nil.
 local function nearbyStall(player: Player): Model?
@@ -13766,8 +14214,9 @@ function ShopService.Init()
 		Permission = "Market",
 		MaxDistance = 10,
 		Cooldown = 0.5,
-		Handler = function(player: Player)
+		Handler = function(player: Player, stall: Instance)
 			Net.FireClient("OpenUI", player, { Screen = "Market", Tab = "Sell" })
+			ShopService.MarketOpened:Fire(player, stall)
 		end,
 	})
 	Net.OnServerEvent("SellItemRequest", ShopService.Sell)
@@ -15600,20 +16049,481 @@ return Notify
       <float name="CameraMaxZoomDistance">70</float>
       <float name="CameraMinZoomDistance">6</float>
       <float name="CharacterWalkSpeed">16</float>
+      <bool name="EnableMouseLockOption">false</bool>
     </Properties>
-    <Item class="StarterPlayerScripts" referent="99">
+    <Item class="StarterCharacterScripts" referent="99">
+      <Properties>
+        <string name="Name">StarterCharacterScripts</string>
+      </Properties>
+      <Item class="LocalScript" referent="100">
+        <Properties>
+          <string name="Name">Animate</string>
+          <string name="Source"><![CDATA[--[[
+	SCRIPT NAME:  Animate
+	SCRIPT TYPE:  LocalScript (character script)
+	WHERE:        StarterPlayer/StarterCharacterScripts/Animate
+	DEPENDENCIES: none
+
+	Replaces Roblox's default R15 "Animate" script (a script in
+	StarterCharacterScripts with this name takes its place). The game plays
+	its OWN movement animations — idle, walk, run, jump, fall, landing
+	squash, swim, climb, sit — for every character on every client in
+	StarterPlayerScripts/Client/Controllers/AnimationController (see
+	Client/Animation/Locomotion). Keeping this script empty stops the
+	default animations from fighting ours.
+]]
+
+-- Stop anything the Animator may already be playing (e.g. from a respawn).
+local character = script.Parent
+local humanoid = character:WaitForChild("Humanoid", 10)
+local animator = humanoid and humanoid:WaitForChild("Animator", 10)
+if animator and animator:IsA("Animator") then
+	for _, track in animator:GetPlayingAnimationTracks() do
+		track:Stop(0)
+	end
+end
+]]></string>
+        </Properties>
+      </Item>
+    </Item>
+    <Item class="StarterPlayerScripts" referent="101">
       <Properties>
         <string name="Name">StarterPlayerScripts</string>
       </Properties>
-      <Item class="Folder" referent="100">
+      <Item class="Folder" referent="102">
         <Properties>
           <string name="Name">Client</string>
         </Properties>
-        <Item class="Folder" referent="101">
+        <Item class="Folder" referent="103">
+          <Properties>
+            <string name="Name">Animation</string>
+          </Properties>
+          <Item class="ModuleScript" referent="104">
+            <Properties>
+              <string name="Name">Locomotion</string>
+              <string name="Source"><![CDATA[--!strict
+--[[
+	SCRIPT NAME:  Locomotion
+	SCRIPT TYPE:  ModuleScript (client animation)
+	WHERE:        StarterPlayerScripts/Client/Animation/Locomotion
+	DEPENDENCIES: none
+
+	The game's OWN R15 movement animations (they replace Roblox's default
+	"Animate" script — see StarterCharacterScripts/Animate). Cartoon-bouncy,
+	procedural and speed-matched, so feet don't slide:
+
+	  IDLE    breathing, gentle arm sway, the odd look around
+	  WALK    arm/leg swing, hip twist, head bob          (normal speed)
+	  RUN     big strides, pumping bent arms, forward lean (sprinting, Shift)
+	  JUMP    knee tuck, arms thrown up
+	  FALL    arms flailing, legs dangling
+	  LAND    cartoon squash on landing (bigger drop = bigger squash)
+	  SWIM    front crawl when moving, treading water when still
+	  CLIMB   hand-over-hand
+	  SIT     seated
+	  + a slight bank into turns
+
+	Update(state, input) returns joint poses { [joint] = {X, Y, Z, PX, PY, PZ} }
+	(degrees / studs, same format as Shared/Animation/Keyframes). Each pose
+	blends smoothly into the next. AnimationController runs it for every
+	character (yours and everyone else's), so all players see it.
+]]
+
+export type Pose = { [string]: { number } }
+
+export type State = {
+	Phase: number,
+	Walk: number,
+	Run: number,
+	Air: number,
+	Swim: number,
+	Climb: number,
+	Sit: number,
+	Rise: number,
+	Lean: number,
+	AirTime: number,
+	LandAt: number,
+	LandStrength: number,
+	FallSpeed: number,
+	Steps: number, -- footsteps taken (half cycles), for footstep effects
+}
+
+export type Input = {
+	Speed: number, -- horizontal studs/s
+	VerticalSpeed: number,
+	TurnRate: number, -- radians/s (yaw)
+	Grounded: boolean,
+	Swimming: boolean,
+	Climbing: boolean,
+	Sitting: boolean,
+	Clock: number,
+	Dt: number,
+}
+
+local Locomotion = {}
+
+local JOINTS = {
+	"Root", "Waist", "Neck",
+	"RightShoulder", "RightElbow", "RightWrist",
+	"LeftShoulder", "LeftElbow", "LeftWrist",
+	"RightHip", "RightKnee", "RightAnkle",
+	"LeftHip", "LeftKnee", "LeftAnkle",
+}
+Locomotion.Joints = JOINTS
+
+local WALK_STRIDE = 8.5 -- studs per full walk cycle (two steps)
+local RUN_STRIDE = 13
+local RUN_FROM = 18 -- speed where running starts to blend in
+local RUN_FULL = 23
+
+local function v(x: number?, y: number?, z: number?, px: number?, py: number?, pz: number?): { number }
+	return { x or 0, y or 0, z or 0, px or 0, py or 0, pz or 0 }
+end
+
+local function approach(current: number, target: number, rate: number, dt: number): number
+	return current + (target - current) * math.min(1, rate * dt)
+end
+
+local function blend(a: Pose, b: Pose, w: number): Pose
+	if w <= 0 then
+		return a
+	elseif w >= 1 then
+		return b
+	end
+	local out: Pose = {}
+	for _, joint in JOINTS do
+		local pa = a[joint]
+		local pb = b[joint]
+		if pa or pb then
+			local x = pa or v()
+			local y = pb or v()
+			out[joint] = {
+				x[1] + (y[1] - x[1]) * w,
+				x[2] + (y[2] - x[2]) * w,
+				x[3] + (y[3] - x[3]) * w,
+				(x[4] or 0) + ((y[4] or 0) - (x[4] or 0)) * w,
+				(x[5] or 0) + ((y[5] or 0) - (x[5] or 0)) * w,
+				(x[6] or 0) + ((y[6] or 0) - (x[6] or 0)) * w,
+			}
+		end
+	end
+	return out
+end
+
+local function add(pose: Pose, joint: string, delta: { number })
+	local current = pose[joint] or v()
+	pose[joint] = {
+		current[1] + (delta[1] or 0),
+		current[2] + (delta[2] or 0),
+		current[3] + (delta[3] or 0),
+		(current[4] or 0) + (delta[4] or 0),
+		(current[5] or 0) + (delta[5] or 0),
+		(current[6] or 0) + (delta[6] or 0),
+	}
+end
+
+---------------------------------------------------------------------------
+-- Poses
+---------------------------------------------------------------------------
+
+local function idlePose(t: number): Pose
+	local breathe = math.sin(t * 1.8)
+	local look = math.sin(t * 0.35) ^ 3 -- mostly still, sometimes looks around
+	return {
+		Root = v(0, 0, 0, 0, 0.03 * breathe, 0),
+		Waist = v(1.2 * breathe, 0, 0),
+		Neck = v(-1 * breathe, 14 * look, 0),
+		RightShoulder = v(3 + 1.5 * breathe, 0, 5),
+		LeftShoulder = v(3 + 1.5 * breathe, 0, -5),
+		RightElbow = v(8),
+		LeftElbow = v(8),
+		RightHip = v(),
+		LeftHip = v(),
+		RightKnee = v(),
+		LeftKnee = v(),
+		RightAnkle = v(),
+		LeftAnkle = v(),
+	}
+end
+
+local function walkPose(p: number): Pose
+	local s, c = math.sin(p), math.cos(p)
+	local rightKnee = -(6 + 44 * math.max(0, c))
+	local leftKnee = -(6 + 44 * math.max(0, -c))
+	return {
+		Root = v(0, -6 * s, 0, 0, 0.05 - 0.15 * math.abs(s), 0),
+		Waist = v(0, 9 * s, 0),
+		Neck = v(0, -3 * s, 0),
+		RightHip = v(32 * s),
+		LeftHip = v(-32 * s),
+		RightKnee = v(rightKnee),
+		LeftKnee = v(leftKnee),
+		RightAnkle = v(-(32 * s + rightKnee) * 0.3),
+		LeftAnkle = v(-(-32 * s + leftKnee) * 0.3),
+		RightShoulder = v(-28 * s, 0, 6),
+		LeftShoulder = v(28 * s, 0, -6),
+		RightElbow = v(14 + 18 * math.max(0, -s)),
+		LeftElbow = v(14 + 18 * math.max(0, s)),
+	}
+end
+
+local function runPose(p: number): Pose
+	local s, c = math.sin(p), math.cos(p)
+	return {
+		Root = v(-9, -8 * s, 0, 0, 0.2 * math.abs(s) - 0.12, 0),
+		Waist = v(-6, 13 * s, 0),
+		Neck = v(10, -5 * s, 0),
+		RightHip = v(50 * s + 8),
+		LeftHip = v(-50 * s + 8),
+		RightKnee = v(-(18 + 88 * math.max(0, c))),
+		LeftKnee = v(-(18 + 88 * math.max(0, -c))),
+		RightAnkle = v(12 * s),
+		LeftAnkle = v(-12 * s),
+		RightShoulder = v(-55 * s + 6, 0, 10),
+		LeftShoulder = v(55 * s + 6, 0, -10),
+		RightElbow = v(82),
+		LeftElbow = v(82),
+	}
+end
+
+local function jumpPose(): Pose
+	return {
+		Root = v(6),
+		Waist = v(6),
+		Neck = v(8),
+		RightHip = v(62),
+		RightKnee = v(-88),
+		RightAnkle = v(20),
+		LeftHip = v(20),
+		LeftKnee = v(-42),
+		LeftAnkle = v(10),
+		RightShoulder = v(150, 0, 30),
+		LeftShoulder = v(110, 0, -40),
+		RightElbow = v(20),
+		LeftElbow = v(24),
+	}
+end
+
+local function fallPose(t: number): Pose
+	local flail = math.sin(t * 14)
+	local kick = math.sin(t * 10)
+	return {
+		Root = v(0),
+		Waist = v(-4),
+		Neck = v(12),
+		RightShoulder = v(130 + 18 * flail, 0, 55),
+		LeftShoulder = v(130 - 18 * flail, 0, -55),
+		RightElbow = v(30 + 10 * flail),
+		LeftElbow = v(30 - 10 * flail),
+		RightHip = v(26 + 12 * kick),
+		LeftHip = v(10 - 12 * kick),
+		RightKnee = v(-36),
+		LeftKnee = v(-22),
+		RightAnkle = v(10),
+		LeftAnkle = v(10),
+	}
+end
+
+local function swimPose(t: number, moving: number): Pose
+	local a = t * 4.5
+	local flutter = math.sin(t * 9)
+	local crawl: Pose = {
+		Root = v(-72),
+		Waist = v(0, 10 * math.sin(a), 0),
+		Neck = v(45),
+		RightShoulder = v(90 + 100 * math.sin(a), 0, 18),
+		LeftShoulder = v(90 - 100 * math.sin(a), 0, -18),
+		RightElbow = v(25),
+		LeftElbow = v(25),
+		RightHip = v(18 * flutter),
+		LeftHip = v(-18 * flutter),
+		RightKnee = v(-14),
+		LeftKnee = v(-14),
+		RightAnkle = v(-30),
+		LeftAnkle = v(-30),
+	}
+	local tread = math.sin(t * 3)
+	local treading: Pose = {
+		Root = v(0, 0, 0, 0, 0.1 * tread, 0),
+		Waist = v(0),
+		Neck = v(0),
+		RightShoulder = v(40, 0, 40 + 25 * tread),
+		LeftShoulder = v(40, 0, -40 - 25 * tread),
+		RightElbow = v(30),
+		LeftElbow = v(30),
+		RightHip = v(30 + 25 * math.sin(t * 4)),
+		LeftHip = v(30 - 25 * math.sin(t * 4)),
+		RightKnee = v(-50),
+		LeftKnee = v(-50),
+		RightAnkle = v(),
+		LeftAnkle = v(),
+	}
+	return blend(treading, crawl, moving)
+end
+
+local function climbPose(t: number, moving: boolean): Pose
+	local a = t * (if moving then 7 else 1.5)
+	local s = math.sin(a)
+	return {
+		Root = v(0),
+		Waist = v(0),
+		Neck = v(15),
+		RightShoulder = v(150 + 25 * s, 0, 10),
+		LeftShoulder = v(150 - 25 * s, 0, -10),
+		RightElbow = v(40 + 25 * math.max(0, -s)),
+		LeftElbow = v(40 + 25 * math.max(0, s)),
+		RightHip = v(45 + 30 * s),
+		LeftHip = v(45 - 30 * s),
+		RightKnee = v(-70),
+		LeftKnee = v(-70),
+		RightAnkle = v(),
+		LeftAnkle = v(),
+	}
+end
+
+local function sitPose(t: number): Pose
+	local breathe = math.sin(t * 1.8)
+	return {
+		Root = v(0),
+		Waist = v(2 * breathe),
+		Neck = v(0),
+		RightHip = v(90),
+		LeftHip = v(90),
+		RightKnee = v(-90),
+		LeftKnee = v(-90),
+		RightAnkle = v(),
+		LeftAnkle = v(),
+		RightShoulder = v(12, 0, 4),
+		LeftShoulder = v(12, 0, -4),
+		RightElbow = v(30),
+		LeftElbow = v(30),
+	}
+end
+
+---------------------------------------------------------------------------
+-- Public
+---------------------------------------------------------------------------
+
+function Locomotion.NewState(): State
+	return {
+		Phase = math.random() * math.pi * 2,
+		Walk = 0,
+		Run = 0,
+		Air = 0,
+		Swim = 0,
+		Climb = 0,
+		Sit = 0,
+		Rise = 0,
+		Lean = 0,
+		AirTime = 0,
+		LandAt = -10,
+		LandStrength = 0,
+		FallSpeed = 0,
+		Steps = 0,
+	}
+end
+
+-- Advances the state and returns this frame's pose. Also returns
+-- (landed: number?, stepped: boolean) so the caller can add dust puffs.
+function Locomotion.Update(state: State, input: Input): (Pose, number?, boolean)
+	local dt = math.min(input.Dt, 1 / 15)
+	local t = input.Clock
+	local speed = input.Speed
+	local airborne = not input.Grounded and not input.Swimming and not input.Climbing and not input.Sitting
+
+	-- Landing detection (cartoon squash).
+	local landed: number? = nil
+	if airborne then
+		state.AirTime += dt
+		state.FallSpeed = math.max(state.FallSpeed, -input.VerticalSpeed)
+	else
+		if state.AirTime > 0.28 and input.Grounded then
+			state.LandAt = t
+			state.LandStrength = math.clamp((state.FallSpeed - 8) / 45, 0.3, 1)
+			landed = state.LandStrength
+		end
+		state.AirTime = 0
+		state.FallSpeed = 0
+	end
+
+	-- Smooth blend weights.
+	local grounded = input.Grounded and not input.Swimming and not input.Sitting
+	state.Walk = approach(state.Walk, if grounded then math.clamp((speed - 0.6) / 4, 0, 1) else 0, 10, dt)
+	state.Run = approach(state.Run, if grounded then math.clamp((speed - RUN_FROM) / (RUN_FULL - RUN_FROM), 0, 1) else 0, 8, dt)
+	state.Air = approach(state.Air, if airborne and state.AirTime > 0.06 then 1 else 0, 14, dt)
+	state.Swim = approach(state.Swim, if input.Swimming then 1 else 0, 8, dt)
+	state.Climb = approach(state.Climb, if input.Climbing then 1 else 0, 10, dt)
+	state.Sit = approach(state.Sit, if input.Sitting then 1 else 0, 10, dt)
+	state.Rise = approach(state.Rise, math.clamp(input.VerticalSpeed / 25, -1, 1), 10, dt)
+	state.Lean = approach(state.Lean, math.clamp(-input.TurnRate * 3, -10, 10) * math.clamp(speed / 16, 0, 1), 6, dt)
+
+	-- Stride phase follows distance travelled (no foot sliding).
+	local stepped = false
+	if grounded and speed > 0.3 then
+		local stride = WALK_STRIDE + (RUN_STRIDE - WALK_STRIDE) * state.Run
+		local before = math.floor(state.Phase / math.pi)
+		state.Phase += (speed / stride) * math.pi * 2 * dt
+		if math.floor(state.Phase / math.pi) ~= before then
+			state.Steps += 1
+			stepped = true
+		end
+		if state.Phase > 1e4 then
+			state.Phase %= math.pi * 2
+		end
+	end
+
+	local pose = idlePose(t)
+	pose = blend(pose, walkPose(state.Phase), state.Walk)
+	pose = blend(pose, runPose(state.Phase), state.Run * state.Walk)
+	if state.Air > 0.001 then
+		local air = blend(fallPose(t), jumpPose(), (state.Rise + 1) / 2)
+		pose = blend(pose, air, state.Air)
+	end
+	if state.Swim > 0.001 then
+		pose = blend(pose, swimPose(t, math.clamp(speed / 10, 0, 1)), state.Swim)
+	end
+	if state.Climb > 0.001 then
+		pose = blend(pose, climbPose(t, math.abs(input.VerticalSpeed) > 1), state.Climb)
+	end
+	if state.Sit > 0.001 then
+		pose = blend(pose, sitPose(t), state.Sit)
+	end
+
+	-- Bank into turns.
+	if math.abs(state.Lean) > 0.05 then
+		add(pose, "Root", { 0, 0, state.Lean })
+	end
+
+	-- Landing squash: knees give, arms flare, then spring back.
+	local sinceLand = t - state.LandAt
+	if sinceLand < 0.34 then
+		local x = sinceLand / 0.34
+		local amount = state.LandStrength * (1 - x) ^ 2
+		add(pose, "Root", { 0, 0, 0, 0, -0.75 * amount, 0 })
+		add(pose, "RightHip", { 42 * amount })
+		add(pose, "LeftHip", { 42 * amount })
+		add(pose, "RightKnee", { -75 * amount })
+		add(pose, "LeftKnee", { -75 * amount })
+		add(pose, "RightAnkle", { 32 * amount })
+		add(pose, "LeftAnkle", { 32 * amount })
+		add(pose, "Waist", { -14 * amount })
+		add(pose, "RightShoulder", { 10 * amount, 0, 30 * amount })
+		add(pose, "LeftShoulder", { 10 * amount, 0, -30 * amount })
+	end
+
+	return pose, landed, stepped
+end
+
+return Locomotion
+]]></string>
+            </Properties>
+          </Item>
+        </Item>
+        <Item class="Folder" referent="105">
           <Properties>
             <string name="Name">Build</string>
           </Properties>
-          <Item class="ModuleScript" referent="102">
+          <Item class="ModuleScript" referent="106">
             <Properties>
               <string name="Name">LandEditor</string>
               <string name="Source"><![CDATA[--[[
@@ -16007,7 +16917,7 @@ return LandEditor
             </Properties>
           </Item>
         </Item>
-        <Item class="ModuleScript" referent="103">
+        <Item class="ModuleScript" referent="107">
           <Properties>
             <string name="Name">ClientState</string>
             <string name="Source"><![CDATA[--[[
@@ -16141,11 +17051,11 @@ return ClientState
 ]]></string>
           </Properties>
         </Item>
-        <Item class="Folder" referent="104">
+        <Item class="Folder" referent="108">
           <Properties>
             <string name="Name">Controllers</string>
           </Properties>
-          <Item class="ModuleScript" referent="105">
+          <Item class="ModuleScript" referent="109">
             <Properties>
               <string name="Name">AnimalController</string>
               <string name="Source"><![CDATA[--[[
@@ -16294,7 +17204,7 @@ return AnimalController
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="106">
+          <Item class="ModuleScript" referent="110">
             <Properties>
               <string name="Name">AnimationController</string>
               <string name="Source"><![CDATA[--[[
@@ -16307,6 +17217,15 @@ return AnimalController
 	Animates EVERY rig this client can see — your character, other players,
 	NPCs and animals — so everyone sees the same thing:
 
+	  * MOVEMENT (Client/Animation/Locomotion): the game's own idle, walk,
+	             run (sprint), jump, fall, landing squash, swim, climb and
+	             sit animations. Roblox's default Animate script is replaced
+	             (StarterCharacterScripts/Animate), so every joint is ours.
+	             Other players' movement is read from their velocity, a
+	             ground raycast and the water around them.
+	  * HIT RECOIL: when a swing actually connects the server stamps the
+	             character's "Recoil" attribute and the arms bounce back off
+	             the tree / rock / construction site.
 	  * ACTIONS  (chop, mine, hammer, till, plant, water, harvest, cast, reel,
 	             milk, feed, pet, cheer, wave, dance...) come from the rig's
 	             ActionAnim attribute ("Name;ServerStartTime;Speed;Seq") set by
@@ -16344,6 +17263,7 @@ local Signal = require(Shared.Util.Signal)
 local R15 = require(Shared.Util.R15)
 
 local Controllers = script.Parent
+local Locomotion = require(Controllers.Parent:WaitForChild("Animation"):WaitForChild("Locomotion"))
 local AudioController = require(Controllers.AudioController)
 local VFXController = require(Controllers.VFXController)
 local CameraController = require(Controllers.CameraController)
@@ -16383,6 +17303,12 @@ type Rig = {
 	Tracks: { [string]: AnimationTrack },
 	Connections: { RBXScriptConnection },
 	TrailOn: boolean,
+	Loco: Locomotion.State,
+	RayParams: RaycastParams,
+	WaterCheckAt: number,
+	InWater: boolean,
+	Recoil: { Start: number, Strength: number }?,
+	LookYaw: number,
 }
 
 local rigs: { [Model]: Rig } = {}
@@ -16621,7 +17547,23 @@ local function addRig(model: Model, isNPC: boolean)
 		Tracks = {},
 		Connections = {},
 		TrailOn = false,
+		Loco = Locomotion.NewState(),
+		RayParams = RaycastParams.new(),
+		WaterCheckAt = 0,
+		InWater = false,
+		Recoil = nil,
+		LookYaw = 0,
 	}
+	rig.RayParams.FilterType = Enum.RaycastFilterType.Exclude
+	rig.RayParams.FilterDescendantsInstances = { model }
+	rig.RayParams.IgnoreWater = true
+	table.insert(rig.Connections, model:GetAttributeChangedSignal("Recoil"):Connect(function()
+		local value = model:GetAttribute("Recoil")
+		local strength = if type(value) == "string" then tonumber(string.match(value, "^([%d%.]+);")) else nil
+		if strength then
+			rig.Recoil = { Start = os.clock(), Strength = math.clamp(strength, 0, 2) }
+		end
+	end))
 	rigs[model] = rig
 	table.insert(rig.Connections, model:GetAttributeChangedSignal("ActionAnim"):Connect(function()
 		readAction(rig)
@@ -16645,6 +17587,62 @@ end
 ---------------------------------------------------------------------------
 -- Per-frame application
 ---------------------------------------------------------------------------
+
+local function inWater(position: Vector3): boolean
+	local region = Region3.new(position - Vector3.new(1, 2, 1), position + Vector3.new(1, 1, 1)):ExpandToGrid(4)
+	local ok, materials, occupancies = pcall(function()
+		return workspace.Terrain:ReadVoxels(region, 4)
+	end)
+	if not ok or not materials then
+		return false
+	end
+	for x, plane in materials do
+		for y, row in plane do
+			for z, material in row do
+				if material == Enum.Material.Water and occupancies[x][y][z] > 0.5 then
+					return true
+				end
+			end
+		end
+	end
+	return false
+end
+
+-- What the character is doing right now (for the movement animations).
+local function locomotionInput(rig: Rig, root: BasePart, humanoid: Humanoid, clock: number, dt: number): Locomotion.Input
+	local anchored = root.Anchored
+	local velocity = if anchored then Vector3.zero else root.AssemblyLinearVelocity
+	local grounded, swimming, climbing = true, false, false
+	if rig.Model == localCharacter then
+		local state = humanoid:GetState()
+		swimming = state == Enum.HumanoidStateType.Swimming
+		climbing = state == Enum.HumanoidStateType.Climbing
+		grounded = humanoid.FloorMaterial ~= Enum.Material.Air
+	elseif not anchored then
+		local reach = humanoid.HipHeight + root.Size.Y / 2 + 0.8
+		grounded = workspace:Raycast(root.Position, Vector3.new(0, -reach, 0), rig.RayParams) ~= nil
+		if clock >= rig.WaterCheckAt then
+			rig.WaterCheckAt = clock + 0.25
+			rig.InWater = inWater(root.Position)
+		end
+		swimming = rig.InWater and not grounded
+	end
+	return {
+		Speed = Vector3.new(velocity.X, 0, velocity.Z).Magnitude,
+		VerticalSpeed = velocity.Y,
+		TurnRate = if anchored then 0 else root.AssemblyAngularVelocity.Y,
+		Grounded = grounded,
+		Swimming = swimming,
+		Climbing = climbing,
+		Sitting = humanoid.Sit,
+		Clock = clock,
+		Dt = dt,
+	}
+end
+
+local function footPosition(root: BasePart, humanoid: Humanoid): Vector3
+	return root.Position - Vector3.new(0, humanoid.HipHeight + root.Size.Y / 2 - 0.2, 0)
+end
 
 local function applyRig(rig: Rig, now: number, clock: number, dt: number)
 	local model = rig.Model
@@ -16673,6 +17671,23 @@ local function applyRig(rig: Rig, now: number, clock: number, dt: number)
 	local targets: { [string]: CFrame } = {}
 	local weights: { [string]: number } = {}
 
+	-- Base layer: our own movement animations on every joint.
+	local humanoid = model:FindFirstChildOfClass("Humanoid")
+	local root = model:FindFirstChild("HumanoidRootPart")
+	if humanoid and root and root:IsA("BasePart") then
+		local pose, landed, stepped = Locomotion.Update(rig.Loco, locomotionInput(rig, root, humanoid, clock, dt))
+		for joint, value in pose do
+			targets[joint] = toCFrame(value)
+			weights[joint] = 1
+		end
+		-- Cartoon dust: a puff on hard landings and under sprinting feet.
+		if landed and landed > 0.35 then
+			VFXController.Play("Puff", footPosition(root, humanoid), { Scale = 0.25 + 0.35 * landed, Count = 5 })
+		elseif stepped and rig.Loco.Run > 0.6 then
+			VFXController.Play("Puff", footPosition(root, humanoid), { Scale = 0.2, Count = 2 })
+		end
+	end
+
 	if activeHold and rig.HoldWeight > 0 then
 		local sway = math.sin(clock * 1.6) * (activeHold.Sway or 0)
 		for joint, value in activeHold.Pose do
@@ -16680,14 +17695,19 @@ local function applyRig(rig: Rig, now: number, clock: number, dt: number)
 			if joint == "RightShoulder" then
 				cf = CFrame.Angles(math.rad(sway), 0, 0) * cf
 			end
-			targets[joint] = cf
-			weights[joint] = rig.HoldWeight
+			local base = targets[joint]
+			targets[joint] = if base then base:Lerp(cf, rig.HoldWeight) else cf
+			weights[joint] = if base then 1 else rig.HoldWeight
 		end
 	end
 
 	if rig.IsNPC and not action then
-		local idle = Keyframes.NPCIdle
-		local t = (clock / 6) % 1
+		-- NPCs can name their own looping idle (e.g. Mia's "MiaIdle").
+		local idleName = model:GetAttribute("IdleAnim")
+		local custom = if type(idleName) == "string" then Keyframes.Actions[idleName] else nil
+		local idleDef = if custom and type(idleName) == "string" then AnimationConfig.Get(idleName) else nil
+		local idle = custom or Keyframes.NPCIdle
+		local t = (clock / (if idleDef then idleDef.Length else 6)) % 1
 		for _, joint in Keyframes.JointsOf(idle) do
 			targets[joint] = sampleJoint(idle.Keys, joint, t)
 			weights[joint] = 1
@@ -16737,6 +17757,53 @@ local function applyRig(rig: Rig, now: number, clock: number, dt: number)
 		applyAction(action, math.clamp(elapsed / FADE_IN, 0, 1))
 	end
 
+	-- NPCs turn their head and shoulders towards a player (LookAt = UserId).
+	local lookAt = model:GetAttribute("LookAt")
+	local wantedYaw = 0
+	if type(lookAt) == "number" and lookAt ~= 0 then
+		local target = Players:GetPlayerByUserId(lookAt)
+		local targetRoot = target and target.Character and target.Character:FindFirstChild("HumanoidRootPart")
+		local selfRoot = model:FindFirstChild("HumanoidRootPart")
+		if targetRoot and targetRoot:IsA("BasePart") and selfRoot and selfRoot:IsA("BasePart") then
+			local relative = selfRoot.CFrame:PointToObjectSpace(targetRoot.Position)
+			wantedYaw = math.clamp(math.deg(math.atan2(-relative.X, -relative.Z)), -80, 80)
+		end
+	end
+	rig.LookYaw += (wantedYaw - rig.LookYaw) * math.min(1, dt * 5)
+	if math.abs(rig.LookYaw) > 0.5 then
+		local waist = targets.Waist
+		if waist then
+			targets.Waist = waist * CFrame.Angles(0, math.rad(rig.LookYaw * 0.35), 0)
+		end
+		local neck = targets.Neck
+		if neck then
+			targets.Neck = neck * CFrame.Angles(0, math.rad(rig.LookYaw * 0.55), 0)
+		end
+	end
+
+	-- Hit recoil: the arms bounce back off whatever the swing hit.
+	local recoil = rig.Recoil
+	if recoil then
+		local t = clock - recoil.Start
+		if t > 0.35 then
+			rig.Recoil = nil
+		else
+			local a = recoil.Strength * math.exp(-t * 11) * math.cos(t * 28)
+			local function kick(joint: string, degrees: number)
+				local current = targets[joint]
+				if current then
+					targets[joint] = current * CFrame.Angles(math.rad(degrees * a), 0, 0)
+					weights[joint] = 1
+				end
+			end
+			kick("RightShoulder", 16)
+			kick("RightElbow", 20)
+			kick("LeftShoulder", 10)
+			kick("Waist", 6)
+			kick("Neck", 8)
+		end
+	end
+
 	-- Swing trail on the held tool during the action's Trail window.
 	local trailOn = false
 	if action and action.Def.Trail then
@@ -16750,9 +17817,9 @@ local function applyRig(rig: Rig, now: number, clock: number, dt: number)
 		if trail and trail:IsA("Trail") then
 			trail.Enabled = trailOn
 			if trailOn then
-				local root = R15.GetRootPart(model)
-				if root then
-					AudioController.PlayAt("ToolSwing", root.Position)
+				local rootPart = R15.GetRootPart(model)
+				if rootPart then
+					AudioController.PlayAt("ToolSwing", rootPart.Position)
 				end
 			end
 		end
@@ -16952,7 +18019,7 @@ return AnimationController
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="107">
+          <Item class="ModuleScript" referent="111">
             <Properties>
               <string name="Name">AudioController</string>
               <string name="Source"><![CDATA[--[[
@@ -17131,7 +18198,7 @@ return AudioController
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="108">
+          <Item class="ModuleScript" referent="112">
             <Properties>
               <string name="Name">BuildController</string>
               <string name="Source"><![CDATA[--[[
@@ -18166,7 +19233,7 @@ return BuildController
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="109">
+          <Item class="ModuleScript" referent="113">
             <Properties>
               <string name="Name">CameraController</string>
               <string name="Source"><![CDATA[--[[
@@ -18187,9 +19254,15 @@ return BuildController
 	  Punch(amount)           a springy field-of-view pop (level ups)
 	  SetMode(mode)           Default / Build / Fishing field of view
 
-	Everything runs through one damped spring, applied after the default
-	camera script each frame, so offsets never accumulate. Rotation effects
-	respect the player's "Camera shake" setting; FOV pops always play.
+	Everything runs through one damped spring. IMPORTANT: Roblox's camera
+	script reads the camera's current rotation every frame, so an offset
+	left on the camera would be fed back in and ADD UP (the view slowly
+	tipped towards the ground). We therefore remove last frame's offset
+	just BEFORE the camera script runs and add the new one just AFTER it:
+	the player's own camera angle is never changed. Rotation effects respect
+	the "Camera shake" setting; FOV pops always play.
+
+	Sprinting widens the field of view a little (SetSprint).
 ]]
 
 local Players = game:GetService("Players")
@@ -18201,7 +19274,8 @@ local Net = require(Shared:WaitForChild("Net"))
 local GameConfig = require(Shared.Config.GameConfig)
 local ClientState = require(script.Parent.Parent.ClientState)
 
-local BIND_NAME = "IslandCameraJuice"
+local BIND_UNDO = "IslandCameraJuiceUndo"
+local BIND_APPLY = "IslandCameraJuice"
 
 local MODES = {
 	Default = { FieldOfView = GameConfig.Camera.DefaultFieldOfView },
@@ -18214,7 +19288,8 @@ local STIFFNESS = 170
 local DAMPING = 11
 local FOV_STIFFNESS = 120
 local FOV_DAMPING = 9
-local MAX_ANGLE = math.rad(9)
+local MAX_ANGLE = math.rad(4.5)
+local SPRINT_FOV = 7
 
 local CameraController = {}
 
@@ -18231,9 +19306,21 @@ local noiseSeed = math.random() * 1000
 -- Wobbles: several can overlap (a tree falling while you mine).
 type Wobble = { Start: number, Duration: number, Strength: number, Phase: number }
 local wobbles: { Wobble } = {}
+-- The rotation offset currently applied on top of the camera script's result.
+local appliedOffset = CFrame.identity
+local sprinting = false
 
 local function shakeAllowed(): boolean
 	return ClientState.Get("Settings", "CameraShake") ~= false
+end
+
+-- Before the camera script: take last frame's offset back off.
+local function undo()
+	local cam = workspace.CurrentCamera
+	if cam and appliedOffset ~= CFrame.identity then
+		cam.CFrame *= appliedOffset:Inverse()
+	end
+	appliedOffset = CFrame.identity
 end
 
 local function step(dt: number)
@@ -18243,8 +19330,9 @@ local function step(dt: number)
 	end
 	dt = math.min(dt, 1 / 20)
 
-	-- Base field of view eases towards the mode's FOV.
-	baseFov += (targetFov - baseFov) * math.min(1, dt * 8)
+	-- Base field of view eases towards the mode's FOV (+ a bit while sprinting).
+	local wanted = targetFov + (if sprinting then SPRINT_FOV else 0)
+	baseFov += (wanted - baseFov) * math.min(1, dt * 8)
 
 	-- Springs.
 	local accel = -angle * STIFFNESS - angleVelocity * DAMPING
@@ -18266,9 +19354,9 @@ local function step(dt: number)
 		else
 			local decay = (1 - t / wobble.Duration) ^ 2
 			local s = wobble.Strength * decay
-			roll += math.sin(t * 17 + wobble.Phase) * 0.055 * s
-			pitch += math.sin(t * 23 + wobble.Phase * 2) * 0.03 * s
-			yaw += math.sin(t * 11 + wobble.Phase) * 0.012 * s
+			roll += math.sin(t * 17 + wobble.Phase) * 0.032 * s
+			pitch += math.sin(t * 23 + wobble.Phase * 2) * 0.014 * s
+			yaw += math.sin(t * 11 + wobble.Phase) * 0.008 * s
 		end
 	end
 
@@ -18276,9 +19364,9 @@ local function step(dt: number)
 	if trauma > 0 then
 		local time = now * 25
 		local strength = trauma * trauma
-		pitch += math.noise(noiseSeed, time) * 0.035 * strength
-		yaw += math.noise(noiseSeed + 10, time) * 0.035 * strength
-		roll += math.noise(noiseSeed + 20, time) * 0.02 * strength
+		pitch += math.noise(noiseSeed, time) * 0.025 * strength
+		yaw += math.noise(noiseSeed + 10, time) * 0.025 * strength
+		roll += math.noise(noiseSeed + 20, time) * 0.015 * strength
 		trauma = math.max(0, trauma - dt / math.max(traumaDuration, 0.05))
 	end
 
@@ -18286,7 +19374,8 @@ local function step(dt: number)
 	yaw = math.clamp(yaw, -MAX_ANGLE, MAX_ANGLE)
 	roll = math.clamp(roll, -MAX_ANGLE, MAX_ANGLE)
 	if math.abs(pitch) + math.abs(yaw) + math.abs(roll) > 1e-5 then
-		cam.CFrame *= CFrame.Angles(pitch, yaw, roll)
+		appliedOffset = CFrame.Angles(pitch, yaw, roll)
+		cam.CFrame *= appliedOffset
 	end
 	cam.FieldOfView = math.clamp(baseFov + fovOffset, 30, 110)
 end
@@ -18294,12 +19383,12 @@ end
 -- A springy nod when YOUR hit lands.
 function CameraController.Kick(strength: number?)
 	local s = math.clamp(strength or 1, 0, 3)
-	fovVelocity -= 34 * s -- quick zoom-in squash
+	fovVelocity -= 18 * s -- quick little zoom-in squash
 	if not shakeAllowed() then
 		return
 	end
 	local side = if math.random() < 0.5 then -1 else 1
-	angleVelocity += Vector3.new(-0.55 * s, 0.12 * s * side, 0.35 * s * side)
+	angleVelocity += Vector3.new(-0.3 * s, 0.06 * s * side, 0.22 * s * side)
 end
 
 -- A decaying, bouncy wobble (tree falls, rocks shatter, land rises).
@@ -18316,7 +19405,7 @@ function CameraController.Wobble(strength: number, duration: number?)
 	if #wobbles > 4 then
 		table.remove(wobbles, 1)
 	end
-	angleVelocity += Vector3.new(-0.4 * strength, 0, 0)
+	angleVelocity += Vector3.new(-0.2 * strength, 0, 0)
 end
 
 function CameraController.Shake(intensity: number, duration: number?)
@@ -18340,6 +19429,11 @@ function CameraController.GetMode(): string
 	return mode
 end
 
+-- Slightly wider view while sprinting (speed feel).
+function CameraController.SetSprint(isSprinting: boolean)
+	sprinting = isSprinting
+end
+
 -- Springy FOV pop for level ups / unlocks.
 function CameraController.Punch(amount: number?)
 	fovVelocity += 55 * (amount or 4) / 4
@@ -18352,8 +19446,9 @@ function CameraController.Init()
 end
 
 function CameraController.Start()
-	-- After the default camera script, every frame.
-	RunService:BindToRenderStep(BIND_NAME, Enum.RenderPriority.Camera.Value + 1, step)
+	-- Undo just before the default camera script, re-apply just after it.
+	RunService:BindToRenderStep(BIND_UNDO, Enum.RenderPriority.Camera.Value - 1, undo)
+	RunService:BindToRenderStep(BIND_APPLY, Enum.RenderPriority.Camera.Value + 1, step)
 	Net.OnClientEvent("CameraShake", function(intensity: any, duration: any, style: any)
 		if type(intensity) ~= "number" then
 			return
@@ -18373,7 +19468,7 @@ return CameraController
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="110">
+          <Item class="ModuleScript" referent="114">
             <Properties>
               <string name="Name">FarmController</string>
               <string name="Source"><![CDATA[--[[
@@ -18535,7 +19630,7 @@ return FarmController
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="111">
+          <Item class="ModuleScript" referent="115">
             <Properties>
               <string name="Name">FishingController</string>
               <string name="Source"><![CDATA[--[[
@@ -19248,7 +20343,7 @@ return FishingController
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="112">
+          <Item class="ModuleScript" referent="116">
             <Properties>
               <string name="Name">InputController</string>
               <string name="Source"><![CDATA[--[[
@@ -19420,7 +20515,7 @@ return InputController
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="113">
+          <Item class="ModuleScript" referent="117">
             <Properties>
               <string name="Name">InteractionController</string>
               <string name="Source"><![CDATA[--[[
@@ -20138,7 +21233,7 @@ return InteractionController
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="114">
+          <Item class="ModuleScript" referent="118">
             <Properties>
               <string name="Name">InventoryController</string>
               <string name="Source"><![CDATA[--[[
@@ -20252,7 +21347,7 @@ return InventoryController
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="115">
+          <Item class="ModuleScript" referent="119">
             <Properties>
               <string name="Name">IslandController</string>
               <string name="Source"><![CDATA[--[[
@@ -20769,7 +21864,7 @@ return IslandController
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="116">
+          <Item class="ModuleScript" referent="120">
             <Properties>
               <string name="Name">IslandCreatorController</string>
               <string name="Source"><![CDATA[--[[
@@ -21253,7 +22348,70 @@ return IslandCreatorController
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="117">
+          <Item class="ModuleScript" referent="121">
+            <Properties>
+              <string name="Name">MovementController</string>
+              <string name="Source"><![CDATA[--[[
+	SCRIPT NAME:  MovementController
+	SCRIPT TYPE:  ModuleScript (client controller)
+	WHERE:        StarterPlayerScripts/Client/Controllers/MovementController
+	DEPENDENCIES: Shared.Config.GameConfig, InputController, CameraController, UIController
+
+	SPRINT: hold Shift (or press the left stick on a gamepad) to run at
+	GameConfig.Character.SprintSpeed. The run animation, dust puffs and a
+	slightly wider camera kick in automatically. Your own client moves your
+	character, so the speed is set here; the server's movement check
+	(AntiExploitService) already allows for it. Menus and build mode stop
+	sprinting.
+]]
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+
+local Shared = ReplicatedStorage:WaitForChild("Shared")
+local GameConfig = require(Shared.Config.GameConfig)
+
+local InputController = require(script.Parent.InputController)
+local CameraController = require(script.Parent.CameraController)
+local UIController = require(script.Parent.UIController)
+
+local MovementController = {}
+
+local sprinting = false
+
+function MovementController.IsSprinting(): boolean
+	return sprinting
+end
+
+local function update()
+	local character = Players.LocalPlayer.Character
+	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+	if not humanoid then
+		return
+	end
+	local wants = InputController.IsHeld("Sprint")
+		and not UIController.IsAnyModalOpen()
+		and humanoid.MoveDirection.Magnitude > 0.1
+	if wants ~= sprinting then
+		sprinting = wants
+		CameraController.SetSprint(sprinting)
+	end
+	local speed = if sprinting then GameConfig.Character.SprintSpeed else GameConfig.Character.WalkSpeed
+	if humanoid.WalkSpeed ~= speed then
+		humanoid.WalkSpeed = speed
+	end
+end
+
+function MovementController.Start()
+	RunService.RenderStepped:Connect(update)
+end
+
+return MovementController
+]]></string>
+            </Properties>
+          </Item>
+          <Item class="ModuleScript" referent="122">
             <Properties>
               <string name="Name">PlayersController</string>
               <string name="Source"><![CDATA[--[[
@@ -21475,7 +22633,7 @@ return PlayersController
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="118">
+          <Item class="ModuleScript" referent="123">
             <Properties>
               <string name="Name">QuestController</string>
               <string name="Source"><![CDATA[--[[
@@ -21728,7 +22886,7 @@ return QuestController
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="119">
+          <Item class="ModuleScript" referent="124">
             <Properties>
               <string name="Name">ShopController</string>
               <string name="Source"><![CDATA[--[[
@@ -22364,7 +23522,7 @@ return ShopController
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="120">
+          <Item class="ModuleScript" referent="125">
             <Properties>
               <string name="Name">SocialController</string>
               <string name="Source"><![CDATA[--[[
@@ -22565,7 +23723,7 @@ return SocialController
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="121">
+          <Item class="ModuleScript" referent="126">
             <Properties>
               <string name="Name">ToolController</string>
               <string name="Source"><![CDATA[--[[
@@ -22770,7 +23928,7 @@ return ToolController
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="122">
+          <Item class="ModuleScript" referent="127">
             <Properties>
               <string name="Name">TradeController</string>
               <string name="Source"><![CDATA[--[[
@@ -23135,7 +24293,7 @@ return TradeController
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="123">
+          <Item class="ModuleScript" referent="128">
             <Properties>
               <string name="Name">UIController</string>
               <string name="Source"><![CDATA[--[[
@@ -23433,7 +24591,7 @@ return UIController
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="124">
+          <Item class="ModuleScript" referent="129">
             <Properties>
               <string name="Name">VFXController</string>
               <string name="Source"><![CDATA[--[[
@@ -23929,7 +25087,7 @@ return VFXController
             </Properties>
           </Item>
         </Item>
-        <Item class="LocalScript" referent="125">
+        <Item class="LocalScript" referent="130">
           <Properties>
             <string name="Name">Main</string>
             <string name="Source"><![CDATA[--[[
@@ -23946,7 +25104,7 @@ return VFXController
 		ClientState, InputController, AudioController, VFXController, CameraController
 		AnimationController
 		UIController
-		ToolController
+		MovementController, ToolController
 		InteractionController
 		InventoryController, BuildController (+ Client/Build/LandEditor)
 		IslandController, QuestController, FarmController, FishingController,
@@ -23982,6 +25140,7 @@ local ORDER: { ModuleScript } = {
 	Controllers.CameraController,
 	Controllers.AnimationController,
 	Controllers.UIController,
+	Controllers.MovementController,
 	Controllers.ToolController,
 	Controllers.InteractionController,
 	Controllers.InventoryController,
@@ -24029,11 +25188,11 @@ end
 ]]></string>
           </Properties>
         </Item>
-        <Item class="Folder" referent="126">
+        <Item class="Folder" referent="131">
           <Properties>
             <string name="Name">UI</string>
           </Properties>
-          <Item class="ModuleScript" referent="127">
+          <Item class="ModuleScript" referent="132">
             <Properties>
               <string name="Name">Components</string>
               <string name="Source"><![CDATA[--[[
@@ -24520,7 +25679,7 @@ return Components
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="128">
+          <Item class="ModuleScript" referent="133">
             <Properties>
               <string name="Name">HUD</string>
               <string name="Source"><![CDATA[--[[
@@ -24662,7 +25821,7 @@ return HUD
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="129">
+          <Item class="ModuleScript" referent="134">
             <Properties>
               <string name="Name">Hotbar</string>
               <string name="Source"><![CDATA[--[[
@@ -24919,7 +26078,7 @@ return Hotbar
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="130">
+          <Item class="ModuleScript" referent="135">
             <Properties>
               <string name="Name">InventoryPanel</string>
               <string name="Source"><![CDATA[--[[
@@ -25380,7 +26539,7 @@ return InventoryPanel
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="131">
+          <Item class="ModuleScript" referent="136">
             <Properties>
               <string name="Name">Notifications</string>
               <string name="Source"><![CDATA[--[[
@@ -25661,7 +26820,7 @@ return Notifications
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="132">
+          <Item class="ModuleScript" referent="137">
             <Properties>
               <string name="Name">Theme</string>
               <string name="Source"><![CDATA[--[[
@@ -25742,39 +26901,39 @@ return Theme
       </Item>
     </Item>
   </Item>
-  <Item class="Workspace" referent="133">
+  <Item class="Workspace" referent="138">
     <Properties>
       <string name="Name">Workspace</string>
       <bool name="NeedsPivotMigration">false</bool>
       <bool name="StreamingEnabled">true</bool>
     </Properties>
-    <Item class="Folder" referent="134">
+    <Item class="Folder" referent="139">
       <Properties>
         <string name="Name">FishingZones</string>
       </Properties>
     </Item>
-    <Item class="Folder" referent="135">
+    <Item class="Folder" referent="140">
       <Properties>
         <string name="Name">Islands</string>
       </Properties>
     </Item>
-    <Item class="Folder" referent="136">
+    <Item class="Folder" referent="141">
       <Properties>
         <string name="Name">NPCs</string>
       </Properties>
     </Item>
-    <Item class="Folder" referent="137">
+    <Item class="Folder" referent="142">
       <Properties>
         <string name="Name">ResourceZones</string>
       </Properties>
     </Item>
-    <Item class="Terrain" referent="138">
+    <Item class="Terrain" referent="143">
       <Properties>
         <string name="Name">Terrain</string>
         <bool name="Decoration">true</bool>
       </Properties>
     </Item>
-    <Item class="Folder" referent="139">
+    <Item class="Folder" referent="144">
       <Properties>
         <string name="Name">World</string>
       </Properties>

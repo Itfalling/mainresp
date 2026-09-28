@@ -12,7 +12,7 @@
 		ClientState, InputController, AudioController, VFXController, CameraController
 		AnimationController
 		UIController
-		ToolController
+		MovementController, ToolController
 		InteractionController
 		InventoryController, BuildController (+ Client/Build/LandEditor)
 		IslandController, QuestController, FarmController, FishingController,
@@ -48,6 +48,7 @@ local ORDER: { ModuleScript } = {
 	Controllers.CameraController,
 	Controllers.AnimationController,
 	Controllers.UIController,
+	Controllers.MovementController,
 	Controllers.ToolController,
 	Controllers.InteractionController,
 	Controllers.InventoryController,

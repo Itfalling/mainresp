@@ -15,6 +15,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TREES = {
     "ReplicatedStorage/Shared": "src/ReplicatedStorage/Shared",
     "ServerScriptService/Server": "src/ServerScriptService/Server",
+    # Pure client modules (no engine calls) mounted where the tests can reach them.
+    "ReplicatedStorage/ClientAnimation": "src/StarterPlayer/StarterPlayerScripts/Client/Animation",
 }
 
 def walk(base):

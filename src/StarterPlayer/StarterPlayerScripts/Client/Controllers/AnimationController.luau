@@ -8,6 +8,15 @@
 	Animates EVERY rig this client can see — your character, other players,
 	NPCs and animals — so everyone sees the same thing:
 
+	  * MOVEMENT (Client/Animation/Locomotion): the game's own idle, walk,
+	             run (sprint), jump, fall, landing squash, swim, climb and
+	             sit animations. Roblox's default Animate script is replaced
+	             (StarterCharacterScripts/Animate), so every joint is ours.
+	             Other players' movement is read from their velocity, a
+	             ground raycast and the water around them.
+	  * HIT RECOIL: when a swing actually connects the server stamps the
+	             character's "Recoil" attribute and the arms bounce back off
+	             the tree / rock / construction site.
 	  * ACTIONS  (chop, mine, hammer, till, plant, water, harvest, cast, reel,
 	             milk, feed, pet, cheer, wave, dance...) come from the rig's
 	             ActionAnim attribute ("Name;ServerStartTime;Speed;Seq") set by
@@ -45,6 +54,7 @@ local Signal = require(Shared.Util.Signal)
 local R15 = require(Shared.Util.R15)
 
 local Controllers = script.Parent
+local Locomotion = require(Controllers.Parent:WaitForChild("Animation"):WaitForChild("Locomotion"))
 local AudioController = require(Controllers.AudioController)
 local VFXController = require(Controllers.VFXController)
 local CameraController = require(Controllers.CameraController)
@@ -84,6 +94,12 @@ type Rig = {
 	Tracks: { [string]: AnimationTrack },
 	Connections: { RBXScriptConnection },
 	TrailOn: boolean,
+	Loco: Locomotion.State,
+	RayParams: RaycastParams,
+	WaterCheckAt: number,
+	InWater: boolean,
+	Recoil: { Start: number, Strength: number }?,
+	LookYaw: number,
 }
 
 local rigs: { [Model]: Rig } = {}
@@ -322,7 +338,23 @@ local function addRig(model: Model, isNPC: boolean)
 		Tracks = {},
 		Connections = {},
 		TrailOn = false,
+		Loco = Locomotion.NewState(),
+		RayParams = RaycastParams.new(),
+		WaterCheckAt = 0,
+		InWater = false,
+		Recoil = nil,
+		LookYaw = 0,
 	}
+	rig.RayParams.FilterType = Enum.RaycastFilterType.Exclude
+	rig.RayParams.FilterDescendantsInstances = { model }
+	rig.RayParams.IgnoreWater = true
+	table.insert(rig.Connections, model:GetAttributeChangedSignal("Recoil"):Connect(function()
+		local value = model:GetAttribute("Recoil")
+		local strength = if type(value) == "string" then tonumber(string.match(value, "^([%d%.]+);")) else nil
+		if strength then
+			rig.Recoil = { Start = os.clock(), Strength = math.clamp(strength, 0, 2) }
+		end
+	end))
 	rigs[model] = rig
 	table.insert(rig.Connections, model:GetAttributeChangedSignal("ActionAnim"):Connect(function()
 		readAction(rig)
@@ -346,6 +378,62 @@ end
 ---------------------------------------------------------------------------
 -- Per-frame application
 ---------------------------------------------------------------------------
+
+local function inWater(position: Vector3): boolean
+	local region = Region3.new(position - Vector3.new(1, 2, 1), position + Vector3.new(1, 1, 1)):ExpandToGrid(4)
+	local ok, materials, occupancies = pcall(function()
+		return workspace.Terrain:ReadVoxels(region, 4)
+	end)
+	if not ok or not materials then
+		return false
+	end
+	for x, plane in materials do
+		for y, row in plane do
+			for z, material in row do
+				if material == Enum.Material.Water and occupancies[x][y][z] > 0.5 then
+					return true
+				end
+			end
+		end
+	end
+	return false
+end
+
+-- What the character is doing right now (for the movement animations).
+local function locomotionInput(rig: Rig, root: BasePart, humanoid: Humanoid, clock: number, dt: number): Locomotion.Input
+	local anchored = root.Anchored
+	local velocity = if anchored then Vector3.zero else root.AssemblyLinearVelocity
+	local grounded, swimming, climbing = true, false, false
+	if rig.Model == localCharacter then
+		local state = humanoid:GetState()
+		swimming = state == Enum.HumanoidStateType.Swimming
+		climbing = state == Enum.HumanoidStateType.Climbing
+		grounded = humanoid.FloorMaterial ~= Enum.Material.Air
+	elseif not anchored then
+		local reach = humanoid.HipHeight + root.Size.Y / 2 + 0.8
+		grounded = workspace:Raycast(root.Position, Vector3.new(0, -reach, 0), rig.RayParams) ~= nil
+		if clock >= rig.WaterCheckAt then
+			rig.WaterCheckAt = clock + 0.25
+			rig.InWater = inWater(root.Position)
+		end
+		swimming = rig.InWater and not grounded
+	end
+	return {
+		Speed = Vector3.new(velocity.X, 0, velocity.Z).Magnitude,
+		VerticalSpeed = velocity.Y,
+		TurnRate = if anchored then 0 else root.AssemblyAngularVelocity.Y,
+		Grounded = grounded,
+		Swimming = swimming,
+		Climbing = climbing,
+		Sitting = humanoid.Sit,
+		Clock = clock,
+		Dt = dt,
+	}
+end
+
+local function footPosition(root: BasePart, humanoid: Humanoid): Vector3
+	return root.Position - Vector3.new(0, humanoid.HipHeight + root.Size.Y / 2 - 0.2, 0)
+end
 
 local function applyRig(rig: Rig, now: number, clock: number, dt: number)
 	local model = rig.Model
@@ -374,6 +462,23 @@ local function applyRig(rig: Rig, now: number, clock: number, dt: number)
 	local targets: { [string]: CFrame } = {}
 	local weights: { [string]: number } = {}
 
+	-- Base layer: our own movement animations on every joint.
+	local humanoid = model:FindFirstChildOfClass("Humanoid")
+	local root = model:FindFirstChild("HumanoidRootPart")
+	if humanoid and root and root:IsA("BasePart") then
+		local pose, landed, stepped = Locomotion.Update(rig.Loco, locomotionInput(rig, root, humanoid, clock, dt))
+		for joint, value in pose do
+			targets[joint] = toCFrame(value)
+			weights[joint] = 1
+		end
+		-- Cartoon dust: a puff on hard landings and under sprinting feet.
+		if landed and landed > 0.35 then
+			VFXController.Play("Puff", footPosition(root, humanoid), { Scale = 0.25 + 0.35 * landed, Count = 5 })
+		elseif stepped and rig.Loco.Run > 0.6 then
+			VFXController.Play("Puff", footPosition(root, humanoid), { Scale = 0.2, Count = 2 })
+		end
+	end
+
 	if activeHold and rig.HoldWeight > 0 then
 		local sway = math.sin(clock * 1.6) * (activeHold.Sway or 0)
 		for joint, value in activeHold.Pose do
@@ -381,14 +486,19 @@ local function applyRig(rig: Rig, now: number, clock: number, dt: number)
 			if joint == "RightShoulder" then
 				cf = CFrame.Angles(math.rad(sway), 0, 0) * cf
 			end
-			targets[joint] = cf
-			weights[joint] = rig.HoldWeight
+			local base = targets[joint]
+			targets[joint] = if base then base:Lerp(cf, rig.HoldWeight) else cf
+			weights[joint] = if base then 1 else rig.HoldWeight
 		end
 	end
 
 	if rig.IsNPC and not action then
-		local idle = Keyframes.NPCIdle
-		local t = (clock / 6) % 1
+		-- NPCs can name their own looping idle (e.g. Mia's "MiaIdle").
+		local idleName = model:GetAttribute("IdleAnim")
+		local custom = if type(idleName) == "string" then Keyframes.Actions[idleName] else nil
+		local idleDef = if custom and type(idleName) == "string" then AnimationConfig.Get(idleName) else nil
+		local idle = custom or Keyframes.NPCIdle
+		local t = (clock / (if idleDef then idleDef.Length else 6)) % 1
 		for _, joint in Keyframes.JointsOf(idle) do
 			targets[joint] = sampleJoint(idle.Keys, joint, t)
 			weights[joint] = 1
@@ -438,6 +548,53 @@ local function applyRig(rig: Rig, now: number, clock: number, dt: number)
 		applyAction(action, math.clamp(elapsed / FADE_IN, 0, 1))
 	end
 
+	-- NPCs turn their head and shoulders towards a player (LookAt = UserId).
+	local lookAt = model:GetAttribute("LookAt")
+	local wantedYaw = 0
+	if type(lookAt) == "number" and lookAt ~= 0 then
+		local target = Players:GetPlayerByUserId(lookAt)
+		local targetRoot = target and target.Character and target.Character:FindFirstChild("HumanoidRootPart")
+		local selfRoot = model:FindFirstChild("HumanoidRootPart")
+		if targetRoot and targetRoot:IsA("BasePart") and selfRoot and selfRoot:IsA("BasePart") then
+			local relative = selfRoot.CFrame:PointToObjectSpace(targetRoot.Position)
+			wantedYaw = math.clamp(math.deg(math.atan2(-relative.X, -relative.Z)), -80, 80)
+		end
+	end
+	rig.LookYaw += (wantedYaw - rig.LookYaw) * math.min(1, dt * 5)
+	if math.abs(rig.LookYaw) > 0.5 then
+		local waist = targets.Waist
+		if waist then
+			targets.Waist = waist * CFrame.Angles(0, math.rad(rig.LookYaw * 0.35), 0)
+		end
+		local neck = targets.Neck
+		if neck then
+			targets.Neck = neck * CFrame.Angles(0, math.rad(rig.LookYaw * 0.55), 0)
+		end
+	end
+
+	-- Hit recoil: the arms bounce back off whatever the swing hit.
+	local recoil = rig.Recoil
+	if recoil then
+		local t = clock - recoil.Start
+		if t > 0.35 then
+			rig.Recoil = nil
+		else
+			local a = recoil.Strength * math.exp(-t * 11) * math.cos(t * 28)
+			local function kick(joint: string, degrees: number)
+				local current = targets[joint]
+				if current then
+					targets[joint] = current * CFrame.Angles(math.rad(degrees * a), 0, 0)
+					weights[joint] = 1
+				end
+			end
+			kick("RightShoulder", 16)
+			kick("RightElbow", 20)
+			kick("LeftShoulder", 10)
+			kick("Waist", 6)
+			kick("Neck", 8)
+		end
+	end
+
 	-- Swing trail on the held tool during the action's Trail window.
 	local trailOn = false
 	if action and action.Def.Trail then
@@ -451,9 +608,9 @@ local function applyRig(rig: Rig, now: number, clock: number, dt: number)
 		if trail and trail:IsA("Trail") then
 			trail.Enabled = trailOn
 			if trailOn then
-				local root = R15.GetRootPart(model)
-				if root then
-					AudioController.PlayAt("ToolSwing", root.Position)
+				local rootPart = R15.GetRootPart(model)
+				if rootPart then
+					AudioController.PlayAt("ToolSwing", rootPart.Position)
 				end
 			end
 		end

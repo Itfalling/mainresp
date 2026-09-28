@@ -34,7 +34,9 @@ Edit its keys in `Keyframes.Actions.<Name>`. The format is documented at the top
 2. Add **Animation Events** with the marker names from `AnimationConfig` (`Hit`, `HammerHit`, `Plant`, `Cast`...).
 3. Publish it under the **same owner as the game**, then paste the ID into that entry's `Id` in `AnimationConfig`.
 
-`AnimationController` then plays the real track for that animation, and everything else stays on keyframes. Movement entries (Idle, Walk, Run...) are written into the default `Animate` script by `AnimationService.ApplyMovementOverrides` once they have real IDs.
+`AnimationController` then plays the real track for that animation, and everything else stays on keyframes. **Movement** (idle, walk, run, jump, fall, landing, swim, climb, sit) is the game's own procedural animation in `Client/Animation/Locomotion`, which replaces Roblox's default `Animate` script (`StarterCharacterScripts/Animate`). Tweak the numbers in its pose functions to change how characters move. To go back to uploaded movement animations instead, delete that `Animate` script (Roblox's default returns) and remove the locomotion layer in `AnimationController`.
+
+**Mia the Merchant** is a standard R15 body from a `HumanoidDescription` (colours only) dressed with welded parts in `NPCService` (hair, sun hat, apron, sleeves, skirt, boots). Her animations (`MiaIdle`, `MiaWave`, `MiaPresent`, `MiaSold`, `MiaTalk`) are keyframes like the players'.
 
 ---
 

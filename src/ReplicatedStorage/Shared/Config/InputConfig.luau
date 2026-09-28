@@ -50,6 +50,8 @@ local InputConfig = {
 		Unequip = { Inputs = { Enum.KeyCode.Zero, Enum.KeyCode.Backquote }, Gamepad = {} },
 		Emotes = { Inputs = { Enum.KeyCode.T }, Gamepad = { Enum.KeyCode.DPadDown } },
 		PlayersMenu = { Inputs = { Enum.KeyCode.P }, Gamepad = {} },
+		-- Hold to sprint (run animation + wider view).
+		Sprint = { Inputs = { Enum.KeyCode.LeftShift, Enum.KeyCode.RightShift }, Gamepad = { Enum.KeyCode.ButtonL3 } },
 		-- Build mode
 		BuildPlace = { Inputs = { Enum.UserInputType.MouseButton1 }, Gamepad = { Enum.KeyCode.ButtonR2 } },
 		RotateBuild = { Inputs = { Enum.KeyCode.R }, Gamepad = { Enum.KeyCode.ButtonX } },
