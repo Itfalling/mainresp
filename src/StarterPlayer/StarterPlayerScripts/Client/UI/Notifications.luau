@@ -34,6 +34,7 @@ local BANNER_COLORS = {
 	AreaUnlock = Theme.Colors.Blue,
 	Reward = Theme.Colors.Orange,
 	Build = Theme.Colors.Green,
+	Error = Theme.Colors.Red,
 }
 
 local Notifications = {}

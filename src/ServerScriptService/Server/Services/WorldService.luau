@@ -78,13 +78,14 @@ local function applyLighting()
 end
 
 local function applyTerrainLook()
-	local terrain = workspace.Terrain
+	local terrain = workspace.Terrain :: Terrain
 	terrain.WaterColor = WorldConfig.WaterColor
 	terrain.WaterTransparency = WorldConfig.WaterTransparency
 	terrain.WaterReflectance = WorldConfig.WaterReflectance
 	terrain.WaterWaveSize = WorldConfig.WaterWaveSize
 	terrain.WaterWaveSpeed = WorldConfig.WaterWaveSpeed
-	terrain.Decoration = WorldConfig.TerrainDecoration
+	-- Note: Terrain.Decoration (animated grass) can't be set from scripts;
+	-- toggle it on Workspace.Terrain in Studio's Properties window instead.
 	for materialName, color in WorldConfig.MaterialColors do
 		local material = (Enum.Material :: any)[materialName]
 		if material then
@@ -95,7 +96,7 @@ end
 
 -- Fills the ocean (water + sand seabed) under every island slot, in tiles.
 local function fillOcean()
-	local terrain = workspace.Terrain
+	local terrain = workspace.Terrain :: Terrain
 	local slotCount = GameConfig.MaxIslandsPerServer
 	local rows = math.ceil(slotCount / IslandConfig.SlotsPerRow)
 	local columns = math.min(slotCount, IslandConfig.SlotsPerRow)
@@ -124,7 +125,7 @@ end
 
 -- Restores open ocean in a cylinder (used when an island is cleaned up).
 function WorldService.RestoreOcean(center: Vector3, radius: number)
-	local terrain = workspace.Terrain
+	local terrain = workspace.Terrain :: Terrain
 	local sea = IslandConfig.SeaLevel
 	local depth = WorldConfig.OceanDepth
 	local bed = WorldConfig.SeabedThickness

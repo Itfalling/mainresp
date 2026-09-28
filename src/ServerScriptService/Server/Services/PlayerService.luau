@@ -113,19 +113,21 @@ local function convertToR15(player: Player, oldCharacter: Model): boolean
 	return true
 end
 
--- LoadCharacterAsync is the modern API; fall back to LoadCharacter on older engines.
+-- Prefer the modern LoadCharacterAsync; if it's missing or errors, use LoadCharacter.
 local function loadCharacter(player: Player): (boolean, any)
-	local hasAsync = pcall(function()
-		return (player :: any).LoadCharacterAsync
+	local ok, err = pcall(function()
+		(player :: any):LoadCharacterAsync()
 	end)
-	if hasAsync then
-		return pcall(function()
-			(player :: any):LoadCharacterAsync()
-		end)
+	if ok then
+		return true, nil
 	end
-	return pcall(function()
+	local fallbackOk, fallbackErr = pcall(function()
 		(player :: any):LoadCharacter()
 	end)
+	if fallbackOk then
+		return true, nil
+	end
+	return false, tostring(err) .. " | " .. tostring(fallbackErr)
 end
 
 local function spawnCharacter(player: Player)
@@ -192,7 +194,15 @@ local function onPlayerAdded(player: Player)
 		return
 	end
 
-	local island = IslandService.AssignIsland(player)
+	local built, islandOrError = pcall(IslandService.AssignIsland, player)
+	if not built then
+		warn("[PlayerService] Island build failed for " .. player.Name .. ": " .. tostring(islandOrError))
+		if player.Parent then
+			player:Kick("Your island failed to build. Error: " .. tostring(islandOrError))
+		end
+		return
+	end
+	local island = islandOrError
 	if not island then
 		if player.Parent then
 			player:Kick("This server has no free islands right now. Please join another server.")

@@ -230,7 +230,31 @@ function UIController.Init()
 	end)
 end
 
+-- If the server failed to boot, say so on screen instead of showing an empty world.
+local function watchServerHealth()
+	local shown = ""
+	local function showBootErrors()
+		local errors = ReplicatedStorage:GetAttribute("ServerBootErrors")
+		if type(errors) == "string" and errors ~= "" and errors ~= shown then
+			shown = errors
+			local firstLine = string.split(errors, "\n")[1]
+			UIController.Notify("Error", "Server error: " .. string.sub(firstLine, 1, 120))
+			UIController.Banner("SERVER ERROR", "Open View → Output in Studio and send the red text", "Error")
+		end
+	end
+	showBootErrors()
+	ReplicatedStorage:GetAttributeChangedSignal("ServerBootErrors"):Connect(showBootErrors)
+
+	task.delay(20, function()
+		if not ClientState.IsReady() then
+			UIController.Notify("Error", "Still waiting for the server to load your island…")
+			UIController.Banner("LOADING TROUBLE", "Open View → Output in Studio and check for red errors", "Error")
+		end
+	end)
+end
+
 function UIController.Start()
+	watchServerHealth()
 	watchCurrency("Coins", hud.CoinsLabel, hud.CoinsPill, Theme.Colors.Coins, "🪙")
 	watchCurrency("Gems", hud.GemsLabel, hud.GemsPill, Theme.Colors.Gems, "💎")
 	ClientState.Observe("Island", refreshIslandPill)

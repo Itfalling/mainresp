@@ -109,7 +109,6 @@ local GameConfig = {
 		WaterReflectance = 0.25,
 		WaterWaveSize = 0.12,
 		WaterWaveSpeed = 8,
-		TerrainDecoration = false, -- animated grass; costs performance on mobile
 		MaterialColors = {
 			Grass = Color3.fromRGB(106, 190, 72),
 			LeafyGrass = Color3.fromRGB(92, 170, 60),

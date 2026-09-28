@@ -68,7 +68,7 @@ end
 -- Raises one land lobe. `scale` (0..1] lets unlock animations grow the land.
 function IslandBuilder.FillAreaLand(origin: CFrame, areaId: string, scale: number?)
 	local area = IslandConfig.Areas[areaId]
-	local terrain = workspace.Terrain
+	local terrain = workspace.Terrain :: Terrain
 	local center = toWorld(origin, IslandLayout.GetAreaCenter(areaId))
 	local sea = origin.Position.Y
 	local bottom = sea - IslandConfig.LandDepth
@@ -85,14 +85,15 @@ function IslandBuilder.FillAreaSandbar(origin: CFrame, areaId: string)
 	local area = IslandConfig.Areas[areaId]
 	local center = toWorld(origin, IslandLayout.GetAreaCenter(areaId))
 	local sea = origin.Position.Y
-	fillColumn(workspace.Terrain, center, area.Radius, sea - IslandConfig.LandDepth, sea - IslandConfig.SandbarDepth, Enum.Material.Sand)
+	fillColumn(workspace.Terrain :: Terrain, center, area.Radius, sea - IslandConfig.LandDepth, sea - IslandConfig.SandbarDepth, Enum.Material.Sand)
 end
 
 local function fillHills(origin: CFrame)
 	for _, hill in IslandConfig.StarterLayout.Hills do
 		-- Sink the ball so only a gentle `Height`-stud dome shows above the surface.
 		local center = toWorld(origin, hill.Center, IslandConfig.SurfaceHeight + hill.Height - hill.Radius)
-		workspace.Terrain:FillBall(center, hill.Radius, Enum.Material.Grass)
+		local terrain = workspace.Terrain :: Terrain
+		terrain:FillBall(center, hill.Radius, Enum.Material.Grass)
 	end
 end
 
