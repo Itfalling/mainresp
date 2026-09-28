@@ -32,14 +32,18 @@ local ProgressionConfig = {
 	Sources = {
 		StarterChest = { Player = 25, Island = 40 },
 		UnlockArea = { Player = 100, Island = 150 },
-		-- Phase 2+
 		ChopTree = { Player = 3, Island = 2 },
 		MineRock = { Player = 3, Island = 2 },
-		BuildComplete = { Player = 20, Island = 30 },
+		GatherFiber = { Player = 2, Island = 1 },
+		BuildStep = { Player = 2, Island = 1 },
+		BuildComplete = { Player = 20, Island = 25 },
+		PlantCrop = { Player = 1, Island = 1 },
 		HarvestCrop = { Player = 4, Island = 3 },
-		CatchFish = { Player = 8, Island = 4 },
-		MilkAnimal = { Player = 6, Island = 4 },
-		SellItems = { Player = 2, Island = 1 },
+		CatchFish = { Player = 8, Island = 4 }, -- multiplied by rarity rank
+		FeedAnimal = { Player = 2, Island = 1 },
+		CollectProduce = { Player = 6, Island = 4 },
+		BuyAnimal = { Player = 10, Island = 15 },
+		SellItems = { Player = 2, Island = 2 },
 	},
 }
 

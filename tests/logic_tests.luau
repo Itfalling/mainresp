@@ -306,6 +306,330 @@ test("AnimationPlayer virtual track fires markers then Ended (placeholder ids)",
 	assert(not player:IsPlaying("HammerSwing"), "Stop ends the handle")
 end)
 
+---------------------------------------------------------------------------
+-- First playable loop: gathering, building, farming, fishing, animals, shop, quests
+---------------------------------------------------------------------------
+
+test("gameplay configs load (and freeze)", function()
+	for _, name in { "CropConfig", "FishConfig", "AnimalConfig", "BuildingConfig", "BuildConfig", "ShopConfig", "QuestConfig" } do
+		local config = require(Shared.Config[name])
+		assert(type(config) == "table", name .. " did not return a table")
+		assert(table.isfrozen(config), name .. " should be frozen")
+	end
+end)
+
+test("every item / tool / sound / effect a config references exists", function()
+	local ItemConfig = require(Shared.Config.ItemConfig)
+	local ToolConfig = require(Shared.Config.ToolConfig)
+	local SoundConfig = require(Shared.Config.SoundConfig)
+	local VFXConfig = require(Shared.Config.VFXConfig)
+	local AnimationConfig = require(Shared.Config.AnimationConfig)
+	local ProgressionConfig = require(Shared.Config.ProgressionConfig)
+	local ResourceConfig = require(Shared.Config.ResourceConfig)
+	local CropConfig = require(Shared.Config.CropConfig)
+	local AnimalConfig = require(Shared.Config.AnimalConfig)
+	local BuildingConfig = require(Shared.Config.BuildingConfig)
+	local GameConfig = require(Shared.Config.GameConfig)
+
+	local toolTypes = {}
+	for _, tool in ToolConfig.Tools do
+		toolTypes[tool.Type] = true
+	end
+	for nodeId, node in ResourceConfig.Nodes do
+		assert(ItemConfig.Exists(node.Resource), nodeId .. " drops unknown item " .. tostring(node.Resource))
+		assert(node.ToolType == nil or toolTypes[node.ToolType], nodeId .. " needs unknown tool type")
+		assert(ProgressionConfig.Sources[node.XPSource], nodeId .. " has unknown XP source")
+		for _, key in { "HitSound", "BreakSound" } do
+			assert(node[key] == nil or SoundConfig.Sounds[node[key]], nodeId .. " " .. key .. " missing")
+		end
+		for _, key in { "HitVFX", "BreakVFX" } do
+			assert(node[key] == nil or VFXConfig.Effects[node[key]], nodeId .. " " .. key .. " missing")
+		end
+		if node.Animation then
+			local anim = AnimationConfig.Get(node.Animation)
+			assert(anim and anim.Markers[node.Marker], nodeId .. " animation/marker missing")
+		end
+	end
+	for cropId, crop in CropConfig.Crops do
+		assert(ItemConfig.Exists(cropId), "crop item " .. cropId)
+		assert(ItemConfig.Exists(crop.Seed), "seed item " .. crop.Seed)
+		eq(CropConfig.SeedToCrop[crop.Seed], cropId, "seed maps back to crop")
+	end
+	for animalId, animal in AnimalConfig.Animals do
+		assert(ItemConfig.Exists(animal.Food), animalId .. " food")
+		assert(ItemConfig.Exists(animal.Produce), animalId .. " produce")
+		assert(BuildingConfig.Get(animal.Housing), animalId .. " housing")
+		assert(BuildingConfig.Get(animal.Housing).Capacity[animalId], animalId .. " housing has no capacity for it")
+		assert(SoundConfig.Sounds[animal.ProduceSound] and SoundConfig.Sounds[animal.Voice], animalId .. " sounds")
+		assert(VFXConfig.Effects[animal.ProduceVFX], animalId .. " produce vfx")
+		local anim = AnimationConfig.Get(animal.ProduceAnimation)
+		assert(anim and anim.Markers[animal.ProduceMarker], animalId .. " produce animation/marker")
+		assert(animal.ProduceTool == nil or toolTypes[animal.ProduceTool], animalId .. " produce tool type")
+	end
+	for buildingId, building in BuildingConfig.Buildings do
+		for itemId, amount in building.Cost.Items do
+			assert(ItemConfig.Exists(itemId), buildingId .. " costs unknown item " .. itemId)
+			assert(amount > 0, buildingId .. " cost amount")
+		end
+		assert(building.Steps >= 1, buildingId .. " needs at least one step")
+	end
+	for itemId in GameConfig.StarterKit.Items do
+		assert(ItemConfig.Exists(itemId), "starter kit item " .. itemId)
+	end
+	for _, toolId in GameConfig.StarterKit.Tools do
+		assert(ToolConfig.Get(toolId), "starter kit tool " .. toolId)
+	end
+	assert(#GameConfig.StarterKit.Tools <= ToolConfig.HotbarSize, "starter tools fit in the hotbar")
+end)
+
+test("shop items grant real things and prices are sane", function()
+	local ShopConfig = require(Shared.Config.ShopConfig)
+	local ItemConfig = require(Shared.Config.ItemConfig)
+	local ToolConfig = require(Shared.Config.ToolConfig)
+	local AnimalConfig = require(Shared.Config.AnimalConfig)
+	local categories = {}
+	for _, category in ShopConfig.Categories do
+		categories[category.Id] = true
+	end
+	for shopId, def in ShopConfig.Items do
+		assert(categories[def.Category], shopId .. " has unknown category")
+		assert(def.Price > 0, shopId .. " price")
+		local grant = def.Grant
+		if grant.Tool then
+			assert(ToolConfig.Get(grant.Tool), shopId .. " grants unknown tool")
+		elseif grant.Item then
+			assert(ItemConfig.Exists(grant.Item) and grant.Amount > 0, shopId .. " grants unknown item")
+		elseif grant.Animal then
+			assert(AnimalConfig.Animals[grant.Animal], shopId .. " grants unknown animal")
+		elseif grant.Upgrade then
+			assert(grant.Upgrade == "FarmTiles" or grant.Upgrade == "Capacity", shopId .. " unknown upgrade")
+		else
+			error(shopId .. " grants nothing")
+		end
+		for itemId in def.Items or {} do
+			assert(ItemConfig.Exists(itemId), shopId .. " costs unknown item " .. itemId)
+		end
+	end
+	-- Crops must be worth growing: a harvest pays back more than its seed.
+	local CropConfig = require(Shared.Config.CropConfig)
+	for cropId, crop in CropConfig.Crops do
+		assert(crop.Yield.Min * crop.SellValue > crop.SeedCost, cropId .. " loses money")
+	end
+	for category in ShopConfig.SellAllCategories do
+		local found = false
+		for _, item in ItemConfig.Items do
+			found = found or item.Category == category
+		end
+		assert(found, "sell-all category " .. category .. " has no items")
+	end
+end)
+
+test("quest chain references real events and targets", function()
+	local QuestConfig = require(Shared.Config.QuestConfig)
+	local ItemConfig = require(Shared.Config.ItemConfig)
+	local BuildingConfig = require(Shared.Config.BuildingConfig)
+	local AnimalConfig = require(Shared.Config.AnimalConfig)
+	local ShopConfig = require(Shared.Config.ShopConfig)
+	local IslandConfig = require(Shared.Config.IslandConfig)
+	local CropConfig = require(Shared.Config.CropConfig)
+	local FishConfig = require(Shared.Config.FishConfig)
+	local buildingCategories = {}
+	for _, category in BuildingConfig.Categories do
+		buildingCategories[category.Id] = true
+	end
+	local validTarget = {
+		CollectItem = function(t) return ItemConfig.Exists(t) end,
+		BuildComplete = function(t) return BuildingConfig.Get(t) ~= nil or buildingCategories[t] == true end,
+		PlantCrop = function(t) return t == nil or CropConfig.Crops[t] ~= nil end,
+		HarvestCrop = function(t) return t == nil or CropConfig.Crops[t] ~= nil end,
+		CatchFish = function(t) return t == nil or FishConfig.Fish[t] ~= nil end,
+		SellItem = function(t) return t == nil or ItemConfig.Exists(t) end,
+		BuyAnimal = function(t) return AnimalConfig.Animals[t] ~= nil end,
+		BuyTool = function(t) return ShopConfig.Items[t] ~= nil and ShopConfig.Items[t].Grant.Tool ~= nil end,
+		FeedAnimal = function(t) return AnimalConfig.Animals[t] ~= nil end,
+		CollectProduce = function(t) return ItemConfig.Exists(t) end,
+		UnlockArea = function(t) return IslandConfig.Areas[t] ~= nil end,
+		IslandLevel = function(t) return t == nil end,
+	}
+	for _, questId in QuestConfig.Chain do
+		local quest = QuestConfig.Quests[questId]
+		assert(quest, "chain quest " .. questId .. " missing")
+		local seen = {}
+		for _, questTask in quest.Tasks do
+			assert(not seen[questTask.Id], questId .. " duplicate task id " .. questTask.Id)
+			seen[questTask.Id] = true
+			local check = validTarget[questTask.Event]
+			assert(check, questId .. "." .. questTask.Id .. " unknown event " .. tostring(questTask.Event))
+			assert(check(questTask.Target), questId .. "." .. questTask.Id .. " bad target " .. tostring(questTask.Target))
+			assert(questTask.Amount >= 1 and type(questTask.Hint) == "string", questId .. "." .. questTask.Id .. " amount/hint")
+		end
+	end
+	eq(QuestConfig.NextQuest(QuestConfig.Chain[1]), QuestConfig.Chain[2], "chain order")
+	eq(QuestConfig.NextQuest(QuestConfig.Chain[#QuestConfig.Chain]), nil, "chain end")
+end)
+
+test("island content: deterministic nodes, spaced out, on their own area", function()
+	local IslandContent = require(Shared.Util.IslandContent)
+	local IslandConfig = require(Shared.Config.IslandConfig)
+	local IslandLayout = require(Shared.Util.IslandLayout)
+	local CropConfig = require(Shared.Config.CropConfig)
+	for _, areaId in IslandConfig.AreaOrder do
+		local first = IslandContent.AreaNodes(areaId)
+		local second = IslandContent.AreaNodes(areaId)
+		eq(#first, #second, areaId .. " node count stable")
+		local ids = {}
+		for index, spot in first do
+			eq(spot.Position.X, second[index].Position.X, areaId .. " deterministic X")
+			eq(spot.Id, second[index].Id, areaId .. " deterministic id")
+			assert(not ids[spot.Id], "duplicate node id " .. spot.Id)
+			ids[spot.Id] = true
+			assert(IslandLayout.IsInArea(areaId, spot.Position, 2), spot.Id .. " is outside its area")
+		end
+		local content = IslandConfig.Areas[areaId].Content
+		if areaId ~= "Starter" and content and content.Nodes then
+			local wanted = 0
+			for _, count in content.Nodes do
+				wanted += count
+			end
+			eq(#first, wanted, areaId .. " placed every configured node")
+		end
+	end
+	local plots = IslandContent.FarmPlots()
+	eq(plots[1].Id, "S", "starter farm plot first")
+	eq(#IslandContent.FarmTilePositions(plots[1].Center), CropConfig.Farm.Columns * CropConfig.Farm.Rows, "tile count")
+	local dockSpot = IslandContent.FishingSpots()[1]
+	eq(dockSpot.AreaId, "Starter", "first fishing spot is the dock")
+	assert(dockSpot.OnDock, "starter spot is on the dock")
+end)
+
+test("crop growth from timestamps (watering speeds it up)", function()
+	local CropGrowth = require(Shared.Util.CropGrowth)
+	local CropConfig = require(Shared.Config.CropConfig)
+	local grow = CropConfig.Crops.Wheat.GrowTime
+	local dry = { CropId = "Wheat", PlantedAt = 1000, WateredAt = 0 }
+	eq(CropGrowth.GetProgress(dry, 1000), 0, "just planted")
+	eq(CropGrowth.GetProgress(dry, 1000 + grow / 2), 0.5, "half way")
+	eq(CropGrowth.GetStage(dry, 1000), 1, "seed stage")
+	eq(CropGrowth.GetStage(dry, 1000 + grow), #CropConfig.Stages, "harvestable at GrowTime")
+	eq(CropGrowth.GetRemaining(dry, 1000 + grow + 50), 0, "never negative")
+	local wet = { CropId = "Wheat", PlantedAt = 1000, WateredAt = 1000 }
+	assert(CropGrowth.IsWatered(wet) and not CropGrowth.IsWatered(dry), "IsWatered")
+	eq(CropGrowth.GetProgress(wet, 1000 + grow / CropConfig.WaterSpeedMultiplier), 1, "watered grows WaterSpeedMultiplier x faster")
+	assert(CropGrowth.GetRemaining(wet, 1010) < CropGrowth.GetRemaining(dry, 1010), "watered finishes sooner")
+	eq(CropGrowth.GetProgress({ CropId = "Nope", PlantedAt = 1 }, 99999), 0, "unknown crop is safe")
+end)
+
+test("animal care from timestamps (gentle happiness, clear status)", function()
+	local AnimalMath = require(Shared.Util.AnimalMath)
+	local AnimalConfig = require(Shared.Config.AnimalConfig)
+	local hungry = { AnimalId = "Cow", Happiness = 70, HappinessAt = 0, FedAt = 0, ProduceReadyAt = 0 }
+	eq(AnimalMath.GetStatus(hungry, 100), "Hungry", "unfed cow is hungry")
+	local producing = { AnimalId = "Cow", Happiness = 90, HappinessAt = 0, FedAt = 0, ProduceReadyAt = 500 }
+	eq(AnimalMath.GetStatus(producing, 100), "Producing", "producing before ReadyAt")
+	eq(AnimalMath.GetStatus(producing, 500), "Ready", "ready at ReadyAt")
+	local fed = { AnimalId = "Cow", Happiness = 90, HappinessAt = 1000, FedAt = 1000, ProduceReadyAt = 1090 }
+	eq(AnimalMath.GetHappiness(fed, 1060), 90, "no decay while fed")
+	local longAgo = AnimalMath.GetHappiness(fed, 1000 + 60 * 60 * 24)
+	eq(longAgo, AnimalConfig.HappinessFloor, "happiness never drops below the floor")
+	assert(AnimalMath.ProduceDuration("Cow", 100) < AnimalMath.ProduceDuration("Cow", 0), "happy animals produce faster")
+end)
+
+test("build placement grid math", function()
+	local Placement = require(Shared.Util.Placement)
+	local BuildConfig = require(Shared.Config.BuildConfig)
+	local size = Placement.FootprintSize(Vector2.new(14, 22), 90)
+	eq(size.X, 22, "rotation swaps X")
+	eq(size.Y, 14, "rotation swaps Z")
+	assert(Placement.IsValidRotation(0) and Placement.IsValidRotation(270), "valid rotations")
+	assert(not Placement.IsValidRotation(45) and not Placement.IsValidRotation("90"), "invalid rotations")
+	local grid = BuildConfig.GridSize
+	for _, footprint in { Vector2.new(10, 10), Vector2.new(14, 22), Vector2.new(4, 2), Vector2.new(6, 6) } do
+		local center = Placement.Snap(Vector2.new(13.37, -7.9), footprint)
+		local edgeX = (center.X - footprint.X / 2) / grid
+		local edgeZ = (center.Y - footprint.Y / 2) / grid
+		eq(edgeX, math.floor(edgeX), "left edge on grid for " .. footprint.X)
+		eq(edgeZ, math.floor(edgeZ), "top edge on grid for " .. footprint.Y)
+	end
+	assert(Placement.IsOnUnlockedLand({ Starter = true }, Vector2.new(0, 0), Vector2.new(10, 10)), "centre of starter island is buildable")
+	assert(not Placement.IsOnUnlockedLand({ Starter = true }, Vector2.new(5000, 0), Vector2.new(10, 10)), "the sea is not buildable")
+end)
+
+test("fishing: zones are valid and the anti-cheat floor is beatable", function()
+	local FishConfig = require(Shared.Config.FishConfig)
+	local RarityConfig = require(Shared.Config.RarityConfig)
+	for zoneId, zone in FishConfig.Zones do
+		assert(#zone.Fish > 0, zoneId .. " has no fish")
+		for _, fishId in zone.Fish do
+			local fish = FishConfig.Fish[fishId]
+			assert(fish, zoneId .. " lists unknown fish " .. fishId)
+			assert(RarityConfig.Rarities[fish.Rarity], fishId .. " rarity")
+			assert(FishConfig.RarityWeights[fish.Rarity], fishId .. " rarity has no weight")
+		end
+	end
+	local tuning = FishConfig.Minigame
+	for difficulty = 1, 5 do
+		local gain = tuning.GainRate / (1 + difficulty * tuning.DifficultyScale)
+		local perfect = (1 - tuning.StartProgress) / gain
+		assert(perfect > FishConfig.MinReelTime(difficulty), "a perfect reel must pass the server check (difficulty " .. difficulty .. ")")
+		assert(perfect < FishConfig.MaxReelTime / 2, "reel is finishable in time (difficulty " .. difficulty .. ")")
+	end
+end)
+
+test("DataSchema v1 -> v2 migration gives old players the new starter kit", function()
+	local DataSchema = require(Server.Data.DataSchema)
+	local GameConfig = require(Shared.Config.GameConfig)
+	local QuestConfig = require(Shared.Config.QuestConfig)
+	local old = {
+		Version = 1,
+		Coins = 500,
+		Inventory = { Items = { Wood = 40 }, Capacity = 200 },
+		Tools = { Owned = { WoodenAxe = true }, Hotbar = { "WoodenAxe" }, Equipped = "" },
+		Flags = { StarterChestClaimed = true },
+		Quests = { Active = { Something = true } },
+	}
+	local data = DataSchema.Sanitize(old)
+	eq(data.Version, DataSchema.CurrentVersion, "migrated to current version")
+	eq(data.Coins, 500, "coins kept")
+	eq(data.Inventory.Items.Wood, 40, "items kept")
+	for _, toolId in GameConfig.StarterKit.Tools do
+		eq(data.Tools.Owned[toolId], true, "owns " .. toolId)
+	end
+	eq(#data.Tools.Hotbar, #GameConfig.StarterKit.Tools, "hotbar has every starter tool once")
+	eq(data.Inventory.Items.WheatSeeds, GameConfig.StarterKit.Items.WheatSeeds, "starter seeds granted")
+	eq(data.Quests.Current, QuestConfig.Chain[1], "quest chain starts")
+	eq(type(data.Island.Buildings), "table", "buildings table exists")
+	assert(DataSchema.IsSaveable(data))
+
+	-- A new player (chest not claimed) gets nothing extra from the migration.
+	local fresh = DataSchema.Sanitize({ Version = 1, Flags = { StarterChestClaimed = false } })
+	eq(fresh.Inventory.Items.WheatSeeds, nil, "no seeds before the chest is opened")
+end)
+
+test("DataSchema quarantines broken buildings / crops / animals", function()
+	local DataSchema = require(Server.Data.DataSchema)
+	local data = DataSchema.Sanitize(nil)
+	data.Island.Buildings = {
+		B1 = { BuildingId = "SmallCottage", Position = { X = 0, Y = 0, Z = 0 }, Rotation = 0, Progress = 99, State = "Constructing" },
+		B2 = { BuildingId = "Skyscraper", Position = { X = 0, Y = 0, Z = 0 }, Rotation = 0 },
+	}
+	data.Island.Crops = {
+		S1 = { State = "Planted", CropId = "Wheat", PlantedAt = 10, WateredAt = "wet" },
+		S2 = { State = "Planted", CropId = "Moonberry", PlantedAt = 10 },
+	}
+	data.Island.Animals = { A1 = { AnimalId = "Cow", Happiness = 500 }, A2 = { AnimalId = "Dragon" } }
+	local clean = DataSchema.Sanitize(data)
+	local cottage = clean.Island.Buildings.B1
+	assert(cottage, "valid building kept")
+	eq(cottage.State, "Complete", "progress past the last step completes it")
+	eq(clean.Island.Buildings.B2, nil, "unknown building removed")
+	assert(clean.Quarantine.Buildings.B2, "unknown building quarantined")
+	eq(clean.Island.Crops.S1.WateredAt, 0, "bad watered time repaired")
+	assert(clean.Quarantine.Crops.S2 and clean.Island.Crops.S2 == nil, "unknown crop quarantined")
+	eq(clean.Island.Animals.A1.Happiness, 100, "happiness clamped")
+	assert(clean.Quarantine.Animals.A2 and clean.Island.Animals.A2 == nil, "unknown animal quarantined")
+	assert(DataSchema.IsSaveable(clean))
+end)
+
 print(("\n%d passed, %d failed"):format(passed, failed))
 if failed > 0 then
 	error("logic tests failed")

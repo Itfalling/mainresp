@@ -20,6 +20,10 @@
 	  /giveislandxp <player|me> <amount>
 	  /setislandlevel <player|me> <level>
 	  /unlockarea <player|me> <areaId>     (charges nothing; bypasses requirements)
+	  /growcrops <player|me>              finish every planted crop
+	  /finishbuilds <player|me>           complete every construction site
+	  /spawnanimal <player|me> <Cow|Chicken>  (needs free housing, no charge)
+	  /readyanimals <player|me>           make every animal's product ready
 	  /save <player|me>
 	  /resetdata <player|me>               (Studio only)
 	  /debug [player|me]
@@ -42,6 +46,9 @@ local InventoryService = require(Services.InventoryService)
 local ProgressionService = require(Services.ProgressionService)
 local IslandService = require(Services.IslandService)
 local ToolService = require(Services.ToolService)
+local FarmService = require(Services.FarmService)
+local BuildService = require(Services.BuildService)
+local AnimalService = require(Services.AnimalService)
 local Notify = require(script.Parent.Parent.Util.Notify)
 
 local AdminService = {}
@@ -153,6 +160,38 @@ local COMMANDS: { [string]: Command } = {
 		end
 		local ok, message = IslandService.TryUnlockArea(target, areaId)
 		return if ok then "Unlocked " .. areaId else tostring(message)
+	end,
+	growcrops = function(admin, args)
+		local target = findPlayer(admin, args[1])
+		if not target then
+			return "Usage: /growcrops <player|me>"
+		end
+		FarmService.GrowAll(target)
+		return "Crops grown"
+	end,
+	finishbuilds = function(admin, args)
+		local target = findPlayer(admin, args[1])
+		if not target then
+			return "Usage: /finishbuilds <player|me>"
+		end
+		BuildService.FinishAll(target)
+		return "Buildings finished"
+	end,
+	spawnanimal = function(admin, args)
+		local target, animalId = findPlayer(admin, args[1]), args[2]
+		if not target or not animalId then
+			return "Usage: /spawnanimal <player|me> <Cow|Chicken>"
+		end
+		local ok, reason = AnimalService.AddAnimal(target, animalId)
+		return if ok then "Spawned " .. animalId else tostring(reason)
+	end,
+	readyanimals = function(admin, args)
+		local target = findPlayer(admin, args[1])
+		if not target then
+			return "Usage: /readyanimals <player|me>"
+		end
+		AnimalService.ReadyAll(target)
+		return "Animals ready"
 	end,
 	save = function(admin, args)
 		local target = findPlayer(admin, args[1])

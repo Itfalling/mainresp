@@ -25,6 +25,7 @@ local InputController = {}
 InputController.DeviceChanged = Signal.new() -- (deviceType)
 
 local actionSignals: { [string]: any } = {}
+local held: { [string]: number } = {} -- action -> number of inputs holding it
 local bindings: { [any]: { string } } = {} -- KeyCode/UserInputType -> actions
 local device = "KeyboardMouse"
 local blocked: { [string]: number } = {} -- action -> block count
@@ -89,6 +90,19 @@ function InputController.Block(action: string): () -> ()
 	end
 end
 
+-- True while an input bound to the action is held down (used by the fishing reel).
+function InputController.IsHeld(action: string): boolean
+	return (held[action] or 0) > 0
+end
+
+-- Touch buttons report press/release through this.
+function InputController.SetHeld(action: string, isHeld: boolean)
+	held[action] = math.max(0, (held[action] or 0) + (if isHeld then 1 else -1))
+	if not isHeld and held[action] == 0 then
+		held[action] = nil
+	end
+end
+
 function InputController.GetDevice(): string
 	return device
 end
@@ -131,7 +145,19 @@ function InputController.Start()
 		local actions = bindings[input.KeyCode] or bindings[input.UserInputType]
 		if actions then
 			for _, action in actions do
+				InputController.SetHeld(action, true)
 				InputController.Trigger(action)
+			end
+		end
+	end)
+
+	UserInputService.InputEnded:Connect(function(input)
+		local actions = bindings[input.KeyCode] or bindings[input.UserInputType]
+		if actions then
+			for _, action in actions do
+				if (held[action] or 0) > 0 then
+					InputController.SetHeld(action, false)
+				end
 			end
 		end
 	end)

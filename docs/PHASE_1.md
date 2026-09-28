@@ -9,7 +9,7 @@
 3. Walk to the **Starter Chest** and hold **E** (or tap the prompt). The chest opens and you get an Axe, a Pickaxe, a Hammer, 50 coins and some materials. You see floating "+50 🪙", "+10 🪵 Wood" and similar, a sparkle burst, and a banner.
 4. Press **1 / 2 / 3** (or tap the hotbar) to equip a tool. The server welds it to your R15 `RightHand`, and a hold pose plays.
 5. Click, or tap **USE** on mobile, to swing. The swing timing comes from AnimationConfig markers (a procedural arm pose until real animations exist).
-6. Open the **Backpack** with **B**, **I**, gamepad **Y**, or the 🎒 button. It has tabs, search, sort, item details and Equip/Unequip for tools.
+6. Open the **Backpack** with **I** (or **G**), gamepad **Y**, or the 🎒 button. It has tabs, search, sort, item details and Equip/Unequip for tools.
 7. Read your **Island Sign**.
 8. Walk to a 🔒 **area marker** on the shore. With enough coins and island level, hold E (or press UNLOCK in the panel) and the land rises out of the sea.
 9. Leave and rejoin. Coins, items, tools, the equipped tool, the chest state, unlocked areas and island name all persist.

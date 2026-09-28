@@ -74,15 +74,20 @@ function HUD.Create(parent: Instance): HUDRefs
 	local slots = {
 		Right = Create("Frame", {
 			Name = "RightSlot",
-			Size = UDim2.fromOffset(250, 360),
-			Position = UDim2.new(1, -12, 0.42, 0),
-			AnchorPoint = Vector2.new(1, 0.5),
+			Size = UDim2.fromOffset(250, 540),
+			Position = UDim2.new(1, -12, 0, 80),
+			AnchorPoint = Vector2.new(1, 0),
 			BackgroundTransparency = 1,
 			Parent = root,
+		}, {
+			Create("UIListLayout", {
+				Padding = UDim.new(0, 10),
+				SortOrder = Enum.SortOrder.LayoutOrder,
+			}),
 		}),
 		Bottom = Create("Frame", {
 			Name = "BottomSlot",
-			Size = UDim2.fromOffset(560, 96),
+			Size = UDim2.fromOffset(720, 96),
 			Position = UDim2.new(0.5, 0, 1, -12),
 			AnchorPoint = Vector2.new(0.5, 1),
 			BackgroundTransparency = 1,

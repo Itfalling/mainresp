@@ -8,11 +8,10 @@
 	The right-hand ISLAND PANEL, answering the core-loop questions at a glance
 	(spec "MOST IMPORTANT REQUIREMENT"):
 	  * which island this is and how developed it is (name, level, XP),
-	  * WHAT TO DO NEXT (a guide tip driven by progress flags),
 	  * WHAT TO UNLOCK NEXT (next expansion + live ✔/✖ requirement checklist
 	    and an Unlock button that asks the server).
+	WHAT TO DO NEXT lives in the QuestController card right below it.
 	Also shows the "Welcome to <island>" banner when the player arrives.
-	Phase 10's QuestController will add quest rows to this same panel.
 ]]
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -32,6 +31,8 @@ local Theme = require(Client.UI.Theme)
 
 local Create = Components.Create
 
+local PANEL_HEIGHT = 262
+
 local IslandController = {}
 
 type Refs = {
@@ -44,7 +45,6 @@ type Refs = {
 	AreaName: TextLabel,
 	Requirements: { TextLabel },
 	UnlockButton: TextButton,
-	Tip: TextLabel,
 	Toggle: TextButton,
 }
 
@@ -80,23 +80,6 @@ local function requirementRows(areaId: string): { { Met: boolean, Text: string }
 	return rows
 end
 
-local function currentTip(canUnlock: boolean): string
-	local flags = ClientState.Get("Flags") or {}
-	if not flags.StarterChestClaimed then
-		return "📦 Open your Starter Chest near the spawn!"
-	end
-	if not flags.FirstEquip then
-		if InputController.IsTouch() then
-			return "🪓 Tap a tool in your hotbar to equip it."
-		end
-		return "🪓 Press 1, 2 or 3 to equip a tool."
-	end
-	if canUnlock and nextAreaId then
-		return "🔓 You can unlock " .. IslandConfig.Areas[nextAreaId].DisplayName .. "!"
-	end
-	return "🎒 Check your backpack, then save coins for the next area."
-end
-
 local function refresh()
 	if not ClientState.IsReady() then
 		return
@@ -115,7 +98,7 @@ local function refresh()
 	if nextAreaId then
 		local rows = requirementRows(nextAreaId)
 		canUnlock = true
-		refs.AreaName.Text = "🔒 " .. IslandConfig.Areas[nextAreaId].DisplayName
+		refs.AreaName.Text = "🔒 Next: " .. IslandConfig.Areas[nextAreaId].DisplayName
 		for index, label in refs.Requirements do
 			local row = rows[index]
 			label.Visible = row ~= nil
@@ -135,14 +118,14 @@ local function refresh()
 		end
 		refs.UnlockButton.Visible = false
 	end
-	refs.Tip.Text = currentTip(canUnlock)
 end
 
 local function buildPanel(parent: Frame): Refs
 	local card = Create("Frame", {
 		Name = "IslandPanel",
-		Size = UDim2.new(1, 0, 0, 340),
+		Size = UDim2.new(1, 0, 0, PANEL_HEIGHT),
 		BackgroundColor3 = Theme.Colors.Panel,
+		LayoutOrder = 1,
 		Parent = parent,
 	})
 	Components.Corner(card)
@@ -208,22 +191,13 @@ local function buildPanel(parent: Frame): Refs
 		Parent = body,
 	})
 
-	Create("Frame", { Size = UDim2.new(1, 0, 0, 2), Position = UDim2.fromOffset(0, 86), BackgroundColor3 = Theme.Colors.PanelDark, BorderSizePixel = 0, Parent = body })
-	Components.Label({
-		Size = UDim2.new(1, 0, 0, 16),
-		Position = UDim2.fromOffset(0, 92),
-		Font = Theme.Fonts.Bold,
-		TextSize = 12,
-		TextColor3 = Theme.Colors.TextMuted,
-		Text = "NEXT AREA",
-		Parent = body,
-	})
-	local areaName = Components.Label({ Size = UDim2.new(1, 0, 0, 24), Position = UDim2.fromOffset(0, 108), TextSize = Theme.TextSize.Medium, Text = "", Parent = body })
+	Create("Frame", { Size = UDim2.new(1, 0, 0, 2), Position = UDim2.fromOffset(0, 84), BackgroundColor3 = Theme.Colors.PanelDark, BorderSizePixel = 0, Parent = body })
+	local areaName = Components.Label({ Size = UDim2.new(1, 0, 0, 22), Position = UDim2.fromOffset(0, 88), TextSize = Theme.TextSize.Medium, TextScaled = true, Text = "", Parent = body })
 	local requirements = {}
 	for index = 1, 3 do
 		table.insert(requirements, Components.Label({
 			Size = UDim2.new(1, 0, 0, 18),
-			Position = UDim2.fromOffset(0, 132 + (index - 1) * 20),
+			Position = UDim2.fromOffset(0, 112 + (index - 1) * 18),
 			Font = Theme.Fonts.Bold,
 			TextSize = Theme.TextSize.Small,
 			TextXAlignment = Enum.TextXAlignment.Left,
@@ -235,23 +209,14 @@ local function buildPanel(parent: Frame): Refs
 		Name = "Unlock",
 		Text = "LOCKED",
 		Color = Theme.Colors.PanelDark,
-		Size = UDim2.new(1, 0, 0, 38),
-		Position = UDim2.fromOffset(0, 196),
+		Size = UDim2.new(1, 0, 0, 36),
+		Position = UDim2.fromOffset(0, 168),
 		Parent = body,
 		OnClick = function()
 			if nextAreaId then
 				Net.FireServer("UnlockAreaRequest", nextAreaId)
 			end
 		end,
-	})
-	local tip = Components.Label({
-		Size = UDim2.new(1, 0, 0, 44),
-		Position = UDim2.fromOffset(0, 240),
-		Font = Theme.Fonts.Bold,
-		TextSize = Theme.TextSize.Small,
-		TextColor3 = Theme.Colors.Text,
-		Text = "",
-		Parent = body,
 	})
 
 	return {
@@ -264,7 +229,6 @@ local function buildPanel(parent: Frame): Refs
 		AreaName = areaName,
 		Requirements = requirements,
 		UnlockButton = unlockButton,
-		Tip = tip,
 		Toggle = toggle,
 	}
 end
@@ -272,7 +236,7 @@ end
 local function setCollapsed(value: boolean)
 	collapsed = value
 	refs.Body.Visible = not collapsed
-	refs.Card.Size = if collapsed then UDim2.new(1, 0, 0, 40) else UDim2.new(1, 0, 0, 340)
+	refs.Card.Size = if collapsed then UDim2.new(1, 0, 0, 40) else UDim2.new(1, 0, 0, PANEL_HEIGHT)
 	refs.Toggle.Text = if collapsed then "+" else "–"
 end
 
@@ -288,10 +252,9 @@ function IslandController.Init()
 end
 
 function IslandController.Start()
-	for _, key in { "Island", "Coins", "Flags", "Tools" } do
+	for _, key in { "Island", "Coins" } do
 		ClientState.Observe(key, refresh)
 	end
-	InputController.DeviceChanged:Connect(refresh)
 
 	ClientState.Observe("Island", function(island)
 		if welcomed or type(island) ~= "table" or not island.Name or island.Name == "" then

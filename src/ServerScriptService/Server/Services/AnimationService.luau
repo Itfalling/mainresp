@@ -22,6 +22,13 @@
 		GetAnimation(rig, name) -> handle
 		SetAnimationSpeed(rig, name, speed)
 		IsPlaying(rig, name) -> boolean   (server rigs only)
+
+	SERVER-DRIVEN ACTIONS (spec §173: interaction + animation + marker together):
+		PerformAction(player, animationName, markerName, onMarker, options?) -> boolean
+	The owning client plays the animation (its MarkerEffects give the sound /
+	VFX at the marker) and the server applies the gameplay result at the SAME
+	marker time taken from AnimationConfig. A per-player busy lock stops
+	actions overlapping or being spammed.
 ]]
 
 local Players = game:GetService("Players")
@@ -32,10 +39,12 @@ local Net = require(Shared.Net)
 local AnimationPlayer = require(Shared.Animation.AnimationPlayer)
 local AnimationConfig = require(Shared.Config.AnimationConfig)
 local AssetId = require(Shared.Util.AssetId)
+local R15 = require(Shared.Util.R15)
 
 local AnimationService = {}
 
 local players: { [Model]: any } = {}
+local busyUntil: { [Player]: number } = {}
 
 local function getPlayerForRig(rig: Model): Player?
 	return Players:GetPlayerFromCharacter(rig)
@@ -111,6 +120,50 @@ function AnimationService.IsPlaying(rig: Model, name: string): boolean
 	local animationPlayer = players[rig]
 	return animationPlayer ~= nil and animationPlayer:IsPlaying(name)
 end
+
+function AnimationService.IsBusy(player: Player): boolean
+	return (busyUntil[player] or 0) > os.clock()
+end
+
+export type ActionOptions = {
+	Speed: number?,
+	LockFraction: number?, -- share of the animation length the player stays busy (default 0.85)
+}
+
+-- Plays an action animation on the player's client and runs onMarker on the
+-- server at the configured marker time. Returns false if the player is busy.
+function AnimationService.PerformAction(player: Player, animationName: string, markerName: string?, onMarker: () -> (), options: ActionOptions?): boolean
+	if AnimationService.IsBusy(player) then
+		return false
+	end
+	local def = AnimationConfig.Get(animationName)
+	if not def then
+		warn("[AnimationService] Unknown action animation " .. tostring(animationName))
+		return false
+	end
+	local speed = math.max((options and options.Speed) or 1, 0.1)
+	local lockFraction = (options and options.LockFraction) or 0.85
+	local markerTime = (markerName and def.Markers[markerName]) or def.Length * 0.5
+	busyUntil[player] = os.clock() + def.Length / speed * lockFraction
+
+	local character = player.Character
+	if character then
+		AnimationService.PlayAnimation(character, animationName, { Speed = speed })
+	end
+	task.delay(markerTime / speed, function()
+		if player.Parent and player.Character == character and R15.IsAlive(character) then
+			local ok, err = pcall(onMarker)
+			if not ok then
+				warn(("[AnimationService] Action %s failed: %s"):format(animationName, tostring(err)))
+			end
+		end
+	end)
+	return true
+end
+
+Players.PlayerRemoving:Connect(function(player)
+	busyUntil[player] = nil
+end)
 
 -- Writes real Movement ids into the default Animate script (idle/walk/run...).
 -- Placeholder ids are skipped, so Roblox's default R15 animations stay active.

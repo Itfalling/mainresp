@@ -77,12 +77,41 @@ function ToolService.GrantTool(player: Player, toolId: string, reason: string): 
 		return false
 	end
 	DataService.Set(player, { "Tools", "Owned", toolId }, true)
+	local def = ToolConfig.Get(toolId)
 	local hotbar = table.clone(DataService.Get(player, { "Tools", "Hotbar" }) or {})
-	if #hotbar < ToolConfig.HotbarSize and not table.find(hotbar, toolId) then
-		table.insert(hotbar, toolId)
+	if not table.find(hotbar, toolId) then
+		-- An upgrade replaces the weaker tool of the same type in its slot.
+		local replaced = false
+		for index, existingId in hotbar do
+			local existing = ToolConfig.Get(existingId)
+			if existing and existing.Type == def.Type and existing.TierOrder < def.TierOrder then
+				hotbar[index] = toolId
+				replaced = true
+				if ToolService.GetEquippedId(player) == existingId then
+					task.defer(ToolService.Equip, player, toolId)
+				end
+				break
+			end
+		end
+		if not replaced and #hotbar < ToolConfig.HotbarSize then
+			table.insert(hotbar, toolId)
+		end
 		DataService.Set(player, { "Tools", "Hotbar" }, hotbar)
 	end
 	return true
+end
+
+-- Equips the best owned tool of a type (used by prompt actions: "Chop Tree"
+-- equips your axe). Returns the tool definition or nil if none is owned.
+function ToolService.EquipBestOfType(player: Player, toolType: string): any
+	local best = ToolService.GetBestTool(player, toolType)
+	if not best then
+		return nil
+	end
+	if ToolService.GetEquippedId(player) ~= best.Id then
+		ToolService.Equip(player, best.Id)
+	end
+	return best
 end
 
 local function destroyModel(player: Player)

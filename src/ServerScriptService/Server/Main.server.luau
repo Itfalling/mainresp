@@ -20,6 +20,8 @@
 		EconomyService, InventoryService, ProgressionService
 		InteractionService, ToolService
 		IslandService
+		ResourceService, GatherService, BuildService, CropService, FarmService,
+		FishingService, AnimalService, ShopService, NPCService, QuestService
 		PlayerService, AdminService
 ]]
 
@@ -41,6 +43,16 @@ local SERVICE_ORDER = {
 	"InteractionService",
 	"ToolService",
 	"IslandService",
+	"ResourceService",
+	"GatherService",
+	"BuildService",
+	"CropService",
+	"FarmService",
+	"FishingService",
+	"AnimalService",
+	"ShopService",
+	"NPCService",
+	"QuestService",
 	"PlayerService",
 	"AdminService",
 }

@@ -1,8 +1,8 @@
 # Build Your Island: Technical Architecture
 
-This document is the blueprint for the whole game. Phase 1 (Island Core) is implemented in `src/`. The sections for later phases set out the contracts those phases must follow, so they plug in without rewrites.
+This document is the blueprint for the whole game. Phase 1 (Island Core) and the **first playable loop** (gathering, building, farming, fishing, animals, market and tutorial quests: the core of phases 2–7 and 10) are implemented in `src/`. The sections for later phases set out the contracts those phases must follow, so they plug in without rewrites.
 
-Legend: ✅ implemented in Phase 1 · 🔜 planned (phase number in brackets)
+Legend: ✅ implemented · 🔜 planned (phase number in brackets)
 
 ---
 
@@ -88,16 +88,20 @@ ReplicatedStorage
 │   │   ├── EconomyConfig                    ✅ currencies
 │   │   ├── ProgressionConfig                ✅ XP curves, titles, XP sources
 │   │   ├── RemoteConfig                     ✅ every remote + rate limits
-│   │   ├── BuildConfig / BuildingConfig     🔜 [3]
-│   │   ├── CropConfig                       🔜 [4]
-│   │   ├── FishConfig                       🔜 [5]
-│   │   ├── AnimalConfig                     🔜 [6]
+│   │   ├── BuildConfig / BuildingConfig     ✅ grid rules · 13 buildings with costs, steps, housing
+│   │   ├── CropConfig                       ✅ 7 crops, growth stages, farm plot layout
+│   │   ├── FishConfig                       ✅ 19 fish, 4 zones, reel minigame tuning
+│   │   ├── AnimalConfig                     ✅ cow + chicken, variants, care model
+│   │   ├── ShopConfig                       ✅ seeds, animals, tool upgrades, farm/backpack upgrades
+│   │   ├── QuestConfig                      ✅ 4-quest tutorial chain
 │   │   ├── RecipeConfig                     🔜 [8]
-│   │   ├── QuestConfig                      🔜 [10]
 │   │   ├── WeatherConfig / EventConfig      🔜 [13]
 │   ├── Util
 │   │   ├── Signal · Maid · TableUtil · Format · Validate · Serializer   ✅
 │   │   ├── RateLimiter · AssetId · R15 · IslandLayout                   ✅
+│   │   └── IslandContent · Placement · CropGrowth · AnimalMath          ✅ shared by server + client
+│   ├── Building
+│   │   └── BuildingModels                   ✅ procedural staged building models + ghost
 │   └── Animation
 │       ├── AnimationPlayer                  ✅ shared load/cache/play/marker core
 │       └── ProceduralFallback               ✅ prototype arm poses for placeholders
@@ -121,14 +125,14 @@ ServerScriptService
     │   ├── IslandService                    ✅
     │   ├── PlayerService                    ✅
     │   ├── AdminService                     ✅
-    │   ├── ResourceService / GatherService  🔜 [2]
-    │   ├── BuildService                     🔜 [3]
-    │   ├── FarmService / CropService        🔜 [4]
-    │   ├── FishingService                   🔜 [5]
-    │   ├── AnimalService                    🔜 [6]
-    │   ├── ShopService (+ market in Economy) 🔜 [7]
+    │   ├── ResourceService / GatherService  ✅ pooled nodes, tool-tier checks, respawn
+    │   ├── BuildService                     ✅ validation, atomic cost, hammer construction, move/delete
+    │   ├── FarmService / CropService        ✅ till → plant → water → harvest, timestamp growth
+    │   ├── FishingService                   ✅ server-rolled fish, bite window, reel anti-cheat
+    │   ├── AnimalService                    ✅ housing, feeding, happiness, milk/eggs, pet
+    │   ├── ShopService (+ demand in Economy) ✅ sell / buy at the market stall
     │   ├── CraftingService / ProductionService / StorageService 🔜 [8]
-    │   ├── NPCService / QuestService        🔜 [10]
+    │   ├── NPCService / QuestService        ✅ merchant NPC · tutorial quest chain (more NPCs [10])
     │   ├── AchievementService               🔜 [11]
     │   ├── VisitorService                   🔜 [12]
     │   └── WeatherService / EventService    🔜 [13]
@@ -137,7 +141,8 @@ ServerScriptService
     │   └── MockDataStore                    ✅ Studio fallback
     ├── Island
     │   ├── IslandBuilder                    ✅ terrain + props per slot
-    │   └── IslandProps                      ✅ procedural placeholder props
+    │   ├── IslandProps                      ✅ procedural placeholder props (market stall, fishing spots...)
+    │   ├── NodeModels · CropModels · AnimalModels  ✅ procedural trees/rocks, crop stages, cow/chicken
     ├── Tools
     │   └── ToolModelFactory                 ✅ placeholder tool models / custom-art loader
     └── Util
@@ -164,12 +169,13 @@ StarterPlayer
         │   ├── ToolController               ✅
         │   ├── InventoryController          ✅
         │   ├── IslandController             ✅
-        │   ├── BuildController              🔜 [3]
-        │   ├── FarmController               🔜 [4]
-        │   ├── FishingController            🔜 [5]
-        │   ├── AnimalController             🔜 [6]
-        │   ├── ShopController               🔜 [7]
-        │   └── QuestController              🔜 [10]
+        │   ├── QuestController              ✅ quest card (what to do next)
+        │   ├── GatherController             ✅ swing hits → gather / hammer requests, health bars
+        │   ├── BuildController              ✅ build mode, ghost preview, move/delete
+        │   ├── FarmController               ✅ seed picker, crop timers
+        │   ├── FishingController            ✅ bobber, bite alert, reel minigame, catch card
+        │   ├── AnimalController             ✅ animal status billboards
+        │   └── ShopController               ✅ market window (sell / buy)
         └── UI
             ├── Theme · Components · HUD · Notifications · Hotbar · InventoryPanel  ✅
 
@@ -430,42 +436,42 @@ See `docs/ASSETS.md` for authoring and importing the real animations.
 - Frames are created once, updated in place, and pooled (item cards, float labels, VFX).
 - **State-driven:** UI observes `ClientState` keys. Coin and item feedback is automatic, based on value diffs.
 - **Mobile:** 64 px+ touch targets, a USE button while a tool is equipped, the 🎒 button, ProximityPrompt tap buttons, and a collapsible island panel that starts collapsed on touch.
-- Planned: BuildMode UI (categories left, info right, controls bottom) [3], Farm/Animal/Fishing panels [4–6], Shop/Sell [7], Quest list in the island panel [10], Settings [16].
+- Implemented: BuildMode UI (categories left, info right, controls bottom), seed picker, crop/animal billboards, fishing minigame + catch card, Market window, quest card under the island panel. Planned: Settings [16].
 
 ---
 
 ## 19. First playable milestone
 
-Spec §157 lists 18 steps. Their status after Phase 1:
+Spec §157 lists 18 steps. All of them are implemented (see [PLAYABLE_LOOP.md](PLAYABLE_LOOP.md) for how to play and test each one):
 
 | # | Step | Status |
 |---|---|---|
 | 1 | Spawn on your own island | ✅ |
-| 2–3 | Gather wood / stone | Phase 2. Tool equip, swing, markers and the `ToolImpact` hook are ready. |
-| 4–5 | Build a house with a construction animation | Phase 3. HammerSwing markers are ready. |
-| 6–8 | Plant, grow and harvest crops | Phase 4 (farm plot zone exists) |
-| 9–10 | Fish and catch fish | Phase 5 (dock exists) |
-| 11–12 | Sell items, earn coins | Phase 7. Coins, the economy and feedback are ready. |
-| 13–14 | Buy a cow, milk it | Phase 6 |
-| 15 | Expand a section of the island | ✅ Areas unlock through the 🔒 sign or the panel button, with the land-rise effect |
-| 16–18 | Save, leave, rejoin, see progress | ✅ |
+| 2–3 | Gather wood / stone | ✅ Axe / Pickaxe swings (or the prompt), health bars, trees fall, nodes respawn |
+| 4–5 | Build a house with a construction animation | ✅ Build mode ghost → construction site → hammer hits reveal the house stage by stage |
+| 6–8 | Plant, grow and harvest crops | ✅ Till → plant → water → 6 growth stages → harvest |
+| 9–10 | Fish and catch fish | ✅ Cast → bite → reel minigame → catch card |
+| 11–12 | Sell items, earn coins | ✅ Market stall: Sell tab, Sell All, market demand bonus |
+| 13–14 | Buy a cow, milk it | ✅ Barn → buy cow → feed wheat → milk when READY |
+| 15 | Expand a section of the island | ✅ Areas unlock through the 🔒 sign or the panel button, with the land-rise effect; each area adds nodes / fishing spots |
+| 16–18 | Save, leave, rejoin, see progress | ✅ buildings, crops (keep growing offline), animals, quests all save |
 
-The milestone is complete when Phases 2–7 land. Each phase adds one link of the loop: gather → build → farm → fish → animals → sell.
+The "Start Your Island" quest chain walks a new player through the whole loop in order.
 
 ## 20. Complete implementation order
 
 | Phase | Name | Adds to the loop |
 |---|---|---|
 | 1 ✅ | Island Core | Island, data, HUD, backpack, tools, interaction, expansion, admin |
-| 2 | Resource Gathering | Trees, rocks, Axe/Pickaxe gathering, respawn pools |
-| 3 | Building System | Build mode, preview, validation, marker-driven construction, move/delete |
-| 4 | Farming | Tilling, seeds, growth stages, watering, harvesting, crop sales |
-| 5 | Fishing | Zones, cast/bite/reel minigame, rarities, catch reveal |
-| 6 | Animals | Cows/chickens, housing, happiness, production timers, milking |
-| 7 | Economy + Shop | Market, sell UI, shops, tool upgrades, market demand |
+| 2 ✅ | Resource Gathering | Trees, rocks, Axe/Pickaxe gathering, respawn pools |
+| 3 ✅ | Building System | Build mode, preview, validation, marker-driven construction, move/delete |
+| 4 ✅ | Farming | Tilling, seeds, growth stages, watering, harvesting, crop sales |
+| 5 ✅ | Fishing | Zones, cast/bite/reel minigame, rarities, catch reveal |
+| 6 ✅ | Animals | Cows/chickens, housing, happiness, production timers, milking |
+| 7 ✅ | Economy + Shop | Market, sell UI, shops, tool upgrades, market demand |
 | 8 | Production + Crafting | Workshop, mill, bakery, dairy, smoker, queues |
 | 9 | Island Expansion content | Resources and zones for each area; area unlock UI polish |
-| 10 | NPCs + Quests | Farmer, merchant, fisher, carpenter, blacksmith; tutorial, daily and progression quests |
+| 10 (part ✅) | NPCs + Quests | ✅ merchant NPC + tutorial quest chain · 🔜 farmer, fisher, carpenter, blacksmith; daily quests |
 | 11 | Progression | Achievements, collection book, titles |
 | 12 | Visitors + Social | Visiting, permissions, likes, showcase, naming (TextService filtering), themes |
 | 13 | Events + Weather | Weather, day/night, meteor showers, festivals, wandering merchant |

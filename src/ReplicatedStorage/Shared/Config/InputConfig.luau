@@ -10,7 +10,7 @@
 	actions, never to raw keys — that is what keeps mobile/console support free.
 
 	Note: the ProximityPrompt interact key is E (Roblox default). Build mode
-	(Phase 3) disables prompts while active so Q/E can rotate.
+	pauses prompts while it is open so Q / E can rotate the preview.
 ]]
 
 local TableUtil = require(script.Parent.Parent.Util.TableUtil)
@@ -22,8 +22,12 @@ local InputConfig = {
 			Gamepad = { Enum.KeyCode.ButtonR2 },
 		},
 		ToggleInventory = {
-			Inputs = { Enum.KeyCode.B, Enum.KeyCode.I },
+			Inputs = { Enum.KeyCode.I, Enum.KeyCode.G },
 			Gamepad = { Enum.KeyCode.ButtonY },
+		},
+		ToggleBuild = {
+			Inputs = { Enum.KeyCode.B },
+			Gamepad = { Enum.KeyCode.DPadUp },
 		},
 		Cancel = {
 			Inputs = { Enum.KeyCode.X },
@@ -37,10 +41,13 @@ local InputConfig = {
 		Hotbar4 = { Inputs = { Enum.KeyCode.Four }, Gamepad = {} },
 		Hotbar5 = { Inputs = { Enum.KeyCode.Five }, Gamepad = {} },
 		Hotbar6 = { Inputs = { Enum.KeyCode.Six }, Gamepad = {} },
-		-- Reserved for Build Mode (Phase 3); declared now so names never change.
+		Hotbar7 = { Inputs = { Enum.KeyCode.Seven }, Gamepad = {} },
+		Hotbar8 = { Inputs = { Enum.KeyCode.Eight }, Gamepad = {} },
+		-- Build mode
+		BuildPlace = { Inputs = { Enum.UserInputType.MouseButton1 }, Gamepad = { Enum.KeyCode.ButtonR2 } },
 		RotateBuild = { Inputs = { Enum.KeyCode.R }, Gamepad = { Enum.KeyCode.ButtonX } },
-		RotateBuildLeft = { Inputs = { Enum.KeyCode.Q }, Gamepad = {} },
-		RotateBuildRight = { Inputs = { Enum.KeyCode.E }, Gamepad = {} },
+		RotateBuildLeft = { Inputs = { Enum.KeyCode.Q }, Gamepad = { Enum.KeyCode.DPadLeft } },
+		RotateBuildRight = { Inputs = { Enum.KeyCode.E }, Gamepad = { Enum.KeyCode.DPadRight } },
 	},
 
 	-- Minimum on-screen button size for touch (Roblox recommends >= 44px).

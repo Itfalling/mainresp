@@ -17,8 +17,15 @@ local EconomyConfig = {
 		Gems = { DisplayName = "Gems", Icon = "💎", Max = 1e9, Color = Color3.fromRGB(90, 200, 255) },
 	},
 
-	-- Multiplier applied to every sale (Phase 7 market events adjust per item).
+	-- Multiplier applied to every sale.
 	GlobalSellMultiplier = 1,
+
+	-- MARKET DEMAND (spec §65): every DemandInterval seconds a few goods get a
+	-- clearly announced price bonus, giving players a reason to switch strategy.
+	DemandInterval = 600,
+	DemandItemCount = 2,
+	DemandBonus = { Min = 0.2, Max = 0.4 },
+	DemandCategories = { Crops = true, Fish = true, AnimalProducts = true },
 }
 
 return TableUtil.DeepFreeze(EconomyConfig)

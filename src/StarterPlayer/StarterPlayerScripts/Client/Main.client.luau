@@ -13,7 +13,9 @@
 		AnimationController
 		UIController
 		InteractionController, ToolController
-		InventoryController, IslandController
+		InventoryController, IslandController, QuestController
+		GatherController, BuildController, FarmController, FishingController,
+		AnimalController, ShopController
 ]]
 
 local StarterGui = game:GetService("StarterGui")
@@ -48,21 +50,40 @@ local ORDER: { ModuleScript } = {
 	Controllers.ToolController,
 	Controllers.InventoryController,
 	Controllers.IslandController,
+	Controllers.QuestController,
+	Controllers.GatherController,
+	Controllers.BuildController,
+	Controllers.FarmController,
+	Controllers.FishingController,
+	Controllers.AnimalController,
+	Controllers.ShopController,
 }
 
-local loaded = {}
-for index, module in ORDER do
-	loaded[index] = require(module) :: any
+-- One broken controller must not take the whole client down with it:
+-- each step is protected and reported in the Output window.
+local function run(label: string, callback: () -> ()): boolean
+	local ok, message = xpcall(callback, debug.traceback)
+	if not ok then
+		warn(("[Client] %s failed:\n%s"):format(label, tostring(message)))
+	end
+	return ok
 end
 
-for _, controller in loaded do
-	if type(controller.Init) == "function" then
-		controller.Init()
+local loaded: { { Name: string, Controller: any } } = {}
+for _, module in ORDER do
+	run("require " .. module.Name, function()
+		table.insert(loaded, { Name = module.Name, Controller = require(module) :: any })
+	end)
+end
+
+for _, entry in loaded do
+	if type(entry.Controller.Init) == "function" then
+		run(entry.Name .. ".Init", entry.Controller.Init)
 	end
 end
 
-for _, controller in loaded do
-	if type(controller.Start) == "function" then
-		controller.Start()
+for _, entry in loaded do
+	if type(entry.Controller.Start) == "function" then
+		run(entry.Name .. ".Start", entry.Controller.Start)
 	end
 end

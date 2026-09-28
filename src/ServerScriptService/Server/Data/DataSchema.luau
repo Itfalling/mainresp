@@ -23,11 +23,15 @@ local ToolConfig = require(Shared.Config.ToolConfig)
 local IslandConfig = require(Shared.Config.IslandConfig)
 local EconomyConfig = require(Shared.Config.EconomyConfig)
 local ProgressionConfig = require(Shared.Config.ProgressionConfig)
+local BuildingConfig = require(Shared.Config.BuildingConfig)
+local CropConfig = require(Shared.Config.CropConfig)
+local AnimalConfig = require(Shared.Config.AnimalConfig)
+local QuestConfig = require(Shared.Config.QuestConfig)
 local TableUtil = require(Shared.Util.TableUtil)
 
 local DataSchema = {}
 
-DataSchema.CurrentVersion = 1
+DataSchema.CurrentVersion = 2
 
 -- Top-level keys never sent to the client.
 DataSchema.PrivateKeys = table.freeze({ Quarantine = true })
@@ -61,17 +65,22 @@ local TEMPLATE = {
 		Theme = IslandConfig.DefaultTheme,
 		Permission = "Private", -- Private | Friends | Public (Phase 12)
 		UnlockedAreas = { Starter = true },
-		Buildings = {}, -- Phase 3: { BuildingId, UniqueId, Position = {X,Y,Z}, Rotation, Variant }
+		-- [uniqueId] = { BuildingId, UniqueId, Position = {X,Y,Z} (island-local), Rotation, Variant, State, Progress }
+		Buildings = {},
 		Decorations = {},
-		Crops = {}, -- Phase 4: { CropId, Position, PlantedAt, GrowthStage, Watered }
-		Animals = {}, -- Phase 6: { AnimalId, UniqueId, Position, Happiness, Hunger, ProduceReadyAt }
+		-- [tileId] = { TileId, State = "Tilled"|"Planted", CropId, Position, PlantedAt, WateredAt }
+		Crops = {},
+		-- [uniqueId] = { AnimalId, UniqueId, Variant, HousingId, Happiness, HappinessAt, FedAt, ProduceReadyAt, PettedAt }
+		Animals = {},
+		FarmTiles = CropConfig.Farm.StarterTiles,
+		Upgrades = { FarmTiles = 0, Capacity = 0 },
 		Storage = {},
 		Production = {}, -- Phase 8: production queues
 		Likes = 0,
 		Visits = 0,
 	},
 
-	Quests = { Active = {}, Completed = {}, DailyResetAt = 0 },
+	Quests = { Current = QuestConfig.Chain[1], Progress = {}, Completed = {}, DailyResetAt = 0 },
 	Achievements = {},
 	Collection = { Fish = {}, Crops = {}, Animals = {}, Items = {} },
 	Recipes = {},
@@ -85,6 +94,7 @@ local TEMPLATE = {
 		FishCaught = 0,
 		AnimalsOwned = 0,
 		MilkCollected = 0,
+		EggsCollected = 0,
 		ItemsSold = 0,
 		CoinsEarned = 0,
 		BuildingsBuilt = 0,
@@ -104,7 +114,7 @@ local TEMPLATE = {
 	Meta = { CreatedAt = 0, LastSavedAt = 0, LastJoinAt = 0, JoinCount = 0 },
 
 	-- Data we could not validate, kept instead of deleted.
-	Quarantine = { Items = {}, Tools = {}, Areas = {}, Values = {} },
+	Quarantine = { Items = {}, Tools = {}, Areas = {}, Values = {}, Buildings = {}, Crops = {}, Animals = {} },
 }
 
 function DataSchema.Template()
@@ -113,7 +123,42 @@ end
 
 -- version -> function(data) upgrading FROM that version to version + 1
 local MIGRATIONS: { [number]: (any) -> () } = {
-	-- [1] = function(data) data.NewField = ... end,
+	-- v1 -> v2: first playable loop. Players who already opened the starter
+	-- chest get the new starter tools + seeds; old quest layout is dropped.
+	[1] = function(data)
+		local flags = data.Flags
+		if type(flags) == "table" and flags.StarterChestClaimed == true then
+			if type(data.Tools) ~= "table" then
+				data.Tools = {}
+			end
+			if type(data.Tools.Owned) ~= "table" then
+				data.Tools.Owned = {}
+			end
+			if type(data.Tools.Hotbar) ~= "table" then
+				data.Tools.Hotbar = {}
+			end
+			for _, toolId in GameConfig.StarterKit.Tools do
+				if data.Tools.Owned[toolId] ~= true then
+					data.Tools.Owned[toolId] = true
+					table.insert(data.Tools.Hotbar, toolId)
+				end
+			end
+			if type(data.Inventory) == "table" and type(data.Inventory.Items) == "table" then
+				local seeds = tonumber(data.Inventory.Items.WheatSeeds) or 0
+				data.Inventory.Items.WheatSeeds = seeds + (GameConfig.StarterKit.Items.WheatSeeds or 0)
+			end
+		end
+		if type(data.Quests) == "table" then
+			data.Quests.Active = nil
+		end
+		if type(data.Island) == "table" then
+			for _, key in { "Buildings", "Crops", "Animals" } do
+				if type(data.Island[key]) ~= "table" then
+					data.Island[key] = {}
+				end
+			end
+		end
+	end,
 }
 
 local function isFiniteNumber(value: any): boolean
@@ -253,7 +298,141 @@ function DataSchema.Sanitize(raw: any): any
 		data.Island.Name = ""
 	end
 
+	local maxTiles = CropConfig.Farm.Columns * CropConfig.Farm.Rows
+	data.Island.FarmTiles = cleanInteger(data.Island.FarmTiles, CropConfig.Farm.StarterTiles, maxTiles, CropConfig.Farm.StarterTiles)
+	data.Island.Upgrades.FarmTiles = cleanInteger(data.Island.Upgrades.FarmTiles, 0, 100, 0)
+	data.Island.Upgrades.Capacity = cleanInteger(data.Island.Upgrades.Capacity, 0, 100, 0)
+
+	DataSchema.SanitizeIsland(data)
+	DataSchema.SanitizeQuests(data)
 	return data
+end
+
+local function validPosition(position: any): boolean
+	return type(position) == "table"
+		and isFiniteNumber(position.X)
+		and isFiniteNumber(position.Y)
+		and isFiniteNumber(position.Z)
+		and math.abs(position.X) < 2000
+		and math.abs(position.Z) < 2000
+		and math.abs(position.Y) < 500
+end
+
+local function validBuilding(entry: any): boolean
+	if type(entry) ~= "table" then
+		return false
+	end
+	local def = BuildingConfig.Get(entry.BuildingId)
+	if not def or not validPosition(entry.Position) then
+		return false
+	end
+	if entry.Rotation ~= 0 and entry.Rotation ~= 90 and entry.Rotation ~= 180 and entry.Rotation ~= 270 then
+		return false
+	end
+	return true
+end
+
+local function validCrop(key: any, entry: any, now: number): boolean
+	if type(key) ~= "string" or not string.match(key, "^%u%d+$") or type(entry) ~= "table" then
+		return false
+	end
+	if entry.State == "Tilled" then
+		return true
+	end
+	if entry.State ~= "Planted" or not CropConfig.Crops[entry.CropId] then
+		return false
+	end
+	return isFiniteNumber(entry.PlantedAt) and entry.PlantedAt <= now + 120
+end
+
+local function validAnimal(entry: any): boolean
+	return type(entry) == "table" and AnimalConfig.Animals[entry.AnimalId] ~= nil
+end
+
+-- Buildings / crops / animals: repair what we can, quarantine the rest.
+function DataSchema.SanitizeIsland(data: any)
+	local island = data.Island
+	local quarantine = data.Quarantine
+	local now = os.time()
+
+	-- Give back quarantined entries that became valid again.
+	for key, entry in quarantine.Buildings do
+		if validBuilding(entry) and island.Buildings[key] == nil then
+			island.Buildings[key] = entry
+			quarantine.Buildings[key] = nil
+		end
+	end
+
+	for key, entry in island.Buildings do
+		if type(key) == "string" and validBuilding(entry) then
+			local steps = BuildingConfig.Get(entry.BuildingId).Steps
+			entry.UniqueId = key
+			entry.Variant = if type(entry.Variant) == "string" then entry.Variant else "Default"
+			entry.Progress = cleanInteger(entry.Progress, 0, steps, 0)
+			entry.State = if entry.State == "Complete" or entry.Progress >= steps then "Complete" else "Constructing"
+		else
+			quarantine.Buildings[tostring(key)] = entry
+			island.Buildings[key] = nil
+		end
+	end
+
+	for key, entry in island.Crops do
+		if validCrop(key, entry, now) then
+			entry.TileId = key
+			if entry.State == "Planted" then
+				entry.WateredAt = if isFiniteNumber(entry.WateredAt) then entry.WateredAt else 0
+			else
+				entry.CropId = nil
+				entry.PlantedAt = nil
+				entry.WateredAt = nil
+			end
+		else
+			quarantine.Crops[tostring(key)] = entry
+			island.Crops[key] = nil
+		end
+	end
+
+	for key, entry in island.Animals do
+		if type(key) == "string" and validAnimal(entry) then
+			entry.UniqueId = key
+			entry.Happiness = math.clamp(if isFiniteNumber(entry.Happiness) then entry.Happiness else AnimalConfig.StartHappiness, 0, 100)
+			entry.HappinessAt = if isFiniteNumber(entry.HappinessAt) then entry.HappinessAt else now
+			entry.FedAt = if isFiniteNumber(entry.FedAt) then entry.FedAt else 0
+			entry.ProduceReadyAt = if isFiniteNumber(entry.ProduceReadyAt) then entry.ProduceReadyAt else 0
+			entry.PettedAt = if isFiniteNumber(entry.PettedAt) then entry.PettedAt else 0
+			entry.Variant = if type(entry.Variant) == "string" then entry.Variant else "Default"
+			entry.HousingId = if type(entry.HousingId) == "string" then entry.HousingId else ""
+		else
+			quarantine.Animals[tostring(key)] = entry
+			island.Animals[key] = nil
+		end
+	end
+end
+
+function DataSchema.SanitizeQuests(data: any)
+	local quests = data.Quests
+	if quests.Current ~= "" and not QuestConfig.Quests[quests.Current] then
+		quests.Current = ""
+	end
+	-- A player who finished (or never started) the chain resumes at the first unfinished quest.
+	if quests.Current == "" then
+		for _, questId in QuestConfig.Chain do
+			if quests.Completed[questId] ~= true then
+				quests.Current = questId
+				break
+			end
+		end
+	end
+	for key, value in quests.Progress do
+		if type(key) ~= "string" or not isFiniteNumber(value) then
+			quests.Progress[key] = nil
+		end
+	end
+	for key, value in quests.Completed do
+		if value ~= true then
+			quests.Completed[key] = nil
+		end
+	end
 end
 
 -- Final guard before anything is written to the DataStore.

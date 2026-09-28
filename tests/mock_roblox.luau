@@ -16,6 +16,13 @@ local function v2(x, y)
 	v.Magnitude = math.sqrt(v.X * v.X + v.Y * v.Y)
 	return v
 end
+V2.__index = function(self, key)
+	if key == "Unit" then
+		local m = rawget(self, "Magnitude")
+		return if m > 0 then v2(self.X / m, self.Y / m) else v2(0, 0)
+	end
+	return rawget(V2, key)
+end
 V2.__add = function(a, b) return v2(a.X + b.X, a.Y + b.Y) end
 V2.__sub = function(a, b) return v2(a.X - b.X, a.Y - b.Y) end
 V2.__mul = function(a, b)
@@ -63,6 +70,25 @@ CFrame = {
 		return cf(x, y, z)
 	end,
 	Angles = function(_, y, _) return cf(0, 0, 0, y or 0) end,
+}
+
+-- Random (deterministic LCG; same seed -> same sequence, like Roblox) ------
+local RandomClass = class("Random")
+local function lcg(self)
+	self.__state = (self.__state * 1103515245 + 12345) % 2147483648
+	return self.__state / 2147483648
+end
+function RandomClass:NextNumber(min, max)
+	min, max = min or 0, max or 1
+	return min + lcg(self) * (max - min)
+end
+function RandomClass:NextInteger(min, max)
+	return min + math.floor(lcg(self) * (max - min + 1))
+end
+Random = {
+	new = function(seed)
+		return setmetatable({ __state = math.floor(seed or 1) % 2147483648 }, RandomClass)
+	end,
 }
 
 Color3 = {

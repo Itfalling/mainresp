@@ -12,7 +12,7 @@ local TableUtil = require(script.Parent.Parent.Util.TableUtil)
 
 local GameConfig = {
 	GameName = "Build Your Island",
-	Version = "0.1.0 (Phase 1 - Island Core)",
+	Version = "0.2.0 (First Playable Loop)",
 
 	-- Turn OFF before publishing. Enables verbose logs + /debug output.
 	Debug = true,
@@ -84,8 +84,8 @@ local GameConfig = {
 	-- What the Starter Chest on every new island contains.
 	StarterKit = {
 		Coins = 50,
-		Items = { Wood = 10, Stone = 5, Fiber = 5 },
-		Tools = { "WoodenAxe", "WoodenPickaxe", "WoodenHammer" },
+		Items = { Wood = 10, Stone = 5, Fiber = 5, WheatSeeds = 6 },
+		Tools = { "WoodenAxe", "WoodenPickaxe", "WoodenHammer", "WoodenHoe", "WoodenWateringCan", "WoodenFishingRod" },
 	},
 
 	-- Lighting / world presentation (WorldService applies these).

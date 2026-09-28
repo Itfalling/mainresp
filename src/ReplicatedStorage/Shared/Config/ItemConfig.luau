@@ -19,9 +19,9 @@ local RarityConfig = require(Config.RarityConfig)
 
 local SOURCES = {
 	require(Config.ResourceConfig),
-	-- Phase 4: require(Config.CropConfig),
-	-- Phase 5: require(Config.FishConfig),
-	-- Phase 6: require(Config.AnimalConfig),
+	require(Config.CropConfig),
+	require(Config.FishConfig),
+	require(Config.AnimalConfig),
 	-- Phase 8: require(Config.RecipeConfig),
 }
 
@@ -43,6 +43,7 @@ local ItemConfig = {
 		{ Id = "All", DisplayName = "All", Icon = "🎒" },
 		{ Id = "Resources", DisplayName = "Resources", Icon = "🪵" },
 		{ Id = "Crops", DisplayName = "Crops", Icon = "🌽" },
+		{ Id = "Seeds", DisplayName = "Seeds", Icon = "🌱" },
 		{ Id = "Fish", DisplayName = "Fish", Icon = "🐟" },
 		{ Id = "AnimalProducts", DisplayName = "Animal", Icon = "🥛" },
 		{ Id = "Materials", DisplayName = "Materials", Icon = "⛏️" },

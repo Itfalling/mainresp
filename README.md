@@ -8,10 +8,15 @@ An original Roblox island-building progression game. You start on a tiny island 
 
 | Phase | | |
 |---|---|---|
-| 1. Island Core | ✅ **playable** | Own island per player, R15, saving, coins, backpack, HUD, tools, interactions, camera, area expansion |
-| 2–18 | 🔜 | See [docs/ARCHITECTURE.md §20](docs/ARCHITECTURE.md#20-complete-implementation-order) |
+| 1. Island Core | ✅ | Own island per player, R15, saving, coins, backpack, HUD, tools, interactions, camera, area expansion |
+| **First playable loop** (2–7 + tutorial) | ✅ **playable** | Chop & mine, build houses with real construction, farm, fish (reel minigame), cows & chickens, market sell/buy with demand, "Start Your Island" quest chain |
+| 8–18 | 🔜 | Crafting, more NPCs, visiting, weather... See [docs/ARCHITECTURE.md §20](docs/ARCHITECTURE.md#20-complete-implementation-order) |
 
 ## Quick start
+
+**Easiest:** open **`BuildYourIsland.rbxlx`** (in this repository) in Roblox Studio and press **Play**.
+
+Or with Rojo:
 
 ```bash
 rokit install            # installs Rojo (pinned in rokit.toml)
@@ -22,11 +27,12 @@ rojo build default.project.json -o BuildYourIsland.rbxlx
 
 In Studio, set **Game Settings → Avatar → R15**. Optionally enable **Studio Access to API Services** to test real saving.
 
-Full setup, admin commands and the testing checklist are in **[docs/PHASE_1.md](docs/PHASE_1.md)**.
+**How to play, controls, admin commands and the testing checklist: [docs/PLAYABLE_LOOP.md](docs/PLAYABLE_LOOP.md).** Setup details: [docs/PHASE_1.md](docs/PHASE_1.md).
 
 ## Documentation
 
 - **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)**: the complete technical architecture. It covers the folder hierarchy, every module, remote and system (island, build, resource, farming, animal, fishing, economy, animation, data, security, UI), the first playable milestone, and the implementation order.
+- **[docs/PLAYABLE_LOOP.md](docs/PLAYABLE_LOOP.md)**: how to play the full loop, controls, admin commands, testing checklist, new script index.
 - **[docs/PHASE_1.md](docs/PHASE_1.md)**: what Phase 1 does, setup, script index, testing checklist, customization.
 - **[docs/ASSETS.md](docs/ASSETS.md)**: how to replace the placeholder animations, sounds and models with real assets.
 

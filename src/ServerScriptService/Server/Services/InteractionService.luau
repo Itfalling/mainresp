@@ -127,8 +127,8 @@ function InteractionService.Attach(object: Instance, kind: string, overrides: { 
 	prompt.HoldDuration = options.HoldDuration or def.HoldDuration or 0
 	prompt.MaxActivationDistance = options.MaxDistance or def.MaxDistance or 10
 	prompt.RequiresLineOfSight = false
-	prompt.KeyboardKeyCode = Enum.KeyCode.E
-	prompt.GamepadKeyCode = Enum.KeyCode.ButtonX
+	prompt.KeyboardKeyCode = options.KeyboardKeyCode or Enum.KeyCode.E
+	prompt.GamepadKeyCode = options.GamepadKeyCode or Enum.KeyCode.ButtonX
 	prompt.Style = Enum.ProximityPromptStyle.Default
 	prompt:SetAttribute("InteractKind", kind)
 

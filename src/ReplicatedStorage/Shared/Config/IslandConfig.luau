@@ -11,6 +11,9 @@
 	side, always open ocean). Saved building/crop/animal positions are also
 	island-local, so an island can load into any slot on any server.
 
+	AREA CONTENT gives every expansion a reason to exist (spec §120):
+	resource nodes to gather, a fishing zone, or a second farm plot.
+
 	EXPANSION AREAS are circular land lobes attached to the starter island.
 	`Angle` is measured in degrees from +Z towards +X. A locked area shows an
 	underwater sandbar and a 🔒 sign on the starter shore; unlocking it raises
@@ -50,6 +53,7 @@ local IslandConfig = {
 			Biome = "Meadow",
 			Unlock = nil,
 			Reward = "Your home. Trees, rocks, a farm plot and a dock to fish from.",
+			Content = { FishingZone = "Shore" }, -- trees/rocks/bushes are hand-placed in StarterLayout
 		},
 		Forest = {
 			DisplayName = "Whispering Forest",
@@ -58,7 +62,8 @@ local IslandConfig = {
 			Radius = 55,
 			Biome = "Forest",
 			Unlock = { Coins = 500, IslandLevel = 2 },
-			Reward = "Dense woods: hardwood trees, fiber bushes and berries.",
+			Reward = "Dense woods full of pine trees and fiber bushes.",
+			Content = { Nodes = { PineTree = 8, Tree = 3, FiberBush = 5 } },
 		},
 		Farm = {
 			DisplayName = "Sunny Fields",
@@ -67,7 +72,8 @@ local IslandConfig = {
 			Radius = 55,
 			Biome = "Meadow",
 			Unlock = { Coins = 1500, IslandLevel = 4, RequiresArea = "Forest" },
-			Reward = "Wide flat fields for big farms and animal pastures.",
+			Reward = "A second 12-tile farm plot on wide, flat fields.",
+			Content = { Nodes = { Tree = 2, FiberBush = 2 }, FarmPlot = true },
 		},
 		River = {
 			DisplayName = "Willow River",
@@ -76,7 +82,8 @@ local IslandConfig = {
 			Radius = 55,
 			Biome = "River",
 			Unlock = { Coins = 4000, IslandLevel = 7, RequiresArea = "Farm" },
-			Reward = "Better fishing, riverbank clay and water pumps.",
+			Reward = "River fishing (trout & salmon) and riverbank clay.",
+			Content = { Nodes = { ClayPatch = 5, Tree = 2 }, FishingZone = "River" },
 		},
 		Beach = {
 			DisplayName = "Coral Beach",
@@ -85,7 +92,8 @@ local IslandConfig = {
 			Radius = 55,
 			Biome = "Beach",
 			Unlock = { Coins = 8000, IslandLevel = 10, RequiresArea = "River" },
-			Reward = "Ocean fishing, sand, shells and rare fish.",
+			Reward = "Ocean fishing (tuna, swordfish) and sand piles.",
+			Content = { Nodes = { SandPile = 6, FiberBush = 2 }, FishingZone = "Ocean" },
 		},
 		Mountain = {
 			DisplayName = "Stonepeak Mountain",
@@ -94,7 +102,8 @@ local IslandConfig = {
 			Radius = 62,
 			Biome = "Mountain",
 			Unlock = { Coins = 15000, IslandLevel = 14, RequiresArea = "Beach" },
-			Reward = "Stone, iron and copper ore — the key to better tools.",
+			Reward = "Rocks and iron deposits — the key to better tools.",
+			Content = { Nodes = { Rock = 6, IronRock = 5 } },
 		},
 		StarfallCove = {
 			DisplayName = "Starfall Cove",
@@ -103,7 +112,8 @@ local IslandConfig = {
 			Radius = 55,
 			Biome = "Cave",
 			Unlock = { Coins = 40000, IslandLevel = 20, RequiresArea = "Mountain" },
-			Reward = "A hidden cave with crystals, gold and epic fish.",
+			Reward = "Crystal clusters and an epic cave fishing pool.",
+			Content = { Nodes = { CrystalRock = 4, IronRock = 2 }, FishingZone = "Cave" },
 		},
 		Mainland = {
 			DisplayName = "Great Mainland",
@@ -112,7 +122,8 @@ local IslandConfig = {
 			Radius = 85,
 			Biome = "Meadow",
 			Unlock = { Coins = 100000, IslandLevel = 30, RequiresArea = "StarfallCove" },
-			Reward = "A huge stretch of land for your grandest builds.",
+			Reward = "Huge build space plus ancient trees.",
+			Content = { Nodes = { Tree = 6, PineTree = 4, Rock = 5, AncientTree = 3 } },
 		},
 	},
 
@@ -122,6 +133,8 @@ local IslandConfig = {
 		SpawnFacing = Vector2.new(0, -1), -- look towards the island centre
 		StarterChest = Vector2.new(-9, 28),
 		IslandSign = Vector2.new(9, 31),
+		MarketStall = Vector2.new(30, 32),
+		FishingSpot = Vector2.new(12, 104), -- on the end of the dock
 		HousePlot = { Center = Vector2.new(-24, -6), Size = Vector2.new(26, 22) },
 		FarmPlot = { Center = Vector2.new(26, -2), Size = Vector2.new(20, 16) },
 		Dock = { Start = Vector2.new(12, 76), Length = 32, Width = 8 },
@@ -140,7 +153,23 @@ local IslandConfig = {
 			Vector2.new(-4, 14),
 			Vector2.new(12, 18),
 			Vector2.new(-36, 8),
-			Vector2.new(38, 22),
+			Vector2.new(-38, -22),
+		},
+		-- Gatherable starter nodes (ResourceService).
+		Nodes = {
+			{ Type = "Tree", Position = Vector2.new(-45, 5) },
+			{ Type = "Tree", Position = Vector2.new(-50, -12) },
+			{ Type = "Tree", Position = Vector2.new(-33, -35) },
+			{ Type = "Tree", Position = Vector2.new(38, -30) },
+			{ Type = "Tree", Position = Vector2.new(52, -15) },
+			{ Type = "Tree", Position = Vector2.new(-20, -56) },
+			{ Type = "Rock", Position = Vector2.new(-8, -24) },
+			{ Type = "Rock", Position = Vector2.new(12, -22) },
+			{ Type = "Rock", Position = Vector2.new(-40, 38) },
+			{ Type = "Rock", Position = Vector2.new(45, 45) },
+			{ Type = "FiberBush", Position = Vector2.new(-28, 18) },
+			{ Type = "FiberBush", Position = Vector2.new(22, 14) },
+			{ Type = "FiberBush", Position = Vector2.new(2, -12) },
 		},
 	},
 }

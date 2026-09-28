@@ -20,12 +20,15 @@ local Shared = ReplicatedStorage.Shared
 local ItemConfig = require(Shared.Config.ItemConfig)
 local GameConfig = require(Shared.Config.GameConfig)
 local Validate = require(Shared.Util.Validate)
+local Signal = require(Shared.Util.Signal)
 
 local Services = script.Parent
 local DataService = require(Services.DataService)
 local Notify = require(script.Parent.Parent.Util.Notify)
 
 local InventoryService = {}
+
+InventoryService.ItemAdded = Signal.new() -- (player, itemId, amount, reason)
 
 -- Stats keys bumped when specific items are gained.
 local ITEM_STATS: { [string]: string } = {
@@ -94,6 +97,7 @@ function InventoryService.AddItem(player: Player, itemId: string, amount: number
 	if added < amount then
 		Notify.Error(player, "Backpack full — some items didn't fit.")
 	end
+	InventoryService.ItemAdded:Fire(player, itemId, added, reason)
 	if GameConfig.Debug then
 		print(("[Inventory] %s +%d %s (%s)"):format(player.Name, added, itemId, reason))
 	end
@@ -114,6 +118,12 @@ function InventoryService.RemoveItem(player: Player, itemId: string, amount: num
 		print(("[Inventory] %s -%d %s (%s)"):format(player.Name, amount, itemId, reason))
 	end
 	return true
+end
+
+-- Storage chests / backpack upgrades raise (or lower) capacity.
+function InventoryService.AddCapacity(player: Player, delta: number)
+	local current = InventoryService.GetCapacity(player)
+	DataService.Set(player, { "Inventory", "Capacity" }, math.max(GameConfig.Inventory.StartingCapacity, current + math.floor(delta)))
 end
 
 -- cost = { Wood = 10, Stone = 5 }

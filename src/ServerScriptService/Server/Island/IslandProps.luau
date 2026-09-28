@@ -282,6 +282,90 @@ function IslandProps.Plot(kind: string, size: Vector2): Model
 	else
 		part(model, { Name = "Pad", Size = Vector3.new(size.X - border, 0.12, size.Y - border), CFrame = CFrame.new(0, 0.06, 0), Color = Color3.fromRGB(226, 214, 180), Material = Enum.Material.Sand, CanCollide = false, Transparency = 0.35 })
 	end
+	if kind == "FarmPlot" then
+		-- Invisible blocker so nothing can be built over the farm.
+		part(model, { Name = "Zone", Size = Vector3.new(size.X, 3, size.Y), CFrame = CFrame.new(0, 1.5, 0), Color = Color3.new(1, 1, 1), CanCollide = false, Transparency = 1 })
+	end
+	return finish(model)
+end
+
+-- Market stall: counter ("Sell" prompt) + sign board ("Shop" prompt). Faces -Z.
+function IslandProps.MarketStall(): Model
+	local model = newModel("MarketStall")
+	local counter = part(model, { Name = "Counter", Size = Vector3.new(9, 3, 2.4), CFrame = CFrame.new(0, 1.5, -1), Color = COLORS.Wood, Material = Enum.Material.WoodPlanks })
+	part(model, { Name = "CounterTop", Size = Vector3.new(9.4, 0.3, 2.8), CFrame = CFrame.new(0, 3.15, -1), Color = COLORS.WoodDark, Material = Enum.Material.Wood })
+	for _, x in { -4.3, 4.3 } do
+		for _, z in { -2, 2.6 } do
+			part(model, { Name = "Post", Size = Vector3.new(0.5, 7.5, 0.5), CFrame = CFrame.new(x, 3.75, z), Color = COLORS.WoodDark, Material = Enum.Material.Wood })
+		end
+	end
+	-- Striped awning.
+	for index = 0, 5 do
+		local color = if index % 2 == 0 then Color3.fromRGB(235, 80, 70) else Color3.fromRGB(250, 245, 235)
+		part(model, {
+			Name = "Awning",
+			Size = Vector3.new(1.6, 0.25, 6),
+			CFrame = CFrame.new(-4 + index * 1.6, 7.8, 0.3) * CFrame.Angles(math.rad(-12), 0, 0),
+			Color = color,
+			Material = Enum.Material.Fabric,
+			CanCollide = false,
+		})
+	end
+	-- Produce crates on the counter.
+	local produce = { Color3.fromRGB(235, 200, 90), Color3.fromRGB(255, 140, 40), Color3.fromRGB(230, 50, 45), Color3.fromRGB(120, 200, 90) }
+	for index, color in produce do
+		local x = -3.4 + (index - 1) * 2.2
+		part(model, { Name = "Crate", Size = Vector3.new(1.8, 0.8, 1.4), CFrame = CFrame.new(x, 3.7, -1), Color = COLORS.Wood, Material = Enum.Material.WoodPlanks, CanCollide = false })
+		for ball = 1, 3 do
+			part(model, { Name = "Produce", Shape = Enum.PartType.Ball, Size = Vector3.new(0.6, 0.6, 0.6), CFrame = CFrame.new(x - 0.5 + (ball - 1) * 0.5, 4.2, -1 + (ball % 2) * 0.3), Color = color, CanCollide = false })
+		end
+	end
+	local board = part(model, { Name = "SignBoard", Size = Vector3.new(6, 1.6, 0.3), CFrame = CFrame.new(0, 9.1, -1.8), Color = COLORS.SignBoard, Material = Enum.Material.Wood })
+	local gui = Instance.new("SurfaceGui")
+	gui.Face = Enum.NormalId.Front
+	gui.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+	gui.PixelsPerStud = 50
+	gui.LightInfluence = 0.5
+	gui.Parent = board
+	local label = Instance.new("TextLabel")
+	label.BackgroundTransparency = 1
+	label.Size = UDim2.fromScale(1, 1)
+	label.Font = Enum.Font.FredokaOne
+	label.TextScaled = true
+	label.TextColor3 = COLORS.Text
+	label.Text = "🛒 MARKET"
+	label.Parent = gui
+	-- Prompt anchors are the parts themselves (ShopService attaches to them).
+	counter:SetAttribute("PromptRole", "Sell")
+	local shopPost = part(model, { Name = "ShopCrate", Size = Vector3.new(1.6, 1.6, 1.6), CFrame = CFrame.new(5.6, 0.8, -2.2), Color = COLORS.Wood, Material = Enum.Material.WoodPlanks })
+	shopPost:SetAttribute("PromptRole", "Shop")
+	model.PrimaryPart = counter
+	return finish(model)
+end
+
+-- Post + hanging sign marking where you can fish.
+function IslandProps.FishingSpot(zoneName: string): Model
+	local model = newModel("FishingSpot")
+	local post = part(model, { Name = "Post", Size = Vector3.new(0.5, 4, 0.5), CFrame = CFrame.new(0, 2, 0), Color = COLORS.WoodDark, Material = Enum.Material.Wood })
+	part(model, { Name = "Board", Size = Vector3.new(2.6, 1.2, 0.2), CFrame = CFrame.new(0, 3.4, -0.3), Color = COLORS.SignBoard, Material = Enum.Material.Wood, CanCollide = false })
+	part(model, { Name = "Fish", Shape = Enum.PartType.Ball, Size = Vector3.new(0.9, 0.5, 0.5), CFrame = CFrame.new(0, 3.4, -0.45), Color = Color3.fromRGB(90, 160, 230), CanCollide = false })
+	anchor(post, Vector3.new(0, -1, 0))
+	local billboard = Instance.new("BillboardGui")
+	billboard.Size = UDim2.fromScale(7, 1.4)
+	billboard.StudsOffset = Vector3.new(0, 3.6, 0)
+	billboard.MaxDistance = 90
+	billboard.LightInfluence = 0
+	billboard.Parent = post
+	local label = Instance.new("TextLabel")
+	label.BackgroundTransparency = 1
+	label.Size = UDim2.fromScale(1, 1)
+	label.Font = Enum.Font.FredokaOne
+	label.TextScaled = true
+	label.TextColor3 = Color3.fromRGB(255, 255, 255)
+	label.TextStrokeTransparency = 0.3
+	label.Text = "🎣 " .. zoneName
+	label.Parent = billboard
+	model.PrimaryPart = post
 	return finish(model)
 end
 

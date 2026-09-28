@@ -48,6 +48,13 @@ local holdAnimation: string? = nil
 local lastEquipRequest = 0
 local nextUseTime = 0
 local characterConnection: RBXScriptConnection? = nil
+-- toolType -> handler(def) returning true if it handled USE (e.g. fishing rod casts instead of swinging)
+local useOverrides: { [string]: (any) -> boolean } = {}
+
+-- Lets a higher-level controller take over USE for one tool type.
+function ToolController.SetUseOverride(toolType: string, handler: (any) -> boolean)
+	useOverrides[toolType] = handler
+end
 
 function ToolController.GetEquipped(): any
 	return equippedId and ToolConfig.Get(equippedId)
@@ -110,6 +117,10 @@ local function useTool()
 	if not def then
 		return
 	end
+	local override = useOverrides[def.Type]
+	if override and override(def) then
+		return
+	end
 	local now = os.clock()
 	if now < nextUseTime then
 		return
@@ -165,6 +176,20 @@ function ToolController.Init()
 	})
 	Components.Corner(useButton, UDim.new(1, 0))
 	useButton.Visible = false
+	-- Hold support (the fishing reel is "hold to pull").
+	useButton.MouseButton1Down:Connect(function()
+		InputController.SetHeld("UseTool", true)
+	end)
+	useButton.MouseButton1Up:Connect(function()
+		if InputController.IsHeld("UseTool") then
+			InputController.SetHeld("UseTool", false)
+		end
+	end)
+	useButton.MouseLeave:Connect(function()
+		if InputController.IsHeld("UseTool") then
+			InputController.SetHeld("UseTool", false)
+		end
+	end)
 end
 
 function ToolController.Start()

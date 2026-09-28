@@ -59,6 +59,7 @@ export type Island = {
 	Folders: { [string]: Folder },
 	Sign: Model,
 	Chest: Model,
+	MarketStall: Model,
 	SpawnCFrame: CFrame,
 	AreaMarkers: { [string]: Model },
 }
@@ -142,6 +143,11 @@ function IslandService.CanAccess(player: Player, island: Island, permission: str
 	end
 	-- Phase 12 (VisitorService) adds Friends/Public + per-permission grants here.
 	return false
+end
+
+-- World CFrame on the terrain surface at an island-local XZ point.
+function IslandService.GetGroundCFrame(island: Island, localXZ: Vector2, yawDegrees: number?): CFrame
+	return IslandBuilder.GroundCFrame(island.Origin, localXZ, yawDegrees)
 end
 
 function IslandService.GetSpawnCFrame(player: Player): CFrame?
@@ -251,6 +257,7 @@ function IslandService.AssignIsland(player: Player): Island?
 		Folders = folders,
 		Sign = built.Sign,
 		Chest = built.Chest,
+		MarketStall = built.MarketStall,
 		SpawnCFrame = built.SpawnCFrame,
 		AreaMarkers = {},
 	}
@@ -374,11 +381,14 @@ function IslandService.TryUnlockArea(player: Player, areaId: any): (boolean, str
 			task.wait(0.07)
 		end
 		liftCharactersOutOfArea(island, areaId)
+		-- Content (resources, fishing spots, farm plots) spawns once the land exists.
+		if islandsByPlayer[player] == island then
+			IslandService.AreaUnlocked:Fire(player, areaId)
+		end
 	end)
 
 	Notify.Banner(player, "AREA UNLOCKED!", area.DisplayName .. " — " .. area.Reward, "AreaUnlock")
 	ProgressionService.Award(player, "UnlockArea")
-	IslandService.AreaUnlocked:Fire(player, areaId)
 	return true, nil
 end
 
@@ -410,7 +420,7 @@ local function claimStarterChest(player: Player, chest: Instance)
 		VFXService.PlayAt("ChestOpen", pivot + Vector3.new(0, 2.5, 0))
 	end
 	GameSoundService.PlayFor(player, "ChestOpen")
-	Notify.Banner(player, "STARTER KIT!", "Axe, Pickaxe, Hammer, coins and materials", "Reward")
+	Notify.Banner(player, "STARTER KIT!", "Tools, seeds, coins and materials — check your hotbar!", "Reward")
 	ProgressionService.Award(player, "StarterChest")
 end
 

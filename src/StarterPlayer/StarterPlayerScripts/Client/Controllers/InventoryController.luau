@@ -5,7 +5,7 @@
 	DEPENDENCIES: Client.ClientState, InputController, UIController, ToolController,
 	              InteractionController, Client.UI.{InventoryPanel, Components, Theme}
 
-	Opens/closes the backpack (B / I / gamepad Y / 🎒 button) and keeps it in
+	Opens/closes the backpack (I / G / gamepad Y / 🎒 button) and keeps it in
 	sync with replicated Inventory + Tools state. While open, tool use and
 	world prompts are paused so clicks don't leak into the world.
 ]]
@@ -94,6 +94,7 @@ function InventoryController.Init()
 		Parent = UIController.GetSlot("Left"),
 		OnClick = InventoryController.Toggle,
 	})
+	bagButton.LayoutOrder = 1
 	Components.Corner(bagButton, UDim.new(1, 0))
 	Components.Label({
 		Text = "Bag",

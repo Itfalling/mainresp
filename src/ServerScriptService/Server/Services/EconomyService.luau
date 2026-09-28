@@ -14,18 +14,26 @@
 	income gets consistent feedback automatically.
 ]]
 
+local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage.Shared
 local EconomyConfig = require(Shared.Config.EconomyConfig)
+local ItemConfig = require(Shared.Config.ItemConfig)
 local GameConfig = require(Shared.Config.GameConfig)
 local Validate = require(Shared.Util.Validate)
 
 local Services = script.Parent
 local DataService = require(Services.DataService)
 local AntiExploitService = require(Services.AntiExploitService)
+local Notify = require(script.Parent.Parent.Util.Notify)
 
 local EconomyService = {}
+
+-- itemId -> bonus (0.25 = +25%). Replicated via ReplicatedStorage attributes
+-- "MarketDemand" (JSON) and "MarketDemandEndsAt" so the Sell UI shows it.
+local demand: { [string]: number } = {}
 
 local function log(player: Player, currency: string, delta: number, reason: string)
 	if GameConfig.Debug then
@@ -104,6 +112,56 @@ end
 
 function EconomyService.SpendGems(player: Player, amount: number, reason: string): boolean
 	return spend(player, "Gems", amount, reason)
+end
+
+function EconomyService.GetDemandBonus(itemId: string): number
+	return demand[itemId] or 0
+end
+
+-- The ONE sell-price formula: item SellValue x global multiplier x demand.
+function EconomyService.GetSellPrice(itemId: string): number
+	local def = ItemConfig.Get(itemId)
+	if not def or def.SellValue <= 0 then
+		return 0
+	end
+	local price = def.SellValue * EconomyConfig.GlobalSellMultiplier * (1 + EconomyService.GetDemandBonus(itemId))
+	return math.max(1, math.floor(price))
+end
+
+local function rollDemand()
+	local candidates = {}
+	for itemId, def in ItemConfig.Items do
+		if EconomyConfig.DemandCategories[def.Category] then
+			table.insert(candidates, itemId)
+		end
+	end
+	table.sort(candidates)
+	table.clear(demand)
+	local random = Random.new()
+	local announced = {}
+	local encoded = {}
+	for _ = 1, math.min(EconomyConfig.DemandItemCount, #candidates) do
+		local itemId = table.remove(candidates, random:NextInteger(1, #candidates))
+		local bonus = math.floor(random:NextNumber(EconomyConfig.DemandBonus.Min, EconomyConfig.DemandBonus.Max) * 20 + 0.5) / 20
+		demand[itemId] = bonus
+		table.insert(encoded, { Item = itemId, Bonus = bonus })
+		table.insert(announced, ("%s +%d%%"):format(ItemConfig.Items[itemId].DisplayName, math.floor(bonus * 100 + 0.5)))
+	end
+	ReplicatedStorage:SetAttribute("MarketDemand", HttpService:JSONEncode(encoded))
+	ReplicatedStorage:SetAttribute("MarketDemandEndsAt", os.time() + EconomyConfig.DemandInterval)
+	for _, player in Players:GetPlayers() do
+		Notify.Toast(player, "Market demand: " .. table.concat(announced, ", "), "📈")
+	end
+end
+
+function EconomyService.Start()
+	rollDemand()
+	task.spawn(function()
+		while true do
+			task.wait(EconomyConfig.DemandInterval)
+			rollDemand()
+		end
+	end)
 end
 
 return EconomyService

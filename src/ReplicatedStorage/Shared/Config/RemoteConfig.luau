@@ -50,6 +50,8 @@ local RemoteConfig = {
 		"PlayVFX", -- effect from VFXConfig
 		"CameraShake", -- small, capped camera shake
 		"AnimationCommand", -- server asks the owning client to play/stop an animation
+		"OpenUI", -- server asks the client to open a screen (Market, SeedPicker)
+		"FishingEvent", -- cast / bite / reel / result updates for the fishing minigame
 	},
 
 	DefaultRateLimit = { Rate = 5, Burst = 10 },
@@ -59,7 +61,7 @@ local RemoteConfig = {
 		EquipToolRequest = { Rate = 6, Burst = 10 },
 		UnlockAreaRequest = { Rate = 1, Burst = 3 },
 		GatherRequest = { Rate = 4, Burst = 6 },
-		BuildRequest = { Rate = 2, Burst = 4 },
+		BuildRequest = { Rate = 4, Burst = 6 },
 		DeleteBuildRequest = { Rate = 2, Burst = 4 },
 		MoveBuildRequest = { Rate = 2, Burst = 4 },
 		PlantCropRequest = { Rate = 6, Burst = 12 },

@@ -28,7 +28,8 @@ local IslandBuilder = {}
 -- Folders every island model contains (later phases fill them).
 IslandBuilder.FolderNames = {
 	"Terrain",
-	"Props",
+	"Props", -- non-blocking scenery (the house plot is meant to be built on)
+	"Landmarks", -- spawn pad, dock, market stall, farm plots: never built over
 	"Interactables",
 	"AreaMarkers",
 	"Buildings",
@@ -133,6 +134,7 @@ export type BuiltIsland = {
 	Folders: { [string]: Folder },
 	Sign: Model,
 	Chest: Model,
+	MarketStall: Model,
 	SpawnCFrame: CFrame,
 }
 
@@ -153,6 +155,10 @@ end
 
 -- Builds terrain + starter props. `unlocked` = profile Island.UnlockedAreas.
 function IslandBuilder.Build(origin: CFrame, model: Model, folders: { [string]: Folder }, unlocked: { [string]: boolean }): BuiltIsland
+	-- The island model has no PrimaryPart, so pin its pivot to the island
+	-- origin: clients use island:GetPivot() as the origin of island-local
+	-- coordinates (build preview), exactly like the server's island.Origin.
+	model.WorldPivot = origin
 	-- Terrain: locked sandbars first, then land (starter first so lobes merge onto it).
 	for _, areaId in IslandConfig.AreaOrder do
 		if not unlocked[areaId] then
@@ -168,12 +174,13 @@ function IslandBuilder.Build(origin: CFrame, model: Model, folders: { [string]: 
 
 	local layout = IslandConfig.StarterLayout
 	local props = folders.Props
+	local landmarks = folders.Landmarks
 	local interactables = folders.Interactables
 
 	-- Spawn
 	local spawnYaw = facing(layout.Spawn, layout.Spawn + layout.SpawnFacing)
 	local spawnGround = IslandBuilder.GroundCFrame(origin, layout.Spawn, spawnYaw)
-	place(customProp("SpawnPad") or IslandProps.SpawnPad(), props, spawnGround)
+	place(customProp("SpawnPad") or IslandProps.SpawnPad(), landmarks, spawnGround)
 	local spawnCFrame = spawnGround + Vector3.new(0, 4, 0)
 
 	-- Island sign faces the spawn point.
@@ -187,15 +194,18 @@ function IslandBuilder.Build(origin: CFrame, model: Model, folders: { [string]: 
 	-- Dock runs out to sea along +Z (local).
 	local dockStart = layout.Dock.Start
 	local dockCFrame = toWorld(origin, dockStart, 2.2)
-	place(customProp("Dock") or IslandProps.Dock(layout.Dock.Length, layout.Dock.Width), props, CFrame.new(dockCFrame) * CFrame.Angles(0, math.pi, 0))
+	place(customProp("Dock") or IslandProps.Dock(layout.Dock.Length, layout.Dock.Width), landmarks, CFrame.new(dockCFrame) * CFrame.Angles(0, math.pi, 0))
 
-	-- Plots (Phase 3 building + Phase 4 farming use these zones).
+	-- Market stall (sell + shop) faces the spawn point.
+	local marketStall = customProp("MarketStall") or IslandProps.MarketStall()
+	place(marketStall, landmarks, IslandBuilder.GroundCFrame(origin, layout.MarketStall, facing(layout.MarketStall, layout.Spawn)))
+
+	-- House plot: a suggested building spot (non-blocking). Farm plots are
+	-- built by FarmService (tiles) and are landmarks.
 	local housePlot = place(customProp("HousePlot") or IslandProps.Plot("HousePlot", layout.HousePlot.Size), props, IslandBuilder.GroundCFrame(origin, layout.HousePlot.Center))
 	housePlot:SetAttribute("Zone", "House")
-	local farmPlot = place(customProp("FarmPlot") or IslandProps.Plot("FarmPlot", layout.FarmPlot.Size), props, IslandBuilder.GroundCFrame(origin, layout.FarmPlot.Center))
-	farmPlot:SetAttribute("Zone", "Farm")
 
-	-- Decoration (non-harvestable; gatherable trees arrive in Phase 2).
+	-- Decoration (non-harvestable palms and flowers).
 	for index, position in layout.Palms do
 		place(IslandProps.Palm(14 + (index % 3) * 2, index), folders.Decorations, IslandBuilder.GroundCFrame(origin, position, index * 47))
 	end
@@ -208,6 +218,7 @@ function IslandBuilder.Build(origin: CFrame, model: Model, folders: { [string]: 
 		Folders = folders,
 		Sign = sign,
 		Chest = chest,
+		MarketStall = marketStall,
 		SpawnCFrame = spawnCFrame,
 	}
 end
