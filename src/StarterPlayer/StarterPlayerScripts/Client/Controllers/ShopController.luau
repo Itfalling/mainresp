@@ -7,7 +7,7 @@
 	              InteractionController, Client.UI.{Components, Theme}
 
 	The ISLAND MARKET window (spec §33, §64-§65, §88-§89). Opened by the
-	market stall's prompts ([E] Sell / [F] Shop → OpenUI{Screen="Market"}).
+	market stall (click it → Sell tab) or the merchant (click him → Buy tab).
 
 	SELL tab   today's demand bonus, one big "SELL ALL PRODUCE" button, and
 	           every sellable item you own with Sell 1 / Sell All.
@@ -133,7 +133,7 @@ end
 local function setButtonEnabled(button: TextButton, enabled: boolean, color: Color3)
 	button.Active = enabled
 	button.AutoButtonColor = false
-	button.BackgroundColor3 = if enabled then color else Theme.Colors.PanelDark
+	Components.SetButtonColor(button, if enabled then color else Theme.Colors.PanelDark)
 	button.TextColor3 = if enabled then Theme.Colors.TextLight else Theme.Colors.TextMuted
 end
 
@@ -334,7 +334,7 @@ end
 
 local function renderBuy()
 	for id, button in refs.CategoryButtons do
-		button.BackgroundColor3 = if id == buyCategory then Theme.Colors.Coins else Theme.Colors.PanelAlt
+		Components.SetButtonColor(button, if id == buyCategory then Theme.Colors.Coins else Theme.Colors.PanelAlt)
 	end
 	local coins = ClientState.Get("Coins") or 0
 	local items = ClientState.Get("Inventory", "Items") or {}
@@ -414,8 +414,8 @@ local function render()
 	end
 	refs.SellPage.Visible = tab == "Sell"
 	refs.BuyPage.Visible = tab == "Buy"
-	refs.SellTab.BackgroundColor3 = if tab == "Sell" then Theme.Colors.Green else Theme.Colors.PanelDark
-	refs.BuyTab.BackgroundColor3 = if tab == "Buy" then Theme.Colors.Blue else Theme.Colors.PanelDark
+	Components.SetButtonColor(refs.SellTab, if tab == "Sell" then Theme.Colors.Green else Theme.Colors.PanelDark)
+	Components.SetButtonColor(refs.BuyTab, if tab == "Buy" then Theme.Colors.Blue else Theme.Colors.PanelDark)
 	if tab == "Sell" then
 		renderSell()
 	else

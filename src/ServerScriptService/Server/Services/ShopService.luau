@@ -242,7 +242,7 @@ function ShopService.Purchase(player: Player, shopItemId: any, quantity: any)
 end
 
 ---------------------------------------------------------------------------
--- Market stall prompts
+-- Market stall (click to open)
 ---------------------------------------------------------------------------
 
 function ShopService.Init()

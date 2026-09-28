@@ -1,5 +1,7 @@
 # Phase 1: Island Core
 
+> **Note:** this is the original Phase 1 guide. Some Phase 1 designs were replaced later (fixed expansion areas → unique chunk islands, proximity prompts → click to interact, placeholder animation player → keyframed animations). For how the game works now, see [PLAYABLE_LOOP.md](PLAYABLE_LOOP.md) and the box at the top of [ARCHITECTURE.md](ARCHITECTURE.md).
+
 **Goal:** a player joins and gets their own R15-ready island, with saving, coins, a backpack, a HUD, interactions, a camera, tools and the first expansion unlock.
 
 ## What you can do in Phase 1

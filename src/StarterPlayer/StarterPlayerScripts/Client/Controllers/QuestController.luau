@@ -59,7 +59,7 @@ local function hintFor(quest: any, progress: { [string]: number }): string
 		return "📦 Open your Starter Chest near the spawn!"
 	end
 	if not flags.FirstEquip then
-		return if InputController.IsTouch() then "🪓 Tap a tool in your hotbar to equip it." else "🪓 Press 1-6 to equip a tool, then click to use it."
+		return if InputController.IsTouch() then "🪓 Tap a tool in your hotbar to hold it." else "🪓 Press 1-9 to hold a tool, then click a tree or rock."
 	end
 	for _, questTask in quest.Tasks do
 		if (progress[questTask.Id] or 0) < questTask.Amount then

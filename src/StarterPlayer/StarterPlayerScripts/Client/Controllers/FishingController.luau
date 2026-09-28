@@ -6,10 +6,10 @@
 	              InputController, UIController, ToolController, InteractionController,
 	              AudioController, VFXController, CameraController, Client.UI.{Components, Theme}
 
-	Client side of fishing (spec §29-§32). With a rod equipped, USE (click /
-	R2 / the touch USE button) drives the whole thing:
+	Client side of fishing (spec §29-§32). Hold your rod and CLICK THE WATER
+	(or R2 / the touch USE button) — that drives the whole thing:
 
-	  Idle     USE → FishingRequest{Op="Cast"}   (the "[E] Fish" prompt works too)
+	  Idle     click water → FishingRequest{Op="Cast", Target}
 	  Waiting  bobber floats on the water, line drawn with a Beam
 	  Bite     "!" + splash + sound → USE within the hook window
 	  Reeling  MINIGAME: HOLD USE to lift the green zone, keep the fish inside

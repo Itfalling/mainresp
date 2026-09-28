@@ -51,6 +51,11 @@
       "$properties": {
         "StreamingEnabled": true
       },
+      "Terrain": {
+        "$properties": {
+          "Decoration": true
+        }
+      },
       "Islands": { "$className": "Folder" },
       "ResourceZones": { "$className": "Folder" },
       "NPCs": { "$className": "Folder" },

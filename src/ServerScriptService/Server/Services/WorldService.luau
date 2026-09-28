@@ -6,8 +6,10 @@
 
 	Shared world setup (not owned by any single player):
 	  * the Workspace folder structure,
-	  * base lighting + atmosphere (WeatherService takes over in Phase 13),
-	  * terrain materials + the ocean around every island slot.
+	  * lighting: atmosphere, 3D clouds, sun rays, bloom, colour grading and
+	    a gentle day / night cycle (short, moonlit nights),
+	  * terrain material colours, clear turquoise water and the ocean
+	    around every island slot.
 ]]
 
 local Lighting = game:GetService("Lighting")
@@ -44,6 +46,10 @@ local function ensureFolders()
 	end
 end
 
+local function ensure(className: string, parent: Instance): any
+	return parent:FindFirstChildOfClass(className) or Instance.new(className)
+end
+
 local function applyLighting()
 	Lighting.ClockTime = WorldConfig.ClockTime
 	Lighting.Brightness = WorldConfig.Brightness
@@ -51,9 +57,10 @@ local function applyLighting()
 	Lighting.OutdoorAmbient = WorldConfig.OutdoorAmbient
 	Lighting.EnvironmentDiffuseScale = WorldConfig.EnvironmentDiffuseScale
 	Lighting.EnvironmentSpecularScale = WorldConfig.EnvironmentSpecularScale
+	Lighting.ShadowSoftness = WorldConfig.ShadowSoftness
 	Lighting.GlobalShadows = true
 
-	local atmosphere = Lighting:FindFirstChildOfClass("Atmosphere") or Instance.new("Atmosphere")
+	local atmosphere = ensure("Atmosphere", Lighting)
 	atmosphere.Density = WorldConfig.Atmosphere.Density
 	atmosphere.Offset = WorldConfig.Atmosphere.Offset
 	atmosphere.Color = WorldConfig.Atmosphere.Color
@@ -62,19 +69,57 @@ local function applyLighting()
 	atmosphere.Haze = WorldConfig.Atmosphere.Haze
 	atmosphere.Parent = Lighting
 
-	if not Lighting:FindFirstChildOfClass("BloomEffect") then
-		local bloom = Instance.new("BloomEffect")
-		bloom.Intensity = 0.4
-		bloom.Size = 20
-		bloom.Threshold = 1.6
-		bloom.Parent = Lighting
+	local bloom = ensure("BloomEffect", Lighting)
+	bloom.Intensity = WorldConfig.Bloom.Intensity
+	bloom.Size = WorldConfig.Bloom.Size
+	bloom.Threshold = WorldConfig.Bloom.Threshold
+	bloom.Parent = Lighting
+
+	local color = ensure("ColorCorrectionEffect", Lighting)
+	color.Saturation = WorldConfig.ColorCorrection.Saturation
+	color.Contrast = WorldConfig.ColorCorrection.Contrast
+	color.Brightness = WorldConfig.ColorCorrection.Brightness
+	color.TintColor = WorldConfig.ColorCorrection.TintColor
+	color.Parent = Lighting
+
+	local sunRays = ensure("SunRaysEffect", Lighting)
+	sunRays.Intensity = WorldConfig.SunRays.Intensity
+	sunRays.Spread = WorldConfig.SunRays.Spread
+	sunRays.Parent = Lighting
+
+	-- Dynamic 3D clouds live under Terrain.
+	local terrain = workspace.Terrain :: Terrain
+	local clouds = ensure("Clouds", terrain)
+	clouds.Cover = WorldConfig.Clouds.Cover
+	clouds.Density = WorldConfig.Clouds.Density
+	clouds.Color = WorldConfig.Clouds.Color
+	clouds.Parent = terrain
+end
+
+-- Day / night: days last DayMinutes, nights pass NightSpeed x faster and
+-- keep a bright moonlit ambient so the island is always readable.
+local function runDayCycle()
+	if not WorldConfig.DayCycle then
+		return
 	end
-	if not Lighting:FindFirstChildOfClass("ColorCorrectionEffect") then
-		local color = Instance.new("ColorCorrectionEffect")
-		color.Saturation = 0.12
-		color.Contrast = 0.05
-		color.Parent = Lighting
-	end
+	local hoursPerSecond = 24 / (WorldConfig.DayMinutes * 60)
+	local dayAmbient = WorldConfig.OutdoorAmbient
+	local nightAmbient = WorldConfig.NightOutdoorAmbient
+	task.spawn(function()
+		local last = os.clock()
+		while true do
+			task.wait(0.5)
+			local now = os.clock()
+			local clock = Lighting.ClockTime
+			local night = clock < 6 or clock > 18.5
+			local speed = if night then WorldConfig.NightSpeed else 1
+			Lighting.ClockTime = (clock + (now - last) * hoursPerSecond * speed) % 24
+			last = now
+			-- Blend the ambient around dusk and dawn.
+			local daylight = math.clamp(math.min(clock - 5.5, 19 - clock) / 1.5, 0, 1)
+			Lighting.OutdoorAmbient = nightAmbient:Lerp(dayAmbient, daylight)
+		end
+	end)
 end
 
 local function applyTerrainLook()
@@ -84,12 +129,12 @@ local function applyTerrainLook()
 	terrain.WaterReflectance = WorldConfig.WaterReflectance
 	terrain.WaterWaveSize = WorldConfig.WaterWaveSize
 	terrain.WaterWaveSpeed = WorldConfig.WaterWaveSpeed
-	-- Note: Terrain.Decoration (animated grass) can't be set from scripts;
-	-- toggle it on Workspace.Terrain in Studio's Properties window instead.
-	for materialName, color in WorldConfig.MaterialColors do
+	-- Terrain.Decoration (animated grass) can't be set from scripts; the
+	-- place file turns it on (default.project.json → Workspace.Terrain).
+	for materialName, materialColor in WorldConfig.MaterialColors do
 		local material = (Enum.Material :: any)[materialName]
 		if material then
-			terrain:SetMaterialColor(material, color)
+			terrain:SetMaterialColor(material, materialColor)
 		end
 	end
 end
@@ -142,6 +187,7 @@ end
 function WorldService.Start()
 	applyLighting()
 	applyTerrainLook()
+	runDayCycle()
 	fillOcean()
 	-- Slot 1 origin sanity check for the log (helps when debugging layouts).
 	if GameConfig.Debug then

@@ -405,7 +405,7 @@ end
 
 function InventoryPanel:Render()
 	for id, button in self.TabButtons do
-		button.BackgroundColor3 = if id == self.Category then Theme.Colors.Coins else Theme.Colors.PanelAlt
+		Components.SetButtonColor(button, if id == self.Category then Theme.Colors.Coins else Theme.Colors.PanelAlt)
 	end
 	self.CapacityLabel.Text = ("%s / %s"):format(Format.Commas(self.State.Used or 0), Format.Commas(self.State.Capacity or 0))
 

@@ -4,6 +4,13 @@ This document is the blueprint for the whole game. Phase 1 (Island Core) and the
 
 Legend: ✅ implemented · 🔜 planned (phase number in brackets)
 
+> **The big rework** replaced several early designs. Where an older section below disagrees with this box, the box wins:
+> - **Unique islands.** Fixed expansion "areas" are gone. Each island is a set of 16-stud **chunks** grown from a seed + shape (`Shared/Util/IslandGen`), with a **theme**. Players buy any chunk next to their land and paint the terrain. See §8.
+> - **Click to interact.** There are no ProximityPrompts. Objects carry the `Interactable` tag and attributes, the client hovers / outlines / clicks, and the server checks distance, permission and what you're holding (`InteractRequest`). See §10.
+> - **Keyframed R15 animation** replicated through character attributes (`ActionAnim`, `HoldPose`); every client animates every rig. `AnimationPlayer` / `ProceduralFallback` were removed. See §15.
+> - **Multiplayer:** `VisitService` (visit / like / helpers) and `TradeService` (safe trading).
+> - **Sounds** use only built-in client files and audio from Roblox's official tutorials (see ASSETS.md).
+
 ---
 
 ## 1. Complete technical architecture
@@ -13,11 +20,11 @@ Legend: ✅ implemented · 🔜 planned (phase number in brackets)
 | Rule | How it is enforced |
 |---|---|
 | Server authority | Clients only send *requests* (`Net.FireServer`). Every reward, currency change, placement and unlock is decided in a server service. |
-| One owner per concern | Coins → `EconomyService`. Saving → `DataService`. Islands → `IslandService`. Tools → `ToolService`. Animation → `AnimationPlayer` (shared core). No other script writes those things. |
+| One owner per concern | Coins → `EconomyService`. Saving → `DataService`. Islands → `IslandService`. Tools → `ToolService`. Animation → `AnimationService` (sets replicated attributes) + `AnimationController` (plays keyframes on every rig). No other script writes those things. |
 | Config over code | Every tunable number lives in `ReplicatedStorage/Shared/Config/*`. The configs are deep-frozen, so a write at runtime errors loudly. |
 | No random remotes | `RemoteConfig` lists every remote, including the ones later phases will use. `Net` refuses unknown names. |
-| Animation-first | Mechanics react to animation markers. Placeholder animations still fire markers, driven by config timing. |
-| Honest assets | Every animation/sound ID is `rbxassetid://PLACEHOLDER`. Systems skip placeholders gracefully. |
+| Animation-first | Mechanics react to animation markers; the server times effects to the same `AnimationConfig` marker times the keyframes use. |
+| Honest assets | No invented asset IDs. Animations are keyframes in code, sounds are built-in client files or IDs from Roblox's official docs, and anything unverified is a labelled `rbxassetid://PLACEHOLDER` that is skipped. |
 | R15 only | `Shared/Util/R15` is the single source of part/motor names. The code never references R6 parts. |
 | Layered dependencies | A service may only `require` services listed above it in `Main.server.luau`, so require cycles can't happen. |
 
@@ -77,13 +84,13 @@ ReplicatedStorage
 │   ├── Config
 │   │   ├── GameConfig                       ✅ global knobs, data/anti-exploit/world settings
 │   │   ├── InputConfig                      ✅ action → key/gamepad bindings
-│   │   ├── IslandConfig                     ✅ slots, geometry, 8 expansion areas, starter layout
+│   │   ├── IslandConfig                     ✅ slots, chunks, themes, shapes, expansion cost, paint palette, starter layout
 │   │   ├── ItemConfig                       ✅ item registry (merges item sources)
 │   │   ├── ResourceConfig                   ✅ wood, stone, fiber, clay, sand, water, ores...
 │   │   ├── RarityConfig                     ✅ Common → Mythic
 │   │   ├── ToolConfig                       ✅ 9 tool types × tiers, grips, animations
-│   │   ├── AnimationConfig                  ✅ every animation (placeholders) + markers
-│   │   ├── SoundConfig                      ✅ every sound (placeholders)
+│   │   ├── AnimationConfig                  ✅ every animation: length, priority, markers, marker effects
+│   │   ├── SoundConfig                      ✅ every sound (built-in client files + official-docs IDs)
 │   │   ├── VFXConfig                        ✅ procedural effects
 │   │   ├── EconomyConfig                    ✅ currencies
 │   │   ├── ProgressionConfig                ✅ XP curves, titles, XP sources
@@ -99,12 +106,11 @@ ReplicatedStorage
 │   ├── Util
 │   │   ├── Signal · Maid · TableUtil · Format · Validate · Serializer   ✅
 │   │   ├── RateLimiter · AssetId · R15 · IslandLayout                   ✅
-│   │   └── IslandContent · Placement · CropGrowth · AnimalMath          ✅ shared by server + client
+│   │   └── IslandGen · Placement · CropGrowth · AnimalMath              ✅ shared by server + client
 │   ├── Building
 │   │   └── BuildingModels                   ✅ procedural staged building models + ghost
 │   └── Animation
-│       ├── AnimationPlayer                  ✅ shared load/cache/play/marker core
-│       └── ProceduralFallback               ✅ prototype arm poses for placeholders
+│       └── Keyframes                        ✅ R15 keyframe actions, hold poses, NPC idle
 └── Remotes                                  ✅ created at runtime by Net.Init()
 
 ServerScriptService
@@ -170,12 +176,16 @@ StarterPlayer
         │   ├── InventoryController          ✅
         │   ├── IslandController             ✅
         │   ├── QuestController              ✅ quest card (what to do next)
-        │   ├── GatherController             ✅ swing hits → gather / hammer requests, health bars
-        │   ├── BuildController              ✅ build mode, ghost preview, move/delete
+        │   ├── BuildController              ✅ build mode: ghost preview, expand, paint, move/delete/clear
+        │   │   (Client/Build/LandEditor)    ✅ expand tiles + paint brush
         │   ├── FarmController               ✅ seed picker, crop timers
         │   ├── FishingController            ✅ bobber, bite alert, reel minigame, catch card
         │   ├── AnimalController             ✅ animal status billboards
-        │   └── ShopController               ✅ market window (sell / buy)
+        │   ├── ShopController               ✅ market window (sell / buy)
+        │   ├── TradeController              ✅ trade invites + window
+        │   ├── PlayersController            ✅ players list: visit / trade / go home
+        │   ├── SocialController             ✅ emotes + settings
+        │   └── IslandCreatorController      ✅ create-your-island screen with live map
         └── UI
             ├── Theme · Components · HUD · Notifications · Hotbar · InventoryPanel  ✅
 
@@ -192,7 +202,8 @@ StarterGui                                   (empty: UI is built by UIController
 | Net | shared | 1 | Remote creation, rate limiting, safe handlers |
 | GameConfig, InputConfig, IslandConfig, ItemConfig, ResourceConfig, RarityConfig, ToolConfig, AnimationConfig, SoundConfig, VFXConfig, EconomyConfig, ProgressionConfig, RemoteConfig | shared | 1 | Data (see §2) |
 | Signal, Maid, TableUtil, Format, Validate, Serializer, RateLimiter, AssetId, R15, IslandLayout | shared | 1 | Utilities |
-| AnimationPlayer, ProceduralFallback | shared | 1 | Animation core |
+| Keyframes, IslandGen | shared | rework | Keyframe animation data · unique island generator |
+| VisitService, TradeService | server | rework | Visiting, likes, helpers · safe trading |
 | DataService, AntiExploitService, WorldService, SoundService, VFXService, AnimationService, EconomyService, InventoryService, ProgressionService, InteractionService, ToolService, IslandService, PlayerService, AdminService | server | 1 | Services |
 | DataSchema, MockDataStore, IslandBuilder, IslandProps, ToolModelFactory, Notify | server | 1 | Server helpers |
 | ClientState, 10 controllers, 6 UI modules | client | 1 | Client |
@@ -224,21 +235,25 @@ All are RemoteEvents in `ReplicatedStorage/Remotes`, created by `Net.Init()` fro
 
 **Client → Server** (rate-limited per player; see `RemoteConfig.RateLimits`)
 
-| Remote | Payload | Handled by | Phase |
-|---|---|---|---|
-| ClientReady | none | DataService, which replies with a full StateSync | ✅ 1 |
-| EquipToolRequest | `toolId: string` (`""` = unequip) | ToolService | ✅ 1 |
-| UnlockAreaRequest | `areaId: string` | IslandService | ✅ 1 |
-| GatherRequest | `nodeId` | GatherService | 2 |
-| BuildRequest / DeleteBuildRequest / MoveBuildRequest | `buildingId, localPosition, yaw` / `uniqueId` | BuildService | 3 |
-| PlantCropRequest / WaterCropRequest / HarvestCropRequest | `plotId, cropId?` | FarmService | 4 |
-| FishingRequest | `{Op = "Cast" \| "Hook" \| "Reel", ...}` | FishingService | 5 |
-| AnimalInteractRequest / MilkAnimalRequest | `animalUniqueId, action` | AnimalService | 6 |
-| SellItemRequest / PurchaseRequest / UpgradeRequest | `itemId, quantity` / `productId` | ShopService / EconomyService | 7 |
-| CraftRequest | `recipeId, stationId` | CraftingService | 8 |
-| QuestRequest | `questId, action` | QuestService | 10 |
-| IslandPermissionRequest / IslandVisitRequest | `setting` / `targetUserId` | VisitorService | 12 |
-| SettingsRequest | `key, value` | PlayerService | 16 |
+| Remote | Payload | Handled by |
+|---|---|---|
+| ClientReady | none | DataService (replies with a full StateSync) |
+| EquipToolRequest / HotbarRequest | `toolOrItemId` (`""` = empty hands) / hotbar edit | ToolService |
+| InteractRequest | `object: Instance` (what you clicked) | InteractionService → the kind's handler |
+| SwingRequest | none (cosmetic swing at nothing) | ToolService |
+| EmoteRequest | `"Wave" \| "Cheer" \| "Point" \| "Dance"` | PlayerService |
+| CreateIslandRequest | `{Theme, Shape, Seed, Name}` | IslandService |
+| ExpandIslandRequest | `cx, cz` | IslandService |
+| PaintTerrainRequest | `{ {X, Z}, ... } (≤ 24), material` | IslandService |
+| RenameIslandRequest / IslandSettingsRequest | `name` / `{Visitors}` or `{Helper, Allowed}` | IslandService |
+| RemoveNodeRequest | `nodeId` (clear a wild tree / rock) | ResourceService |
+| BuildRequest / DeleteBuildRequest / MoveBuildRequest | `{Op="Place", BuildingId, X, Z, Rotation}` / `uniqueId` / `uniqueId, x, z, rotation` | BuildService |
+| FishingRequest | `{Op = "Cast" (Target) \| "Hook" \| "Reel", ...}` | FishingService |
+| SellItemRequest / PurchaseRequest | `itemId, quantity` / `shopItemId, quantity` | ShopService |
+| VisitRequest / LikeRequest | `userId` (`0` = go home) / `userId` | VisitService |
+| TradeRequest | `{Op = Invite \| Respond \| Offer \| Coins \| Ready \| Cancel, ...}` | TradeService |
+| SettingsRequest | `{MusicVolume?, SfxVolume?, CameraShake?}` | PlayerService |
+| CraftRequest | reserved | (later phase) |
 
 Remotes with no handler yet are drained by `Net.FinalizeHandlers()`, and firing one adds an anti-exploit strike.
 
@@ -251,7 +266,11 @@ Remotes with no handler yet are drained by `Net.FinalizeHandlers()`, and firing 
 | PlaySound | `soundName, position?` |
 | PlayVFX | `effectName, position` |
 | CameraShake | `intensity (capped), duration` |
-| AnimationCommand | `{Op = Play/Stop/StopAll/Speed, Name, Speed?, Fade?}` |
+| OpenUI | `{Screen = Market \| IslandSettings \| IslandInfo, ...}` |
+| FishingEvent | cast / bite / result packets |
+| TradeEvent | `{Op = Invite \| State \| Closed, ...}` |
+
+Animations are **not** a remote: they replicate as character attributes (`ActionAnim`, `HoldPose`, `Held`) and animal attributes (`AnimalAnim`).
 
 ---
 
@@ -299,49 +318,44 @@ Workspace
 
 Ownership is never inferred from position alone. `IslandService.GetIslandFromInstance()` walks up to the model's `IslandId` attribute and resolves it through the server map.
 
-**Terrain.** Smooth terrain is used for organic shores. Each area is built as three stacked cylinders: shallows sand, beach sand, and a surface in the biome material. Hills are sunk spheres. Locked areas appear as underwater sandbars, which preview the land to come. When an area is unlocked, the land rises in 12 steps with a ring VFX, a sound and a camera shake. `ClearTerrain` restores the ocean when the player leaves.
+**Generation (`Shared/Util/IslandGen`, pure and shared by server and client).**
+- The island is a set of owned **chunks** (`"cx_cz"`, 16×16 studs) on a 27×27 grid around the slot origin.
+- `GenerateStarter(seed, shape)` grows ~52–64 chunks from a forced central plaza with a priority frontier shaped by the chosen **shape** field (Round, Crescent, Twin, Long, Wild) plus seeded noise, then fills pockets, so every seed gives a different, connected coastline.
+- `NewSampler(islandData):Sample(x, z)` gives height, material, shore distance and ownership. The coast follows the signed distance to the owned-chunk union pushed outward and wobbled by noise. Beaches rise with a smoothstep, hills scale with the theme's `HillAmp`, the plaza is flattened, and materials come from the **theme** (Ground / Alt / Beach / Cliff / Seabed) or the player's **paint** (8-stud cells).
+- `ChunkSpots` / `AllSpots` place 0–2 resource nodes per chunk from theme weights (rarer ore further out); `ChunkDeco` scatters theme decorations.
 
-**Expansion areas** (`IslandConfig.Areas`, in unlock order):
+**Terrain (`Server/Island/IslandTerrain`).** A single `Terrain:WriteVoxels` (4-stud resolution) writes an island or one expanded chunk. During expansion the land rises in 8 blended steps with sound, VFX and a camera shake, and players standing there are lifted.
 
-| # | Area | Unlock | What it adds (§120) |
-|---|---|---|---|
-| 1 | Starter Island | none | Home, farm plot, dock |
-| 2 | Whispering Forest | 500 🪙, Island Lv 2 | Hardwood, fiber, berries |
-| 3 | Sunny Fields | 1.5K 🪙, Lv 4, after Forest | Big farms, pastures |
-| 4 | Willow River | 4K 🪙, Lv 7 | Better fishing, clay |
-| 5 | Coral Beach | 8K 🪙, Lv 10 | Ocean fishing, sand, shells |
-| 6 | Stonepeak Mountain | 15K 🪙, Lv 14 | Stone, iron, copper |
-| 7 | Starfall Cove | 40K 🪙, Lv 20 | Crystals, gold, epic fish |
-| 8 | Great Mainland | 100K 🪙, Lv 30 | Huge late-game build space |
+**Expansion.** `ExpandIslandRequest(cx, cz)` requires a chunk next to your land and inside the grid, `count < MaxChunks(islandLevel)` (starter + 24 + 12 per level) and coins (`ExpansionCost`: 100 plus linear and quadratic growth, rounded to 10). The client shows the candidates as glowing tiles (build mode → Expand).
 
-**Boundaries.** `IslandService.IsPointBuildable(island, worldPos)` returns true only if the point is on unlocked land, minus `BuildMargin`. BuildService (Phase 3) and FarmService (Phase 4) must call it.
+**Customisation.** Paint (13 materials, free, ≤ 3000 cells), rename (TextService-filtered), plant Nature buildings (saplings, boulders), clear wild nodes (`RemovedNodes`), and add soil tiles.
 
-**Permissions.** `IslandService.CanAccess(player, island, permission)` returns true for the owner. For anyone else, only `"Visitor"` actions pass today. In Phase 12, VisitorService adds Friends/Public modes and per-permission grants (Build, Fish, Farm, UseShops) in this one function.
+**Boundaries.** `Placement.IsOnLand(sampler, center, size)`: every footprint corner must be owned, at least 4 studs inland and above the beach. Client preview and server validation use the same function.
 
----
+**Permissions.** `IslandService.CanAccess(player, island, permission)`: the owner can do everything, **helpers** get Gather / Farm / Animals / Hammer, and visitors get Visitor / Fish / Market. `VisitService` enforces the visitor mode (Everyone / Friends / Nobody) and tracks where each player is (`OnIsland` attribute).
 
 ## 9. Build system architecture (Phase 3)
 
 - **BuildingConfig**: `{ Id, Category, DisplayName, Cost = {Coins, Items}, Footprint = Vector2, Height, UnlockIslandLevel, Model = "ServerStorage/Buildings/<Id>", Stages = {...}, BuildSteps = n, XP }`. Categories: Homes, Farm, Production, Utility, Decoration.
 - **BuildConfig**: `GridSize` (from `GameConfig.BuildGridSize`), `RotationStep = 90`, `MaxSlope`, `PlacementRange`, `Cooldown`.
 - **Client BuildController**:
-  1. Enter build mode. `CameraController.SetMode("Build")` and `InteractionController.PausePrompts()` run so Q/E rotate instead of triggering prompts.
+  1. Enter build mode. `CameraController.SetMode("Build")` runs, world clicks pause and `Interact` is blocked, so Q/E rotate.
   2. A ghost preview snaps to the grid, raycasting against terrain only.
-  3. Client-side validity check (bounds via `IslandLayout.IsOnUnlockedLand`, overlap via `GetPartBoundsInBox`) tints the ghost green or red.
+  3. Client-side validity check (bounds via `Placement.IsOnLand`, overlap via `GetPartBoundsInBox`) tints the ghost green or red.
   4. Confirming sends `BuildRequest(buildingId, localPos, yaw)`.
 - **Server BuildService** validates everything in §141: owner, distance, ID, unlock, cost (atomic `InventoryService.RemoveItems` + `EconomyService.SpendCoins`), bounds, yaw ∈ {0, 90, 180, 270}, overlap, and cooldown. It then spawns a **construction site** (`BuildingState = "Constructing"`, `Progress = 0`).
-- **Construction** is driven by animation markers. The player hammers: HammerSwing's `HammerHit` marker fires `BuildRequest{Op = "Hammer"}`. The server rate-limits it and advances `Progress` by 1 / `BuildSteps`. Model pieces tagged `BuildStage = n` become visible as progress crosses each stage. The final step plays HammerHeavy → BuildFinish, then a completion reveal: dust + sparkle, `BuildComplete` sound, banner, and `ProgressionService.Award("BuildComplete")`. Both staged-model and piece-reveal buildings are supported through the `Stages` table.
+- **Construction:** the player holds the hammer and clicks the site (`InteractRequest`, kind `ConstructionSite`). The server plays HammerSwing and applies the step at its `HammerHit` marker time. The server rate-limits it and advances `Progress` by 1 / `BuildSteps`. Model pieces tagged `BuildStage = n` become visible as progress crosses each stage. The final step plays HammerHeavy → BuildFinish, then a completion reveal: dust + sparkle, `BuildComplete` sound, banner, and `ProgressionService.Award("BuildComplete")`. Both staged-model and piece-reveal buildings are supported through the `Stages` table.
 - **Save format** (Island.Buildings): `{ BuildingId, UniqueId, Position = {X, Y, Z} (island-local), Rotation, Variant, State, Progress }`. On load, every entry is validated: known ID, in bounds, no overlap. Invalid entries go to Quarantine.
 
 ## 10. Resource architecture (Phase 2)
 
 - `ResourceConfig` gains **node types**: `Tree = { Resource = "Wood", Health = 100, ToolType = "Axe", MinTier = 1, Drops = {Min, Max}, Respawn = 45, XPSource = "ChopTree" }`, plus Rock, FiberBush, ClayPatch and so on.
-- **ResourceService** spawns nodes per island from `IslandConfig` zone tables and area biomes. Nodes are **pooled**: states are Visible → Depleted (hidden, parts kept) → Respawned. Instances are never created or destroyed per harvest. Each node has `NodeId`, `IslandId` and `NodeType` attributes plus a CollectionService tag.
-- **Gathering flow:**
-  1. The player swings (ToolController).
-  2. The `Hit` marker fires `ToolController.ToolImpact`.
-  3. The client raycasts or overlaps in front of the character to find a node, then sends `GatherRequest(nodeId)`.
-  4. The server validates: owner/permission, distance, tool type and tier (`ToolService.GetBestTool`), cooldown (`ToolConfig.UseCooldown`), and node health.
+- **ResourceService** spawns nodes per island from `IslandGen.AllSpots` (theme weights per chunk) and respawns the 3×3 chunk area when land is added. Nodes are **pooled**: states are Visible → Depleted (hidden, parts kept) → Respawned. Instances are never created or destroyed per harvest. Each node has `NodeId`, `IslandId` and `NodeType` attributes plus a CollectionService tag.
+- **Gathering flow (click to interact):**
+  1. The player holds an axe and hovers a tree: it outlines green with "🪓 Chop · Oak Tree" (`InteractionController`).
+  2. A click faces the tree, predicts the swing locally (`AnimationController.PlayLocal`) and sends `InteractRequest(treeModel)`. If it's far away, the character walks there first.
+  3. `InteractionService` checks the bounding-box distance and permission, then calls the `ResourceNode` handler (`GatherService.TryGather`).
+  4. The server validates the **held** tool's type and tier (`ToolService.GetHeld`), cooldown and node health, plays the swing for everyone (`ActionAnim`) and applies the hit at the marker time.
   5. The server applies damage = `tool.Power`. On depletion it rolls drops (plus `tool.ResourceBonus`), calls `InventoryService.AddItem`, `ProgressionService.Award`, and the WoodChips/RockChips VFX and TreeFall/RockBreak sounds.
 - Stats (`WoodCollected`, `StoneCollected`) already increment in InventoryService.
 
@@ -383,31 +397,26 @@ Ownership is never inferred from position alone. `IslandService.GetIslandFromIns
 - **Only `EconomyService` changes currencies.** Every call carries a `reason`. Large gains are logged by AntiExploitService.
 - **Prices** are defined once, on item definitions (`SellValue`). The Phase 7 market multiplies them by `EconomyConfig.GlobalSellMultiplier` × rarity × active market demand. Market events are announced through Notify and shown in the Sell UI (§65).
 - **Sell flow (§145):** `SellItemRequest(itemId, qty)` → validate → `InventoryService.RemoveItem` → server computes the price → `EconomyService.AddCoins`. The client sees the new coin count, and the `+N 🪙` float fires automatically.
-- **Sinks:** area unlocks (✅ now), tools, seeds, animals, buildings, decorations, upgrades.
+- **Sinks:** land expansion (quadratic cost), tools, seeds, animals, buildings, soil tiles, saplings, upgrades. **Player trading** moves coins and items between players (never creates them).
 - **Fair monetization (§96):** Robux sells cosmetics and optional convenience only. No progression item is Robux-exclusive.
 
 ## 15. Animation architecture
 
-- **AnimationConfig**: every animation from spec §12, §19, §21, §26, §32 and §72 with `Id` (placeholder), `Priority`, `Length`, `Looped`, `Markers`, `MarkerEffects`, `BodyParts`, `Start`/`End`, `Interruptible` and `Fallback`. Names are globally unique through a flat `Index`.
-- **AnimationPlayer** (shared): one per rig.
-  - Caches `Animation` objects per ID and `AnimationTrack`s per rig, so nothing is loaded twice.
-  - Maps priorities to the enum and enforces the `Interruptible` flag.
-  - Offers Play / Stop / StopAll / SetSpeed / IsPlaying / GetHandle.
-  - Handles behave the same for real and placeholder IDs:
-    - **Real ID:** `GetMarkerReachedSignal`. A *watchdog* fires any configured marker the uploaded animation forgot, and warns once.
-    - **Placeholder:** a virtual track fires markers at the configured times (scaled by speed) and `Ended` after `Length`.
-- **Client AnimationController**: owns the local character's player, applies `MarkerEffects` (sound + VFX + shake at the marker), and re-emits `MarkerReached` for gameplay.
-- **Server AnimationService**: `PlayAnimation(rig, name)` forwards to the owning client for player characters, or plays directly for NPC/animal rigs. It writes real movement IDs into the default `Animate` script.
-- **ProceduralFallback**: while IDs are placeholders, the local character gets simple shoulder poses (Swing, Dig, Cheer...) so marker timing is visible during prototyping. Disable it with `AnimationConfig.UseProceduralFallback = false`.
-- **Tool grip**: a `Motor6D` named `ToolGrip` from `RightHand` (C0 = `RightGripAttachment`) to the tool's `Handle` (C1 = `Grip` attachment). Animators can keyframe the tool.
+- **AnimationConfig**: every animation with `Id` (optional uploaded animation), `Priority`, `Length`, `Looped`, `Markers`, `MarkerEffects` (sound + VFX + shake at a marker) and `Interruptible`. Names are globally unique through a flat `Index`.
+- **Keyframes** (shared): the actual motion. `Actions[name] = { Keys = { {T, Pose, Ease} }, Legs? }` for R15 joints (`Root`, `Waist`, `Neck`, shoulders / elbows / wrists, hips / knees / ankles), `Holds[name]` upper-body hold poses (HoldAxe, HoldRod, HoldItem...), and `NPCIdle`. T is a fraction of the config `Length`, so impacts line up with markers.
+- **Server AnimationService** replicates animation as **attributes**: `PlayAnimation(rig, name)` sets `ActionAnim = "Name;ServerTime;Speed;Seq"`, `SetHoldPose(rig, pose)` sets `HoldPose`, and `PerformAction(player, name, marker, callback)` locks the player, plays the action and runs the gameplay callback at the marker time.
+- **Client AnimationController** tracks every player character and every `NPCRig`-tagged model within 180 studs. Each `RunService.Stepped` it samples the active action (synced to server time), blends it with the hold pose and writes `Motor6D.Transform`. It fires `MarkerEffects` locally and exposes `PlayLocal` for instant prediction of your own actions. With a real uploaded `Id`, it plays that `AnimationTrack` instead.
+- **Animals** (cow, chicken) are built with `Motor6D` limbs. The server sets `AnimalAnim` (Idle / Walk / Eat / Happy) and clients animate legs, head, tail and wings procedurally.
+- **Tool grip:** a `Motor6D` named `ToolGrip` from `RightHand` (C0 = `RightGripAttachment`) to the held model's `Handle` (C1 = `Grip`). Holdable items (seed sacks, crops) use the same grip.
 
-See `docs/ASSETS.md` for authoring and importing the real animations.
+See `docs/ASSETS.md` for tweaking keyframes or swapping in uploaded animations.
 
 ## 16. DataStore architecture
 
 - **One key per player** (`Player_<UserId>` in `BuildYourIsland_PlayerData_v1`). The record is `{ Data = profile, SessionLock = { Id, JobId, PlaceId, Time }, SavedAt }`.
-- **Profile** (`DataSchema`): Coins, Gems, XP, Level, Inventory, Tools, Island (IslandId, Name, Level, XP, Theme, Permission, UnlockedAreas, Buildings, Decorations, Crops, Animals, Storage, Production, Likes, Visits), Quests, Achievements, Collection, Recipes, Cosmetics, Stats, Settings, Flags, Meta, and Quarantine. This covers everything listed in §97.
+- **Profile** (`DataSchema`): Coins, Gems, XP, Level, Inventory, Tools, Island (IslandId, Name, Level, XP, Created, Seed, Theme, Shape, Chunks, Paint, RemovedNodes, Access {Visitors, Helpers}, Buildings, Crops (per soil tile), Animals, Upgrades, Storage, Production, Likes, Visits), Social (likes given, trades, visits), Quests, Achievements, Collection, Recipes, Cosmetics, Stats, Settings, Flags, Meta, and Quarantine. This covers everything listed in §97.
 - **Load:** `UpdateAsync` takes the session lock. If another live server holds it, the load waits and retries, then takes over a stale lock (Studio takes it immediately). Retries use exponential backoff. **If loading fails, the player is kicked with a friendly message and nothing is saved** (§148).
+- **Migrations:** v1 → v2 starter kit; v2 → v3 turns the old areas into a chunk island (seeded from the IslandId, +10 chunks per extra area, land claimed under every building) and the old farm tiles into SoilTile buildings (growing crops move with them).
 - **Repair:** `DataSchema.Sanitize` migrates, reconciles, fixes types, clamps numbers, and moves unknown IDs to `Quarantine`. Quarantined IDs are restored automatically when they become valid again.
 - **Save:** `UpdateAsync` checks that we still own the lock; otherwise it cancels, stops saving and kicks the player ("opened in another server"). `DataSchema.IsSaveable` gates every write. JSON size is monitored.
 - **When saves happen:** dirty-flag autosave (`AutosaveInterval`, staggered), a lock refresh every `SessionLockTimeout / 4`, `ReleaseProfile` on leave (after a `ProfileReleasing` hook so services can serialize live state), and `BindToClose` for all remaining profiles.
@@ -435,7 +444,7 @@ See `docs/ASSETS.md` for authoring and importing the real animations.
 - A **Theme** module holds all colours and fonts. **Components** provides Create, Button (with press bounce and click sound), Pill, ProgressBar, Panel and Bounce.
 - Frames are created once, updated in place, and pooled (item cards, float labels, VFX).
 - **State-driven:** UI observes `ClientState` keys. Coin and item feedback is automatic, based on value diffs.
-- **Mobile:** 64 px+ touch targets, a USE button while a tool is equipped, the 🎒 button, ProximityPrompt tap buttons, and a collapsible island panel that starts collapsed on touch.
+- **Mobile:** 64 px+ touch targets, tap an object to use it, a USE button while something is held (auto-targets what's in front of you), the left menu buttons, and a collapsible island panel that starts collapsed on touch.
 - Implemented: BuildMode UI (categories left, info right, controls bottom), seed picker, crop/animal billboards, fishing minigame + catch card, Market window, quest card under the island panel. Planned: Settings [16].
 
 ---
@@ -447,13 +456,13 @@ Spec §157 lists 18 steps. All of them are implemented (see [PLAYABLE_LOOP.md](P
 | # | Step | Status |
 |---|---|---|
 | 1 | Spawn on your own island | ✅ |
-| 2–3 | Gather wood / stone | ✅ Axe / Pickaxe swings (or the prompt), health bars, trees fall, nodes respawn |
+| 2–3 | Gather wood / stone | ✅ Hold the axe / pickaxe and click the tree / rock: swing, health bar, trees fall, nodes respawn |
 | 4–5 | Build a house with a construction animation | ✅ Build mode ghost → construction site → hammer hits reveal the house stage by stage |
 | 6–8 | Plant, grow and harvest crops | ✅ Till → plant → water → 6 growth stages → harvest |
 | 9–10 | Fish and catch fish | ✅ Cast → bite → reel minigame → catch card |
 | 11–12 | Sell items, earn coins | ✅ Market stall: Sell tab, Sell All, market demand bonus |
 | 13–14 | Buy a cow, milk it | ✅ Barn → buy cow → feed wheat → milk when READY |
-| 15 | Expand a section of the island | ✅ Areas unlock through the 🔒 sign or the panel button, with the land-rise effect; each area adds nodes / fishing spots |
+| 15 | Expand the island | ✅ Buy any chunk next to your land (build mode → Expand); it rises from the sea with the theme's trees and decorations |
 | 16–18 | Save, leave, rejoin, see progress | ✅ buildings, crops (keep growing offline), animals, quests all save |
 
 The "Start Your Island" quest chain walks a new player through the whole loop in order.

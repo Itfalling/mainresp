@@ -10,7 +10,7 @@
 	rebuilds a crop model when its STAGE changes.
 
 	FarmService owns tiles and player actions; it registers tiles here and
-	listens to StageChanged to refresh prompt text.
+	listens to StageChanged to refresh the hover hints.
 ]]
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")

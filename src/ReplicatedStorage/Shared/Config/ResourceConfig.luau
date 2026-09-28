@@ -15,7 +15,7 @@
 		MinTier         minimum ToolConfig tier order (1 Wooden, 2 Stone, 3 Iron...)
 		Drops           {Min, Max} per break (+1 chance from the tool's ResourceBonus)
 		Respawn         seconds hidden before the node regrows (pooled, never destroyed)
-		Action          verb shown on the prompt ("[E] Chop Tree")
+		Action          verb shown in the hover tooltip ("🪓 Chop · Oak Tree")
 		Animation/Marker  hand-gathered nodes only; tool nodes use the tool's Use animation
 		XPSource        ProgressionConfig source id
 

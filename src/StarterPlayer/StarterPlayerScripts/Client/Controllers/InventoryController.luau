@@ -7,7 +7,7 @@
 
 	Opens/closes the backpack (I / G / gamepad Y / 🎒 button) and keeps it in
 	sync with replicated Inventory + Tools state. While open, tool use and
-	world prompts are paused so clicks don't leak into the world.
+	world clicks are paused so they don't leak into the world.
 ]]
 
 local Client = script.Parent.Parent

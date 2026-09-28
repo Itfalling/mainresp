@@ -1,189 +1,202 @@
-# The First Playable Loop
+# How to Play
 
-This build turns the Phase 1 island into a real game. Everything in the spec's first playable milestone (§157) now works end to end:
+**create your island → gather → build → farm → fish → raise animals → sell → expand & decorate → visit friends and trade → save**
 
-**gather → build → farm → fish → raise animals → sell → buy upgrades → expand → save**
-
-The "Start Your Island" quest card on the right of the screen walks a new player through it in order.
+The quest card on the right walks a new player through it in order.
 
 ---
 
 ## Open it
 
-**Easiest:** open `BuildYourIsland.rbxlx` from the repository in Roblox Studio and press **Play**.
+**Easiest:** open `BuildYourIsland.rbxl` (or `BuildYourIsland.rbxlx`, the same place as text) in Roblox Studio and press **Play**.
 
 **With Rojo:** connect the Rojo plugin to `default.project.json` (see [PHASE_1.md](PHASE_1.md#setup)).
 
-Required settings are the same as Phase 1: **Avatar type R15** (Game Settings → Avatar) and **max players ≤ 8**.
+Settings:
+- **Avatar type R15** (Game Settings → Avatar).
+- **Max players ≤ 8** (one island slot each).
+- To test **saving** in Studio: Game Settings → Security → **Enable Studio Access to API Services**. Without it the game uses an in-memory store and warns once in Output.
+- To test **visiting / trading** in Studio: Test tab → Clients and Servers → **2 players** → Start.
 
 ---
 
 ## Controls
 
+There are **no proximity prompts**. You hold something and **click** the thing you want to use. Hovering outlines it and a tooltip says what a click will do: green means OK, orange means you need a different tool or item, and red means you're not allowed.
+
 | Action | Keyboard / mouse | Gamepad | Touch |
 |---|---|---|---|
-| Use / swing tool, cast, reel | Left click (hold to reel) | R2 | **USE** button (hold to reel) |
-| Equip hotbar tool | 1 – 8 | L1 / R1 | Tap a hotbar slot |
-| Interact (chop, till, feed, fish, sell...) | **E** (hold where shown) | X | Tap the prompt |
-| Market: shop / Pet an animal | **F** | Y | Tap the prompt |
-| Talk to the merchant | **T** | — | Tap the prompt |
-| Build mode | **B** or 🔨 button | D-pad up | 🔨 button |
+| Hold a tool / seed / crop | **1 – 9** (again to put away), **0** empty hands | L1 / R1 | Tap a hotbar slot |
+| Use it on what you hover | **Left click**. Too far away? You walk there first. | R2 / X (aim with the reticle) | Tap the object, or the **USE** button |
+| Swing at nothing (practice) | Left click on empty ground | R2 | USE |
+| Build mode | **B** or 🔨 | D-pad up | 🔨 |
 | Rotate building | R · Q / E | X · D-pad ← → | ⟳ ROTATE |
-| Backpack | **I** / **G** or 🎒 | Y | 🎒 button |
+| Backpack | **I** / **G** or 🎒 | Y | 🎒 |
+| Players (visit / trade) | **P** or 👥 | — | 👥 |
+| Emotes (Wave, Cheer, Point, Dance) | **T** or 😀 | D-pad down | 😀 |
+| Settings (music, sound, camera shake) | ⚙️ | — | ⚙️ |
 | Cancel / close / stop fishing | **X** | B | ✕ buttons |
+
+What a click does depends on what you hold:
+
+| You hold | You click | Result (with its animation) |
+|---|---|---|
+| 🪓 Axe | a tree | chop (health bar, wood chips, the tree falls and regrows) |
+| ⛏️ Pickaxe | a rock / ore | mine |
+| 🔨 Hammer | a construction site | build the next stage |
+| 🌱 Hoe | a soil tile | till |
+| 🌾 a seed sack | tilled soil (it outlines) | plant that seed |
+| 🚿 Watering can | a planted tile | water (grows 50% faster) |
+| anything / nothing | a ripe crop | harvest |
+| 🌾 Wheat (or other crop) | a hungry animal | feed |
+| 🪣 Bucket | a cow with 🥛 ready | milk (eggs are collected by hand) |
+| nothing | an animal | pet it (❤️) |
+| 🎣 Fishing rod | the water | cast (see Fishing) |
+| anything | the market stall / merchant / chest / sign | sell / buy / open / island settings |
 
 ---
 
-## How to play (the quest chain)
+## Your own island
 
-### 1. START YOUR ISLAND
-1. **Open the Starter Chest** by the spawn: you get an Axe, Pickaxe, Hammer, Hoe, Watering Can, Fishing Rod, some Wood/Stone/Fiber and 6 Wheat Seeds.
-2. **Chop trees** (equip the Axe, click near a tree or press E on it). Each hit shows a health bar; the tree falls and regrows later. → **Wood**
-3. **Mine rocks** with the Pickaxe. → **Stone**. Fiber bushes are picked by hand.
-4. **Build a house:** press **B**, pick *Homes → Small Cottage*, move the green ghost onto free land and click / PLACE. A construction site appears. Equip the **Hammer** and hit it (or press E): every hit raises the next stage until the cottage is finished.
-5. **Farm:** walk to the soil plot. E on a tile: **till** (Hoe) → **plant** (a seed picker opens when you carry more than one seed type) → **water** (crops grow 50% faster) → wait for **READY!** → **harvest**. Tiles show the crop, stage and a live countdown.
-6. **Fish:** walk to the end of the dock, equip the rod and click (or press E at the 🎣 spot). When the **!** appears, click fast. Then **hold** the button to lift the green zone and keep the 🐟 inside it until the bar fills.
-7. **Sell:** at the market stall press **E** (Sell). Sell single items or everything at once. Items in **demand** (📈) pay extra for a while.
+### Create it
+New players see **CREATE YOUR ISLAND**:
+1. **Theme:** 🌴 Tropical, 🌳 Meadow, 🍂 Autumn, ❄️ Snowy or 🌵 Desert. The theme sets the ground and cliff colours, which trees and rocks grow, the little decorations (flowers, shells, leaves, snowballs...), how hilly it is and which fish live near your shore.
+2. **Shape:** Round, Crescent, Twin Isles, Longshore or Wild, plus **🎲 REROLL**. Every seed grows a different coastline, and the map in the middle is a live preview made by the same generator the server uses.
+3. **Name** (optional, filtered).
 
-### 2. RAISE YOUR FIRST ANIMAL
-Build a **Barn** (Build → Farm), buy a **Cow** at the market (**F** → Buy → Animals; the first cow comes with a free bucket), **feed** it 1 Wheat, wait for 🥛 **READY!**, then **milk** it. Chickens (Chicken Coop) lay eggs the same way. Press **F** on an animal to pet it (happiness ❤️).
+Press **CREATE ISLAND!** and your island rises from the sea. Every island is different: the coast, the hills, and where the trees and rocks grow all come from your seed.
 
-### 3. GROW YOUR ISLAND
-Harvest, fish and sell more, then **unlock Whispering Forest** with the 🔒 sign on your shore or the UNLOCK button in the island panel. New land rises from the sea with new trees, rocks and fishing spots.
+### Expand it (build mode → 🗺️ Expand)
+Glowing squares appear on the water around your island. Hover one to see its price and click to buy it; the land rises out of the sea with trees and decorations of your theme. You can grow in **any direction**. Each chunk costs a bit more than the last, and your Island Level sets how much land you can own (the island panel shows *Land 58/76 · next 180 🪙*).
 
-### 4. ISLAND ADVENTURER
-Buy a Stone Pickaxe, build a Wooden Cabin, collect eggs and reach Island Level 5.
+### Paint it (build mode → 🖌️ Paint)
+Choose Grass, Autumn Grass, Snow, Sand, Sandstone, Dirt, Mud, Cobble Path, Brick Path, Wood Deck, Stone Tiles, Slate or Limestone. Then click or drag over your land to paint paths, plazas and gardens. It's free. The 🧽 eraser restores the natural ground.
 
-Everything you do gives Island XP. Levels unlock new seeds, animals, tools and buildings.
+### Shape it (build mode → ✏️ Edit)
+- Click a building to **MOVE** or **DELETE** it (delete refunds 50%; the market stall can be moved but not deleted).
+- Click a **wild tree or rock** and press **🪓 CLEAR IT** to remove it for good (you keep a little of what it drops).
+- Build mode → 🌳 **Nature**: plant Oak, Palm, Pine and Maple saplings, boulders and fiber plants wherever you like. They are real, harvestable resources.
+- Build mode → 🐄 **Farm → Soil Tile** adds more farmland (4×4, 15 🪙).
+
+### Island settings (⚙️ ISLAND button, or click your island sign)
+Rename your island, choose **who can visit** (🌍 Everyone / 💛 Friends / 🔒 Nobody), and make players in the server **helpers**. Helpers can gather, farm, feed animals and hammer on your island.
+
+---
+
+## Multiplayer
+
+### Visiting
+Press **P** → 🏝️ **VISIT** next to a player. Their visitor setting decides whether you may come. While visiting:
+- the island card shows *Visiting <name>'s island* with ❤️ **LIKE** (once a day per island) and 🏠 **HOME**,
+- you can look around, **fish** and use their **market**. Gathering, farming, animals and hammering need the owner to make you a helper,
+- clicking their island sign shows its info and a LIKE button.
+
+If the owner locks the island or leaves, visitors are sent home. Islands of everyone in the server are in the same world, so visiting is instant. Visiting players in *other* servers isn't supported.
+
+### Trading
+Press **P** → 🤝 **TRADE**. The other player gets an ACCEPT / DECLINE popup. In the trade window:
+- click items in **your backpack** to offer one more, and click your offered items to take one back,
+- type the **coins** you add,
+- press **READY**. Any change un-readies **both** players, and when both are ready a **3-second countdown** runs before the swap.
+
+The server re-checks both inventories and backpack space at the end and swaps everything at once (or nothing).
+
+---
+
+## The quest chain
+
+1. **START YOUR ISLAND:** open the starter chest (tools, seeds, some materials), collect Wood and Stone, build a Small Cottage, plant 5 crops, catch a fish, sell something.
+2. **RAISE YOUR FIRST ANIMAL:** build a Barn, buy a cow, feed it, collect milk.
+3. **GROW YOUR ISLAND:** expand your island 3 times, and more.
+4. **ISLAND DESIGNER:** rename your island, paint 12 cells, plant 3 trees, own 10 soil tiles.
+5. **ISLAND ADVENTURER:** better tools, a cabin, eggs, Island Level 5.
+
+Everything gives Island XP, and levels unlock seeds, animals, tools, buildings and more land.
+
+### Fishing
+Hold the rod and click the water. The bobber lands where you clicked (up to 36 studs away). Near your shore you catch your theme's fish; far out it's the open ocean. When the **!** appears, click fast. Then **hold** the button to lift the green zone and keep the 🐟 inside it until the bar fills.
+
+---
+
+## Animations and sounds
+
+- Every action is a **keyframed R15 animation**: chop, mine, hammer, till, plant, water, harvest, feed, milk, pet, cast, wait, bite, reel, catch, cheer, wave, point, dance and open chest. Each tool also has its own **hold pose**. Animations are replicated: **every player sees everyone's swings**, and your own starts instantly (predicted locally). Hits land on the exact animation frame (marker) with sound, particles and a small camera shake. Cows and chickens have jointed legs, heads, tails and wings that walk, eat and hop.
+- Sounds come from two sources that exist for sure: files built into the Roblox client and audio from Roblox's official tutorials. There's background music and a sea ambience; volume is in ⚙️ Settings. See [ASSETS.md](ASSETS.md#sounds).
 
 ---
 
 ## Admin / test commands
 
-Studio: everyone. Live game: only `GameConfig.AdminUserIds`.
+In Studio everyone can use these; in a live game only `GameConfig.AdminUserIds` can.
 
 ```text
 /givecoins me 5000          /givegems me 50
 /giveitem me Wood 100       /givetool me StoneAxe
 /givexp me 500              /giveislandxp me 200
-/setislandlevel me 5        /unlockarea me Forest
+/setislandlevel me 5        /expand me 10        (adds 10 land chunks)
 /growcrops me               finish every planted crop now
 /finishbuilds me            complete every construction site now
 /spawnanimal me Cow         add a cow (needs a free Barn slot)
 /readyanimals me            make every animal's milk / eggs ready now
-/save me                    /resetdata me   (Studio only)
-/debug me
+/save me                    /resetdata me   (Studio only; rejoin to see the island creator again)
 ```
 
 ---
 
 ## Testing checklist
 
-### Gathering
-- [ ] Equip the Axe and click next to a tree: swing animation, hit sound, wood chips, health bar drops, the tree wobbles.
-- [ ] 4 hits (Wooden Axe) fell the tree: it tips over away from you, "+N 🪵 Wood" floats up, it regrows after ~40 s.
-- [ ] Hitting a rock with the Axe does nothing; the Pickaxe mines it.
-- [ ] Pressing E on a tree without an Axe tells you what you need.
-- [ ] With a full backpack, gathering tells you the backpack is full (sell something at the market).
+### Island creation and uniqueness
+- [ ] A new player sees CREATE YOUR ISLAND. Changing theme / shape / reroll redraws the preview map.
+- [ ] Creating spawns you on an island that matches the preview, with the chest, sign, market stall and 6 soil tiles near the spawn.
+- [ ] Two players with different seeds / themes get visibly different islands (coast, hills, trees, colours, decorations).
+- [ ] Rejoining keeps the same island (no creator screen).
 
-### Building
-- [ ] B opens build mode (categories left, info right, hints bottom), the camera pulls back, prompts pause.
-- [ ] The ghost is green on free unlocked land and red with a reason on water, locked land, steep ground, on top of a tree/landmark, too far, or when you can't afford it.
-- [ ] R / Q / E rotate. PLACE charges the cost once and creates a construction site with a progress label.
-- [ ] Each hammer hit (swing or E) adds exactly one stage; the last one plays the completion effect and banner.
-- [ ] Edit tab: click a building → MOVE (re-place it) or DELETE (tap twice; refunds 50%, or 100% if never hammered).
-- [ ] A Barn with cows in it cannot be deleted.
+### Land tools
+- [ ] Build mode → Expand shows glowing squares only next to your land. Hover turns one bright; the info panel shows land used and price.
+- [ ] Clicking one charges the price and raises the land with dust and a rumble; players standing there are lifted. New trees / decorations appear.
+- [ ] At the land limit the squares turn red and clicking does nothing.
+- [ ] Paint: clicking / dragging paints 8×8 cells on your land only; the eraser restores the natural material. It stays after rejoining.
+- [ ] Edit → click a wild tree → CLEAR IT (twice) removes it for good.
 
-### Farming
-- [ ] Till → plant → water → harvest each play their animation and effect; the tile label shows stage + countdown, 💧 when watered.
-- [ ] Carrying two seed types opens the seed picker. Out of seeds → a message pointing at the market.
-- [ ] Leave the game while crops grow, come back later: they kept growing.
-- [ ] Only the first 6 tiles are usable; *Bigger Farm* in the shop adds 3.
+### Clicking and holding
+- [ ] Hovering a tree with the axe outlines it green ("🪓 Chop · Oak Tree"). With the pickaxe it turns orange ("Hold your Axe to chop").
+- [ ] Holding a seed sack and hovering tilled soil outlines the tile; clicking plants with the crouch + plant animation.
+- [ ] Clicking a tree far away walks you to it, then chops. Pressing WASD cancels the walk.
+- [ ] Other players see your hold pose and every swing.
 
-### Fishing
-- [ ] Cast from the dock: bobber arcs out, line is drawn, "Waiting for a bite" shows.
-- [ ] Clicking before the **!** scares the fish ("Too early"). Missing the hook window loses it.
-- [ ] The reel minigame: holding lifts the zone, releasing drops it; keeping the fish inside fills the bar.
-- [ ] A catch shows the card (rarity colour, weight, NEW! the first time) and adds the fish to the backpack.
-- [ ] Walking away or unequipping the rod ends fishing cleanly. X stops fishing.
+### Multiplayer (2-player test)
+- [ ] P lists the other player with their island name, theme, level and likes.
+- [ ] VISIT teleports you; the island card switches to Visiting with LIKE / HOME. LIKE works once per day.
+- [ ] As a visitor, hovering their tree shows red "🔒 Ask the owner to make you a helper". After the owner makes you a helper, chopping works.
+- [ ] Owner sets visitors to Nobody → the visitor is sent home.
+- [ ] TRADE: invite → accept → both offer items/coins → changing an offer un-readies both → both READY → countdown → items swap. Cancel returns everything.
 
-### Animals
-- [ ] Buying a cow without a Barn is refused with a clear message.
-- [ ] The cow wanders inside its pen. Its label shows hearts and Hungry / ⏳ countdown / READY!
-- [ ] Feeding takes 1 Wheat; milking needs the bucket (free with the first cow) and gives Milk.
-
-### Market
-- [ ] E at the stall opens the Sell tab; F opens Buy. The demand banner shows boosted items and a countdown.
-- [ ] Sell 1 / Sell All / SELL ALL PRODUCE pay the shown amount (coins count up with a sound).
-- [ ] Buy tab shows 🔒 level locks, ✔ OWNED tools, MAX upgrades, red prices you can't afford.
-- [ ] Walking away from the stall closes the window.
-
-### Quests
-- [ ] The quest card shows each task with progress (e.g. 12/20) and a 💡 hint for the next one.
-- [ ] Buying Wood does NOT count for "Collect Wood" (only gathering does).
-- [ ] Finishing all tasks pays the reward with a banner and starts the next quest.
+### Building, farming, fishing, animals, market, quests
+- [ ] Build: the ghost is green on free land and red on the beach / water / steep ground / blocked spots. Hammering a site with the hammer adds one stage per hit.
+- [ ] Farming: till → plant → water → harvest, each with its animation and sound. Crops keep growing while you're offline.
+- [ ] Fishing: click the water to cast there, the reel minigame works, and the catch card shows.
+- [ ] Animals: feed with a crop in hand, milk with the bucket, pet with empty hands. The animals walk and animate.
+- [ ] Market: clicking the stall opens Sell; clicking the merchant opens Buy.
+- [ ] Quests advance from real actions (expanding, painting, renaming count for Island Designer).
 
 ### Saving
-- [ ] With API access enabled: build, plant, buy a cow, then stop and play again. Buildings (and their construction progress), crops, animals, quests and upgrades all come back.
+- [ ] With API access enabled: expand, paint, build, plant, buy a cow, trade, then stop and play again. Everything comes back, including the island shape and paint.
 
 ### Security (try from the client command bar)
-- [ ] `GatherRequest` for a node on someone else's island or far away is rejected.
-- [ ] `BuildRequest` with a position in the sea, a bad rotation or an unaffordable building is rejected and charges nothing.
-- [ ] `FishingRequest {Op="Reel", Success=true}` instantly after hooking is rejected (too fast) and flagged.
-- [ ] `SellItemRequest("Wood", 1e9)` / `PurchaseRequest` far from the stall are rejected.
+- [ ] `ExpandIslandRequest` for a chunk that isn't next to your land, or without coins, is rejected.
+- [ ] `PaintTerrainRequest` on someone else's land / with an unknown material is rejected.
+- [ ] `InteractRequest` on an object far away or on another island without permission is rejected.
+- [ ] `TradeRequest` offering items you don't have is rejected; the final swap re-checks everything.
 
 ### Automated
 ```bash
-./tests/run_logic_tests.sh     # 28 engine-free tests: configs cross-reference, growth/animal math, placement, migration
+./tests/run_logic_tests.sh     # 30 engine-free tests: island generator, migration, keyframes, configs, math
 ```
-
----
-
-## New scripts (delivery format)
-
-### Shared: `ReplicatedStorage/Shared`
-| Script | Type | Purpose |
-|---|---|---|
-| `Config/BuildConfig` · `Config/BuildingConfig` | ModuleScript | Grid rules; 13 buildings (cost, footprint, steps, housing) |
-| `Config/CropConfig` | ModuleScript | 7 crops, growth stages, farm layout; generates crop + seed items |
-| `Config/FishConfig` | ModuleScript | Fish, zones, rarity weights, minigame tuning, `MinReelTime` |
-| `Config/AnimalConfig` | ModuleScript | Cow and chicken, variants, care constants, milk/egg items |
-| `Config/ShopConfig` | ModuleScript | Everything the market sells |
-| `Config/QuestConfig` | ModuleScript | The tutorial quest chain |
-| `Util/IslandContent` | ModuleScript | Deterministic node / fishing spot / farm plot layout |
-| `Util/Placement` | ModuleScript | Build grid math shared by preview and validator |
-| `Util/CropGrowth` · `Util/AnimalMath` | ModuleScript | Timestamp growth / care math (server + client agree) |
-| `Building/BuildingModels` | ModuleScript | Procedural staged building models and the placement ghost |
-
-### Server: `ServerScriptService/Server`
-| Script | Type | Purpose |
-|---|---|---|
-| `Services/ResourceService` | ModuleScript | Spawns and pools nodes, health, fall-over, respawn |
-| `Services/GatherService` | ModuleScript | Validates gathering (tool type/tier, range, cooldown), grants drops |
-| `Services/BuildService` | ModuleScript | Placement validation, atomic cost, construction stages, move/delete |
-| `Services/CropService` · `Services/FarmService` | ModuleScript | Crop visuals/stages · till/plant/water/harvest |
-| `Services/FishingService` | ModuleScript | Server-authoritative cast/bite/hook/reel |
-| `Services/AnimalService` | ModuleScript | Housing, feeding, production, pets, wandering |
-| `Services/ShopService` | ModuleScript | Sell and buy at the market stall |
-| `Services/NPCService` | ModuleScript | Mia the Merchant (R15 NPC) |
-| `Services/QuestService` | ModuleScript | Quest progress from server events, rewards |
-| `Island/NodeModels` · `Island/CropModels` · `Island/AnimalModels` | ModuleScript | Procedural placeholder models |
-
-### Client: `StarterPlayer/StarterPlayerScripts/Client/Controllers`
-| Script | Type | Purpose |
-|---|---|---|
-| `GatherController` | ModuleScript | Turns swing impacts into gather / hammer requests; health bars |
-| `BuildController` | ModuleScript | Build mode UI, ghost preview, move/delete |
-| `FarmController` | ModuleScript | Seed picker, crop countdown labels |
-| `FishingController` | ModuleScript | Bobber + line, bite alert, reel minigame, catch card |
-| `AnimalController` | ModuleScript | Animal status labels |
-| `ShopController` | ModuleScript | Market window (sell / buy, demand) |
-| `QuestController` | ModuleScript | Quest card |
 
 ---
 
 ## Known limitations
 
-- **Animations and sounds are placeholders** (`rbxassetid://PLACEHOLDER`, never fake IDs). Gameplay timing still runs from the animation markers, and simple procedural arm poses stand in until you add real animations. See [ASSETS.md](ASSETS.md).
-- **Models are procedural** (parts built in code). Drop real models into `ServerStorage` to override them, as described in ASSETS.md.
-- Crafting, production buildings, more NPCs, daily quests, visiting and weather are later phases (see [ARCHITECTURE.md §20](ARCHITECTURE.md#20-complete-implementation-order)).
+- **Models are procedural** (parts and meshes built in code). Drop real models into `ServerStorage` to override them (see ASSETS.md).
+- **Visiting is within one server.** Players in other servers can't be visited (that would need TeleportService and reserved servers).
+- Cows and chickens have no sound yet: there is no verified source for animal sounds, so they are labelled placeholders you can fill in.
