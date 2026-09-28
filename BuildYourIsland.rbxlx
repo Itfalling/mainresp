@@ -792,8 +792,10 @@ return Keyframes
 	WHERE:        ReplicatedStorage/Shared/Building/BuildingModels
 	DEPENDENCIES: Shared.Config.BuildingConfig
 
-	Procedural, low-poly models for every building in BuildingConfig. Shared so
-	the client's ghost preview and the server's real building are identical.
+	Procedural, cartoon-realistic models for every building in BuildingConfig
+	(framed windows with shutters and sills, trimmed roofs, door frames, porch
+	lamps, smoking chimneys). Shared so the client's ghost preview and the
+	server's real building are identical.
 
 	Every part carries a "Stage" attribute (0 = always present). Construction
 	reveals stages one hammer hit at a time (spec §11: foundation → walls →
@@ -911,6 +913,16 @@ local function gableRoof(model: Model, stageRoofA: number, stageRoofB: number, w
 			Color = gableColor,
 		})
 	end
+	-- Painted eave boards along the roof edges.
+	for _, z in { zOffset - halfDepth, zOffset + halfDepth } do
+		part(model, stageRoofB, {
+			Name = "EaveTrim",
+			Size = Vector3.new(width + 1.7, 0.35, 0.3),
+			CFrame = CFrame.new(0, baseY + 0.05, z),
+			Color = C.White,
+			CanCollide = false,
+		})
+	end
 	part(model, stageRoofB, {
 		Name = "Ridge",
 		Size = Vector3.new(width + 1.8, 0.5, 0.6),
@@ -918,6 +930,32 @@ local function gableRoof(model: Model, stageRoofA: number, stageRoofB: number, w
 		Color = C.WoodDark,
 		Material = Enum.Material.Wood,
 	})
+end
+
+-- Frame, cross bars, sill and two shutters around a window. `outer` sits on
+-- the wall's outside face with its -Z pointing away from the house.
+local function dressWindow(model: Model, stage: number, outer: CFrame, width: number, height: number, shutter: Color3?)
+	local trim = C.White
+	for _, spec in {
+		{ Vector3.new(width + 0.3, 0.22, 0.2), CFrame.new(0, height / 2, -0.08) },
+		{ Vector3.new(width + 0.3, 0.22, 0.2), CFrame.new(0, -height / 2, -0.08) },
+		{ Vector3.new(0.22, height, 0.2), CFrame.new(width / 2, 0, -0.08) },
+		{ Vector3.new(0.22, height, 0.2), CFrame.new(-width / 2, 0, -0.08) },
+		{ Vector3.new(0.12, height, 0.12), CFrame.new(0, 0, -0.06) },
+		{ Vector3.new(width, 0.12, 0.12), CFrame.new(0, 0, -0.06) },
+	} do
+		part(model, stage, { Name = "WindowFrame", Size = spec[1], CFrame = outer * spec[2], Color = trim, CanCollide = false })
+	end
+	part(model, stage, { Name = "Sill", Size = Vector3.new(width + 0.6, 0.2, 0.45), CFrame = outer * CFrame.new(0, -height / 2 - 0.12, -0.22), Color = trim, CanCollide = false })
+	if not shutter then
+		return
+	end
+	for _, side in { -1, 1 } do
+		local panel = outer * CFrame.new(side * (width / 2 + 0.45), 0, -0.1)
+		part(model, stage, { Name = "Shutter", Size = Vector3.new(0.7, height + 0.1, 0.12), CFrame = panel, Color = shutter, CanCollide = false })
+		part(model, stage, { Name = "ShutterSlat", Size = Vector3.new(0.5, 0.1, 0.06), CFrame = panel * CFrame.new(0, height * 0.2, -0.08), Color = shutter:Lerp(Color3.new(0, 0, 0), 0.2), CanCollide = false })
+		part(model, stage, { Name = "ShutterSlat", Size = Vector3.new(0.5, 0.1, 0.06), CFrame = panel * CFrame.new(0, -height * 0.2, -0.08), Color = shutter:Lerp(Color3.new(0, 0, 0), 0.2), CanCollide = false })
+	end
 end
 
 type HouseParams = {
@@ -928,6 +966,7 @@ type HouseParams = {
 	WallColor: Color3,
 	WallMaterial: Enum.Material,
 	RoofColor: Color3,
+	ShutterColor: Color3?,
 	Steps: number,
 	ZOffset: number?,
 }
@@ -968,11 +1007,44 @@ local function house(model: Model, p: HouseParams)
 	part(model, stage(6), { Name = "Lintel", Size = Vector3.new(2.4, h - 4.6, 0.6), CFrame = CFrame.new(0, floorY + 4.6 + (h - 4.6) / 2, z0 - (d / 2 - 0.3)), Color = p.WallColor, Material = p.WallMaterial })
 	-- 7-8 roof
 	gableRoof(model, stage(7), stage(8), w, d, floorY + h, p.RoofRise, z0, p.RoofColor, p.WallColor)
-	-- 9 chimney
+	-- 9 chimney with a cap and a lazy curl of smoke
 	part(model, stage(9), { Name = "Chimney", Size = Vector3.new(1.4, p.RoofRise + 2.4, 1.4), CFrame = CFrame.new(w / 4, floorY + h + (p.RoofRise + 2.4) / 2, z0 + d / 4), Color = C.StoneDark, Material = Enum.Material.Brick })
+	local cap = part(model, stage(9), { Name = "ChimneyCap", Size = Vector3.new(1.8, 0.35, 1.8), CFrame = CFrame.new(w / 4, floorY + h + p.RoofRise + 2.55, z0 + d / 4), Color = C.StoneDark:Lerp(Color3.new(0, 0, 0), 0.2), CanCollide = false })
+	local smoke = Instance.new("ParticleEmitter")
+	smoke.Name = "ChimneySmoke"
+	smoke.Rate = 1.5
+	smoke.Lifetime = NumberRange.new(3, 4.5)
+	smoke.Speed = NumberRange.new(1.5, 2.5)
+	smoke.SpreadAngle = Vector2.new(12, 12)
+	smoke.Acceleration = Vector3.new(0.6, 0.2, 0)
+	smoke.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.8), NumberSequenceKeypoint.new(1, 2.6) })
+	smoke.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.45), NumberSequenceKeypoint.new(1, 1) })
+	smoke.Color = ColorSequence.new(Color3.fromRGB(235, 235, 235))
+	smoke.RotSpeed = NumberRange.new(-20, 20)
+	smoke.Parent = cap
+	-- Windows get frames, bars, sills and shutters.
+	local shutter = p.ShutterColor or Color3.fromRGB(70, 150, 150)
+	dressWindow(model, stage(4), CFrame.new(-w / 2, floorY + h * 0.55, z0) * CFrame.Angles(0, math.rad(90), 0), 2.4, 2, shutter)
+	dressWindow(model, stage(5), CFrame.new(w / 2, floorY + h * 0.55, z0) * CFrame.Angles(0, math.rad(-90), 0), 2.4, 2, shutter)
+	for _, side in { -1, 1 } do
+		-- Front shutters only where there is room beside the door.
+		dressWindow(model, stage(6), CFrame.new(side * (1.2 + segment / 2), floorY + h * 0.55, z0 - d / 2), math.min(2, segment - 0.8), 1.8, if segment >= 4 then shutter else nil)
+	end
 	-- 10 door + step + flower boxes
 	part(model, stage(10), { Name = "Door", Size = Vector3.new(2.2, 4.4, 0.3), CFrame = CFrame.new(0, floorY + 2.2, z0 - (d / 2 - 0.05)), Color = C.WoodDark, Material = Enum.Material.Wood })
 	part(model, stage(10), { Name = "Knob", Shape = Enum.PartType.Ball, Size = Vector3.new(0.3, 0.3, 0.3), CFrame = CFrame.new(0.7, floorY + 2.2, z0 - (d / 2 + 0.15)), Color = Color3.fromRGB(240, 200, 80), CanCollide = false })
+	-- Door frame, a little round window in the door and a porch lamp.
+	for _, spec in { { Vector3.new(2.7, 0.3, 0.25), CFrame.new(0, floorY + 4.55, 0) }, { Vector3.new(0.3, 4.6, 0.25), CFrame.new(-1.25, floorY + 2.3, 0) }, { Vector3.new(0.3, 4.6, 0.25), CFrame.new(1.25, floorY + 2.3, 0) } } do
+		part(model, stage(10), { Name = "DoorFrame", Size = spec[1], CFrame = CFrame.new(0, 0, z0 - (d / 2 + 0.08)) * spec[2], Color = C.White, CanCollide = false })
+	end
+	part(model, stage(10), { Name = "DoorWindow", Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.1, 0.8, 0.8), CFrame = CFrame.new(0, floorY + 3.4, z0 - (d / 2 + 0.22)) * CFrame.Angles(0, math.rad(90), 0), Color = C.Glass, Material = Enum.Material.Glass, CanCollide = false })
+	part(model, stage(10), { Name = "LampArm", Size = Vector3.new(0.15, 0.15, 0.6), CFrame = CFrame.new(-1.9, floorY + 3.6, z0 - (d / 2 + 0.3)), Color = Color3.fromRGB(60, 60, 65), Material = Enum.Material.Metal, CanCollide = false })
+	local lamp = part(model, stage(10), { Name = "PorchLamp", Size = Vector3.new(0.45, 0.6, 0.45), CFrame = CFrame.new(-1.9, floorY + 3.35, z0 - (d / 2 + 0.6)), Color = C.Warm, Material = Enum.Material.Neon, CanCollide = false })
+	local glow = Instance.new("PointLight")
+	glow.Range = 10
+	glow.Brightness = 0.9
+	glow.Color = C.Warm
+	glow.Parent = lamp
 	part(model, stage(10), { Name = "Step", Size = Vector3.new(3.2, 0.5, 1.4), CFrame = CFrame.new(0, 0.25, z0 - (d / 2 + 0.6)), Color = C.Stone, Material = Enum.Material.Slate })
 	for _, side in { -1, 1 } do
 		part(model, stage(10), { Name = "FlowerBox", Size = Vector3.new(math.min(2.2, segment - 0.6), 0.5, 0.6), CFrame = CFrame.new(side * (1.2 + segment / 2), floorY + h * 0.55 - 1.2, z0 - (d / 2 + 0.3)), Color = C.Wood, Material = Enum.Material.Wood, CanCollide = false })
@@ -1014,15 +1086,15 @@ end
 local BUILDERS: { [string]: (Model, any) -> () } = {}
 
 BUILDERS.SmallCottage = function(model, def)
-	house(model, { Width = 10, Depth = 10, WallHeight = 7, RoofRise = 4, WallColor = C.Plaster, WallMaterial = Enum.Material.SmoothPlastic, RoofColor = C.RoofRed, Steps = def.Steps })
+	house(model, { Width = 10, Depth = 10, WallHeight = 7, RoofRise = 4, WallColor = C.Plaster, WallMaterial = Enum.Material.SmoothPlastic, RoofColor = C.RoofRed, ShutterColor = Color3.fromRGB(64, 156, 150), Steps = def.Steps })
 end
 
 BUILDERS.WoodenCabin = function(model, def)
-	house(model, { Width = 14, Depth = 12, WallHeight = 7.5, RoofRise = 4.5, WallColor = Color3.fromRGB(150, 100, 60), WallMaterial = Enum.Material.WoodPlanks, RoofColor = C.RoofBrown, Steps = def.Steps })
+	house(model, { Width = 14, Depth = 12, WallHeight = 7.5, RoofRise = 4.5, WallColor = Color3.fromRGB(150, 100, 60), WallMaterial = Enum.Material.WoodPlanks, RoofColor = C.RoofBrown, ShutterColor = Color3.fromRGB(88, 140, 70), Steps = def.Steps })
 end
 
 BUILDERS.StoneHouse = function(model, def)
-	house(model, { Width = 14, Depth = 14, WallHeight = 8.5, RoofRise = 5, WallColor = C.Stone, WallMaterial = Enum.Material.Cobblestone, RoofColor = C.RoofBlue, Steps = def.Steps })
+	house(model, { Width = 14, Depth = 14, WallHeight = 8.5, RoofRise = 5, WallColor = C.Stone, WallMaterial = Enum.Material.Cobblestone, RoofColor = C.RoofBlue, ShutterColor = Color3.fromRGB(80, 110, 160), Steps = def.Steps })
 end
 
 BUILDERS.Barn = function(model, def)
@@ -1411,10 +1483,6 @@ return TableUtil.DeepFreeze(AnimalConfig)
 
 	Length and Markers here drive BOTH the keyframes (impact frames sit on the
 	markers) and the server's gameplay timing (AnimationService.PerformAction).
-
-	MOVEMENT (idle / walk / run / jump / fall / swim / climb) is procedural:
-	Client/Animation/Locomotion, which replaces Roblox's default Animate
-	script. The Movement entries below are kept as documentation.
 
 	Field reference (spec §74):
 		Id            rbxassetid:// of the uploaded animation
@@ -5990,8 +6058,12 @@ return MockDataStore
 	WHERE:        ServerScriptService/Server/Island/AnimalModels
 	DEPENDENCIES: none
 
-	Cute procedural animals with a real JOINT RIG. The anchored "Body" is the
-	PrimaryPart (the server tweens it around the pen); limbs hang off it on
+	Cartoon-realistic procedural animals with a real JOINT RIG: rounded
+	bodies built from ellipsoids, big shiny eyes, soft colours (a cow with
+	patches, a pink muzzle, horns, floppy ears and a bell collar; a plump
+	chicken with a comb, wattles, fanned tail and toes). Golden variants
+	sparkle. The anchored, invisible "Body" is the PrimaryPart (the server
+	tweens it around the pen); limbs hang off it on
 	Motor6Ds named after the limb (LegFL, LegFR, LegBL, LegBR, Head, Tail,
 	WingL, WingR). Every client animates those joints (Motor6D.Transform) from
 	the AnimalAnim attribute — walk cycles, head bobs, pecking, tail wags —
@@ -6007,6 +6079,7 @@ local AnimalModels = {}
 
 local function newPart(model: Model, props: { [string]: any }): BasePart
 	local part = Instance.new("Part")
+	part.Material = Enum.Material.SmoothPlastic
 	if props.Shape then
 		part.Shape = props.Shape
 	end
@@ -6057,64 +6130,162 @@ local function finish(model: Model, body: BasePart)
 	model.PrimaryPart = body
 end
 
+local EYE_WHITE = Color3.fromRGB(252, 252, 250)
+local PUPIL = Color3.fromRGB(28, 22, 20)
+
+-- A cartoon eye: white, big pupil, a sparkle highlight (all welded to `head`).
+local function eye(model: Model, head: BasePart, center: Vector3, size: number, lookZ: number)
+	weld(head, newPart(model, { Name = "EyeWhite", Shape = Enum.PartType.Ball, Size = Vector3.one * size, CFrame = CFrame.new(center), Color = EYE_WHITE }))
+	weld(head, newPart(model, { Name = "Pupil", Shape = Enum.PartType.Ball, Size = Vector3.one * size * 0.6, CFrame = CFrame.new(center + Vector3.new(0, 0.01, lookZ * size * 0.34)), Color = PUPIL }))
+	weld(head, newPart(model, { Name = "Sparkle", Shape = Enum.PartType.Ball, Size = Vector3.one * size * 0.22, CFrame = CFrame.new(center + Vector3.new(size * 0.1, size * 0.14, lookZ * size * 0.52)), Color = Color3.new(1, 1, 1), Material = Enum.Material.Neon }))
+end
+
+-- The anchored root the server moves around; invisible (the visible body is rounded parts).
+local function root(model: Model, size: Vector3, y: number): BasePart
+	return newPart(model, { Name = "Body", Size = size, CFrame = CFrame.new(0, y, 0), Transparency = 1, Anchored = true, CanCollide = true })
+end
+
+local function goldenShine(body: BasePart)
+	local emitter = Instance.new("ParticleEmitter")
+	emitter.Name = "GoldenSparkle"
+	emitter.Rate = 3
+	emitter.Lifetime = NumberRange.new(0.8, 1.3)
+	emitter.Speed = NumberRange.new(0.5, 1.5)
+	emitter.SpreadAngle = Vector2.new(180, 180)
+	emitter.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.25), NumberSequenceKeypoint.new(1, 0) })
+	emitter.Color = ColorSequence.new(Color3.fromRGB(255, 240, 150))
+	emitter.LightEmission = 1
+	emitter.Parent = body
+end
+
 local function cow(variant: any): Model
 	local model = Instance.new("Model")
 	local bodyColor, spotColor = variant.Body, variant.Spots
-	local body = newPart(model, { Name = "Body", Size = Vector3.new(2.7, 2.2, 4.3), CFrame = CFrame.new(0, 2.6, 0), Color = bodyColor, Anchored = true, CanCollide = true })
-	newPart(model, { Name = "Belly", Size = Vector3.new(2.8, 1.6, 3.6), CFrame = CFrame.new(0, 2.2, 0), Color = bodyColor, Mesh = "Sphere" })
-	weld(body, model:FindFirstChild("Belly") :: BasePart)
-	for _, spec in { { 1.36, 2.9, 0.6, 1.4 }, { -1.36, 2.5, -0.8, 1.2 }, { 1.36, 2.3, -1.2, 0.9 }, { -1.36, 3, 1, 1 } } do
-		weld(body, newPart(model, { Name = "Spot", Size = Vector3.new(0.05, spec[4], spec[4] * 1.2), CFrame = CFrame.new(spec[1], spec[2], spec[3]), Color = spotColor }))
-	end
-	local head = newPart(model, { Name = "Head", Size = Vector3.new(1.7, 1.6, 1.7), CFrame = CFrame.new(0, 3.4, -2.7), Color = bodyColor })
-	for _, piece in {
-		{ Name = "Snout", Size = Vector3.new(1.35, 0.85, 0.7), CFrame = CFrame.new(0, 3.0, -3.65), Color = Color3.fromRGB(245, 170, 170) },
-		{ Name = "Nostril", Size = Vector3.new(0.9, 0.25, 0.1), CFrame = CFrame.new(0, 3.1, -4.02), Color = Color3.fromRGB(150, 80, 80) },
+	local pink = Color3.fromRGB(246, 184, 176)
+	local hoofColor = Color3.fromRGB(58, 44, 36)
+	local body = root(model, Vector3.new(2.6, 2.2, 4.6), 2.7)
+
+	-- Round barrel body: chest, belly, rump.
+	for _, spec in {
+		{ "Torso", Vector3.new(2.9, 2.6, 4.9), Vector3.new(0, 2.75, 0.1) },
+		{ "Chest", Vector3.new(2.6, 2.5, 2.4), Vector3.new(0, 2.8, -1.7) },
+		{ "Rump", Vector3.new(2.75, 2.55, 2.4), Vector3.new(0, 2.9, 1.8) },
+		{ "Neck", Vector3.new(1.55, 1.7, 1.7), Vector3.new(0, 3.35, -2.75) },
 	} do
-		weld(head, newPart(model, piece))
+		weld(body, newPart(model, { Name = spec[1], Size = spec[2], CFrame = CFrame.new(spec[3]), Color = bodyColor, Mesh = "Sphere" }))
 	end
-	for _, x in { -0.5, 0.5 } do
-		weld(head, newPart(model, { Name = "Eye", Shape = Enum.PartType.Ball, Size = Vector3.one * 0.32, CFrame = CFrame.new(x, 3.7, -3.52), Color = Color3.fromRGB(25, 25, 25) }))
-		weld(head, newPart(model, { Name = "Shine", Shape = Enum.PartType.Ball, Size = Vector3.one * 0.1, CFrame = CFrame.new(x + 0.06, 3.78, -3.66), Color = Color3.new(1, 1, 1) }))
-		weld(head, newPart(model, { Name = "Horn", Size = Vector3.new(0.25, 0.6, 0.25), CFrame = CFrame.new(x * 1.2, 4.4, -2.6), Color = Color3.fromRGB(245, 235, 210) }))
-		weld(head, newPart(model, { Name = "Ear", Size = Vector3.new(0.7, 0.3, 0.4), CFrame = CFrame.new(x * 2.2, 3.95, -2.55), Color = bodyColor, Mesh = "Sphere" }))
+	-- Patches that wrap the body (flattened ellipsoids on the surface).
+	for _, spec in {
+		{ Vector3.new(0.35, 1.6, 1.9), CFrame.new(1.3, 3.0, 0.4) * CFrame.Angles(0, 0, math.rad(8)) },
+		{ Vector3.new(0.35, 1.3, 1.5), CFrame.new(-1.3, 2.7, -0.9) * CFrame.Angles(0, 0, math.rad(-8)) },
+		{ Vector3.new(0.35, 1.1, 1.2), CFrame.new(1.25, 2.6, 1.95) },
+		{ Vector3.new(1.4, 0.3, 1.6), CFrame.new(0.6, 4.0, 1.2) },
+		{ Vector3.new(1.2, 0.3, 1.2), CFrame.new(-0.7, 3.95, -0.5) },
+	} do
+		weld(body, newPart(model, { Name = "Patch", Size = spec[1], CFrame = spec[2], Color = spotColor, Mesh = "Sphere" }))
 	end
-	motor("Head", body, head, Vector3.new(0, 3.3, -2.0))
-	for _, spec in { { "LegFL", -0.85, -1.5 }, { "LegFR", 0.85, -1.5 }, { "LegBL", -0.85, 1.5 }, { "LegBR", 0.85, 1.5 } } do
-		local leg = newPart(model, { Name = spec[1], Size = Vector3.new(0.62, 1.6, 0.62), CFrame = CFrame.new(spec[2], 0.8, spec[3]), Color = bodyColor })
-		weld(leg, newPart(model, { Name = "Hoof", Size = Vector3.new(0.66, 0.28, 0.66), CFrame = CFrame.new(spec[2], 0.14, spec[3]), Color = Color3.fromRGB(60, 45, 35) }))
-		motor(spec[1], body, leg, Vector3.new(spec[2], 1.6, spec[3]))
+
+	-- Head (animated): skull, muzzle, nostrils, eyes, ears, horns, forelock.
+	local head = newPart(model, { Name = "Head", Size = Vector3.new(1.55, 1.5, 1.75), CFrame = CFrame.new(0, 3.75, -3.4), Color = bodyColor, Mesh = "Sphere" })
+	weld(head, newPart(model, { Name = "Muzzle", Size = Vector3.new(1.4, 1.0, 1.1), CFrame = CFrame.new(0, 3.3, -4.15), Color = pink, Mesh = "Sphere" }))
+	weld(head, newPart(model, { Name = "Blaze", Size = Vector3.new(0.55, 0.9, 0.3), CFrame = CFrame.new(0, 3.95, -4.12) * CFrame.Angles(math.rad(-20), 0, 0), Color = spotColor, Mesh = "Sphere" }))
+	for _, side in { -1, 1 } do
+		weld(head, newPart(model, { Name = "Nostril", Shape = Enum.PartType.Ball, Size = Vector3.one * 0.2, CFrame = CFrame.new(side * 0.3, 3.42, -4.66), Color = Color3.fromRGB(150, 80, 80) }))
+		eye(model, head, Vector3.new(side * 0.5, 3.98, -3.98), 0.44, -1)
+		local ear = newPart(model, { Name = "Ear", Size = Vector3.new(0.95, 0.36, 0.56), CFrame = CFrame.new(side * 1.0, 3.95, -3.2) * CFrame.Angles(0, 0, math.rad(side * -22)), Color = bodyColor, Mesh = "Sphere" })
+		weld(head, ear)
+		weld(head, newPart(model, { Name = "EarInner", Size = Vector3.new(0.62, 0.2, 0.34), CFrame = ear.CFrame * CFrame.new(0, 0.06, -0.08), Color = pink, Mesh = "Sphere" }))
+		local hornAngle = if side > 0 then math.rad(55) else math.rad(125)
+		weld(head, newPart(model, { Name = "Horn", Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.6, 0.24, 0.24), CFrame = CFrame.new(side * 0.52, 4.52, -3.3) * CFrame.Angles(0, 0, hornAngle), Color = Color3.fromRGB(246, 236, 212) }))
 	end
-	weld(body, newPart(model, { Name = "Udder", Size = Vector3.new(0.95, 0.55, 0.95), CFrame = CFrame.new(0, 1.35, 0.9), Color = Color3.fromRGB(245, 175, 175), Mesh = "Sphere" }))
-	local tail = newPart(model, { Name = "Tail", Size = Vector3.new(0.2, 1.4, 0.2), CFrame = CFrame.new(0, 2.7, 2.35) * CFrame.Angles(math.rad(20), 0, 0), Color = bodyColor })
-	weld(tail, newPart(model, { Name = "Tuft", Size = Vector3.new(0.35, 0.45, 0.35), CFrame = tail.CFrame * CFrame.new(0, -0.75, 0), Color = spotColor, Mesh = "Sphere" }))
-	motor("Tail", body, tail, Vector3.new(0, 3.35, 2.15))
+	weld(head, newPart(model, { Name = "Forelock", Size = Vector3.new(0.85, 0.38, 0.65), CFrame = CFrame.new(0, 4.45, -3.45), Color = spotColor, Mesh = "Sphere" }))
+	motor("Head", body, head, Vector3.new(0, 3.55, -2.9))
+
+	-- Red collar with a golden bell.
+	weld(body, newPart(model, { Name = "Collar", Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.32, 1.8, 1.8), CFrame = CFrame.new(0, 3.2, -2.85) * CFrame.Angles(0, math.rad(90), 0), Color = Color3.fromRGB(206, 58, 58) }))
+	weld(body, newPart(model, { Name = "Bell", Shape = Enum.PartType.Ball, Size = Vector3.one * 0.6, CFrame = CFrame.new(0, 2.3, -3.1), Color = Color3.fromRGB(250, 200, 60), Material = Enum.Material.Metal }))
+
+	-- Legs (animated): rounded legs with dark hooves.
+	for _, spec in { { "LegFL", -0.8, -1.6 }, { "LegFR", 0.8, -1.6 }, { "LegBL", -0.8, 1.7 }, { "LegBR", 0.8, 1.7 } } do
+		local x, z = spec[2], spec[3]
+		local leg = newPart(model, { Name = spec[1], Size = Vector3.new(0.74, 2.0, 0.74), CFrame = CFrame.new(x, 1.05, z), Color = bodyColor, Mesh = "Sphere" })
+		weld(leg, newPart(model, { Name = "Hoof", Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.36, 0.7, 0.7), CFrame = CFrame.new(x, 0.18, z) * CFrame.Angles(0, 0, math.rad(90)), Color = hoofColor }))
+		motor(spec[1], body, leg, Vector3.new(x, 1.95, z))
+	end
+
+	-- Udder.
+	weld(body, newPart(model, { Name = "Udder", Size = Vector3.new(1.1, 0.65, 1.05), CFrame = CFrame.new(0, 1.55, 1.1), Color = pink, Mesh = "Sphere" }))
+	for _, offset in { Vector2.new(-0.22, -0.2), Vector2.new(0.22, -0.2), Vector2.new(-0.22, 0.2), Vector2.new(0.22, 0.2) } do
+		weld(body, newPart(model, { Name = "Teat", Size = Vector3.new(0.14, 0.3, 0.14), CFrame = CFrame.new(offset.X, 1.2, 1.1 + offset.Y), Color = pink, Mesh = "Sphere" }))
+	end
+
+	-- Tail (animated) with a tuft.
+	local tail = newPart(model, { Name = "Tail", Size = Vector3.new(0.2, 1.7, 0.2), CFrame = CFrame.new(0, 2.75, 3.05) * CFrame.Angles(math.rad(14), 0, 0), Color = bodyColor, Mesh = "Sphere" })
+	weld(tail, newPart(model, { Name = "Tuft", Size = Vector3.new(0.42, 0.6, 0.42), CFrame = tail.CFrame * CFrame.new(0, -0.85, 0), Color = spotColor, Mesh = "Sphere" }))
+	motor("Tail", body, tail, Vector3.new(0, 3.55, 2.95))
+
+	if variant.Id == "Golden" then
+		goldenShine(body)
+	end
 	finish(model, body)
 	return model
 end
 
 local function chicken(variant: any): Model
 	local model = Instance.new("Model")
-	local body = newPart(model, { Name = "Body", Size = Vector3.new(1.25, 1.15, 1.55), CFrame = CFrame.new(0, 1.2, 0), Color = variant.Body, Mesh = "Sphere", Anchored = true, CanCollide = true })
-	local head = newPart(model, { Name = "Head", Size = Vector3.new(0.78, 0.8, 0.78), CFrame = CFrame.new(0, 1.95, -0.62), Color = variant.Body, Mesh = "Sphere" })
-	weld(head, newPart(model, { Name = "Beak", Size = Vector3.new(0.3, 0.2, 0.38), CFrame = CFrame.new(0, 1.9, -1.12), Color = Color3.fromRGB(250, 170, 40) }))
-	weld(head, newPart(model, { Name = "Comb", Size = Vector3.new(0.15, 0.38, 0.45), CFrame = CFrame.new(0, 2.45, -0.62), Color = variant.Spots, Mesh = "Sphere" }))
-	weld(head, newPart(model, { Name = "Wattle", Size = Vector3.new(0.14, 0.25, 0.14), CFrame = CFrame.new(0, 1.68, -1.0), Color = variant.Spots, Mesh = "Sphere" }))
-	for _, x in { -0.22, 0.22 } do
-		weld(head, newPart(model, { Name = "Eye", Shape = Enum.PartType.Ball, Size = Vector3.one * 0.15, CFrame = CFrame.new(x, 2.05, -0.97), Color = Color3.fromRGB(20, 20, 20) }))
+	local feathers = variant.Body
+	local dark = feathers:Lerp(Color3.new(0, 0, 0), 0.12)
+	local light = feathers:Lerp(Color3.new(1, 1, 1), 0.25)
+	local red = variant.Spots
+	local orange = Color3.fromRGB(250, 170, 40)
+	local body = root(model, Vector3.new(1.2, 1.1, 1.5), 1.25)
+
+	-- Plump body with a puffed-out breast.
+	weld(body, newPart(model, { Name = "Torso", Size = Vector3.new(1.35, 1.25, 1.65), CFrame = CFrame.new(0, 1.25, 0.05), Color = feathers, Mesh = "Sphere" }))
+	weld(body, newPart(model, { Name = "Breast", Size = Vector3.new(1.12, 1.15, 1.0), CFrame = CFrame.new(0, 1.35, -0.45), Color = light, Mesh = "Sphere" }))
+
+	-- Head (animated): comb, beak, wattles, eyes.
+	local head = newPart(model, { Name = "Head", Size = Vector3.new(0.8, 0.82, 0.8), CFrame = CFrame.new(0, 2.05, -0.62), Color = feathers, Mesh = "Sphere" })
+	for index, z in { -0.78, -0.62, -0.46 } do
+		weld(head, newPart(model, { Name = "Comb", Size = Vector3.new(0.14, if index == 2 then 0.36 else 0.28, 0.22), CFrame = CFrame.new(0, 2.5 + (if index == 2 then 0.04 else 0), z), Color = red, Mesh = "Sphere" }))
 	end
-	motor("Head", body, head, Vector3.new(0, 1.65, -0.45))
-	for _, spec in { { "LegL", -0.22 }, { "LegR", 0.22 } } do
-		local leg = newPart(model, { Name = spec[1], Size = Vector3.new(0.12, 0.66, 0.12), CFrame = CFrame.new(spec[2], 0.33, 0), Color = Color3.fromRGB(250, 170, 40) })
-		weld(leg, newPart(model, { Name = "Foot", Size = Vector3.new(0.3, 0.06, 0.34), CFrame = CFrame.new(spec[2], 0.03, -0.08), Color = Color3.fromRGB(250, 170, 40) }))
-		motor(spec[1], body, leg, Vector3.new(spec[2], 0.66, 0))
+	weld(head, newPart(model, { Name = "Beak", Size = Vector3.new(0.26, 0.16, 0.36), CFrame = CFrame.new(0, 2.02, -1.08) * CFrame.Angles(math.rad(10), 0, 0), Color = orange, Mesh = "Sphere" }))
+	weld(head, newPart(model, { Name = "BeakLow", Size = Vector3.new(0.2, 0.1, 0.24), CFrame = CFrame.new(0, 1.93, -1.02), Color = Color3.fromRGB(230, 140, 30), Mesh = "Sphere" }))
+	for _, side in { -1, 1 } do
+		weld(head, newPart(model, { Name = "Wattle", Size = Vector3.new(0.12, 0.26, 0.14), CFrame = CFrame.new(side * 0.07, 1.75, -0.98), Color = red, Mesh = "Sphere" }))
+		eye(model, head, Vector3.new(side * 0.27, 2.14, -0.9), 0.2, -1)
 	end
-	for _, spec in { { "WingL", -0.66 }, { "WingR", 0.66 } } do
-		local wing = newPart(model, { Name = spec[1], Size = Vector3.new(0.16, 0.72, 1.05), CFrame = CFrame.new(spec[2], 1.25, 0.05), Color = variant.Body:Lerp(Color3.new(0, 0, 0), 0.08), Mesh = "Sphere" })
-		motor(spec[1], body, wing, Vector3.new(spec[2], 1.55, 0.05))
+	motor("Head", body, head, Vector3.new(0, 1.7, -0.45))
+
+	-- Legs (animated) with three front toes and one back toe.
+	for _, spec in { { "LegL", -0.24 }, { "LegR", 0.24 } } do
+		local x = spec[2]
+		local leg = newPart(model, { Name = spec[1], Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.66, 0.11, 0.11), CFrame = CFrame.new(x, 0.35, 0) * CFrame.Angles(0, 0, math.rad(90)), Color = orange })
+		for toe, angle in { -30, 0, 30, 180 } do
+			local length = if toe == 4 then 0.18 else 0.3
+			weld(leg, newPart(model, { Name = "Toe", Size = Vector3.new(0.07, 0.05, length), CFrame = CFrame.new(x, 0.03, 0) * CFrame.Angles(0, math.rad(angle), 0) * CFrame.new(0, 0, -length / 2), Color = orange }))
+		end
+		motor(spec[1], body, leg, Vector3.new(x, 0.68, 0))
 	end
-	local tail = newPart(model, { Name = "Tail", Size = Vector3.new(0.7, 0.65, 0.3), CFrame = CFrame.new(0, 1.65, 0.82) * CFrame.Angles(math.rad(-30), 0, 0), Color = variant.Body, Mesh = "Sphere" })
-	motor("Tail", body, tail, Vector3.new(0, 1.4, 0.7))
+
+	-- Wings (animated): a flight-feather layer and a lighter covert.
+	for _, spec in { { "WingL", -0.7 }, { "WingR", 0.7 } } do
+		local x = spec[2]
+		local wing = newPart(model, { Name = spec[1], Size = Vector3.new(0.22, 0.76, 1.08), CFrame = CFrame.new(x, 1.28, 0.1) * CFrame.Angles(math.rad(-10), 0, 0), Color = dark, Mesh = "Sphere" })
+		weld(wing, newPart(model, { Name = "Covert", Size = Vector3.new(0.12, 0.5, 0.7), CFrame = CFrame.new(x * 1.06, 1.42, -0.05), Color = light, Mesh = "Sphere" }))
+		motor(spec[1], body, wing, Vector3.new(x, 1.58, 0.05))
+	end
+
+	-- Tail (animated): three fanned feathers.
+	local tail = newPart(model, { Name = "Tail", Size = Vector3.new(0.26, 0.95, 0.55), CFrame = CFrame.new(0, 1.85, 0.8) * CFrame.Angles(math.rad(-28), 0, 0), Color = dark, Mesh = "Sphere" })
+	for _, side in { -1, 1 } do
+		weld(tail, newPart(model, { Name = "TailFeather", Size = Vector3.new(0.22, 0.85, 0.5), CFrame = CFrame.new(side * 0.2, 1.78, 0.78) * CFrame.Angles(math.rad(-30), 0, math.rad(side * 20)), Color = feathers, Mesh = "Sphere" }))
+	end
+	motor("Tail", body, tail, Vector3.new(0, 1.45, 0.7))
+
+	if variant.Id == "Golden" then
+		goldenShine(body)
+	end
 	finish(model, body)
 	return model
 end
@@ -6149,8 +6320,11 @@ return AnimalModels
 	DEPENDENCIES: Shared.Config.CropConfig
 
 	Procedural crop visuals for each growth stage (1 Seed .. 6 Harvestable),
-	by crop Shape (Grain, Root, Tall, Bush). Models are small and only rebuilt
-	when a tile's stage changes.
+	by crop Shape: Grain (wheat heads with whiskers), Root (feathery tops, the
+	root shoulder shows when ripe), Tall (corn with broad leaves and husked
+	cobs), Bush (shaded leafy bush with shiny fruit). Soft, rounded,
+	cartoon-realistic. Models are small and only rebuilt when a tile's stage
+	changes.
 ]]
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -6197,39 +6371,76 @@ function CropModels.Build(cropId: string, stage: number, top: CFrame): Model
 	local growth = math.clamp((stage - 1) / 4, 0, 1) -- 0 at Seed, 1 at Mature
 	local ready = stage >= #CropConfig.Stages
 
+	local function sphere(size: Vector3, cframe: CFrame, color: Color3): BasePart
+		local piece = part(model, size, cframe, color)
+		local mesh = Instance.new("SpecialMesh")
+		mesh.MeshType = Enum.MeshType.Sphere
+		mesh.Parent = piece
+		return piece
+	end
+	local leafDark = stalk:Lerp(Color3.new(0, 0, 0), 0.18)
+
 	for index, spot in SPOTS do
 		local base = top * CFrame.new(spot.X, 0, spot.Y) * CFrame.Angles(0, index * 0.7, 0)
 		if stage <= 1 then
-			part(model, Vector3.new(0.35, 0.2, 0.35), base * CFrame.new(0, 0.1, 0), Color3.fromRGB(120, 85, 50), Enum.PartType.Ball)
+			-- A little mound of soil with a seed peeking out.
+			sphere(Vector3.new(0.55, 0.22, 0.55), base * CFrame.new(0, 0.05, 0), Color3.fromRGB(112, 80, 50))
+			part(model, Vector3.new(0.16, 0.12, 0.16), base * CFrame.new(0, 0.14, 0), Color3.fromRGB(226, 196, 120), Enum.PartType.Ball)
 		elseif crop.Shape == "Grain" then
+			-- Wheat: slender stalks, blade leaves, a plump golden head with whiskers.
 			local height = 0.4 + growth * 2.4
-			part(model, Vector3.new(0.12, height, 0.12), base * CFrame.new(0, height / 2, 0), if ready then Color3.fromRGB(215, 190, 90) else stalk)
+			local stemColor = if ready then Color3.fromRGB(222, 196, 100) else stalk
+			part(model, Vector3.new(0.1, height, 0.1), base * CFrame.new(0, height / 2, 0), stemColor, Enum.PartType.Block)
+			for leaf = 1, 2 do
+				sphere(Vector3.new(0.14, height * 0.45, 0.3), base * CFrame.Angles(0, leaf * math.pi, math.rad(28)) * CFrame.new(0, height * 0.25, 0), if ready then stemColor:Lerp(Color3.new(0, 0, 0), 0.1) else leafDark)
+			end
 			if stage >= 4 then
-				part(model, Vector3.new(0.25, 0.7, 0.25), base * CFrame.new(0, height + 0.2, 0), if ready then produce else stalk:Lerp(produce, 0.3))
+				local headColor = if ready then produce else stalk:Lerp(produce, 0.35)
+				sphere(Vector3.new(0.28, 0.8, 0.28), base * CFrame.new(0, height + 0.3, 0), headColor)
+				for awn = 1, 3 do
+					part(model, Vector3.new(0.03, 0.5, 0.03), base * CFrame.new(0, height + 0.62, 0) * CFrame.Angles(math.rad(12), awn * 2.1, 0) * CFrame.new(0, 0.25, 0), headColor:Lerp(Color3.new(1, 1, 1), 0.2))
+				end
 			end
 		elseif crop.Shape == "Root" then
-			local height = 0.3 + growth * 1.1
-			for leaf = 1, 3 do
-				part(model, Vector3.new(0.1, height, 0.35), base * CFrame.Angles(0, leaf * 2.1, math.rad(18)) * CFrame.new(0, height / 2, 0), stalk)
+			-- Carrot-style: a fan of feathery leaves; the root shoulder shows when ripe.
+			local height = 0.3 + growth * 1.2
+			for leaf = 1, 4 do
+				sphere(Vector3.new(0.22, height, 0.4), base * CFrame.Angles(0, leaf * 1.57, math.rad(22)) * CFrame.new(0, height / 2, 0), if leaf % 2 == 0 then stalk else leafDark)
 			end
 			if ready then
-				part(model, Vector3.new(0.45, 0.45, 0.45), base * CFrame.new(0, 0.1, 0), produce, Enum.PartType.Ball)
+				sphere(Vector3.new(0.55, 0.5, 0.55), base * CFrame.new(0, 0.1, 0), produce)
+				sphere(Vector3.new(0.3, 0.14, 0.3), base * CFrame.new(-0.08, 0.3, -0.08), produce:Lerp(Color3.new(1, 1, 1), 0.3))
 			end
 		elseif crop.Shape == "Tall" then
+			-- Corn-style: a tall stalk with broad drooping leaves and husked cobs.
 			local height = 0.5 + growth * 3.6
-			part(model, Vector3.new(0.18, height, 0.18), base * CFrame.new(0, height / 2, 0), stalk)
+			local stalkSize, upright = Vector3.new(height, 0.2, 0.2), CFrame.Angles(0, 0, math.rad(90))
+			local stem = part(model, stalkSize, base * CFrame.new(0, height / 2, 0) * upright, stalk, Enum.PartType.Cylinder)
+			stem.Size = stalkSize
 			if stage >= 3 then
-				part(model, Vector3.new(0.9, 0.08, 0.3), base * CFrame.new(0.3, height * 0.6, 0) * CFrame.Angles(0, 0, math.rad(-25)), stalk)
+				for leaf = 1, 3 do
+					local y = height * (0.3 + leaf * 0.18)
+					sphere(Vector3.new(0.12, 0.3, 1.3), base * CFrame.new(0, y, 0) * CFrame.Angles(math.rad(-30), leaf * 2.2, 0) * CFrame.new(0, 0, -0.55), if leaf % 2 == 0 then stalk else leafDark)
+				end
+				sphere(Vector3.new(0.22, 0.5, 0.22), base * CFrame.new(0, height + 0.2, 0), Color3.fromRGB(226, 200, 120))
 			end
 			if ready then
-				part(model, Vector3.new(0.35, 0.9, 0.35), base * CFrame.new(0.15, height * 0.7, 0.1), produce)
+				local cob = base * CFrame.new(0.18, height * 0.62, 0.1) * CFrame.Angles(0, 0, math.rad(-18))
+				sphere(Vector3.new(0.38, 0.95, 0.38), cob, produce)
+				sphere(Vector3.new(0.3, 0.8, 0.44), cob * CFrame.new(0.08, -0.12, 0), stalk:Lerp(Color3.fromRGB(255, 255, 200), 0.2))
 			end
 		else -- Bush
+			-- Tomato-style: shaded leafy bush with shiny round fruit.
 			local size = 0.3 + growth * 1.1
-			part(model, Vector3.one * size, base * CFrame.new(0, size / 2, 0), stalk, Enum.PartType.Ball, Enum.Material.Grass)
+			sphere(Vector3.new(size * 1.1, size * 0.8, size * 1.1), base * CFrame.new(0, size * 0.35, 0), leafDark)
+			sphere(Vector3.new(size * 0.8, size * 0.65, size * 0.8), base * CFrame.new(0, size * 0.62, 0), stalk)
+			sphere(Vector3.new(size * 0.45, size * 0.3, size * 0.45), base * CFrame.new(-size * 0.1, size * 0.88, -size * 0.1), stalk:Lerp(Color3.fromRGB(255, 255, 200), 0.2))
 			if ready then
-				for berry = 1, 2 do
-					part(model, Vector3.one * 0.35, base * CFrame.new(math.cos(berry * 2) * size * 0.4, size * 0.6, math.sin(berry * 2) * size * 0.4), produce, Enum.PartType.Ball)
+				for berry = 1, 3 do
+					local offset = CFrame.new(math.cos(berry * 2.1) * size * 0.45, size * 0.5, math.sin(berry * 2.1) * size * 0.45)
+					local fruit = part(model, Vector3.one * 0.38, base * offset, produce, Enum.PartType.Ball)
+					fruit.Reflectance = 0.08
+					part(model, Vector3.new(0.12, 0.06, 0.12), base * offset * CFrame.new(0, 0.19, 0), leafDark)
 				end
 			end
 		end
@@ -6971,8 +7182,10 @@ return IslandTerrain
 
 	Procedural resource-node models: oak, pine, snowy pine, palm, maple,
 	ancient tree, cactus, rocks, iron, crystal, fiber bush, sand, clay.
-	Round canopies/rocks use SpecialMesh spheres (squashable ellipsoids) and
-	trunks taper, so the island looks soft and hand-made rather than blocky.
+	Cartoon-realistic: soft smooth colours, ellipsoid canopies with light
+	tops and darker undersides (painted-on shading), branches reaching into
+	the leaves, tapered wood-textured trunks, rocks with highlights and
+	pebbles, flowers and berries for a little life.
 
 	Each model:
 	  * is built around the origin with its base at Y = 0,
@@ -7043,6 +7256,8 @@ local function trunk(model: Model, height: number, diameter: number, color: Colo
 end
 
 local function canopy(model: Model, random: Random, center: Vector3, radius: number, colors: { Color3 }, count: number, material: Enum.Material?)
+	local base = colors[1]
+	local leafMaterial = material or Enum.Material.SmoothPlastic
 	for index = 1, count do
 		local angle = random:NextNumber(0, math.pi * 2)
 		local spread = if index == 1 then 0 else random:NextNumber(0.35, 0.75) * radius
@@ -7052,8 +7267,54 @@ local function canopy(model: Model, random: Random, center: Vector3, radius: num
 			Size = Vector3.new(size, size * random:NextNumber(0.72, 0.9), size),
 			CFrame = CFrame.new(center + Vector3.new(math.cos(angle) * spread, random:NextNumber(-0.6, 0.8), math.sin(angle) * spread)),
 			Color = colors[(index - 1) % #colors + 1],
-			Material = material or Enum.Material.Grass,
+			Material = leafMaterial,
 			Mesh = "Sphere",
+			CanCollide = false,
+		})
+	end
+	-- Painted-on shading: darker clumps underneath, sunlit clumps on top.
+	for index = 1, 3 do
+		local angle = index * 2.1 + random:NextNumber(-0.4, 0.4)
+		local size = radius * random:NextNumber(1.0, 1.3)
+		part(model, {
+			Name = "LeavesShade",
+			Size = Vector3.new(size, size * 0.6, size),
+			CFrame = CFrame.new(center + Vector3.new(math.cos(angle) * radius * 0.55, -radius * 0.55, math.sin(angle) * radius * 0.55)),
+			Color = base:Lerp(Color3.new(0, 0, 0), 0.22),
+			Material = leafMaterial,
+			Mesh = "Sphere",
+			CanCollide = false,
+		})
+	end
+	for index = 1, 4 do
+		local angle = index * 1.6 + random:NextNumber(-0.3, 0.3)
+		local size = radius * random:NextNumber(0.7, 0.95)
+		part(model, {
+			Name = "LeavesLight",
+			Size = Vector3.new(size, size * 0.75, size),
+			CFrame = CFrame.new(center + Vector3.new(math.cos(angle) * radius * 0.4, radius * random:NextNumber(0.45, 0.7), math.sin(angle) * radius * 0.4)),
+			Color = base:Lerp(Color3.fromRGB(255, 255, 200), 0.22),
+			Material = leafMaterial,
+			Mesh = "Sphere",
+			CanCollide = false,
+		})
+	end
+end
+
+-- A few branches reaching from the trunk top into the canopy.
+local function branches(model: Model, random: Random, from: Vector3, radius: number, color: Color3)
+	for index = 1, 3 do
+		local angle = index * 2.1 + random:NextNumber(-0.3, 0.3)
+		local target = from + Vector3.new(math.cos(angle) * radius * 0.7, radius * 0.6, math.sin(angle) * radius * 0.7)
+		local length = (target - from).Magnitude
+		local middle = (from + target) / 2
+		part(model, {
+			Name = "Branch",
+			Shape = Enum.PartType.Cylinder,
+			Size = Vector3.new(length, 0.5, 0.5),
+			CFrame = CFrame.lookAt(middle, target) * CFrame.Angles(0, math.rad(90), 0),
+			Color = color,
+			Material = Enum.Material.Wood,
 			CanCollide = false,
 		})
 	end
@@ -7064,19 +7325,32 @@ local BUILDERS: { [string]: (Model, Random) -> () } = {}
 BUILDERS.Oak = function(model, random)
 	local height = random:NextNumber(6, 7.5)
 	trunk(model, height, 1.5, Color3.fromRGB(122, 86, 56))
+	branches(model, random, Vector3.new(0, height - 0.5, 0), 3.3, Color3.fromRGB(112, 78, 50))
 	canopy(model, random, Vector3.new(0, height + 1.8, 0), 3.3, { Color3.fromRGB(86, 176, 72), Color3.fromRGB(104, 192, 84), Color3.fromRGB(72, 156, 62) }, 5)
+	-- A couple of red apples peeking out.
+	for index = 1, 3 do
+		local angle = index * 2.2 + random:NextNumber(-0.3, 0.3)
+		part(model, { Name = "Apple", Shape = Enum.PartType.Ball, Size = Vector3.one * 0.55, CFrame = CFrame.new(math.cos(angle) * 3.1, height + 0.9 + random:NextNumber(0, 1.2), math.sin(angle) * 3.1), Color = Color3.fromRGB(226, 52, 48), CanCollide = false })
+	end
 	hitbox(model, Vector3.new(3, height + 2, 3))
 end
 
 BUILDERS.Maple = function(model, random)
 	local height = random:NextNumber(6, 7.5)
 	trunk(model, height, 1.4, Color3.fromRGB(96, 66, 50))
+	branches(model, random, Vector3.new(0, height - 0.5, 0), 3.2, Color3.fromRGB(86, 58, 44))
 	canopy(model, random, Vector3.new(0, height + 1.8, 0), 3.2, { Color3.fromRGB(236, 120, 40), Color3.fromRGB(214, 70, 42), Color3.fromRGB(246, 180, 60) }, 5)
+	-- Fallen leaves around the base.
+	for index = 1, 5 do
+		local angle = index * 1.3 + random:NextNumber(-0.3, 0.3)
+		part(model, { Name = "FallenLeaf", Size = Vector3.new(0.7, 0.08, 0.5), CFrame = CFrame.new(math.cos(angle) * random:NextNumber(1.4, 2.6), 0.05, math.sin(angle) * random:NextNumber(1.4, 2.6)) * CFrame.Angles(0, angle, 0), Color = if index % 2 == 0 then Color3.fromRGB(236, 120, 40) else Color3.fromRGB(246, 180, 60), Mesh = "Sphere", CanCollide = false })
+	end
 	hitbox(model, Vector3.new(3, height + 2, 3))
 end
 
 BUILDERS.Ancient = function(model, random)
 	trunk(model, 10, 2.8, Color3.fromRGB(96, 72, 62))
+	branches(model, random, Vector3.new(0, 9, 0), 4.6, Color3.fromRGB(88, 66, 56))
 	canopy(model, random, Vector3.new(0, 12.5, 0), 4.6, { Color3.fromRGB(90, 200, 170), Color3.fromRGB(70, 170, 150), Color3.fromRGB(120, 220, 190) }, 6)
 	local glow = part(model, { Name = "Glow", Size = Vector3.new(1, 1, 1), CFrame = CFrame.new(0, 12, 0), Transparency = 1, CanCollide = false })
 	local light = Instance.new("PointLight")
@@ -7087,31 +7361,43 @@ BUILDERS.Ancient = function(model, random)
 	hitbox(model, Vector3.new(4, 11, 4))
 end
 
+-- Stacked, drooping tiers of needles (dark underside, light top) + a tip.
 local function pineLayers(model: Model, random: Random, height: number, colors: { Color3 }, snow: boolean)
-	for index = 1, 5 do
-		local width = 6.2 - index * 1.0
-		local y = height * 0.35 + index * 1.55
+	local tiers = 6
+	local topY = height * 0.35
+	for index = 1, tiers do
+		local width = 6.6 - index * 0.95
+		local y = height * 0.35 + index * 1.35
+		topY = y
+		local color = colors[(index - 1) % #colors + 1]
+		part(model, {
+			Name = "NeedlesUnder",
+			Size = Vector3.new(width * 1.02, 1.1, width * 1.02),
+			CFrame = CFrame.new(0, y - 0.55, 0),
+			Color = color:Lerp(Color3.new(0, 0, 0), 0.25),
+			Mesh = "Sphere",
+			CanCollide = false,
+		})
 		part(model, {
 			Name = "Needles",
-			Size = Vector3.new(width, 2.1, width),
+			Size = Vector3.new(width, 1.9, width),
 			CFrame = CFrame.new(0, y, 0) * CFrame.Angles(0, random:NextNumber(0, 6.28), 0),
-			Color = colors[(index - 1) % #colors + 1],
-			Material = Enum.Material.Grass,
+			Color = color,
 			Mesh = "Sphere",
 			CanCollide = false,
 		})
 		if snow then
 			part(model, {
 				Name = "Snow",
-				Size = Vector3.new(width * 0.8, 0.7, width * 0.8),
-				CFrame = CFrame.new(0, y + 0.8, 0),
-				Color = Color3.fromRGB(248, 252, 255),
-				Material = Enum.Material.Snow,
+				Size = Vector3.new(width * 0.78, 0.6, width * 0.78),
+				CFrame = CFrame.new(0, y + 0.72, 0),
+				Color = Color3.fromRGB(250, 253, 255),
 				Mesh = "Sphere",
 				CanCollide = false,
 			})
 		end
 	end
+	part(model, { Name = "Tip", Size = Vector3.new(1.1, 1.8, 1.1), CFrame = CFrame.new(0, topY + 1.3, 0), Color = if snow then Color3.fromRGB(250, 253, 255) else colors[1]:Lerp(Color3.new(1, 1, 1), 0.15), Mesh = "Sphere", CanCollide = false })
 end
 
 BUILDERS.Pine = function(model, random)
@@ -7150,17 +7436,12 @@ BUILDERS.Palm = function(model, random)
 		position += offset
 	end
 	for index = 1, 8 do
+		-- Each frond rises from the crown, then droops at the tip.
 		local angle = (index / 8) * math.pi * 2 + random:NextNumber(-0.2, 0.2)
-		local frond = CFrame.new(position) * CFrame.Angles(0, angle, 0) * CFrame.new(0, -0.2, -2.8) * CFrame.Angles(math.rad(-24), 0, 0)
-		part(model, {
-			Name = "Frond",
-			Size = Vector3.new(1.7, 0.22, 6),
-			CFrame = frond,
-			Color = if index % 2 == 0 then Color3.fromRGB(76, 176, 80) else Color3.fromRGB(56, 150, 66),
-			Material = Enum.Material.Grass,
-			Mesh = "Sphere",
-			CanCollide = false,
-		})
+		local color = if index % 2 == 0 then Color3.fromRGB(76, 178, 82) else Color3.fromRGB(56, 152, 68)
+		local crown = CFrame.new(position) * CFrame.Angles(0, angle, 0)
+		part(model, { Name = "Frond", Size = Vector3.new(1.6, 0.22, 3.4), CFrame = crown * CFrame.Angles(math.rad(18), 0, 0) * CFrame.new(0, 0, -1.6), Color = color, Mesh = "Sphere", CanCollide = false })
+		part(model, { Name = "FrondTip", Size = Vector3.new(1.35, 0.2, 3.4), CFrame = crown * CFrame.Angles(math.rad(18), 0, 0) * CFrame.new(0, 0, -3.1) * CFrame.Angles(math.rad(-42), 0, 0) * CFrame.new(0, 0, -1.4), Color = color:Lerp(Color3.fromRGB(255, 255, 200), 0.1), Mesh = "Sphere", CanCollide = false })
 	end
 	for index = 1, 3 do
 		local angle = index * 2.1
@@ -7179,32 +7460,58 @@ end
 BUILDERS.Cactus = function(model, random)
 	local height = random:NextNumber(4.5, 6.5)
 	local green = Color3.fromRGB(80, 160, 90)
-	part(model, { Name = "Body", Size = Vector3.new(1.5, height, 1.5), CFrame = CFrame.new(0, height / 2, 0), Color = green, Material = Enum.Material.Grass, Mesh = "Sphere" })
-	part(model, { Name = "Body", Size = Vector3.new(1.3, height * 0.9, 1.3), CFrame = CFrame.new(0, height * 0.45, 0), Color = green, Material = Enum.Material.Grass })
+	part(model, { Name = "Body", Size = Vector3.new(1.6, height + 0.4, 1.6), CFrame = CFrame.new(0, height / 2, 0), Color = green, Mesh = "Sphere" })
+	part(model, { Name = "Body", Shape = Enum.PartType.Cylinder, Size = Vector3.new(height * 0.85, 1.45, 1.45), CFrame = CFrame.new(0, height * 0.42, 0) * UPRIGHT, Color = green })
+	-- Light ribs down the body.
+	for index = 1, 4 do
+		local angle = index * math.pi / 2
+		part(model, { Name = "Rib", Size = Vector3.new(0.18, height * 0.9, 0.18), CFrame = CFrame.new(math.cos(angle) * 0.72, height * 0.48, math.sin(angle) * 0.72), Color = green:Lerp(Color3.new(1, 1, 1), 0.18), Mesh = "Sphere", CanCollide = false })
+	end
 	for _, side in { -1, 1 } do
 		local armHeight = random:NextNumber(1.6, 2.4)
 		local armY = random:NextNumber(height * 0.35, height * 0.6)
-		part(model, { Name = "ArmOut", Size = Vector3.new(1.2, 0.8, 0.8), CFrame = CFrame.new(side * 1.1, armY, 0), Color = green, Material = Enum.Material.Grass })
-		part(model, { Name = "ArmUp", Size = Vector3.new(0.85, armHeight, 0.85), CFrame = CFrame.new(side * 1.5, armY + armHeight / 2, 0), Color = green, Material = Enum.Material.Grass, Mesh = "Sphere" })
+		part(model, { Name = "ArmOut", Size = Vector3.new(1.3, 0.8, 0.8), CFrame = CFrame.new(side * 1.1, armY, 0), Color = green, Mesh = "Sphere" })
+		part(model, { Name = "ArmUp", Size = Vector3.new(0.85, armHeight, 0.85), CFrame = CFrame.new(side * 1.5, armY + armHeight / 2, 0), Color = green, Mesh = "Sphere" })
+	end
+	-- Tiny spines.
+	for index = 1, 10 do
+		local angle = index * 2.4
+		part(model, { Name = "Spine", Shape = Enum.PartType.Ball, Size = Vector3.one * 0.14, CFrame = CFrame.new(math.cos(angle) * 0.8, 0.8 + (index / 10) * height * 0.85, math.sin(angle) * 0.8), Color = Color3.fromRGB(250, 246, 220), CanCollide = false })
 	end
 	part(model, { Name = "Flower", Size = Vector3.new(0.8, 0.4, 0.8), CFrame = CFrame.new(0, height + 0.1, 0), Color = Color3.fromRGB(255, 120, 160), Mesh = "Sphere", CanCollide = false })
 	hitbox(model, Vector3.new(2.4, height, 2.4))
 end
 
+-- A chunky boulder pile: shaded body, sunlit highlights, moss and pebbles.
 local function rockPile(model: Model, random: Random, color: Color3, scale: number)
 	for index = 1, 4 do
 		local size = Vector3.new(random:NextNumber(2.2, 3.4), random:NextNumber(1.6, 2.6), random:NextNumber(2.2, 3.4)) * scale * (if index == 1 then 1.2 else 0.8)
+		local position = Vector3.new(random:NextNumber(-1, 1), size.Y * 0.35, random:NextNumber(-1, 1))
+		local shade = color:Lerp(Color3.new(1, 1, 1), (index - 1) * 0.05)
 		part(model, {
 			Name = "Rock",
 			Size = size,
-			CFrame = CFrame.new(random:NextNumber(-1, 1), size.Y * 0.35, random:NextNumber(-1, 1)) * CFrame.Angles(random:NextNumber(-0.3, 0.3), random:NextNumber(0, math.pi), random:NextNumber(-0.3, 0.3)),
-			Color = color:Lerp(Color3.new(1, 1, 1), (index - 1) * 0.05),
-			Material = Enum.Material.Slate,
+			CFrame = CFrame.new(position) * CFrame.Angles(random:NextNumber(-0.3, 0.3), random:NextNumber(0, math.pi), random:NextNumber(-0.3, 0.3)),
+			Color = shade,
 			Mesh = "Sphere",
 		})
+		-- Sunlit top facet.
+		part(model, {
+			Name = "RockLight",
+			Size = Vector3.new(size.X * 0.62, size.Y * 0.35, size.Z * 0.6),
+			CFrame = CFrame.new(position + Vector3.new(-size.X * 0.08, size.Y * 0.3, -size.Z * 0.05)),
+			Color = shade:Lerp(Color3.new(1, 1, 1), 0.22),
+			Mesh = "Sphere",
+			CanCollide = false,
+		})
 	end
-	-- A little moss on top.
-	part(model, { Name = "Moss", Size = Vector3.new(1.6, 0.4, 1.4) * scale, CFrame = CFrame.new(0.2, 2.1 * scale, 0), Color = Color3.fromRGB(96, 150, 70), Material = Enum.Material.Grass, Mesh = "Sphere", CanCollide = false })
+	-- Moss on top and pebbles around the base.
+	part(model, { Name = "Moss", Size = Vector3.new(1.6, 0.4, 1.4) * scale, CFrame = CFrame.new(0.2, 2.1 * scale, 0), Color = Color3.fromRGB(104, 168, 76), Mesh = "Sphere", CanCollide = false })
+	for index = 1, 5 do
+		local angle = index * 1.25 + random:NextNumber(-0.3, 0.3)
+		local pebble = random:NextNumber(0.35, 0.6) * scale
+		part(model, { Name = "Pebble", Size = Vector3.new(pebble, pebble * 0.6, pebble * 0.9), CFrame = CFrame.new(math.cos(angle) * 2.4 * scale, pebble * 0.2, math.sin(angle) * 2.4 * scale), Color = color:Lerp(Color3.new(1, 1, 1), 0.12), Mesh = "Sphere", CanCollide = false })
+	end
 end
 
 BUILDERS.Rock = function(model, random)
@@ -7219,9 +7526,10 @@ BUILDERS.Iron = function(model, random)
 			Name = "Ore",
 			Size = Vector3.one * random:NextNumber(0.6, 0.95),
 			CFrame = CFrame.new(random:NextNumber(-1.4, 1.4), random:NextNumber(1, 2.4), random:NextNumber(-1.4, 1.4)),
-			Color = Color3.fromRGB(196, 116, 72),
-			Material = Enum.Material.Metal,
+			Color = Color3.fromRGB(214, 128, 78),
+			Material = Enum.Material.SmoothPlastic,
 			Mesh = "Sphere",
+			Reflectance = 0.15,
 			CanCollide = false,
 		})
 	end
@@ -7232,13 +7540,25 @@ BUILDERS.Crystal = function(model, random)
 	rockPile(model, random, Color3.fromRGB(90, 85, 110), 0.9)
 	for index = 1, 5 do
 		local height = random:NextNumber(2.2, 3.8)
+		local crystalCFrame = CFrame.new(random:NextNumber(-1, 1), 1.4 + height / 2, random:NextNumber(-1, 1)) * CFrame.Angles(random:NextNumber(-0.4, 0.4), index, random:NextNumber(-0.4, 0.4))
 		part(model, {
 			Name = "Crystal",
 			Size = Vector3.new(0.7, height, 0.7),
-			CFrame = CFrame.new(random:NextNumber(-1, 1), 1.4 + height / 2, random:NextNumber(-1, 1)) * CFrame.Angles(random:NextNumber(-0.4, 0.4), index, random:NextNumber(-0.4, 0.4)),
+			CFrame = crystalCFrame,
 			Color = Color3.fromRGB(130, 230, 255),
+			Material = Enum.Material.Glass,
+			Transparency = 0.2,
+			Reflectance = 0.2,
+			CanCollide = false,
+		})
+		-- Glowing core inside each crystal.
+		part(model, {
+			Name = "CrystalCore",
+			Size = Vector3.new(0.32, height * 0.8, 0.32),
+			CFrame = crystalCFrame,
+			Color = Color3.fromRGB(180, 245, 255),
 			Material = Enum.Material.Neon,
-			Transparency = 0.15,
+			Transparency = 0.3,
 			CanCollide = false,
 		})
 	end
@@ -7253,10 +7573,14 @@ BUILDERS.Bush = function(model, random)
 			Size = Vector3.new(size, size * 0.8, size),
 			CFrame = CFrame.new(math.cos(index * 1.7) * 0.8, 0.9, math.sin(index * 1.7) * 0.8),
 			Color = Color3.fromRGB(90, 156 + index * 8, 70),
-			Material = Enum.Material.Grass,
 			Mesh = "Sphere",
 			CanCollide = false,
 		})
+	end
+	-- Little white flowers dotted on the bush.
+	for index = 1, 5 do
+		local angle = index * 1.3
+		part(model, { Name = "Flower", Shape = Enum.PartType.Ball, Size = Vector3.one * 0.35, CFrame = CFrame.new(math.cos(angle) * 1.2, 1.5 + (index % 2) * 0.35, math.sin(angle) * 1.2), Color = Color3.fromRGB(255, 250, 236), CanCollide = false })
 	end
 	for index = 1, 6 do
 		part(model, {
@@ -8434,15 +8758,6 @@ function AnimationService.IsPlaying(rig: Model, name: string): boolean
 	return currentName(rig) == name
 end
 
--- "Hit animation": the arms bounce back off what a swing just hit (every
--- client plays it when this attribute changes).
-function AnimationService.Recoil(rig: Model?, strength: number?)
-	if rig then
-		sequence += 1
-		rig:SetAttribute("Recoil", ("%.2f;%d"):format(math.clamp(strength or 1, 0, 2), sequence))
-	end
-end
-
 -- What the character's hands hold (drives the hold pose on every client).
 function AnimationService.SetHoldPose(rig: Model, pose: string?)
 	rig:SetAttribute("HoldPose", pose)
@@ -9253,7 +9568,6 @@ local function advance(player: Player, site: Site)
 	local def = site.Def
 	local offset = Vector3.new((math.random() - 0.5) * def.Footprint.X * 0.6, math.random() * def.Height * 0.6, (math.random() - 0.5) * def.Footprint.Y * 0.6)
 	local hitPoint = (pivot * CFrame.new(offset)).Position
-	AnimationService.Recoil(player.Character, 0.9)
 	VFXService.PlayAt("BuildDust", hitPoint)
 	VFXService.PlayAt("HitPop", hitPoint)
 	VFXService.PlayAt("Stars", hitPoint, { Count = 4 })
@@ -10527,7 +10841,6 @@ local function till(player: Player, tile: Tile, hoe: any)
 	AnimationService.PerformAction(player, hoe.Animations.Use or "HoeTill", "Till", function()
 		if tile.Entry == nil and tilesById[tile.Id] == tile then
 			setEntry(tile, { TileId = tile.Id, State = "Tilled" })
-			AnimationService.Recoil(player.Character, 0.6)
 			VFXService.PlayAt("DirtPuff", tile.Part.Position + Vector3.new(0, 0.5, 0))
 			VFXService.PlayAt("Puff", tile.Part.Position, { Scale = 0.45, Count = 5, Color = Color3.fromRGB(170, 130, 90) })
 			VFXService.Jiggle(tile.Part:FindFirstAncestorOfClass("Model"), "Squash")
@@ -11151,9 +11464,6 @@ local function applyHit(player: Player, node: any, tool: any)
 	local def = node.Def
 	local damage = if tool then tool.Power * def.DamagePerPower else def.Health
 	local root = R15.GetRootPart(player.Character)
-	if tool then
-		AnimationService.Recoil(player.Character, if node.Def.ToolType == "Pickaxe" then 1.2 else 1)
-	end
 	local broke = ResourceService.Damage(node, damage, root and root.Position)
 	if not broke then
 		return
@@ -12963,15 +13273,14 @@ local function convertToR15(player: Player, oldCharacter: Model): boolean
 	end
 
 	model.Name = player.Name
-	-- Use the game's own Animate (our movement animations), never the default one.
-	local template = StarterPlayer:FindFirstChild("StarterCharacterScripts")
-	local animate = template and template:FindFirstChild("Animate")
-	if animate then
-		local existing = model:FindFirstChild("Animate")
-		if existing then
-			existing:Destroy()
+	if not model:FindFirstChild("Animate") then
+		local template = StarterPlayer:FindFirstChild("StarterCharacterScripts")
+		local animate = template and template:FindFirstChild("Animate")
+		if animate then
+			animate:Clone().Parent = model
+		else
+			warn("[PlayerService] R15 character has no Animate script. Set Game Settings > Avatar to R15.")
 		end
-		animate:Clone().Parent = model
 	end
 	model:PivotTo(oldCharacter:GetPivot())
 	player.Character = model
@@ -16051,479 +16360,19 @@ return Notify
       <float name="CharacterWalkSpeed">16</float>
       <bool name="EnableMouseLockOption">false</bool>
     </Properties>
-    <Item class="StarterCharacterScripts" referent="99">
-      <Properties>
-        <string name="Name">StarterCharacterScripts</string>
-      </Properties>
-      <Item class="LocalScript" referent="100">
-        <Properties>
-          <string name="Name">Animate</string>
-          <string name="Source"><![CDATA[--[[
-	SCRIPT NAME:  Animate
-	SCRIPT TYPE:  LocalScript (character script)
-	WHERE:        StarterPlayer/StarterCharacterScripts/Animate
-	DEPENDENCIES: none
-
-	Replaces Roblox's default R15 "Animate" script (a script in
-	StarterCharacterScripts with this name takes its place). The game plays
-	its OWN movement animations — idle, walk, run, jump, fall, landing
-	squash, swim, climb, sit — for every character on every client in
-	StarterPlayerScripts/Client/Controllers/AnimationController (see
-	Client/Animation/Locomotion). Keeping this script empty stops the
-	default animations from fighting ours.
-]]
-
--- Stop anything the Animator may already be playing (e.g. from a respawn).
-local character = script.Parent
-local humanoid = character:WaitForChild("Humanoid", 10)
-local animator = humanoid and humanoid:WaitForChild("Animator", 10)
-if animator and animator:IsA("Animator") then
-	for _, track in animator:GetPlayingAnimationTracks() do
-		track:Stop(0)
-	end
-end
-]]></string>
-        </Properties>
-      </Item>
-    </Item>
-    <Item class="StarterPlayerScripts" referent="101">
+    <Item class="StarterPlayerScripts" referent="99">
       <Properties>
         <string name="Name">StarterPlayerScripts</string>
       </Properties>
-      <Item class="Folder" referent="102">
+      <Item class="Folder" referent="100">
         <Properties>
           <string name="Name">Client</string>
         </Properties>
-        <Item class="Folder" referent="103">
-          <Properties>
-            <string name="Name">Animation</string>
-          </Properties>
-          <Item class="ModuleScript" referent="104">
-            <Properties>
-              <string name="Name">Locomotion</string>
-              <string name="Source"><![CDATA[--!strict
---[[
-	SCRIPT NAME:  Locomotion
-	SCRIPT TYPE:  ModuleScript (client animation)
-	WHERE:        StarterPlayerScripts/Client/Animation/Locomotion
-	DEPENDENCIES: none
-
-	The game's OWN R15 movement animations (they replace Roblox's default
-	"Animate" script — see StarterCharacterScripts/Animate). Cartoon-bouncy,
-	procedural and speed-matched, so feet don't slide:
-
-	  IDLE    breathing, gentle arm sway, the odd look around
-	  WALK    arm/leg swing, hip twist, head bob          (normal speed)
-	  RUN     big strides, pumping bent arms, forward lean (sprinting, Shift)
-	  JUMP    knee tuck, arms thrown up
-	  FALL    arms flailing, legs dangling
-	  LAND    cartoon squash on landing (bigger drop = bigger squash)
-	  SWIM    front crawl when moving, treading water when still
-	  CLIMB   hand-over-hand
-	  SIT     seated
-	  + a slight bank into turns
-
-	Update(state, input) returns joint poses { [joint] = {X, Y, Z, PX, PY, PZ} }
-	(degrees / studs, same format as Shared/Animation/Keyframes). Each pose
-	blends smoothly into the next. AnimationController runs it for every
-	character (yours and everyone else's), so all players see it.
-]]
-
-export type Pose = { [string]: { number } }
-
-export type State = {
-	Phase: number,
-	Walk: number,
-	Run: number,
-	Air: number,
-	Swim: number,
-	Climb: number,
-	Sit: number,
-	Rise: number,
-	Lean: number,
-	AirTime: number,
-	LandAt: number,
-	LandStrength: number,
-	FallSpeed: number,
-	Steps: number, -- footsteps taken (half cycles), for footstep effects
-}
-
-export type Input = {
-	Speed: number, -- horizontal studs/s
-	VerticalSpeed: number,
-	TurnRate: number, -- radians/s (yaw)
-	Grounded: boolean,
-	Swimming: boolean,
-	Climbing: boolean,
-	Sitting: boolean,
-	Clock: number,
-	Dt: number,
-}
-
-local Locomotion = {}
-
-local JOINTS = {
-	"Root", "Waist", "Neck",
-	"RightShoulder", "RightElbow", "RightWrist",
-	"LeftShoulder", "LeftElbow", "LeftWrist",
-	"RightHip", "RightKnee", "RightAnkle",
-	"LeftHip", "LeftKnee", "LeftAnkle",
-}
-Locomotion.Joints = JOINTS
-
-local WALK_STRIDE = 8.5 -- studs per full walk cycle (two steps)
-local RUN_STRIDE = 13
-local RUN_FROM = 18 -- speed where running starts to blend in
-local RUN_FULL = 23
-
-local function v(x: number?, y: number?, z: number?, px: number?, py: number?, pz: number?): { number }
-	return { x or 0, y or 0, z or 0, px or 0, py or 0, pz or 0 }
-end
-
-local function approach(current: number, target: number, rate: number, dt: number): number
-	return current + (target - current) * math.min(1, rate * dt)
-end
-
-local function blend(a: Pose, b: Pose, w: number): Pose
-	if w <= 0 then
-		return a
-	elseif w >= 1 then
-		return b
-	end
-	local out: Pose = {}
-	for _, joint in JOINTS do
-		local pa = a[joint]
-		local pb = b[joint]
-		if pa or pb then
-			local x = pa or v()
-			local y = pb or v()
-			out[joint] = {
-				x[1] + (y[1] - x[1]) * w,
-				x[2] + (y[2] - x[2]) * w,
-				x[3] + (y[3] - x[3]) * w,
-				(x[4] or 0) + ((y[4] or 0) - (x[4] or 0)) * w,
-				(x[5] or 0) + ((y[5] or 0) - (x[5] or 0)) * w,
-				(x[6] or 0) + ((y[6] or 0) - (x[6] or 0)) * w,
-			}
-		end
-	end
-	return out
-end
-
-local function add(pose: Pose, joint: string, delta: { number })
-	local current = pose[joint] or v()
-	pose[joint] = {
-		current[1] + (delta[1] or 0),
-		current[2] + (delta[2] or 0),
-		current[3] + (delta[3] or 0),
-		(current[4] or 0) + (delta[4] or 0),
-		(current[5] or 0) + (delta[5] or 0),
-		(current[6] or 0) + (delta[6] or 0),
-	}
-end
-
----------------------------------------------------------------------------
--- Poses
----------------------------------------------------------------------------
-
-local function idlePose(t: number): Pose
-	local breathe = math.sin(t * 1.8)
-	local look = math.sin(t * 0.35) ^ 3 -- mostly still, sometimes looks around
-	return {
-		Root = v(0, 0, 0, 0, 0.03 * breathe, 0),
-		Waist = v(1.2 * breathe, 0, 0),
-		Neck = v(-1 * breathe, 14 * look, 0),
-		RightShoulder = v(3 + 1.5 * breathe, 0, 5),
-		LeftShoulder = v(3 + 1.5 * breathe, 0, -5),
-		RightElbow = v(8),
-		LeftElbow = v(8),
-		RightHip = v(),
-		LeftHip = v(),
-		RightKnee = v(),
-		LeftKnee = v(),
-		RightAnkle = v(),
-		LeftAnkle = v(),
-	}
-end
-
-local function walkPose(p: number): Pose
-	local s, c = math.sin(p), math.cos(p)
-	local rightKnee = -(6 + 44 * math.max(0, c))
-	local leftKnee = -(6 + 44 * math.max(0, -c))
-	return {
-		Root = v(0, -6 * s, 0, 0, 0.05 - 0.15 * math.abs(s), 0),
-		Waist = v(0, 9 * s, 0),
-		Neck = v(0, -3 * s, 0),
-		RightHip = v(32 * s),
-		LeftHip = v(-32 * s),
-		RightKnee = v(rightKnee),
-		LeftKnee = v(leftKnee),
-		RightAnkle = v(-(32 * s + rightKnee) * 0.3),
-		LeftAnkle = v(-(-32 * s + leftKnee) * 0.3),
-		RightShoulder = v(-28 * s, 0, 6),
-		LeftShoulder = v(28 * s, 0, -6),
-		RightElbow = v(14 + 18 * math.max(0, -s)),
-		LeftElbow = v(14 + 18 * math.max(0, s)),
-	}
-end
-
-local function runPose(p: number): Pose
-	local s, c = math.sin(p), math.cos(p)
-	return {
-		Root = v(-9, -8 * s, 0, 0, 0.2 * math.abs(s) - 0.12, 0),
-		Waist = v(-6, 13 * s, 0),
-		Neck = v(10, -5 * s, 0),
-		RightHip = v(50 * s + 8),
-		LeftHip = v(-50 * s + 8),
-		RightKnee = v(-(18 + 88 * math.max(0, c))),
-		LeftKnee = v(-(18 + 88 * math.max(0, -c))),
-		RightAnkle = v(12 * s),
-		LeftAnkle = v(-12 * s),
-		RightShoulder = v(-55 * s + 6, 0, 10),
-		LeftShoulder = v(55 * s + 6, 0, -10),
-		RightElbow = v(82),
-		LeftElbow = v(82),
-	}
-end
-
-local function jumpPose(): Pose
-	return {
-		Root = v(6),
-		Waist = v(6),
-		Neck = v(8),
-		RightHip = v(62),
-		RightKnee = v(-88),
-		RightAnkle = v(20),
-		LeftHip = v(20),
-		LeftKnee = v(-42),
-		LeftAnkle = v(10),
-		RightShoulder = v(150, 0, 30),
-		LeftShoulder = v(110, 0, -40),
-		RightElbow = v(20),
-		LeftElbow = v(24),
-	}
-end
-
-local function fallPose(t: number): Pose
-	local flail = math.sin(t * 14)
-	local kick = math.sin(t * 10)
-	return {
-		Root = v(0),
-		Waist = v(-4),
-		Neck = v(12),
-		RightShoulder = v(130 + 18 * flail, 0, 55),
-		LeftShoulder = v(130 - 18 * flail, 0, -55),
-		RightElbow = v(30 + 10 * flail),
-		LeftElbow = v(30 - 10 * flail),
-		RightHip = v(26 + 12 * kick),
-		LeftHip = v(10 - 12 * kick),
-		RightKnee = v(-36),
-		LeftKnee = v(-22),
-		RightAnkle = v(10),
-		LeftAnkle = v(10),
-	}
-end
-
-local function swimPose(t: number, moving: number): Pose
-	local a = t * 4.5
-	local flutter = math.sin(t * 9)
-	local crawl: Pose = {
-		Root = v(-72),
-		Waist = v(0, 10 * math.sin(a), 0),
-		Neck = v(45),
-		RightShoulder = v(90 + 100 * math.sin(a), 0, 18),
-		LeftShoulder = v(90 - 100 * math.sin(a), 0, -18),
-		RightElbow = v(25),
-		LeftElbow = v(25),
-		RightHip = v(18 * flutter),
-		LeftHip = v(-18 * flutter),
-		RightKnee = v(-14),
-		LeftKnee = v(-14),
-		RightAnkle = v(-30),
-		LeftAnkle = v(-30),
-	}
-	local tread = math.sin(t * 3)
-	local treading: Pose = {
-		Root = v(0, 0, 0, 0, 0.1 * tread, 0),
-		Waist = v(0),
-		Neck = v(0),
-		RightShoulder = v(40, 0, 40 + 25 * tread),
-		LeftShoulder = v(40, 0, -40 - 25 * tread),
-		RightElbow = v(30),
-		LeftElbow = v(30),
-		RightHip = v(30 + 25 * math.sin(t * 4)),
-		LeftHip = v(30 - 25 * math.sin(t * 4)),
-		RightKnee = v(-50),
-		LeftKnee = v(-50),
-		RightAnkle = v(),
-		LeftAnkle = v(),
-	}
-	return blend(treading, crawl, moving)
-end
-
-local function climbPose(t: number, moving: boolean): Pose
-	local a = t * (if moving then 7 else 1.5)
-	local s = math.sin(a)
-	return {
-		Root = v(0),
-		Waist = v(0),
-		Neck = v(15),
-		RightShoulder = v(150 + 25 * s, 0, 10),
-		LeftShoulder = v(150 - 25 * s, 0, -10),
-		RightElbow = v(40 + 25 * math.max(0, -s)),
-		LeftElbow = v(40 + 25 * math.max(0, s)),
-		RightHip = v(45 + 30 * s),
-		LeftHip = v(45 - 30 * s),
-		RightKnee = v(-70),
-		LeftKnee = v(-70),
-		RightAnkle = v(),
-		LeftAnkle = v(),
-	}
-end
-
-local function sitPose(t: number): Pose
-	local breathe = math.sin(t * 1.8)
-	return {
-		Root = v(0),
-		Waist = v(2 * breathe),
-		Neck = v(0),
-		RightHip = v(90),
-		LeftHip = v(90),
-		RightKnee = v(-90),
-		LeftKnee = v(-90),
-		RightAnkle = v(),
-		LeftAnkle = v(),
-		RightShoulder = v(12, 0, 4),
-		LeftShoulder = v(12, 0, -4),
-		RightElbow = v(30),
-		LeftElbow = v(30),
-	}
-end
-
----------------------------------------------------------------------------
--- Public
----------------------------------------------------------------------------
-
-function Locomotion.NewState(): State
-	return {
-		Phase = math.random() * math.pi * 2,
-		Walk = 0,
-		Run = 0,
-		Air = 0,
-		Swim = 0,
-		Climb = 0,
-		Sit = 0,
-		Rise = 0,
-		Lean = 0,
-		AirTime = 0,
-		LandAt = -10,
-		LandStrength = 0,
-		FallSpeed = 0,
-		Steps = 0,
-	}
-end
-
--- Advances the state and returns this frame's pose. Also returns
--- (landed: number?, stepped: boolean) so the caller can add dust puffs.
-function Locomotion.Update(state: State, input: Input): (Pose, number?, boolean)
-	local dt = math.min(input.Dt, 1 / 15)
-	local t = input.Clock
-	local speed = input.Speed
-	local airborne = not input.Grounded and not input.Swimming and not input.Climbing and not input.Sitting
-
-	-- Landing detection (cartoon squash).
-	local landed: number? = nil
-	if airborne then
-		state.AirTime += dt
-		state.FallSpeed = math.max(state.FallSpeed, -input.VerticalSpeed)
-	else
-		if state.AirTime > 0.28 and input.Grounded then
-			state.LandAt = t
-			state.LandStrength = math.clamp((state.FallSpeed - 8) / 45, 0.3, 1)
-			landed = state.LandStrength
-		end
-		state.AirTime = 0
-		state.FallSpeed = 0
-	end
-
-	-- Smooth blend weights.
-	local grounded = input.Grounded and not input.Swimming and not input.Sitting
-	state.Walk = approach(state.Walk, if grounded then math.clamp((speed - 0.6) / 4, 0, 1) else 0, 10, dt)
-	state.Run = approach(state.Run, if grounded then math.clamp((speed - RUN_FROM) / (RUN_FULL - RUN_FROM), 0, 1) else 0, 8, dt)
-	state.Air = approach(state.Air, if airborne and state.AirTime > 0.06 then 1 else 0, 14, dt)
-	state.Swim = approach(state.Swim, if input.Swimming then 1 else 0, 8, dt)
-	state.Climb = approach(state.Climb, if input.Climbing then 1 else 0, 10, dt)
-	state.Sit = approach(state.Sit, if input.Sitting then 1 else 0, 10, dt)
-	state.Rise = approach(state.Rise, math.clamp(input.VerticalSpeed / 25, -1, 1), 10, dt)
-	state.Lean = approach(state.Lean, math.clamp(-input.TurnRate * 3, -10, 10) * math.clamp(speed / 16, 0, 1), 6, dt)
-
-	-- Stride phase follows distance travelled (no foot sliding).
-	local stepped = false
-	if grounded and speed > 0.3 then
-		local stride = WALK_STRIDE + (RUN_STRIDE - WALK_STRIDE) * state.Run
-		local before = math.floor(state.Phase / math.pi)
-		state.Phase += (speed / stride) * math.pi * 2 * dt
-		if math.floor(state.Phase / math.pi) ~= before then
-			state.Steps += 1
-			stepped = true
-		end
-		if state.Phase > 1e4 then
-			state.Phase %= math.pi * 2
-		end
-	end
-
-	local pose = idlePose(t)
-	pose = blend(pose, walkPose(state.Phase), state.Walk)
-	pose = blend(pose, runPose(state.Phase), state.Run * state.Walk)
-	if state.Air > 0.001 then
-		local air = blend(fallPose(t), jumpPose(), (state.Rise + 1) / 2)
-		pose = blend(pose, air, state.Air)
-	end
-	if state.Swim > 0.001 then
-		pose = blend(pose, swimPose(t, math.clamp(speed / 10, 0, 1)), state.Swim)
-	end
-	if state.Climb > 0.001 then
-		pose = blend(pose, climbPose(t, math.abs(input.VerticalSpeed) > 1), state.Climb)
-	end
-	if state.Sit > 0.001 then
-		pose = blend(pose, sitPose(t), state.Sit)
-	end
-
-	-- Bank into turns.
-	if math.abs(state.Lean) > 0.05 then
-		add(pose, "Root", { 0, 0, state.Lean })
-	end
-
-	-- Landing squash: knees give, arms flare, then spring back.
-	local sinceLand = t - state.LandAt
-	if sinceLand < 0.34 then
-		local x = sinceLand / 0.34
-		local amount = state.LandStrength * (1 - x) ^ 2
-		add(pose, "Root", { 0, 0, 0, 0, -0.75 * amount, 0 })
-		add(pose, "RightHip", { 42 * amount })
-		add(pose, "LeftHip", { 42 * amount })
-		add(pose, "RightKnee", { -75 * amount })
-		add(pose, "LeftKnee", { -75 * amount })
-		add(pose, "RightAnkle", { 32 * amount })
-		add(pose, "LeftAnkle", { 32 * amount })
-		add(pose, "Waist", { -14 * amount })
-		add(pose, "RightShoulder", { 10 * amount, 0, 30 * amount })
-		add(pose, "LeftShoulder", { 10 * amount, 0, -30 * amount })
-	end
-
-	return pose, landed, stepped
-end
-
-return Locomotion
-]]></string>
-            </Properties>
-          </Item>
-        </Item>
-        <Item class="Folder" referent="105">
+        <Item class="Folder" referent="101">
           <Properties>
             <string name="Name">Build</string>
           </Properties>
-          <Item class="ModuleScript" referent="106">
+          <Item class="ModuleScript" referent="102">
             <Properties>
               <string name="Name">LandEditor</string>
               <string name="Source"><![CDATA[--[[
@@ -16917,7 +16766,7 @@ return LandEditor
             </Properties>
           </Item>
         </Item>
-        <Item class="ModuleScript" referent="107">
+        <Item class="ModuleScript" referent="103">
           <Properties>
             <string name="Name">ClientState</string>
             <string name="Source"><![CDATA[--[[
@@ -17051,11 +16900,11 @@ return ClientState
 ]]></string>
           </Properties>
         </Item>
-        <Item class="Folder" referent="108">
+        <Item class="Folder" referent="104">
           <Properties>
             <string name="Name">Controllers</string>
           </Properties>
-          <Item class="ModuleScript" referent="109">
+          <Item class="ModuleScript" referent="105">
             <Properties>
               <string name="Name">AnimalController</string>
               <string name="Source"><![CDATA[--[[
@@ -17204,7 +17053,7 @@ return AnimalController
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="110">
+          <Item class="ModuleScript" referent="106">
             <Properties>
               <string name="Name">AnimationController</string>
               <string name="Source"><![CDATA[--[[
@@ -17216,16 +17065,6 @@ return AnimalController
 
 	Animates EVERY rig this client can see — your character, other players,
 	NPCs and animals — so everyone sees the same thing:
-
-	  * MOVEMENT (Client/Animation/Locomotion): the game's own idle, walk,
-	             run (sprint), jump, fall, landing squash, swim, climb and
-	             sit animations. Roblox's default Animate script is replaced
-	             (StarterCharacterScripts/Animate), so every joint is ours.
-	             Other players' movement is read from their velocity, a
-	             ground raycast and the water around them.
-	  * HIT RECOIL: when a swing actually connects the server stamps the
-	             character's "Recoil" attribute and the arms bounce back off
-	             the tree / rock / construction site.
 	  * ACTIONS  (chop, mine, hammer, till, plant, water, harvest, cast, reel,
 	             milk, feed, pet, cheer, wave, dance...) come from the rig's
 	             ActionAnim attribute ("Name;ServerStartTime;Speed;Seq") set by
@@ -17263,7 +17102,6 @@ local Signal = require(Shared.Util.Signal)
 local R15 = require(Shared.Util.R15)
 
 local Controllers = script.Parent
-local Locomotion = require(Controllers.Parent:WaitForChild("Animation"):WaitForChild("Locomotion"))
 local AudioController = require(Controllers.AudioController)
 local VFXController = require(Controllers.VFXController)
 local CameraController = require(Controllers.CameraController)
@@ -17303,11 +17141,6 @@ type Rig = {
 	Tracks: { [string]: AnimationTrack },
 	Connections: { RBXScriptConnection },
 	TrailOn: boolean,
-	Loco: Locomotion.State,
-	RayParams: RaycastParams,
-	WaterCheckAt: number,
-	InWater: boolean,
-	Recoil: { Start: number, Strength: number }?,
 	LookYaw: number,
 }
 
@@ -17547,23 +17380,8 @@ local function addRig(model: Model, isNPC: boolean)
 		Tracks = {},
 		Connections = {},
 		TrailOn = false,
-		Loco = Locomotion.NewState(),
-		RayParams = RaycastParams.new(),
-		WaterCheckAt = 0,
-		InWater = false,
-		Recoil = nil,
 		LookYaw = 0,
 	}
-	rig.RayParams.FilterType = Enum.RaycastFilterType.Exclude
-	rig.RayParams.FilterDescendantsInstances = { model }
-	rig.RayParams.IgnoreWater = true
-	table.insert(rig.Connections, model:GetAttributeChangedSignal("Recoil"):Connect(function()
-		local value = model:GetAttribute("Recoil")
-		local strength = if type(value) == "string" then tonumber(string.match(value, "^([%d%.]+);")) else nil
-		if strength then
-			rig.Recoil = { Start = os.clock(), Strength = math.clamp(strength, 0, 2) }
-		end
-	end))
 	rigs[model] = rig
 	table.insert(rig.Connections, model:GetAttributeChangedSignal("ActionAnim"):Connect(function()
 		readAction(rig)
@@ -17587,62 +17405,6 @@ end
 ---------------------------------------------------------------------------
 -- Per-frame application
 ---------------------------------------------------------------------------
-
-local function inWater(position: Vector3): boolean
-	local region = Region3.new(position - Vector3.new(1, 2, 1), position + Vector3.new(1, 1, 1)):ExpandToGrid(4)
-	local ok, materials, occupancies = pcall(function()
-		return workspace.Terrain:ReadVoxels(region, 4)
-	end)
-	if not ok or not materials then
-		return false
-	end
-	for x, plane in materials do
-		for y, row in plane do
-			for z, material in row do
-				if material == Enum.Material.Water and occupancies[x][y][z] > 0.5 then
-					return true
-				end
-			end
-		end
-	end
-	return false
-end
-
--- What the character is doing right now (for the movement animations).
-local function locomotionInput(rig: Rig, root: BasePart, humanoid: Humanoid, clock: number, dt: number): Locomotion.Input
-	local anchored = root.Anchored
-	local velocity = if anchored then Vector3.zero else root.AssemblyLinearVelocity
-	local grounded, swimming, climbing = true, false, false
-	if rig.Model == localCharacter then
-		local state = humanoid:GetState()
-		swimming = state == Enum.HumanoidStateType.Swimming
-		climbing = state == Enum.HumanoidStateType.Climbing
-		grounded = humanoid.FloorMaterial ~= Enum.Material.Air
-	elseif not anchored then
-		local reach = humanoid.HipHeight + root.Size.Y / 2 + 0.8
-		grounded = workspace:Raycast(root.Position, Vector3.new(0, -reach, 0), rig.RayParams) ~= nil
-		if clock >= rig.WaterCheckAt then
-			rig.WaterCheckAt = clock + 0.25
-			rig.InWater = inWater(root.Position)
-		end
-		swimming = rig.InWater and not grounded
-	end
-	return {
-		Speed = Vector3.new(velocity.X, 0, velocity.Z).Magnitude,
-		VerticalSpeed = velocity.Y,
-		TurnRate = if anchored then 0 else root.AssemblyAngularVelocity.Y,
-		Grounded = grounded,
-		Swimming = swimming,
-		Climbing = climbing,
-		Sitting = humanoid.Sit,
-		Clock = clock,
-		Dt = dt,
-	}
-end
-
-local function footPosition(root: BasePart, humanoid: Humanoid): Vector3
-	return root.Position - Vector3.new(0, humanoid.HipHeight + root.Size.Y / 2 - 0.2, 0)
-end
 
 local function applyRig(rig: Rig, now: number, clock: number, dt: number)
 	local model = rig.Model
@@ -17670,23 +17432,6 @@ local function applyRig(rig: Rig, now: number, clock: number, dt: number)
 
 	local targets: { [string]: CFrame } = {}
 	local weights: { [string]: number } = {}
-
-	-- Base layer: our own movement animations on every joint.
-	local humanoid = model:FindFirstChildOfClass("Humanoid")
-	local root = model:FindFirstChild("HumanoidRootPart")
-	if humanoid and root and root:IsA("BasePart") then
-		local pose, landed, stepped = Locomotion.Update(rig.Loco, locomotionInput(rig, root, humanoid, clock, dt))
-		for joint, value in pose do
-			targets[joint] = toCFrame(value)
-			weights[joint] = 1
-		end
-		-- Cartoon dust: a puff on hard landings and under sprinting feet.
-		if landed and landed > 0.35 then
-			VFXController.Play("Puff", footPosition(root, humanoid), { Scale = 0.25 + 0.35 * landed, Count = 5 })
-		elseif stepped and rig.Loco.Run > 0.6 then
-			VFXController.Play("Puff", footPosition(root, humanoid), { Scale = 0.2, Count = 2 })
-		end
-	end
 
 	if activeHold and rig.HoldWeight > 0 then
 		local sway = math.sin(clock * 1.6) * (activeHold.Sway or 0)
@@ -17778,29 +17523,6 @@ local function applyRig(rig: Rig, now: number, clock: number, dt: number)
 		local neck = targets.Neck
 		if neck then
 			targets.Neck = neck * CFrame.Angles(0, math.rad(rig.LookYaw * 0.55), 0)
-		end
-	end
-
-	-- Hit recoil: the arms bounce back off whatever the swing hit.
-	local recoil = rig.Recoil
-	if recoil then
-		local t = clock - recoil.Start
-		if t > 0.35 then
-			rig.Recoil = nil
-		else
-			local a = recoil.Strength * math.exp(-t * 11) * math.cos(t * 28)
-			local function kick(joint: string, degrees: number)
-				local current = targets[joint]
-				if current then
-					targets[joint] = current * CFrame.Angles(math.rad(degrees * a), 0, 0)
-					weights[joint] = 1
-				end
-			end
-			kick("RightShoulder", 16)
-			kick("RightElbow", 20)
-			kick("LeftShoulder", 10)
-			kick("Waist", 6)
-			kick("Neck", 8)
 		end
 	end
 
@@ -18019,7 +17741,7 @@ return AnimationController
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="111">
+          <Item class="ModuleScript" referent="107">
             <Properties>
               <string name="Name">AudioController</string>
               <string name="Source"><![CDATA[--[[
@@ -18198,7 +17920,7 @@ return AudioController
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="112">
+          <Item class="ModuleScript" referent="108">
             <Properties>
               <string name="Name">BuildController</string>
               <string name="Source"><![CDATA[--[[
@@ -18937,7 +18659,7 @@ local function buildUI()
 	-- HUD button (left menu, under the bag).
 	local buildButton = Components.IconButton({
 		Icon = "🔨",
-		Caption = "Build",
+		Caption = "Build", Key = "B",
 		Color = Theme.Colors.Orange,
 		Parent = UIController.GetSlot("Left"),
 		LayoutOrder = 2,
@@ -19233,7 +18955,7 @@ return BuildController
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="113">
+          <Item class="ModuleScript" referent="109">
             <Properties>
               <string name="Name">CameraController</string>
               <string name="Source"><![CDATA[--[[
@@ -19468,7 +19190,7 @@ return CameraController
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="114">
+          <Item class="ModuleScript" referent="110">
             <Properties>
               <string name="Name">FarmController</string>
               <string name="Source"><![CDATA[--[[
@@ -19630,7 +19352,7 @@ return FarmController
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="115">
+          <Item class="ModuleScript" referent="111">
             <Properties>
               <string name="Name">FishingController</string>
               <string name="Source"><![CDATA[--[[
@@ -20343,7 +20065,7 @@ return FishingController
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="116">
+          <Item class="ModuleScript" referent="112">
             <Properties>
               <string name="Name">InputController</string>
               <string name="Source"><![CDATA[--[[
@@ -20515,7 +20237,7 @@ return InputController
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="117">
+          <Item class="ModuleScript" referent="113">
             <Properties>
               <string name="Name">InteractionController</string>
               <string name="Source"><![CDATA[--[[
@@ -21233,7 +20955,7 @@ return InteractionController
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="118">
+          <Item class="ModuleScript" referent="114">
             <Properties>
               <string name="Name">InventoryController</string>
               <string name="Source"><![CDATA[--[[
@@ -21325,7 +21047,7 @@ function InventoryController.Init()
 
 	Components.IconButton({
 		Icon = "🎒",
-		Caption = "Bag",
+		Caption = "Bag", Key = "I",
 		Color = Theme.Colors.Blue,
 		Parent = UIController.GetSlot("Left"),
 		LayoutOrder = 1,
@@ -21347,7 +21069,7 @@ return InventoryController
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="119">
+          <Item class="ModuleScript" referent="115">
             <Properties>
               <string name="Name">IslandController</string>
               <string name="Source"><![CDATA[--[[
@@ -21451,8 +21173,8 @@ local function refreshHome()
 	local xp = island.XP or 0
 	local needed = ProgressionConfig.IslandXPForLevel(level)
 	local theme = themeOf(island.Theme)
-	refs.HeaderLabel.Text = theme.Icon .. " MY ISLAND"
-	refs.Header.BackgroundColor3 = theme.Color
+	refs.HeaderLabel.Text = "MY ISLAND"
+	Components.SetCardHeader(refs.Header, theme.Color, theme.Icon)
 	refs.Name.Text = island.Name or "My Island"
 	refs.Title.Text = ("%s · %s · Lv %d"):format(theme.DisplayName, ProgressionConfig.GetIslandTitle(level), level)
 	refs.XPBar.Frame.Visible = true
@@ -21480,8 +21202,8 @@ local function refreshVisiting(userId: number)
 	local owner = Players:GetPlayerByUserId(userId)
 	local ownerName = (model and model:GetAttribute("OwnerName")) or (owner and owner.DisplayName) or "Someone"
 	local theme = themeOf(model and model:GetAttribute("Theme"))
-	refs.HeaderLabel.Text = "👋 VISITING"
-	refs.Header.BackgroundColor3 = theme.Color
+	refs.HeaderLabel.Text = "VISITING"
+	Components.SetCardHeader(refs.Header, theme.Color, "👋")
 	refs.Name.Text = tostring((model and model:GetAttribute("IslandName")) or (ownerName .. "'s Island"))
 	refs.Title.Text = ("%s's %s island · Lv %s"):format(ownerName, theme.DisplayName, tostring(model and model:GetAttribute("IslandLevel") or 1))
 	refs.XPBar.Frame.Visible = false
@@ -21509,30 +21231,15 @@ local function refresh()
 end
 
 local function buildCard(parent: Frame): Refs
-	local card = Create("Frame", {
-		Name = "IslandPanel",
+	local card, header, body, headerLabel = Components.Card({
+		Title = "MY ISLAND",
+		Icon = "🏝️",
+		Color = Theme.Colors.Level,
 		Size = UDim2.new(1, 0, 0, PANEL_HEIGHT),
-		BackgroundColor3 = Theme.Colors.Panel,
-		LayoutOrder = 1,
 		Parent = parent,
+		LayoutOrder = 1,
 	})
-	Components.Corner(card)
-	Components.Stroke(card)
-	Components.Gradient(card, Color3.new(1, 1, 1), Theme.Colors.PanelAlt)
-
-	local header = Create("Frame", { Name = "Header", Size = UDim2.new(1, 0, 0, 40), BackgroundColor3 = Theme.Colors.Level, Parent = card })
-	Components.Corner(header)
-	Components.Gradient(header, Color3.new(1, 1, 1), Color3.fromRGB(200, 200, 200))
-	local headerLabel = Components.Label({
-		Text = "🏝️ MY ISLAND",
-		Size = UDim2.new(1, -50, 1, 0),
-		Position = UDim2.fromOffset(12, 0),
-		TextXAlignment = Enum.TextXAlignment.Left,
-		TextColor3 = Theme.Colors.TextLight,
-		TextSize = Theme.TextSize.Medium,
-		Parent = header,
-	})
-	Components.TextStroke(headerLabel)
+	card.Name = "IslandPanel"
 	local toggle = Components.Button({
 		Name = "Toggle",
 		Text = "–",
@@ -21547,7 +21254,6 @@ local function buildCard(parent: Frame): Refs
 	})
 	Components.Corner(toggle, UDim.new(1, 0))
 
-	local body = Create("Frame", { Name = "Body", Size = UDim2.new(1, -20, 1, -50), Position = UDim2.fromOffset(10, 46), BackgroundTransparency = 1, Parent = card })
 	local name = Components.Label({ Size = UDim2.new(1, 0, 0, 26), TextScaled = true, Text = "", Parent = body })
 	local title = Components.Label({ Size = UDim2.new(1, 0, 0, 18), Position = UDim2.fromOffset(0, 26), Font = Theme.Fonts.Bold, TextSize = Theme.TextSize.Small, TextColor3 = Theme.Colors.TextMuted, TextScaled = true, Text = "", Parent = body })
 	local xpBar = Components.ProgressBar({ Size = UDim2.new(1, 0, 0, 12), Position = UDim2.fromOffset(0, 50), Color = Theme.Colors.Level, Parent = body })
@@ -21864,7 +21570,7 @@ return IslandController
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="120">
+          <Item class="ModuleScript" referent="116">
             <Properties>
               <string name="Name">IslandCreatorController</string>
               <string name="Source"><![CDATA[--[[
@@ -22348,7 +22054,7 @@ return IslandCreatorController
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="121">
+          <Item class="ModuleScript" referent="117">
             <Properties>
               <string name="Name">MovementController</string>
               <string name="Source"><![CDATA[--[[
@@ -22411,7 +22117,7 @@ return MovementController
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="122">
+          <Item class="ModuleScript" referent="118">
             <Properties>
               <string name="Name">PlayersController</string>
               <string name="Source"><![CDATA[--[[
@@ -22605,7 +22311,7 @@ function PlayersController.Init()
 
 	Components.IconButton({
 		Icon = "👥",
-		Caption = "Players",
+		Caption = "Players", Key = "P",
 		Color = Theme.Colors.Purple,
 		Parent = UIController.GetSlot("Left"),
 		LayoutOrder = 3,
@@ -22633,7 +22339,7 @@ return PlayersController
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="123">
+          <Item class="ModuleScript" referent="119">
             <Properties>
               <string name="Name">QuestController</string>
               <string name="Source"><![CDATA[--[[
@@ -22666,7 +22372,6 @@ local AudioController = require(script.Parent.AudioController)
 local Components = require(Client.UI.Components)
 local Theme = require(Client.UI.Theme)
 
-local Create = Components.Create
 
 local MAX_TASKS = 6
 local ROW_HEIGHT = 20
@@ -22781,44 +22486,29 @@ local function refresh()
 end
 
 local function buildCard(parent: Frame): Refs
-	local card = Create("Frame", {
-		Name = "QuestCard",
+	local card, header, body = Components.Card({
+		Title = "QUEST",
+		Icon = "📜",
+		Color = Theme.Colors.Purple,
 		Size = UDim2.new(1, 0, 0, 250),
-		BackgroundColor3 = Theme.Colors.Panel,
-		LayoutOrder = 2,
 		Parent = parent,
+		LayoutOrder = 2,
+		HeaderHeight = HEADER_HEIGHT,
 	})
-	Components.Corner(card)
-	Components.Stroke(card)
-
-	local header = Create("Frame", { Name = "Header", Size = UDim2.new(1, 0, 0, HEADER_HEIGHT), BackgroundColor3 = Theme.Colors.Purple, Parent = card })
-	Components.Corner(header)
-	local headerLabel = Components.Label({
-		Text = "📜 QUEST",
-		Size = UDim2.new(1, -50, 1, 0),
-		Position = UDim2.fromOffset(12, 0),
-		TextXAlignment = Enum.TextXAlignment.Left,
-		TextColor3 = Theme.Colors.TextLight,
-		TextSize = Theme.TextSize.Medium,
-		Parent = header,
-	})
-	Components.TextStroke(headerLabel)
-	local toggle = Create("TextButton", {
+	card.Name = "QuestCard"
+	local toggle = Components.Button({
 		Name = "Toggle",
-		Size = UDim2.fromOffset(32, 32),
-		Position = UDim2.new(1, -4, 0.5, 0),
-		AnchorPoint = Vector2.new(1, 0.5),
-		BackgroundColor3 = Theme.Colors.Panel,
 		Text = "–",
-		Font = Theme.Fonts.Title,
+		Color = Theme.Colors.Panel,
+		TextColor = Theme.Colors.Text,
+		Size = UDim2.fromOffset(30, 30),
+		Position = UDim2.new(1, -5, 0.5, 0),
+		AnchorPoint = Vector2.new(1, 0.5),
 		TextSize = Theme.TextSize.Large,
-		TextColor3 = Theme.Colors.Text,
 		Parent = header,
+		Flat = true,
 	})
 	Components.Corner(toggle, UDim.new(1, 0))
-	Components.Stroke(toggle, Theme.Colors.Outline, 2)
-
-	local body = Create("Frame", { Name = "Body", Size = UDim2.new(1, -20, 1, -(HEADER_HEIGHT + 8)), Position = UDim2.fromOffset(10, HEADER_HEIGHT + 4), BackgroundTransparency = 1, Parent = card })
 	local questName = Components.Label({ Size = UDim2.new(1, 0, 0, 22), TextSize = Theme.TextSize.Medium, TextScaled = true, Text = "", Parent = body })
 	local rows, counts = {}, {}
 	for index = 1, MAX_TASKS do
@@ -22886,7 +22576,7 @@ return QuestController
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="124">
+          <Item class="ModuleScript" referent="120">
             <Properties>
               <string name="Name">ShopController</string>
               <string name="Source"><![CDATA[--[[
@@ -23038,9 +22728,13 @@ local function sellRow(index: number): Frame
 		return row
 	end
 	row = Create("Frame", { Name = "Row", Size = UDim2.new(1, -10, 0, 58), BackgroundColor3 = Theme.Colors.PanelAlt, Parent = refs.SellList })
-	Components.Corner(row, Theme.SmallCorner)
+	Components.Corner(row, UDim.new(0, 14))
 	Components.Stroke(row, Theme.Colors.Outline, 2)
-	Components.Label({ Name = "Icon", Size = UDim2.fromOffset(48, 48), Position = UDim2.fromOffset(6, 5), TextSize = 34, Text = "", Parent = row })
+	Components.Gloss(row, 0.3)
+	local bubble = Create("Frame", { Name = "IconBubble", Size = UDim2.fromOffset(46, 46), Position = UDim2.fromOffset(7, 6), BackgroundColor3 = Theme.Colors.Panel, Parent = row })
+	Components.Corner(bubble, UDim.new(1, 0))
+	Components.Stroke(bubble, Theme.Colors.PanelDark, 2)
+	Components.Label({ Name = "Icon", Size = UDim2.fromOffset(48, 48), Position = UDim2.fromOffset(6, 5), TextSize = 32, Text = "", ZIndex = 2, Parent = row })
 	Components.Label({ Name = "Title", Size = UDim2.new(0.45, -60, 0, 26), Position = UDim2.fromOffset(60, 4), TextXAlignment = Enum.TextXAlignment.Left, TextSize = Theme.TextSize.Medium, Text = "", Parent = row })
 	Components.Label({ Name = "Count", Size = UDim2.new(0.45, -60, 0, 20), Position = UDim2.fromOffset(60, 30), TextXAlignment = Enum.TextXAlignment.Left, Font = Theme.Fonts.Bold, TextSize = 13, TextColor3 = Theme.Colors.TextMuted, Text = "", Parent = row })
 	Components.Label({ Name = "Price", Size = UDim2.new(0.25, 0, 1, 0), Position = UDim2.fromScale(0.42, 0), Font = Theme.Fonts.Bold, TextSize = Theme.TextSize.Small, Text = "", Parent = row })
@@ -23153,9 +22847,13 @@ local function buyCard(index: number): Frame
 		return card
 	end
 	card = Create("Frame", { Name = "Card", BackgroundColor3 = Theme.Colors.PanelAlt, Parent = refs.BuyList })
-	Components.Corner(card, Theme.SmallCorner)
-	Components.Stroke(card, Theme.Colors.Outline, 2)
-	Components.Label({ Name = "Icon", Size = UDim2.fromOffset(52, 52), Position = UDim2.fromOffset(6, 6), TextSize = 38, Text = "", Parent = card })
+	Components.Corner(card, UDim.new(0, 16))
+	Components.Stroke(card, Theme.Colors.Outline, 2.5)
+	Components.Gloss(card, 0.3)
+	local bubble = Create("Frame", { Name = "IconBubble", Size = UDim2.fromOffset(52, 52), Position = UDim2.fromOffset(6, 6), BackgroundColor3 = Theme.Colors.Panel, Parent = card })
+	Components.Corner(bubble, UDim.new(1, 0))
+	Components.Stroke(bubble, Theme.Colors.PanelDark, 2)
+	Components.Label({ Name = "Icon", Size = UDim2.fromOffset(52, 52), Position = UDim2.fromOffset(6, 6), TextSize = 34, Text = "", ZIndex = 2, Parent = card })
 	Components.Label({ Name = "Title", Size = UDim2.new(1, -66, 0, 24), Position = UDim2.fromOffset(60, 8), TextXAlignment = Enum.TextXAlignment.Left, TextSize = Theme.TextSize.Medium, TextScaled = true, Text = "", Parent = card })
 	Components.Label({ Name = "Price", Size = UDim2.new(1, -66, 0, 22), Position = UDim2.fromOffset(60, 32), TextXAlignment = Enum.TextXAlignment.Left, Font = Theme.Fonts.Bold, TextSize = Theme.TextSize.Small, Text = "", Parent = card })
 	Components.Label({
@@ -23522,7 +23220,7 @@ return ShopController
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="125">
+          <Item class="ModuleScript" referent="121">
             <Properties>
               <string name="Name">SocialController</string>
               <string name="Source"><![CDATA[--[[
@@ -23702,7 +23400,7 @@ function SocialController.Init()
 		Net.FireServer("SettingsRequest", { CameraShake = ClientState.Get("Settings", "CameraShake") == false })
 	end })
 
-	Components.IconButton({ Icon = "😀", Caption = "Emotes", Color = Theme.Colors.Pink, Parent = UIController.GetSlot("Left"), LayoutOrder = 4, OnClick = toggleEmotes })
+	Components.IconButton({ Icon = "😀", Caption = "Emotes", Key = "T", Color = Theme.Colors.Pink, Parent = UIController.GetSlot("Left"), LayoutOrder = 4, OnClick = toggleEmotes })
 	Components.IconButton({ Icon = "⚙️", Caption = "Settings", Color = Theme.Colors.Glass, Parent = UIController.GetSlot("Left"), LayoutOrder = 5, OnClick = openSettings })
 end
 
@@ -23723,7 +23421,7 @@ return SocialController
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="126">
+          <Item class="ModuleScript" referent="122">
             <Properties>
               <string name="Name">ToolController</string>
               <string name="Source"><![CDATA[--[[
@@ -23928,7 +23626,7 @@ return ToolController
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="127">
+          <Item class="ModuleScript" referent="123">
             <Properties>
               <string name="Name">TradeController</string>
               <string name="Source"><![CDATA[--[[
@@ -24293,7 +23991,7 @@ return TradeController
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="128">
+          <Item class="ModuleScript" referent="124">
             <Properties>
               <string name="Name">UIController</string>
               <string name="Source"><![CDATA[--[[
@@ -24307,6 +24005,10 @@ return TradeController
 	windows. Every UI in the game is created through here once and updated in
 	place when replicated state changes (spec §82, §116).
 
+	WINDOWS: while any window is open the world behind it is dimmed and
+	softly blurred (click the dim area to close windows — it sends the
+	Cancel action). Build mode and the island creator have their own look.
+
 	Automatic reward feedback (spec §68): whenever the replicated Coins value
 	rises, the counter animates, bounces and a "+N 🪙" floats up with a coin
 	sound; whenever an item count rises, "+N Wood" floats above the hotbar.
@@ -24314,6 +24016,7 @@ return TradeController
 ]]
 
 local GuiService = game:GetService("GuiService")
+local Lighting = game:GetService("Lighting")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
@@ -24327,6 +24030,7 @@ local Format = require(Shared.Util.Format)
 local Client = script.Parent.Parent
 local ClientState = require(Client.ClientState)
 local AudioController = require(script.Parent.AudioController)
+local InputController = require(script.Parent.InputController)
 local CameraController = require(script.Parent.CameraController)
 local Theme = require(Client.UI.Theme)
 local Components = require(Client.UI.Components)
@@ -24343,6 +24047,13 @@ local modalLayer: Frame
 local overlayLayer: Frame
 local openModals: { [string]: boolean } = {}
 local lastItems: { [string]: number }? = nil
+local backdrop: TextButton
+local blur: BlurEffect
+local dimmed = false
+local lastLevel: number? = nil
+
+-- Screens with their own full-screen look (no dim / blur behind them).
+local NO_BACKDROP = { Build = true, IslandCreator = true }
 
 local function updateScale()
 	local camera = workspace.CurrentCamera
@@ -24400,11 +24111,42 @@ local function watchCurrency(key: string, label: TextLabel, pill: Frame, color: 
 	end)
 end
 
-local function refreshIslandPill()
-	local level = ClientState.Get("Island", "Level") or 1
-	local xp = ClientState.Get("Island", "XP") or 0
-	hud.IslandLabel.Text = "Island Lv " .. tostring(level)
-	hud.IslandXP.SetProgress(xp / ProgressionConfig.IslandXPForLevel(level), true)
+local function refreshPlayerCard()
+	local level = ClientState.Get("Level") or 1
+	local xp = ClientState.Get("XP") or 0
+	local needed = ProgressionConfig.PlayerXPForLevel(level)
+	hud.PlayerLevel.Text = tostring(level)
+	hud.PlayerXP.SetProgress(xp / math.max(1, needed), true)
+	hud.PlayerXPText.Text = ("%s / %s XP"):format(Format.Abbreviate(xp), Format.Abbreviate(needed))
+	if lastLevel and level > lastLevel then
+		Components.Bounce(hud.PlayerLevelBadge, 0.5)
+	end
+	lastLevel = level
+end
+
+local function refreshBackdrop()
+	local wanted = false
+	for name in openModals do
+		if not NO_BACKDROP[name] then
+			wanted = true
+		end
+	end
+	if wanted == dimmed then
+		return
+	end
+	dimmed = wanted
+	backdrop.Visible = true
+	local info = TweenInfo.new(0.25, Enum.EasingStyle.Quad)
+	local fade = TweenService:Create(backdrop, info, { BackgroundTransparency = if wanted then 0.55 else 1 })
+	fade:Play()
+	TweenService:Create(blur, info, { Size = if wanted then 12 else 0 }):Play()
+	if not wanted then
+		fade.Completed:Once(function()
+			if not dimmed then
+				backdrop.Visible = false
+			end
+		end)
+	end
 end
 
 local function watchItems()
@@ -24487,6 +24229,7 @@ function UIController.SetModalOpen(name: string, open: boolean)
 		openModals[name] = nil
 	end
 	AudioController.Play(if open then "UIOpen" else "UIClose")
+	refreshBackdrop()
 end
 
 function UIController.IsAnyModalOpen(): boolean
@@ -24528,6 +24271,33 @@ function UIController.Init()
 		ZIndex = 10,
 		Parent = designRoot,
 	})
+	-- Dim layer behind windows (under every window in the modal layer).
+	backdrop = Components.Create("TextButton", {
+		Name = "Backdrop",
+		Size = UDim2.new(1, 400, 1, 400),
+		Position = UDim2.fromOffset(-200, -200),
+		BackgroundColor3 = Color3.fromRGB(12, 16, 30),
+		BackgroundTransparency = 1,
+		AutoButtonColor = false,
+		Text = "",
+		Visible = false,
+		ZIndex = 0,
+		Parent = modalLayer,
+	})
+	backdrop.Activated:Connect(function()
+		InputController.Trigger("Cancel")
+	end)
+	blur = Instance.new("BlurEffect")
+	blur.Name = "UIBlur"
+	blur.Size = 0
+	blur.Parent = Lighting
+	hud.PlayerName.Text = Players.LocalPlayer.DisplayName
+	task.spawn(function()
+		local ok, image = pcall(Players.GetUserThumbnailAsync, Players, Players.LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size150x150)
+		if ok then
+			hud.PlayerAvatar.Image = image
+		end
+	end)
 	local overlay = Components.Create("Frame", {
 		Name = "Overlay",
 		Size = UDim2.fromScale(1, 1),
@@ -24572,7 +24342,8 @@ function UIController.Start()
 	watchServerHealth()
 	watchCurrency("Coins", hud.CoinsLabel, hud.CoinsPill, Theme.Colors.Coins, "🪙")
 	watchCurrency("Gems", hud.GemsLabel, hud.GemsPill, Theme.Colors.Gems, "💎")
-	ClientState.Observe("Island", refreshIslandPill)
+	ClientState.Observe("Level", refreshPlayerCard)
+	ClientState.Observe("XP", refreshPlayerCard)
 	watchItems()
 
 	Net.OnClientEvent("Notify", function(payload: any)
@@ -24591,7 +24362,7 @@ return UIController
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="129">
+          <Item class="ModuleScript" referent="125">
             <Properties>
               <string name="Name">VFXController</string>
               <string name="Source"><![CDATA[--[[
@@ -25087,7 +24858,7 @@ return VFXController
             </Properties>
           </Item>
         </Item>
-        <Item class="LocalScript" referent="130">
+        <Item class="LocalScript" referent="126">
           <Properties>
             <string name="Name">Main</string>
             <string name="Source"><![CDATA[--[[
@@ -25188,11 +24959,11 @@ end
 ]]></string>
           </Properties>
         </Item>
-        <Item class="Folder" referent="131">
+        <Item class="Folder" referent="127">
           <Properties>
             <string name="Name">UI</string>
           </Properties>
-          <Item class="ModuleScript" referent="132">
+          <Item class="ModuleScript" referent="128">
             <Properties>
               <string name="Name">Components</string>
               <string name="Source"><![CDATA[--[[
@@ -25301,6 +25072,58 @@ function Components.Gloss(parent: Instance, strength: number?): UIGradient
 	})
 end
 
+-- A thin glossy highlight along the top inside edge (sits above the text line).
+function Components.Shine(parent: GuiObject, inset: number?)
+	local pad = inset or 8
+	local shine = Create("Frame", {
+		Name = "Shine",
+		Size = UDim2.new(1, -pad * 2, 0, 3),
+		Position = UDim2.fromOffset(pad, 3),
+		BackgroundColor3 = Color3.new(1, 1, 1),
+		BackgroundTransparency = 0.45,
+		BorderSizePixel = 0,
+		Active = false,
+		Parent = parent,
+	})
+	Components.Corner(shine, UDim.new(1, 0))
+	return shine
+end
+
+-- A darker "3D lip" along the bottom inside edge of a card or pill.
+function Components.Lip(parent: GuiObject, color: Color3, height: number?)
+	local h = height or 6
+	local lip = Create("Frame", {
+		Name = "Lip",
+		Size = UDim2.new(1, 0, 0, h),
+		Position = UDim2.new(0, 0, 1, -h),
+		BackgroundColor3 = color,
+		BorderSizePixel = 0,
+		Active = false,
+		Parent = parent,
+	})
+	Components.Corner(lip, Theme.Corner)
+	return lip
+end
+
+-- Soft, layered drop shadow as SIBLINGS behind `target` (inside `container`).
+function Components.SoftShadow(container: Instance, target: GuiObject, radius: UDim?)
+	for index, spec in { { 6, 0.8 }, { 12, 0.88 }, { 20, 0.94 } } do
+		local shadow = Create("Frame", {
+			Name = "Shadow" .. index,
+			Size = target.Size + UDim2.fromOffset(spec[1], spec[1]),
+			Position = target.Position + UDim2.fromOffset(0, 4 + spec[1] * 0.3),
+			AnchorPoint = target.AnchorPoint,
+			BackgroundColor3 = Theme.Colors.Shadow,
+			BackgroundTransparency = spec[2],
+			ZIndex = target.ZIndex - 1,
+			Active = false,
+			Parent = container,
+		})
+		shadow.Position -= UDim2.fromOffset(spec[1] / 2, spec[1] / 2)
+		Components.Corner(shadow, UDim.new(0, (radius or Theme.Corner).Offset + spec[1] / 2))
+	end
+end
+
 -- Springy scale helper (one UIScale per object, shared with Bounce / PopIn).
 local function scaleOf(guiObject: GuiObject): UIScale
 	local scale = guiObject:FindFirstChild("BounceScale")
@@ -25400,6 +25223,9 @@ function Components.Button(props: ButtonProps): TextButton
 	Components.Stroke(button, Theme.Colors.Outline, if props.Flat then 2 else 3)
 	Components.Gloss(button, if props.Flat then 0.5 else 1)
 	if not props.Flat then
+		Components.Shine(button, 10)
+	end
+	if not props.Flat then
 		Components.TextStroke(button, Theme.Colors.Outline, 1.6)
 		-- Darker bevel along the bottom edge gives the "chunky" 3D look.
 		local bevel = Create("Frame", {
@@ -25455,16 +25281,29 @@ function Components.Button(props: ButtonProps): TextButton
 end
 
 -- Round icon button (HUD menu): big emoji + small caption under it.
-function Components.IconButton(props: { Icon: string, Caption: string, Color: Color3, Parent: Instance, LayoutOrder: number?, OnClick: () -> () }): TextButton
+function Components.IconButton(props: { Icon: string, Caption: string, Color: Color3, Parent: Instance, LayoutOrder: number?, OnClick: () -> (), Key: string? }): TextButton
 	local button = Components.Button({
 		Name = props.Caption .. "Button",
 		Text = props.Icon,
 		Color = props.Color,
-		Size = UDim2.fromOffset(70, 70),
-		TextSize = 36,
+		Size = UDim2.fromOffset(64, 64),
+		TextSize = 34,
 		Parent = props.Parent,
 		OnClick = props.OnClick,
 	})
+	if props.Key then
+		local badge = Create("Frame", {
+			Name = "KeyBadge",
+			Size = UDim2.fromOffset(22, 22),
+			Position = UDim2.new(1, -14, 0, -8),
+			BackgroundColor3 = Theme.Colors.Panel,
+			ZIndex = 3,
+			Parent = button,
+		})
+		Components.Corner(badge, UDim.new(1, 0))
+		Components.Stroke(badge, Theme.Colors.Outline, 2)
+		Components.Label({ Text = props.Key, Size = UDim2.fromScale(1, 1), Font = Theme.Fonts.Heavy, TextSize = 13, TextColor3 = Theme.Colors.Text, ZIndex = 4, Parent = badge })
+	end
 	button.LayoutOrder = props.LayoutOrder or 0
 	Components.Corner(button, UDim.new(0, 22))
 	local bevel = button:FindFirstChild("Bevel")
@@ -25474,10 +25313,10 @@ function Components.IconButton(props: { Icon: string, Caption: string, Color: Co
 	local caption = Components.Label({
 		Name = "Caption",
 		Text = props.Caption,
-		Size = UDim2.new(1, 12, 0, 18),
-		Position = UDim2.new(0.5, 0, 1, 2),
+		Size = UDim2.new(1, 16, 0, 18),
+		Position = UDim2.new(0.5, 0, 1, 3),
 		AnchorPoint = Vector2.new(0.5, 0),
-		TextSize = 14,
+		TextSize = 15,
 		TextColor3 = Theme.Colors.TextLight,
 		Parent = button,
 	})
@@ -25561,9 +25400,12 @@ function Components.ProgressBar(props: { Size: UDim2, Position: UDim2?, Color: C
 	return { Frame = frame, Fill = fill, SetProgress = setProgress }
 end
 
--- Rounded cream window with a drop shadow, gradient header and close button.
--- Returns (window, content, closeButton). `window` is a transparent container
--- (shadow + body) so it can be shown / hidden / bounced as one piece.
+-- A cream "paper" window: soft layered shadow, glossy coloured header band
+-- with a highlight line and decorative bubbles, big Fredoka title, and a
+-- round red close button that overhangs the top-right corner (it spins on
+-- hover). Returns (window, content, closeButton). `window` is a transparent
+-- container (shadows + body + close) so it can be shown / hidden / bounced
+-- as one piece.
 function Components.Panel(props: { Title: string, Size: UDim2, Parent: Instance?, OnClose: (() -> ())?, Color: Color3? }): (Frame, Frame, TextButton)
 	local headerColor = props.Color or Theme.Colors.Header
 	local window = Create("Frame", {
@@ -25573,81 +25415,201 @@ function Components.Panel(props: { Title: string, Size: UDim2, Parent: Instance?
 		BackgroundTransparency = 1,
 		Parent = props.Parent,
 	})
-	local shadow = Create("Frame", {
-		Name = "Shadow",
-		Size = UDim2.new(1, 8, 1, 8),
-		Position = UDim2.fromOffset(-2, 6),
-		BackgroundColor3 = Theme.Colors.Shadow,
-		BackgroundTransparency = 0.72,
-		Parent = window,
-	})
-	Components.Corner(shadow, UDim.new(0, 22))
 	local body = Create("Frame", {
 		Name = "Body",
 		Size = UDim2.fromScale(1, 1),
 		BackgroundColor3 = Theme.Colors.Panel,
+		ZIndex = 2,
 		Parent = window,
 	})
-	Components.Corner(body)
+	Components.SoftShadow(window, body, UDim.new(0, 24))
+	Components.Corner(body, UDim.new(0, 24))
 	Components.Stroke(body, Theme.Colors.Outline, 4)
-	Components.Gradient(body, Color3.new(1, 1, 1), Color3.fromRGB(242, 234, 218))
+	Components.Gradient(body, Color3.new(1, 1, 1), Color3.fromRGB(240, 230, 210))
 
 	local header = Create("Frame", {
 		Name = "Header",
-		Size = UDim2.new(1, 0, 0, 56),
+		Size = UDim2.new(1, 0, 0, 62),
 		BackgroundColor3 = headerColor,
 		Parent = body,
 	})
-	Components.Corner(header)
+	Components.Corner(header, UDim.new(0, 24))
 	Components.Gloss(header)
-	-- Square off the header's bottom corners.
+	-- Square off the header's bottom corners (matching the gloss shade there).
 	local squareOff = Create("Frame", {
-		Size = UDim2.new(1, 0, 0, 16),
-		Position = UDim2.new(0, 0, 1, -16),
+		Size = UDim2.new(1, 0, 0, 24),
+		Position = UDim2.new(0, 0, 1, -24),
 		BackgroundColor3 = headerColor,
 		BorderSizePixel = 0,
 		Parent = header,
 	})
-	Components.Gradient(squareOff, Color3.fromRGB(199, 199, 199), Color3.fromRGB(189, 189, 189))
+	Components.Gradient(squareOff, Color3.fromRGB(196, 196, 196), Color3.fromRGB(189, 189, 189))
+	-- Dark seam under the header and a highlight line along its top.
+	Create("Frame", {
+		Name = "Seam",
+		Size = UDim2.new(1, 0, 0, 4),
+		Position = UDim2.new(0, 0, 1, 0),
+		BackgroundColor3 = Theme.Darken(headerColor, 0.35),
+		BorderSizePixel = 0,
+		Parent = header,
+	})
+	Components.Shine(header, 18)
+	-- Decorative bubbles on the right of the header.
+	for index, spec in { { 34, -96, 8 }, { 18, -128, 30 }, { 12, -70, 38 } } do
+		local bubble = Create("Frame", {
+			Name = "Bubble" .. index,
+			Size = UDim2.fromOffset(spec[1], spec[1]),
+			Position = UDim2.new(1, spec[2], 0, spec[3]),
+			BackgroundColor3 = Color3.new(1, 1, 1),
+			BackgroundTransparency = 0.78,
+			Parent = header,
+		})
+		Components.Corner(bubble, UDim.new(1, 0))
+	end
 	local title = Components.Label({
 		Name = "Title",
 		Text = props.Title,
-		Size = UDim2.new(1, -140, 1, 0),
-		Position = UDim2.fromOffset(20, 0),
+		Size = UDim2.new(1, -170, 1, -6),
+		Position = UDim2.fromOffset(24, 0),
 		TextXAlignment = Enum.TextXAlignment.Left,
-		TextSize = Theme.TextSize.Title,
+		TextSize = Theme.TextSize.Title + 2,
 		TextColor3 = Theme.Colors.TextLight,
+		TextWrapped = false,
+		TextTruncate = Enum.TextTruncate.AtEnd,
 		Parent = header,
 	})
-	Components.TextStroke(title, Theme.Colors.Outline, 2.5)
+	Components.TextStroke(title, Theme.Colors.Outline, 3)
 
+	-- Round close button overhanging the corner.
 	local closeButton = Components.Button({
 		Name = "Close",
 		Text = "✕",
 		Color = Theme.Colors.Red,
-		Size = UDim2.fromOffset(44, 44),
-		Position = UDim2.new(1, -8, 0, 6),
+		Size = UDim2.fromOffset(50, 50),
+		Position = UDim2.new(1, 14, 0, -14),
 		AnchorPoint = Vector2.new(1, 0),
-		TextSize = Theme.TextSize.Large,
-		Parent = header,
+		TextSize = Theme.TextSize.Large + 2,
+		Parent = window,
 		OnClick = props.OnClose,
 	})
+	closeButton.ZIndex = 5
+	Components.Corner(closeButton, UDim.new(1, 0))
+	local bevel = closeButton:FindFirstChild("Bevel")
+	if bevel then
+		Components.Corner(bevel, UDim.new(1, 0))
+	end
+	local shine = closeButton:FindFirstChild("Shine")
+	if shine then
+		shine:Destroy()
+	end
+	closeButton.MouseEnter:Connect(function()
+		TweenService:Create(closeButton, TweenInfo.new(0.25, Enum.EasingStyle.Back), { Rotation = 90 }):Play()
+	end)
+	closeButton.MouseLeave:Connect(function()
+		TweenService:Create(closeButton, TweenInfo.new(0.25, Enum.EasingStyle.Back), { Rotation = 0 }):Play()
+	end)
 
 	local content = Create("Frame", {
 		Name = "Content",
-		Size = UDim2.new(1, -24, 1, -72),
-		Position = UDim2.fromOffset(12, 64),
+		Size = UDim2.new(1, -32, 1, -84),
+		Position = UDim2.fromOffset(16, 74),
 		BackgroundTransparency = 1,
 		Parent = body,
 	})
 	return window, content, closeButton
 end
 
+-- A HUD card (right side panels): cream body with a coloured header tab,
+-- glossy header, 3D lip, icon bubble and title. Returns (card, header, body, titleLabel).
+function Components.Card(props: { Title: string, Icon: string, Color: Color3, Size: UDim2, Parent: Instance?, LayoutOrder: number?, HeaderHeight: number? }): (Frame, Frame, Frame, TextLabel)
+	local headerHeight = props.HeaderHeight or 40
+	local card = Create("Frame", {
+		Name = "Card",
+		Size = props.Size,
+		BackgroundColor3 = Theme.Colors.Panel,
+		LayoutOrder = props.LayoutOrder or 0,
+		ClipsDescendants = false,
+		Parent = props.Parent,
+	})
+	Components.Corner(card)
+	Components.Stroke(card, Theme.Colors.Outline, 3)
+	Components.Gradient(card, Color3.new(1, 1, 1), Color3.fromRGB(242, 232, 212))
+	local header = Create("Frame", {
+		Name = "Header",
+		Size = UDim2.new(1, 0, 0, headerHeight),
+		BackgroundColor3 = props.Color,
+		Parent = card,
+	})
+	Components.Corner(header)
+	Components.Gloss(header)
+	Components.Shine(header, 14)
+	local squareOff = Create("Frame", {
+		Name = "SquareOff",
+		Size = UDim2.new(1, 0, 0, 12),
+		Position = UDim2.new(0, 0, 1, -12),
+		BackgroundColor3 = props.Color,
+		BorderSizePixel = 0,
+		Parent = header,
+	})
+	Components.Gradient(squareOff, Color3.fromRGB(194, 194, 194), Color3.fromRGB(189, 189, 189))
+	local bubble = Create("Frame", {
+		Name = "IconBubble",
+		Size = UDim2.fromOffset(headerHeight + 6, headerHeight + 6),
+		Position = UDim2.new(0, -8, 0.5, 0),
+		AnchorPoint = Vector2.new(0, 0.5),
+		BackgroundColor3 = Theme.Colors.Panel,
+		ZIndex = 2,
+		Parent = header,
+	})
+	Components.Corner(bubble, UDim.new(1, 0))
+	Components.Stroke(bubble, Theme.Colors.Outline, 3)
+	Components.Label({ Text = props.Icon, Size = UDim2.fromScale(1, 1), TextSize = headerHeight - 12, ZIndex = 3, Parent = bubble })
+	local title = Components.Label({
+		Name = "Title",
+		Text = props.Title,
+		Size = UDim2.new(1, -(headerHeight + 50), 1, 0),
+		Position = UDim2.fromOffset(headerHeight + 4, 0),
+		TextXAlignment = Enum.TextXAlignment.Left,
+		TextColor3 = Theme.Colors.TextLight,
+		TextSize = Theme.TextSize.Medium + 1,
+		TextWrapped = false,
+		TextTruncate = Enum.TextTruncate.AtEnd,
+		Parent = header,
+	})
+	Components.TextStroke(title, Theme.Colors.Outline, 2.5)
+	local body = Create("Frame", {
+		Name = "Body",
+		Size = UDim2.new(1, -20, 1, -(headerHeight + 12)),
+		Position = UDim2.fromOffset(10, headerHeight + 6),
+		BackgroundTransparency = 1,
+		Parent = card,
+	})
+	return card, header, body, title
+end
+
+-- Recolour a Card header (and set its icon).
+function Components.SetCardHeader(header: Frame, color: Color3, icon: string?)
+	header.BackgroundColor3 = color
+	local squareOff = header:FindFirstChild("SquareOff")
+	if squareOff and squareOff:IsA("Frame") then
+		squareOff.BackgroundColor3 = color
+	end
+	local bubble = header:FindFirstChild("IconBubble")
+	local label = bubble and bubble:FindFirstChildOfClass("TextLabel")
+	if icon and label then
+		label.Text = icon
+	end
+end
+
 -- A row of tab buttons. onSelect(id) is called on click; returns { [id] = button } and a setter.
 function Components.Tabs(parent: Instance, tabs: { { Id: string, Text: string } }, width: number, onSelect: (string) -> ()): ({ [string]: TextButton }, (string) -> ())
-	local row = Create("Frame", { Name = "Tabs", Size = UDim2.new(1, 0, 0, 40), BackgroundTransparency = 1, Parent = parent }, {
-		Create("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder }),
+	-- A recessed "segmented control" tray holding the tab buttons.
+	local row = Create("Frame", { Name = "Tabs", Size = UDim2.new(0, #tabs * (width + 6) + 6, 0, 48), BackgroundColor3 = Theme.Colors.Inset, Parent = parent }, {
+		Create("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, Padding = UDim.new(0, 6), VerticalAlignment = Enum.VerticalAlignment.Center, SortOrder = Enum.SortOrder.LayoutOrder }),
+		Create("UIPadding", { PaddingLeft = UDim.new(0, 6), PaddingRight = UDim.new(0, 6) }),
 	})
+	Components.Corner(row, UDim.new(0, 16))
+	Components.Stroke(row, Theme.Colors.PanelDark, 2)
 	local buttons = {}
 	for index, tab in tabs do
 		local button = Components.Button({
@@ -25679,7 +25641,7 @@ return Components
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="133">
+          <Item class="ModuleScript" referent="129">
             <Properties>
               <string name="Name">HUD</string>
               <string name="Source"><![CDATA[--[[
@@ -25688,11 +25650,14 @@ return Components
 	WHERE:        StarterPlayerScripts/Client/UI/HUD
 	DEPENDENCIES: Client.UI.{Theme, Components}
 
-	Builds the main HUD layout once (spec §83):
-		Top     island level, coins, gems
-		Right   slot for the island/quest panel (IslandController)
-		Bottom  slot for the tool hotbar (ToolController)
-		Left    slot for the menu buttons (Bag, Build, Players, Emotes, Settings)
+	Builds the main HUD layout once (spec §83), "Island Pop" style:
+		Top-left  PLAYER CARD: round avatar with a level badge, your name and
+		          an XP bar
+		Top       coin + gem pills
+		Right     slot for the island / quest cards (IslandController, QuestController)
+		Left      frosted menu DOCK (Bag, Build, Players, Emotes, Settings)
+		Bottom    frosted tray + slot for the hotbar (ToolController)
+		Touch     touch-only action buttons
 	Controllers fill the slots; UIController updates the values.
 ]]
 
@@ -25706,15 +25671,119 @@ local HUD = {}
 export type HUDRefs = {
 	Root: Frame,
 	TopBar: Frame,
-	IslandPill: Frame,
-	IslandLabel: TextLabel,
-	IslandXP: Components.ProgressBar,
+	PlayerCard: Frame,
+	PlayerAvatar: ImageLabel,
+	PlayerName: TextLabel,
+	PlayerLevel: TextLabel,
+	PlayerLevelBadge: Frame,
+	PlayerXP: Components.ProgressBar,
+	PlayerXPText: TextLabel,
 	CoinsPill: Frame,
 	CoinsLabel: TextLabel,
 	GemsPill: Frame,
 	GemsLabel: TextLabel,
 	Slots: { [string]: Frame },
 }
+
+local function frosted(frame: Frame)
+	frame.BackgroundColor3 = Theme.Colors.Glass
+	frame.BackgroundTransparency = 0.45
+	Components.Corner(frame, UDim.new(0, 24))
+	local stroke = Components.Stroke(frame, Color3.new(1, 1, 1), 2)
+	stroke.Transparency = 0.75
+end
+
+local function playerCard(root: Frame)
+	local card = Create("Frame", {
+		Name = "PlayerCard",
+		Size = UDim2.fromOffset(262, 74),
+		Position = UDim2.fromOffset(52, 14),
+		BackgroundColor3 = Theme.Colors.Panel,
+		Parent = root,
+	})
+	Components.Corner(card, UDim.new(0, 20))
+	Components.Stroke(card, Theme.Colors.Outline, 3)
+	Components.Gloss(card, 0.4)
+	Components.Lip(card, Theme.Colors.PanelDark, 6)
+
+	-- Round avatar overhanging the left edge.
+	local avatarRing = Create("Frame", {
+		Name = "AvatarRing",
+		Size = UDim2.fromOffset(84, 84),
+		Position = UDim2.new(0, -42, 0.5, 0),
+		AnchorPoint = Vector2.new(0, 0.5),
+		BackgroundColor3 = Theme.Colors.Level,
+		ZIndex = 2,
+		Parent = card,
+	})
+	Components.Corner(avatarRing, UDim.new(1, 0))
+	Components.Stroke(avatarRing, Theme.Colors.Outline, 3)
+	Components.Gloss(avatarRing)
+	local avatar = Create("ImageLabel", {
+		Name = "Avatar",
+		Size = UDim2.new(1, -12, 1, -12),
+		Position = UDim2.fromOffset(6, 6),
+		BackgroundColor3 = Theme.Colors.PanelAlt,
+		Image = "",
+		ZIndex = 3,
+		Parent = avatarRing,
+	})
+	Components.Corner(avatar, UDim.new(1, 0))
+
+	-- Level badge on the avatar.
+	local badge = Create("Frame", {
+		Name = "LevelBadge",
+		Size = UDim2.fromOffset(38, 38),
+		Position = UDim2.new(1, 4, 1, 4),
+		AnchorPoint = Vector2.new(1, 1),
+		BackgroundColor3 = Theme.Colors.Coins,
+		ZIndex = 4,
+		Parent = avatarRing,
+	})
+	Components.Corner(badge, UDim.new(1, 0))
+	Components.Stroke(badge, Theme.Colors.Outline, 3)
+	Components.Gloss(badge)
+	local level = Components.Label({
+		Name = "Level",
+		Text = "1",
+		Size = UDim2.fromScale(1, 1),
+		TextSize = 20,
+		TextColor3 = Theme.Colors.TextLight,
+		ZIndex = 5,
+		Parent = badge,
+	})
+	Components.TextStroke(level, Theme.Colors.Outline, 2)
+
+	local name = Components.Label({
+		Name = "PlayerName",
+		Text = "Player",
+		Size = UDim2.new(1, -62, 0, 28),
+		Position = UDim2.fromOffset(52, 7),
+		TextXAlignment = Enum.TextXAlignment.Left,
+		TextSize = 21,
+		TextWrapped = false,
+		TextTruncate = Enum.TextTruncate.AtEnd,
+		Parent = card,
+	})
+	local xp = Components.ProgressBar({
+		Size = UDim2.new(1, -66, 0, 18),
+		Position = UDim2.fromOffset(52, 40),
+		Color = Theme.Colors.Level,
+		Parent = card,
+	})
+	local xpText = Components.Label({
+		Name = "XPText",
+		Text = "",
+		Size = UDim2.fromScale(1, 1),
+		Font = Theme.Fonts.Heavy,
+		TextSize = 12,
+		TextColor3 = Theme.Colors.TextLight,
+		ZIndex = 3,
+		Parent = xp.Frame,
+	})
+	Components.TextStroke(xpText, Theme.Colors.Outline, 1.5)
+	return card, avatar, name, level, badge, xp, xpText
+end
 
 function HUD.Create(parent: Instance): HUDRefs
 	local root = Create("Frame", {
@@ -25724,10 +25793,12 @@ function HUD.Create(parent: Instance): HUDRefs
 		Parent = parent,
 	})
 
+	local card, avatar, name, level, badge, xp, xpText = playerCard(root)
+
 	local topBar = Create("Frame", {
 		Name = "TopBar",
-		Size = UDim2.fromOffset(620, 60),
-		Position = UDim2.new(0.5, 0, 0, 10),
+		Size = UDim2.fromOffset(440, 60),
+		Position = UDim2.new(0.5, 0, 0, 14),
 		AnchorPoint = Vector2.new(0.5, 0),
 		BackgroundTransparency = 1,
 		Parent = root,
@@ -25736,62 +25807,64 @@ function HUD.Create(parent: Instance): HUDRefs
 			FillDirection = Enum.FillDirection.Horizontal,
 			HorizontalAlignment = Enum.HorizontalAlignment.Center,
 			VerticalAlignment = Enum.VerticalAlignment.Center,
-			Padding = UDim.new(0, 30),
+			Padding = UDim.new(0, 34),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 	})
+	local coinsPill, coinsLabel = Components.Pill({ Icon = "🪙", Color = Theme.Colors.Coins, Width = 200, Parent = topBar, LayoutOrder = 1 })
+	local gemsPill, gemsLabel = Components.Pill({ Icon = "💎", Color = Theme.Colors.Gems, Width = 160, Parent = topBar, LayoutOrder = 2 })
 
-	local islandPill, islandLabel = Components.Pill({ Icon = "🏝️", Color = Theme.Colors.Level, Width = 170, Parent = topBar, LayoutOrder = 1 })
-	islandLabel.Size = UDim2.new(1, -56, 0, 28)
-	islandLabel.Position = UDim2.fromOffset(46, 2)
-	islandLabel.TextSize = Theme.TextSize.Medium
-	local islandXP = Components.ProgressBar({
-		Size = UDim2.new(1, -60, 0, 8),
-		Position = UDim2.fromOffset(46, 30),
-		Color = Theme.Colors.Level,
-		Parent = islandPill,
+	local dock = Create("Frame", {
+		Name = "LeftSlot",
+		Size = UDim2.fromOffset(92, 476),
+		Position = UDim2.new(0, 12, 0.5, 30),
+		AnchorPoint = Vector2.new(0, 0.5),
+		Parent = root,
+	}, {
+		Create("UIListLayout", {
+			Padding = UDim.new(0, 28),
+			HorizontalAlignment = Enum.HorizontalAlignment.Center,
+			VerticalAlignment = Enum.VerticalAlignment.Center,
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+		Create("UIPadding", { PaddingBottom = UDim.new(0, 16) }),
 	})
+	frosted(dock)
 
-	local coinsPill, coinsLabel = Components.Pill({ Icon = "🪙", Color = Theme.Colors.Coins, Width = 170, Parent = topBar, LayoutOrder = 2 })
-	local gemsPill, gemsLabel = Components.Pill({ Icon = "💎", Color = Theme.Colors.Gems, Width = 130, Parent = topBar, LayoutOrder = 3 })
+	local bottom = Create("Frame", {
+		Name = "BottomSlot",
+		Size = UDim2.fromOffset(720, 96),
+		Position = UDim2.new(0.5, 0, 1, -12),
+		AnchorPoint = Vector2.new(0.5, 1),
+		BackgroundTransparency = 1,
+		Parent = root,
+	})
+	local tray = Create("Frame", {
+		Name = "Tray",
+		Size = UDim2.new(1, 16, 0, 62),
+		Position = UDim2.new(0.5, 0, 1, 6),
+		AnchorPoint = Vector2.new(0.5, 1),
+		ZIndex = 0,
+		Parent = bottom,
+	})
+	frosted(tray)
 
 	local slots = {
 		Right = Create("Frame", {
 			Name = "RightSlot",
-			Size = UDim2.fromOffset(250, 540),
-			Position = UDim2.new(1, -12, 0, 80),
+			Size = UDim2.fromOffset(256, 560),
+			Position = UDim2.new(1, -14, 0, 86),
 			AnchorPoint = Vector2.new(1, 0),
 			BackgroundTransparency = 1,
 			Parent = root,
 		}, {
 			Create("UIListLayout", {
-				Padding = UDim.new(0, 10),
+				Padding = UDim.new(0, 12),
 				SortOrder = Enum.SortOrder.LayoutOrder,
 			}),
 		}),
-		Bottom = Create("Frame", {
-			Name = "BottomSlot",
-			Size = UDim2.fromOffset(720, 96),
-			Position = UDim2.new(0.5, 0, 1, -12),
-			AnchorPoint = Vector2.new(0.5, 1),
-			BackgroundTransparency = 1,
-			Parent = root,
-		}),
-		Left = Create("Frame", {
-			Name = "LeftSlot",
-			Size = UDim2.fromOffset(84, 480),
-			Position = UDim2.new(0, 14, 0.5, 10),
-			AnchorPoint = Vector2.new(0, 0.5),
-			BackgroundTransparency = 1,
-			Parent = root,
-		}, {
-			Create("UIListLayout", {
-				Padding = UDim.new(0, 24),
-				HorizontalAlignment = Enum.HorizontalAlignment.Center,
-				VerticalAlignment = Enum.VerticalAlignment.Center,
-				SortOrder = Enum.SortOrder.LayoutOrder,
-			}),
-		}),
+		Bottom = bottom,
+		Left = dock,
 		-- Touch-only action buttons (bottom-right, above the jump button).
 		Touch = Create("Frame", {
 			Name = "TouchSlot",
@@ -25806,9 +25879,13 @@ function HUD.Create(parent: Instance): HUDRefs
 	return {
 		Root = root,
 		TopBar = topBar,
-		IslandPill = islandPill,
-		IslandLabel = islandLabel,
-		IslandXP = islandXP,
+		PlayerCard = card,
+		PlayerAvatar = avatar,
+		PlayerName = name,
+		PlayerLevel = level,
+		PlayerLevelBadge = badge,
+		PlayerXP = xp,
+		PlayerXPText = xpText,
 		CoinsPill = coinsPill,
 		CoinsLabel = coinsLabel,
 		GemsPill = gemsPill,
@@ -25821,7 +25898,7 @@ return HUD
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="134">
+          <Item class="ModuleScript" referent="130">
             <Properties>
               <string name="Name">Hotbar</string>
               <string name="Source"><![CDATA[--[[
@@ -26078,7 +26155,7 @@ return Hotbar
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="135">
+          <Item class="ModuleScript" referent="131">
             <Properties>
               <string name="Name">InventoryPanel</string>
               <string name="Source"><![CDATA[--[[
@@ -26122,7 +26199,7 @@ type Entry = {
 	ToolDef: any?,
 }
 
-type Card = { Button: TextButton, Icon: TextLabel, Name: TextLabel, Count: TextLabel, Stroke: UIStroke }
+type Card = { Button: TextButton, Icon: TextLabel, Name: TextLabel, Count: TextLabel, Stroke: UIStroke, Band: Frame }
 
 local InventoryPanel = {}
 InventoryPanel.__index = InventoryPanel
@@ -26160,7 +26237,7 @@ function InventoryPanel.new(parent: Instance, callbacks: Callbacks)
 		TextColor3 = Theme.Colors.TextLight,
 		TextXAlignment = Enum.TextXAlignment.Right,
 		Text = "0 / 0",
-		Parent = panel:FindFirstChild("Header"),
+		Parent = panel:FindFirstChild("Header", true),
 	})
 	Components.TextStroke(self.CapacityLabel)
 
@@ -26252,8 +26329,9 @@ function InventoryPanel.new(parent: Instance, callbacks: Callbacks)
 		Name = "Grid",
 		Size = UDim2.new(1, 0, 1, -48),
 		Position = UDim2.fromOffset(0, 48),
-		BackgroundColor3 = Theme.Colors.PanelAlt,
+		BackgroundColor3 = Theme.Colors.Inset,
 		ScrollBarThickness = 6,
+		ScrollBarImageColor3 = Theme.Colors.Outline,
 		CanvasSize = UDim2.new(),
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		BorderSizePixel = 0,
@@ -26265,7 +26343,8 @@ function InventoryPanel.new(parent: Instance, callbacks: Callbacks)
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 	})
-	Components.Corner(self.Grid, Theme.SmallCorner)
+	Components.Corner(self.Grid, UDim.new(0, 16))
+	Components.Stroke(self.Grid, Theme.Colors.PanelDark, 2)
 	Components.Padding(self.Grid, 8)
 
 	self.EmptyLabel = Components.Label({
@@ -26284,12 +26363,25 @@ function InventoryPanel.new(parent: Instance, callbacks: Callbacks)
 		Size = UDim2.new(0, 200, 1, 0),
 		Position = UDim2.new(1, 0, 0, 0),
 		AnchorPoint = Vector2.new(1, 0),
-		BackgroundColor3 = Theme.Colors.PanelAlt,
+		BackgroundColor3 = Theme.Colors.Inset,
 		Parent = content,
 	})
-	Components.Corner(details, Theme.SmallCorner)
+	Components.Corner(details, UDim.new(0, 16))
+	Components.Stroke(details, Theme.Colors.PanelDark, 2)
 	Components.Padding(details, 10)
-	self.DetailIcon = Components.Label({ Size = UDim2.new(1, 0, 0, 70), TextSize = 58, Text = "", Parent = details })
+	-- Big icon in a glossy bubble tinted by rarity.
+	self.DetailBubble = Create("Frame", {
+		Name = "IconBubble",
+		Size = UDim2.fromOffset(76, 76),
+		Position = UDim2.new(0.5, 0, 0, -2),
+		AnchorPoint = Vector2.new(0.5, 0),
+		BackgroundColor3 = Theme.Colors.Panel,
+		Parent = details,
+	})
+	Components.Corner(self.DetailBubble, UDim.new(1, 0))
+	Components.Stroke(self.DetailBubble, Theme.Colors.Outline, 3)
+	Components.Gloss(self.DetailBubble, 0.5)
+	self.DetailIcon = Components.Label({ Size = UDim2.new(1, 0, 0, 70), TextSize = 52, Text = "", ZIndex = 2, Parent = details })
 	self.DetailName = Components.Label({ Size = UDim2.new(1, 0, 0, 30), Position = UDim2.fromOffset(0, 72), TextSize = Theme.TextSize.Large, Text = "Select an item", Parent = details })
 	self.DetailRarity = Components.Label({ Size = UDim2.new(1, 0, 0, 20), Position = UDim2.fromOffset(0, 102), TextSize = Theme.TextSize.Small, Text = "", Parent = details })
 	self.DetailStats = Components.Label({
@@ -26392,26 +26484,47 @@ function InventoryPanel:_getCard(index: number): Card
 		Text = "",
 		Parent = self.Grid,
 	})
-	Components.Corner(button, Theme.SmallCorner)
+	Components.Corner(button, UDim.new(0, 14))
 	local stroke = Components.Stroke(button, Theme.Colors.Outline, 2.5)
-	local icon = Components.Label({ Size = UDim2.new(1, 0, 0, 50), Position = UDim2.fromOffset(0, 4), TextSize = 38, Parent = button })
+	Components.Gloss(button, 0.35)
+	local icon = Components.Label({ Size = UDim2.new(1, 0, 0, 50), Position = UDim2.fromOffset(0, 6), TextSize = 40, Parent = button })
+	-- Rarity-coloured name band along the bottom.
+	local band = Create("Frame", {
+		Name = "RarityBand",
+		Size = UDim2.new(1, 0, 0, 24),
+		Position = UDim2.new(0, 0, 1, -24),
+		BackgroundColor3 = Theme.Colors.Level,
+		Parent = button,
+	})
+	Components.Corner(band, UDim.new(0, 12))
 	local name = Components.Label({
-		Size = UDim2.new(1, -6, 0, 18),
-		Position = UDim2.new(0, 3, 1, -22),
-		Font = Theme.Fonts.Bold,
+		Size = UDim2.new(1, -8, 1, -4),
+		Position = UDim2.fromOffset(4, 2),
+		Font = Theme.Fonts.Heavy,
 		TextSize = 12,
 		TextScaled = true,
-		Parent = button,
+		TextColor3 = Theme.Colors.TextLight,
+		Parent = band,
 	})
+	Components.TextStroke(name, Theme.Colors.Outline, 1.5)
 	local count = Components.Label({
 		Size = UDim2.fromOffset(60, 18),
-		Position = UDim2.new(1, -4, 0, 2),
+		Position = UDim2.new(1, -5, 0, 3),
 		AnchorPoint = Vector2.new(1, 0),
-		TextSize = 15,
+		TextSize = 16,
+		TextColor3 = Theme.Colors.TextLight,
 		TextXAlignment = Enum.TextXAlignment.Right,
+		ZIndex = 2,
 		Parent = button,
 	})
-	local newCard: Card = { Button = button, Icon = icon, Name = name, Count = count, Stroke = stroke }
+	Components.TextStroke(count, Theme.Colors.Outline, 2)
+	button.MouseEnter:Connect(function()
+		Components.SpringScale(button, 1.07)
+	end)
+	button.MouseLeave:Connect(function()
+		Components.SpringScale(button, 1)
+	end)
+	local newCard: Card = { Button = button, Icon = icon, Name = name, Count = count, Stroke = stroke, Band = band }
 	button.Activated:Connect(function()
 		local entryId = button:GetAttribute("EntryId")
 		if type(entryId) == "string" then
@@ -26465,6 +26578,7 @@ function InventoryPanel:_renderDetails()
 		return
 	end
 	local rarity = RarityConfig.Get(entry.Rarity)
+	self.DetailBubble.BackgroundColor3 = rarity.Color:Lerp(Color3.new(1, 1, 1), 0.55)
 	self.DetailIcon.Text = entry.Icon
 	self.DetailName.Text = entry.Name
 	self.DetailRarity.Text = rarity.DisplayName
@@ -26501,7 +26615,7 @@ function InventoryPanel:Render()
 		card.Button:SetAttribute("EntryId", entry.Id)
 		card.Icon.Text = entry.Icon
 		card.Name.Text = entry.Name
-		card.Name.TextColor3 = rarity.Color:Lerp(Theme.Colors.Text, 0.45)
+		card.Band.BackgroundColor3 = rarity.Color:Lerp(Theme.Colors.Outline, 0.15)
 		card.Count.Text = if entry.Kind == "Tool" then (if self.State.Equipped == entry.Id then "✔" else "") else "x" .. Format.Abbreviate(entry.Count)
 	end
 	for index = #visible + 1, #self.Cards do
@@ -26539,7 +26653,7 @@ return InventoryPanel
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="136">
+          <Item class="ModuleScript" referent="132">
             <Properties>
               <string name="Name">Notifications</string>
               <string name="Source"><![CDATA[--[[
@@ -26820,7 +26934,7 @@ return Notifications
 ]]></string>
             </Properties>
           </Item>
-          <Item class="ModuleScript" referent="137">
+          <Item class="ModuleScript" referent="133">
             <Properties>
               <string name="Name">Theme</string>
               <string name="Source"><![CDATA[--[[
@@ -26829,36 +26943,41 @@ return Notifications
 	WHERE:        StarterPlayerScripts/Client/UI/Theme
 	DEPENDENCIES: none
 
-	The single source of UI colours, fonts and sizes. A warm, friendly island
-	look: creamy panels with soft drop shadows, chunky rounded buttons with a
-	light-to-dark gradient, bright accent colours and crisp Builder Sans text
-	(Fredoka One for titles).
+	The single source of UI colours, fonts and sizes ("Island Pop" style):
+	warm cream paper panels with a chocolate outline, candy-bright accent
+	colours with glossy highlights and a 3D lip, soft layered drop shadows,
+	Fredoka One titles and Builder Sans text.
 ]]
 
 local Theme = {}
 
 Theme.Colors = {
-	Panel = Color3.fromRGB(255, 251, 242),
-	PanelAlt = Color3.fromRGB(246, 238, 222),
-	PanelDark = Color3.fromRGB(226, 212, 186),
-	Header = Color3.fromRGB(52, 150, 230),
-	HeaderDark = Color3.fromRGB(36, 112, 196),
-	Outline = Color3.fromRGB(62, 44, 30),
-	Text = Color3.fromRGB(58, 40, 26),
-	TextMuted = Color3.fromRGB(138, 112, 88),
+	-- Paper
+	Panel = Color3.fromRGB(255, 251, 240),
+	PanelAlt = Color3.fromRGB(248, 239, 220),
+	PanelDark = Color3.fromRGB(230, 214, 186),
+	Inset = Color3.fromRGB(239, 227, 203), -- recessed wells (lists, grids)
+	-- Chrome
+	Header = Color3.fromRGB(58, 162, 242),
+	HeaderDark = Color3.fromRGB(36, 116, 200),
+	Outline = Color3.fromRGB(56, 38, 26),
+	Text = Color3.fromRGB(62, 42, 28),
+	TextMuted = Color3.fromRGB(140, 112, 86),
 	TextLight = Color3.fromRGB(255, 255, 255),
-	Coins = Color3.fromRGB(255, 196, 40),
-	Gems = Color3.fromRGB(80, 200, 255),
-	Level = Color3.fromRGB(110, 205, 85),
-	Blue = Color3.fromRGB(64, 156, 255),
-	Green = Color3.fromRGB(76, 196, 96),
-	Red = Color3.fromRGB(236, 86, 86),
-	Orange = Color3.fromRGB(255, 150, 60),
-	Purple = Color3.fromRGB(160, 110, 250),
-	Pink = Color3.fromRGB(255, 120, 170),
-	Teal = Color3.fromRGB(46, 190, 180),
-	Shadow = Color3.fromRGB(0, 0, 0),
-	Glass = Color3.fromRGB(20, 26, 40),
+	-- Accents
+	Coins = Color3.fromRGB(255, 200, 40),
+	Gems = Color3.fromRGB(86, 204, 255),
+	Level = Color3.fromRGB(112, 210, 86),
+	Blue = Color3.fromRGB(62, 164, 255),
+	Green = Color3.fromRGB(86, 204, 96),
+	Red = Color3.fromRGB(242, 86, 86),
+	Orange = Color3.fromRGB(255, 156, 52),
+	Purple = Color3.fromRGB(162, 112, 255),
+	Pink = Color3.fromRGB(255, 118, 172),
+	Teal = Color3.fromRGB(38, 196, 184),
+	-- Effects
+	Shadow = Color3.fromRGB(20, 12, 6),
+	Glass = Color3.fromRGB(26, 32, 50),
 }
 
 Theme.Fonts = {
@@ -26868,13 +26987,13 @@ Theme.Fonts = {
 	Heavy = Enum.Font.BuilderSansExtraBold,
 }
 
-Theme.Corner = UDim.new(0, 16)
-Theme.SmallCorner = UDim.new(0, 11)
+Theme.Corner = UDim.new(0, 18)
+Theme.SmallCorner = UDim.new(0, 12)
 Theme.StrokeThickness = 3
 
 Theme.TextSize = {
 	Huge = 44,
-	Title = 26,
+	Title = 28,
 	Large = 22,
 	Medium = 18,
 	Small = 15,
@@ -26901,39 +27020,39 @@ return Theme
       </Item>
     </Item>
   </Item>
-  <Item class="Workspace" referent="138">
+  <Item class="Workspace" referent="134">
     <Properties>
       <string name="Name">Workspace</string>
       <bool name="NeedsPivotMigration">false</bool>
       <bool name="StreamingEnabled">true</bool>
     </Properties>
-    <Item class="Folder" referent="139">
+    <Item class="Folder" referent="135">
       <Properties>
         <string name="Name">FishingZones</string>
       </Properties>
     </Item>
-    <Item class="Folder" referent="140">
+    <Item class="Folder" referent="136">
       <Properties>
         <string name="Name">Islands</string>
       </Properties>
     </Item>
-    <Item class="Folder" referent="141">
+    <Item class="Folder" referent="137">
       <Properties>
         <string name="Name">NPCs</string>
       </Properties>
     </Item>
-    <Item class="Folder" referent="142">
+    <Item class="Folder" referent="138">
       <Properties>
         <string name="Name">ResourceZones</string>
       </Properties>
     </Item>
-    <Item class="Terrain" referent="143">
+    <Item class="Terrain" referent="139">
       <Properties>
         <string name="Name">Terrain</string>
         <bool name="Decoration">true</bool>
       </Properties>
     </Item>
-    <Item class="Folder" referent="144">
+    <Item class="Folder" referent="140">
       <Properties>
         <string name="Name">World</string>
       </Properties>

@@ -175,7 +175,7 @@ function SocialController.Init()
 		Net.FireServer("SettingsRequest", { CameraShake = ClientState.Get("Settings", "CameraShake") == false })
 	end })
 
-	Components.IconButton({ Icon = "😀", Caption = "Emotes", Color = Theme.Colors.Pink, Parent = UIController.GetSlot("Left"), LayoutOrder = 4, OnClick = toggleEmotes })
+	Components.IconButton({ Icon = "😀", Caption = "Emotes", Key = "T", Color = Theme.Colors.Pink, Parent = UIController.GetSlot("Left"), LayoutOrder = 4, OnClick = toggleEmotes })
 	Components.IconButton({ Icon = "⚙️", Caption = "Settings", Color = Theme.Colors.Glass, Parent = UIController.GetSlot("Left"), LayoutOrder = 5, OnClick = openSettings })
 end
 

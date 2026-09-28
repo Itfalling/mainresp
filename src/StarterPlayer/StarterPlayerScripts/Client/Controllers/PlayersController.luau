@@ -189,7 +189,7 @@ function PlayersController.Init()
 
 	Components.IconButton({
 		Icon = "👥",
-		Caption = "Players",
+		Caption = "Players", Key = "P",
 		Color = Theme.Colors.Purple,
 		Parent = UIController.GetSlot("Left"),
 		LayoutOrder = 3,

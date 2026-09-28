@@ -28,7 +28,6 @@ local AudioController = require(script.Parent.AudioController)
 local Components = require(Client.UI.Components)
 local Theme = require(Client.UI.Theme)
 
-local Create = Components.Create
 
 local MAX_TASKS = 6
 local ROW_HEIGHT = 20
@@ -143,44 +142,29 @@ local function refresh()
 end
 
 local function buildCard(parent: Frame): Refs
-	local card = Create("Frame", {
-		Name = "QuestCard",
+	local card, header, body = Components.Card({
+		Title = "QUEST",
+		Icon = "📜",
+		Color = Theme.Colors.Purple,
 		Size = UDim2.new(1, 0, 0, 250),
-		BackgroundColor3 = Theme.Colors.Panel,
-		LayoutOrder = 2,
 		Parent = parent,
+		LayoutOrder = 2,
+		HeaderHeight = HEADER_HEIGHT,
 	})
-	Components.Corner(card)
-	Components.Stroke(card)
-
-	local header = Create("Frame", { Name = "Header", Size = UDim2.new(1, 0, 0, HEADER_HEIGHT), BackgroundColor3 = Theme.Colors.Purple, Parent = card })
-	Components.Corner(header)
-	local headerLabel = Components.Label({
-		Text = "📜 QUEST",
-		Size = UDim2.new(1, -50, 1, 0),
-		Position = UDim2.fromOffset(12, 0),
-		TextXAlignment = Enum.TextXAlignment.Left,
-		TextColor3 = Theme.Colors.TextLight,
-		TextSize = Theme.TextSize.Medium,
-		Parent = header,
-	})
-	Components.TextStroke(headerLabel)
-	local toggle = Create("TextButton", {
+	card.Name = "QuestCard"
+	local toggle = Components.Button({
 		Name = "Toggle",
-		Size = UDim2.fromOffset(32, 32),
-		Position = UDim2.new(1, -4, 0.5, 0),
-		AnchorPoint = Vector2.new(1, 0.5),
-		BackgroundColor3 = Theme.Colors.Panel,
 		Text = "–",
-		Font = Theme.Fonts.Title,
+		Color = Theme.Colors.Panel,
+		TextColor = Theme.Colors.Text,
+		Size = UDim2.fromOffset(30, 30),
+		Position = UDim2.new(1, -5, 0.5, 0),
+		AnchorPoint = Vector2.new(1, 0.5),
 		TextSize = Theme.TextSize.Large,
-		TextColor3 = Theme.Colors.Text,
 		Parent = header,
+		Flat = true,
 	})
 	Components.Corner(toggle, UDim.new(1, 0))
-	Components.Stroke(toggle, Theme.Colors.Outline, 2)
-
-	local body = Create("Frame", { Name = "Body", Size = UDim2.new(1, -20, 1, -(HEADER_HEIGHT + 8)), Position = UDim2.fromOffset(10, HEADER_HEIGHT + 4), BackgroundTransparency = 1, Parent = card })
 	local questName = Components.Label({ Size = UDim2.new(1, 0, 0, 22), TextSize = Theme.TextSize.Medium, TextScaled = true, Text = "", Parent = body })
 	local rows, counts = {}, {}
 	for index = 1, MAX_TASKS do

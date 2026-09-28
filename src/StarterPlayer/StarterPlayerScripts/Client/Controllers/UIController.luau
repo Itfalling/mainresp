@@ -9,6 +9,10 @@
 	windows. Every UI in the game is created through here once and updated in
 	place when replicated state changes (spec §82, §116).
 
+	WINDOWS: while any window is open the world behind it is dimmed and
+	softly blurred (click the dim area to close windows — it sends the
+	Cancel action). Build mode and the island creator have their own look.
+
 	Automatic reward feedback (spec §68): whenever the replicated Coins value
 	rises, the counter animates, bounces and a "+N 🪙" floats up with a coin
 	sound; whenever an item count rises, "+N Wood" floats above the hotbar.
@@ -16,6 +20,7 @@
 ]]
 
 local GuiService = game:GetService("GuiService")
+local Lighting = game:GetService("Lighting")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
@@ -29,6 +34,7 @@ local Format = require(Shared.Util.Format)
 local Client = script.Parent.Parent
 local ClientState = require(Client.ClientState)
 local AudioController = require(script.Parent.AudioController)
+local InputController = require(script.Parent.InputController)
 local CameraController = require(script.Parent.CameraController)
 local Theme = require(Client.UI.Theme)
 local Components = require(Client.UI.Components)
@@ -45,6 +51,13 @@ local modalLayer: Frame
 local overlayLayer: Frame
 local openModals: { [string]: boolean } = {}
 local lastItems: { [string]: number }? = nil
+local backdrop: TextButton
+local blur: BlurEffect
+local dimmed = false
+local lastLevel: number? = nil
+
+-- Screens with their own full-screen look (no dim / blur behind them).
+local NO_BACKDROP = { Build = true, IslandCreator = true }
 
 local function updateScale()
 	local camera = workspace.CurrentCamera
@@ -102,11 +115,42 @@ local function watchCurrency(key: string, label: TextLabel, pill: Frame, color: 
 	end)
 end
 
-local function refreshIslandPill()
-	local level = ClientState.Get("Island", "Level") or 1
-	local xp = ClientState.Get("Island", "XP") or 0
-	hud.IslandLabel.Text = "Island Lv " .. tostring(level)
-	hud.IslandXP.SetProgress(xp / ProgressionConfig.IslandXPForLevel(level), true)
+local function refreshPlayerCard()
+	local level = ClientState.Get("Level") or 1
+	local xp = ClientState.Get("XP") or 0
+	local needed = ProgressionConfig.PlayerXPForLevel(level)
+	hud.PlayerLevel.Text = tostring(level)
+	hud.PlayerXP.SetProgress(xp / math.max(1, needed), true)
+	hud.PlayerXPText.Text = ("%s / %s XP"):format(Format.Abbreviate(xp), Format.Abbreviate(needed))
+	if lastLevel and level > lastLevel then
+		Components.Bounce(hud.PlayerLevelBadge, 0.5)
+	end
+	lastLevel = level
+end
+
+local function refreshBackdrop()
+	local wanted = false
+	for name in openModals do
+		if not NO_BACKDROP[name] then
+			wanted = true
+		end
+	end
+	if wanted == dimmed then
+		return
+	end
+	dimmed = wanted
+	backdrop.Visible = true
+	local info = TweenInfo.new(0.25, Enum.EasingStyle.Quad)
+	local fade = TweenService:Create(backdrop, info, { BackgroundTransparency = if wanted then 0.55 else 1 })
+	fade:Play()
+	TweenService:Create(blur, info, { Size = if wanted then 12 else 0 }):Play()
+	if not wanted then
+		fade.Completed:Once(function()
+			if not dimmed then
+				backdrop.Visible = false
+			end
+		end)
+	end
 end
 
 local function watchItems()
@@ -189,6 +233,7 @@ function UIController.SetModalOpen(name: string, open: boolean)
 		openModals[name] = nil
 	end
 	AudioController.Play(if open then "UIOpen" else "UIClose")
+	refreshBackdrop()
 end
 
 function UIController.IsAnyModalOpen(): boolean
@@ -230,6 +275,33 @@ function UIController.Init()
 		ZIndex = 10,
 		Parent = designRoot,
 	})
+	-- Dim layer behind windows (under every window in the modal layer).
+	backdrop = Components.Create("TextButton", {
+		Name = "Backdrop",
+		Size = UDim2.new(1, 400, 1, 400),
+		Position = UDim2.fromOffset(-200, -200),
+		BackgroundColor3 = Color3.fromRGB(12, 16, 30),
+		BackgroundTransparency = 1,
+		AutoButtonColor = false,
+		Text = "",
+		Visible = false,
+		ZIndex = 0,
+		Parent = modalLayer,
+	})
+	backdrop.Activated:Connect(function()
+		InputController.Trigger("Cancel")
+	end)
+	blur = Instance.new("BlurEffect")
+	blur.Name = "UIBlur"
+	blur.Size = 0
+	blur.Parent = Lighting
+	hud.PlayerName.Text = Players.LocalPlayer.DisplayName
+	task.spawn(function()
+		local ok, image = pcall(Players.GetUserThumbnailAsync, Players, Players.LocalPlayer.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size150x150)
+		if ok then
+			hud.PlayerAvatar.Image = image
+		end
+	end)
 	local overlay = Components.Create("Frame", {
 		Name = "Overlay",
 		Size = UDim2.fromScale(1, 1),
@@ -274,7 +346,8 @@ function UIController.Start()
 	watchServerHealth()
 	watchCurrency("Coins", hud.CoinsLabel, hud.CoinsPill, Theme.Colors.Coins, "🪙")
 	watchCurrency("Gems", hud.GemsLabel, hud.GemsPill, Theme.Colors.Gems, "💎")
-	ClientState.Observe("Island", refreshIslandPill)
+	ClientState.Observe("Level", refreshPlayerCard)
+	ClientState.Observe("XP", refreshPlayerCard)
 	watchItems()
 
 	Net.OnClientEvent("Notify", function(payload: any)

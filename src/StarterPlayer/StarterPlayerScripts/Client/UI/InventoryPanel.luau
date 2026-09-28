@@ -39,7 +39,7 @@ type Entry = {
 	ToolDef: any?,
 }
 
-type Card = { Button: TextButton, Icon: TextLabel, Name: TextLabel, Count: TextLabel, Stroke: UIStroke }
+type Card = { Button: TextButton, Icon: TextLabel, Name: TextLabel, Count: TextLabel, Stroke: UIStroke, Band: Frame }
 
 local InventoryPanel = {}
 InventoryPanel.__index = InventoryPanel
@@ -77,7 +77,7 @@ function InventoryPanel.new(parent: Instance, callbacks: Callbacks)
 		TextColor3 = Theme.Colors.TextLight,
 		TextXAlignment = Enum.TextXAlignment.Right,
 		Text = "0 / 0",
-		Parent = panel:FindFirstChild("Header"),
+		Parent = panel:FindFirstChild("Header", true),
 	})
 	Components.TextStroke(self.CapacityLabel)
 
@@ -169,8 +169,9 @@ function InventoryPanel.new(parent: Instance, callbacks: Callbacks)
 		Name = "Grid",
 		Size = UDim2.new(1, 0, 1, -48),
 		Position = UDim2.fromOffset(0, 48),
-		BackgroundColor3 = Theme.Colors.PanelAlt,
+		BackgroundColor3 = Theme.Colors.Inset,
 		ScrollBarThickness = 6,
+		ScrollBarImageColor3 = Theme.Colors.Outline,
 		CanvasSize = UDim2.new(),
 		AutomaticCanvasSize = Enum.AutomaticSize.Y,
 		BorderSizePixel = 0,
@@ -182,7 +183,8 @@ function InventoryPanel.new(parent: Instance, callbacks: Callbacks)
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 	})
-	Components.Corner(self.Grid, Theme.SmallCorner)
+	Components.Corner(self.Grid, UDim.new(0, 16))
+	Components.Stroke(self.Grid, Theme.Colors.PanelDark, 2)
 	Components.Padding(self.Grid, 8)
 
 	self.EmptyLabel = Components.Label({
@@ -201,12 +203,25 @@ function InventoryPanel.new(parent: Instance, callbacks: Callbacks)
 		Size = UDim2.new(0, 200, 1, 0),
 		Position = UDim2.new(1, 0, 0, 0),
 		AnchorPoint = Vector2.new(1, 0),
-		BackgroundColor3 = Theme.Colors.PanelAlt,
+		BackgroundColor3 = Theme.Colors.Inset,
 		Parent = content,
 	})
-	Components.Corner(details, Theme.SmallCorner)
+	Components.Corner(details, UDim.new(0, 16))
+	Components.Stroke(details, Theme.Colors.PanelDark, 2)
 	Components.Padding(details, 10)
-	self.DetailIcon = Components.Label({ Size = UDim2.new(1, 0, 0, 70), TextSize = 58, Text = "", Parent = details })
+	-- Big icon in a glossy bubble tinted by rarity.
+	self.DetailBubble = Create("Frame", {
+		Name = "IconBubble",
+		Size = UDim2.fromOffset(76, 76),
+		Position = UDim2.new(0.5, 0, 0, -2),
+		AnchorPoint = Vector2.new(0.5, 0),
+		BackgroundColor3 = Theme.Colors.Panel,
+		Parent = details,
+	})
+	Components.Corner(self.DetailBubble, UDim.new(1, 0))
+	Components.Stroke(self.DetailBubble, Theme.Colors.Outline, 3)
+	Components.Gloss(self.DetailBubble, 0.5)
+	self.DetailIcon = Components.Label({ Size = UDim2.new(1, 0, 0, 70), TextSize = 52, Text = "", ZIndex = 2, Parent = details })
 	self.DetailName = Components.Label({ Size = UDim2.new(1, 0, 0, 30), Position = UDim2.fromOffset(0, 72), TextSize = Theme.TextSize.Large, Text = "Select an item", Parent = details })
 	self.DetailRarity = Components.Label({ Size = UDim2.new(1, 0, 0, 20), Position = UDim2.fromOffset(0, 102), TextSize = Theme.TextSize.Small, Text = "", Parent = details })
 	self.DetailStats = Components.Label({
@@ -309,26 +324,47 @@ function InventoryPanel:_getCard(index: number): Card
 		Text = "",
 		Parent = self.Grid,
 	})
-	Components.Corner(button, Theme.SmallCorner)
+	Components.Corner(button, UDim.new(0, 14))
 	local stroke = Components.Stroke(button, Theme.Colors.Outline, 2.5)
-	local icon = Components.Label({ Size = UDim2.new(1, 0, 0, 50), Position = UDim2.fromOffset(0, 4), TextSize = 38, Parent = button })
+	Components.Gloss(button, 0.35)
+	local icon = Components.Label({ Size = UDim2.new(1, 0, 0, 50), Position = UDim2.fromOffset(0, 6), TextSize = 40, Parent = button })
+	-- Rarity-coloured name band along the bottom.
+	local band = Create("Frame", {
+		Name = "RarityBand",
+		Size = UDim2.new(1, 0, 0, 24),
+		Position = UDim2.new(0, 0, 1, -24),
+		BackgroundColor3 = Theme.Colors.Level,
+		Parent = button,
+	})
+	Components.Corner(band, UDim.new(0, 12))
 	local name = Components.Label({
-		Size = UDim2.new(1, -6, 0, 18),
-		Position = UDim2.new(0, 3, 1, -22),
-		Font = Theme.Fonts.Bold,
+		Size = UDim2.new(1, -8, 1, -4),
+		Position = UDim2.fromOffset(4, 2),
+		Font = Theme.Fonts.Heavy,
 		TextSize = 12,
 		TextScaled = true,
-		Parent = button,
+		TextColor3 = Theme.Colors.TextLight,
+		Parent = band,
 	})
+	Components.TextStroke(name, Theme.Colors.Outline, 1.5)
 	local count = Components.Label({
 		Size = UDim2.fromOffset(60, 18),
-		Position = UDim2.new(1, -4, 0, 2),
+		Position = UDim2.new(1, -5, 0, 3),
 		AnchorPoint = Vector2.new(1, 0),
-		TextSize = 15,
+		TextSize = 16,
+		TextColor3 = Theme.Colors.TextLight,
 		TextXAlignment = Enum.TextXAlignment.Right,
+		ZIndex = 2,
 		Parent = button,
 	})
-	local newCard: Card = { Button = button, Icon = icon, Name = name, Count = count, Stroke = stroke }
+	Components.TextStroke(count, Theme.Colors.Outline, 2)
+	button.MouseEnter:Connect(function()
+		Components.SpringScale(button, 1.07)
+	end)
+	button.MouseLeave:Connect(function()
+		Components.SpringScale(button, 1)
+	end)
+	local newCard: Card = { Button = button, Icon = icon, Name = name, Count = count, Stroke = stroke, Band = band }
 	button.Activated:Connect(function()
 		local entryId = button:GetAttribute("EntryId")
 		if type(entryId) == "string" then
@@ -382,6 +418,7 @@ function InventoryPanel:_renderDetails()
 		return
 	end
 	local rarity = RarityConfig.Get(entry.Rarity)
+	self.DetailBubble.BackgroundColor3 = rarity.Color:Lerp(Color3.new(1, 1, 1), 0.55)
 	self.DetailIcon.Text = entry.Icon
 	self.DetailName.Text = entry.Name
 	self.DetailRarity.Text = rarity.DisplayName
@@ -418,7 +455,7 @@ function InventoryPanel:Render()
 		card.Button:SetAttribute("EntryId", entry.Id)
 		card.Icon.Text = entry.Icon
 		card.Name.Text = entry.Name
-		card.Name.TextColor3 = rarity.Color:Lerp(Theme.Colors.Text, 0.45)
+		card.Band.BackgroundColor3 = rarity.Color:Lerp(Theme.Colors.Outline, 0.15)
 		card.Count.Text = if entry.Kind == "Tool" then (if self.State.Equipped == entry.Id then "✔" else "") else "x" .. Format.Abbreviate(entry.Count)
 	end
 	for index = #visible + 1, #self.Cards do

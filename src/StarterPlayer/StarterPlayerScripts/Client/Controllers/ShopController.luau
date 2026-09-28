@@ -147,9 +147,13 @@ local function sellRow(index: number): Frame
 		return row
 	end
 	row = Create("Frame", { Name = "Row", Size = UDim2.new(1, -10, 0, 58), BackgroundColor3 = Theme.Colors.PanelAlt, Parent = refs.SellList })
-	Components.Corner(row, Theme.SmallCorner)
+	Components.Corner(row, UDim.new(0, 14))
 	Components.Stroke(row, Theme.Colors.Outline, 2)
-	Components.Label({ Name = "Icon", Size = UDim2.fromOffset(48, 48), Position = UDim2.fromOffset(6, 5), TextSize = 34, Text = "", Parent = row })
+	Components.Gloss(row, 0.3)
+	local bubble = Create("Frame", { Name = "IconBubble", Size = UDim2.fromOffset(46, 46), Position = UDim2.fromOffset(7, 6), BackgroundColor3 = Theme.Colors.Panel, Parent = row })
+	Components.Corner(bubble, UDim.new(1, 0))
+	Components.Stroke(bubble, Theme.Colors.PanelDark, 2)
+	Components.Label({ Name = "Icon", Size = UDim2.fromOffset(48, 48), Position = UDim2.fromOffset(6, 5), TextSize = 32, Text = "", ZIndex = 2, Parent = row })
 	Components.Label({ Name = "Title", Size = UDim2.new(0.45, -60, 0, 26), Position = UDim2.fromOffset(60, 4), TextXAlignment = Enum.TextXAlignment.Left, TextSize = Theme.TextSize.Medium, Text = "", Parent = row })
 	Components.Label({ Name = "Count", Size = UDim2.new(0.45, -60, 0, 20), Position = UDim2.fromOffset(60, 30), TextXAlignment = Enum.TextXAlignment.Left, Font = Theme.Fonts.Bold, TextSize = 13, TextColor3 = Theme.Colors.TextMuted, Text = "", Parent = row })
 	Components.Label({ Name = "Price", Size = UDim2.new(0.25, 0, 1, 0), Position = UDim2.fromScale(0.42, 0), Font = Theme.Fonts.Bold, TextSize = Theme.TextSize.Small, Text = "", Parent = row })
@@ -262,9 +266,13 @@ local function buyCard(index: number): Frame
 		return card
 	end
 	card = Create("Frame", { Name = "Card", BackgroundColor3 = Theme.Colors.PanelAlt, Parent = refs.BuyList })
-	Components.Corner(card, Theme.SmallCorner)
-	Components.Stroke(card, Theme.Colors.Outline, 2)
-	Components.Label({ Name = "Icon", Size = UDim2.fromOffset(52, 52), Position = UDim2.fromOffset(6, 6), TextSize = 38, Text = "", Parent = card })
+	Components.Corner(card, UDim.new(0, 16))
+	Components.Stroke(card, Theme.Colors.Outline, 2.5)
+	Components.Gloss(card, 0.3)
+	local bubble = Create("Frame", { Name = "IconBubble", Size = UDim2.fromOffset(52, 52), Position = UDim2.fromOffset(6, 6), BackgroundColor3 = Theme.Colors.Panel, Parent = card })
+	Components.Corner(bubble, UDim.new(1, 0))
+	Components.Stroke(bubble, Theme.Colors.PanelDark, 2)
+	Components.Label({ Name = "Icon", Size = UDim2.fromOffset(52, 52), Position = UDim2.fromOffset(6, 6), TextSize = 34, Text = "", ZIndex = 2, Parent = card })
 	Components.Label({ Name = "Title", Size = UDim2.new(1, -66, 0, 24), Position = UDim2.fromOffset(60, 8), TextXAlignment = Enum.TextXAlignment.Left, TextSize = Theme.TextSize.Medium, TextScaled = true, Text = "", Parent = card })
 	Components.Label({ Name = "Price", Size = UDim2.new(1, -66, 0, 22), Position = UDim2.fromOffset(60, 32), TextXAlignment = Enum.TextXAlignment.Left, Font = Theme.Fonts.Bold, TextSize = Theme.TextSize.Small, Text = "", Parent = card })
 	Components.Label({

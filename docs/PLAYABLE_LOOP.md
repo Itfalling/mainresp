@@ -134,6 +134,12 @@ Hold the rod and click the water. The bobber lands where you clicked (up to 36 s
 - Hits flash with stars, and hovering anything clickable gives a little "boing" and outline flash. Soil squashes when tilled, sprouts pop up when planted, and harvests burst. Animals squash happily. Construction sites squash on every hammer hit, and finished buildings pop with confetti and big dust clouds. Chests and level ups throw confetti.
 - **UI:** glossy buttons grow on hover and squash on press. Windows and toasts pop in with a wobble, the banner arrives on a ribbon, and "+N" numbers pop and tilt. The held hotbar slot lifts, glows and wiggles.
 
+**UI style ("Island Pop").** Warm cream paper panels with a chocolate outline, candy-bright glossy headers with a highlight line and a 3D lip, and soft layered drop shadows. It is built only from frames, gradients and strokes (no image assets).
+- **Player card** (top left): your avatar headshot in a ring, a gold level badge that bounces when you level up, your display name and an XP bar.
+- **Coin and gem pills** sit top centre. The **menu dock** on the left is a frosted glass bar, and every button shows its hotkey (Bag **I**, Build **B**, Players **P**, Emotes **T**). The hotbar sits on a frosted tray.
+- **Windows** have a big glossy header with bubbles and a round red close button that spins on hover. While a window is open the world behind it **dims and blurs**, and clicking outside the window closes it (not in build mode or the island creator, where you need to see the world).
+- The island and quest cards, backpack cards (rarity band with the item name), shop rows and tabs all use the same card style.
+
 - Every action is a **keyframed R15 animation**: chop, mine, hammer, till, plant, water, harvest, feed, milk, pet, cast, wait, bite, reel, catch, cheer, wave, point, dance and open chest. Each tool also has its own **hold pose**. Animations are replicated: **every player sees everyone's swings**, and your own starts instantly (predicted locally). Hits land on the exact animation frame (marker) with sound, particles and a small camera shake. Cows and chickens have jointed legs, heads, tails and wings that walk, eat and hop.
 - Sounds come from two sources that exist for sure: files built into the Roblox client and audio from Roblox's official tutorials. There's background music and a sea ambience; volume is in ⚙️ Settings. See [ASSETS.md](ASSETS.md#sounds).
 
@@ -218,6 +224,6 @@ In Studio everyone can use these; in a live game only `GameConfig.AdminUserIds` 
 
 ## Known limitations
 
-- **Models are procedural** (parts and meshes built in code). Drop real models into `ServerStorage` to override them (see ASSETS.md).
+- **Models are procedural** (parts and meshes built in code) in a cartoon-realistic style: rounded smooth shapes with shading and small details. Cows have muzzles, ears, horns, patches, a collar and bell, an udder and hooves; chickens have combs, wattles, beaks, feet and tail feathers. Trees have shaded leaf clumps and branches (oaks carry apples, pines have layered needles and snow caps, palms have drooping fronds), rocks have highlights, moss and pebbles, crystals glow from inside, and crops grow through proper stages (the corn gets a tassel and husked cobs). Houses have window frames, shutters, sills, eave trim, a porch lamp and chimney smoke. Drop real models into `ServerStorage` to override them (see ASSETS.md).
 - **Visiting is within one server.** Players in other servers can't be visited (that would need TeleportService and reserved servers).
 - Cows and chickens have no sound yet: there is no verified source for animal sounds, so they are labelled placeholders you can fill in.

@@ -4,8 +4,10 @@
 	WHERE:        ReplicatedStorage/Shared/Building/BuildingModels
 	DEPENDENCIES: Shared.Config.BuildingConfig
 
-	Procedural, low-poly models for every building in BuildingConfig. Shared so
-	the client's ghost preview and the server's real building are identical.
+	Procedural, cartoon-realistic models for every building in BuildingConfig
+	(framed windows with shutters and sills, trimmed roofs, door frames, porch
+	lamps, smoking chimneys). Shared so the client's ghost preview and the
+	server's real building are identical.
 
 	Every part carries a "Stage" attribute (0 = always present). Construction
 	reveals stages one hammer hit at a time (spec §11: foundation → walls →
@@ -123,6 +125,16 @@ local function gableRoof(model: Model, stageRoofA: number, stageRoofB: number, w
 			Color = gableColor,
 		})
 	end
+	-- Painted eave boards along the roof edges.
+	for _, z in { zOffset - halfDepth, zOffset + halfDepth } do
+		part(model, stageRoofB, {
+			Name = "EaveTrim",
+			Size = Vector3.new(width + 1.7, 0.35, 0.3),
+			CFrame = CFrame.new(0, baseY + 0.05, z),
+			Color = C.White,
+			CanCollide = false,
+		})
+	end
 	part(model, stageRoofB, {
 		Name = "Ridge",
 		Size = Vector3.new(width + 1.8, 0.5, 0.6),
@@ -130,6 +142,32 @@ local function gableRoof(model: Model, stageRoofA: number, stageRoofB: number, w
 		Color = C.WoodDark,
 		Material = Enum.Material.Wood,
 	})
+end
+
+-- Frame, cross bars, sill and two shutters around a window. `outer` sits on
+-- the wall's outside face with its -Z pointing away from the house.
+local function dressWindow(model: Model, stage: number, outer: CFrame, width: number, height: number, shutter: Color3?)
+	local trim = C.White
+	for _, spec in {
+		{ Vector3.new(width + 0.3, 0.22, 0.2), CFrame.new(0, height / 2, -0.08) },
+		{ Vector3.new(width + 0.3, 0.22, 0.2), CFrame.new(0, -height / 2, -0.08) },
+		{ Vector3.new(0.22, height, 0.2), CFrame.new(width / 2, 0, -0.08) },
+		{ Vector3.new(0.22, height, 0.2), CFrame.new(-width / 2, 0, -0.08) },
+		{ Vector3.new(0.12, height, 0.12), CFrame.new(0, 0, -0.06) },
+		{ Vector3.new(width, 0.12, 0.12), CFrame.new(0, 0, -0.06) },
+	} do
+		part(model, stage, { Name = "WindowFrame", Size = spec[1], CFrame = outer * spec[2], Color = trim, CanCollide = false })
+	end
+	part(model, stage, { Name = "Sill", Size = Vector3.new(width + 0.6, 0.2, 0.45), CFrame = outer * CFrame.new(0, -height / 2 - 0.12, -0.22), Color = trim, CanCollide = false })
+	if not shutter then
+		return
+	end
+	for _, side in { -1, 1 } do
+		local panel = outer * CFrame.new(side * (width / 2 + 0.45), 0, -0.1)
+		part(model, stage, { Name = "Shutter", Size = Vector3.new(0.7, height + 0.1, 0.12), CFrame = panel, Color = shutter, CanCollide = false })
+		part(model, stage, { Name = "ShutterSlat", Size = Vector3.new(0.5, 0.1, 0.06), CFrame = panel * CFrame.new(0, height * 0.2, -0.08), Color = shutter:Lerp(Color3.new(0, 0, 0), 0.2), CanCollide = false })
+		part(model, stage, { Name = "ShutterSlat", Size = Vector3.new(0.5, 0.1, 0.06), CFrame = panel * CFrame.new(0, -height * 0.2, -0.08), Color = shutter:Lerp(Color3.new(0, 0, 0), 0.2), CanCollide = false })
+	end
 end
 
 type HouseParams = {
@@ -140,6 +178,7 @@ type HouseParams = {
 	WallColor: Color3,
 	WallMaterial: Enum.Material,
 	RoofColor: Color3,
+	ShutterColor: Color3?,
 	Steps: number,
 	ZOffset: number?,
 }
@@ -180,11 +219,44 @@ local function house(model: Model, p: HouseParams)
 	part(model, stage(6), { Name = "Lintel", Size = Vector3.new(2.4, h - 4.6, 0.6), CFrame = CFrame.new(0, floorY + 4.6 + (h - 4.6) / 2, z0 - (d / 2 - 0.3)), Color = p.WallColor, Material = p.WallMaterial })
 	-- 7-8 roof
 	gableRoof(model, stage(7), stage(8), w, d, floorY + h, p.RoofRise, z0, p.RoofColor, p.WallColor)
-	-- 9 chimney
+	-- 9 chimney with a cap and a lazy curl of smoke
 	part(model, stage(9), { Name = "Chimney", Size = Vector3.new(1.4, p.RoofRise + 2.4, 1.4), CFrame = CFrame.new(w / 4, floorY + h + (p.RoofRise + 2.4) / 2, z0 + d / 4), Color = C.StoneDark, Material = Enum.Material.Brick })
+	local cap = part(model, stage(9), { Name = "ChimneyCap", Size = Vector3.new(1.8, 0.35, 1.8), CFrame = CFrame.new(w / 4, floorY + h + p.RoofRise + 2.55, z0 + d / 4), Color = C.StoneDark:Lerp(Color3.new(0, 0, 0), 0.2), CanCollide = false })
+	local smoke = Instance.new("ParticleEmitter")
+	smoke.Name = "ChimneySmoke"
+	smoke.Rate = 1.5
+	smoke.Lifetime = NumberRange.new(3, 4.5)
+	smoke.Speed = NumberRange.new(1.5, 2.5)
+	smoke.SpreadAngle = Vector2.new(12, 12)
+	smoke.Acceleration = Vector3.new(0.6, 0.2, 0)
+	smoke.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.8), NumberSequenceKeypoint.new(1, 2.6) })
+	smoke.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.45), NumberSequenceKeypoint.new(1, 1) })
+	smoke.Color = ColorSequence.new(Color3.fromRGB(235, 235, 235))
+	smoke.RotSpeed = NumberRange.new(-20, 20)
+	smoke.Parent = cap
+	-- Windows get frames, bars, sills and shutters.
+	local shutter = p.ShutterColor or Color3.fromRGB(70, 150, 150)
+	dressWindow(model, stage(4), CFrame.new(-w / 2, floorY + h * 0.55, z0) * CFrame.Angles(0, math.rad(90), 0), 2.4, 2, shutter)
+	dressWindow(model, stage(5), CFrame.new(w / 2, floorY + h * 0.55, z0) * CFrame.Angles(0, math.rad(-90), 0), 2.4, 2, shutter)
+	for _, side in { -1, 1 } do
+		-- Front shutters only where there is room beside the door.
+		dressWindow(model, stage(6), CFrame.new(side * (1.2 + segment / 2), floorY + h * 0.55, z0 - d / 2), math.min(2, segment - 0.8), 1.8, if segment >= 4 then shutter else nil)
+	end
 	-- 10 door + step + flower boxes
 	part(model, stage(10), { Name = "Door", Size = Vector3.new(2.2, 4.4, 0.3), CFrame = CFrame.new(0, floorY + 2.2, z0 - (d / 2 - 0.05)), Color = C.WoodDark, Material = Enum.Material.Wood })
 	part(model, stage(10), { Name = "Knob", Shape = Enum.PartType.Ball, Size = Vector3.new(0.3, 0.3, 0.3), CFrame = CFrame.new(0.7, floorY + 2.2, z0 - (d / 2 + 0.15)), Color = Color3.fromRGB(240, 200, 80), CanCollide = false })
+	-- Door frame, a little round window in the door and a porch lamp.
+	for _, spec in { { Vector3.new(2.7, 0.3, 0.25), CFrame.new(0, floorY + 4.55, 0) }, { Vector3.new(0.3, 4.6, 0.25), CFrame.new(-1.25, floorY + 2.3, 0) }, { Vector3.new(0.3, 4.6, 0.25), CFrame.new(1.25, floorY + 2.3, 0) } } do
+		part(model, stage(10), { Name = "DoorFrame", Size = spec[1], CFrame = CFrame.new(0, 0, z0 - (d / 2 + 0.08)) * spec[2], Color = C.White, CanCollide = false })
+	end
+	part(model, stage(10), { Name = "DoorWindow", Shape = Enum.PartType.Cylinder, Size = Vector3.new(0.1, 0.8, 0.8), CFrame = CFrame.new(0, floorY + 3.4, z0 - (d / 2 + 0.22)) * CFrame.Angles(0, math.rad(90), 0), Color = C.Glass, Material = Enum.Material.Glass, CanCollide = false })
+	part(model, stage(10), { Name = "LampArm", Size = Vector3.new(0.15, 0.15, 0.6), CFrame = CFrame.new(-1.9, floorY + 3.6, z0 - (d / 2 + 0.3)), Color = Color3.fromRGB(60, 60, 65), Material = Enum.Material.Metal, CanCollide = false })
+	local lamp = part(model, stage(10), { Name = "PorchLamp", Size = Vector3.new(0.45, 0.6, 0.45), CFrame = CFrame.new(-1.9, floorY + 3.35, z0 - (d / 2 + 0.6)), Color = C.Warm, Material = Enum.Material.Neon, CanCollide = false })
+	local glow = Instance.new("PointLight")
+	glow.Range = 10
+	glow.Brightness = 0.9
+	glow.Color = C.Warm
+	glow.Parent = lamp
 	part(model, stage(10), { Name = "Step", Size = Vector3.new(3.2, 0.5, 1.4), CFrame = CFrame.new(0, 0.25, z0 - (d / 2 + 0.6)), Color = C.Stone, Material = Enum.Material.Slate })
 	for _, side in { -1, 1 } do
 		part(model, stage(10), { Name = "FlowerBox", Size = Vector3.new(math.min(2.2, segment - 0.6), 0.5, 0.6), CFrame = CFrame.new(side * (1.2 + segment / 2), floorY + h * 0.55 - 1.2, z0 - (d / 2 + 0.3)), Color = C.Wood, Material = Enum.Material.Wood, CanCollide = false })
@@ -226,15 +298,15 @@ end
 local BUILDERS: { [string]: (Model, any) -> () } = {}
 
 BUILDERS.SmallCottage = function(model, def)
-	house(model, { Width = 10, Depth = 10, WallHeight = 7, RoofRise = 4, WallColor = C.Plaster, WallMaterial = Enum.Material.SmoothPlastic, RoofColor = C.RoofRed, Steps = def.Steps })
+	house(model, { Width = 10, Depth = 10, WallHeight = 7, RoofRise = 4, WallColor = C.Plaster, WallMaterial = Enum.Material.SmoothPlastic, RoofColor = C.RoofRed, ShutterColor = Color3.fromRGB(64, 156, 150), Steps = def.Steps })
 end
 
 BUILDERS.WoodenCabin = function(model, def)
-	house(model, { Width = 14, Depth = 12, WallHeight = 7.5, RoofRise = 4.5, WallColor = Color3.fromRGB(150, 100, 60), WallMaterial = Enum.Material.WoodPlanks, RoofColor = C.RoofBrown, Steps = def.Steps })
+	house(model, { Width = 14, Depth = 12, WallHeight = 7.5, RoofRise = 4.5, WallColor = Color3.fromRGB(150, 100, 60), WallMaterial = Enum.Material.WoodPlanks, RoofColor = C.RoofBrown, ShutterColor = Color3.fromRGB(88, 140, 70), Steps = def.Steps })
 end
 
 BUILDERS.StoneHouse = function(model, def)
-	house(model, { Width = 14, Depth = 14, WallHeight = 8.5, RoofRise = 5, WallColor = C.Stone, WallMaterial = Enum.Material.Cobblestone, RoofColor = C.RoofBlue, Steps = def.Steps })
+	house(model, { Width = 14, Depth = 14, WallHeight = 8.5, RoofRise = 5, WallColor = C.Stone, WallMaterial = Enum.Material.Cobblestone, RoofColor = C.RoofBlue, ShutterColor = Color3.fromRGB(80, 110, 160), Steps = def.Steps })
 end
 
 BUILDERS.Barn = function(model, def)

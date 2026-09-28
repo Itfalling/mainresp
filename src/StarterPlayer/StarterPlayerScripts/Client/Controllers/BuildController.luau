@@ -734,7 +734,7 @@ local function buildUI()
 	-- HUD button (left menu, under the bag).
 	local buildButton = Components.IconButton({
 		Icon = "🔨",
-		Caption = "Build",
+		Caption = "Build", Key = "B",
 		Color = Theme.Colors.Orange,
 		Parent = UIController.GetSlot("Left"),
 		LayoutOrder = 2,

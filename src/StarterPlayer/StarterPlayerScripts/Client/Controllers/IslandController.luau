@@ -99,8 +99,8 @@ local function refreshHome()
 	local xp = island.XP or 0
 	local needed = ProgressionConfig.IslandXPForLevel(level)
 	local theme = themeOf(island.Theme)
-	refs.HeaderLabel.Text = theme.Icon .. " MY ISLAND"
-	refs.Header.BackgroundColor3 = theme.Color
+	refs.HeaderLabel.Text = "MY ISLAND"
+	Components.SetCardHeader(refs.Header, theme.Color, theme.Icon)
 	refs.Name.Text = island.Name or "My Island"
 	refs.Title.Text = ("%s · %s · Lv %d"):format(theme.DisplayName, ProgressionConfig.GetIslandTitle(level), level)
 	refs.XPBar.Frame.Visible = true
@@ -128,8 +128,8 @@ local function refreshVisiting(userId: number)
 	local owner = Players:GetPlayerByUserId(userId)
 	local ownerName = (model and model:GetAttribute("OwnerName")) or (owner and owner.DisplayName) or "Someone"
 	local theme = themeOf(model and model:GetAttribute("Theme"))
-	refs.HeaderLabel.Text = "👋 VISITING"
-	refs.Header.BackgroundColor3 = theme.Color
+	refs.HeaderLabel.Text = "VISITING"
+	Components.SetCardHeader(refs.Header, theme.Color, "👋")
 	refs.Name.Text = tostring((model and model:GetAttribute("IslandName")) or (ownerName .. "'s Island"))
 	refs.Title.Text = ("%s's %s island · Lv %s"):format(ownerName, theme.DisplayName, tostring(model and model:GetAttribute("IslandLevel") or 1))
 	refs.XPBar.Frame.Visible = false
@@ -157,30 +157,15 @@ local function refresh()
 end
 
 local function buildCard(parent: Frame): Refs
-	local card = Create("Frame", {
-		Name = "IslandPanel",
+	local card, header, body, headerLabel = Components.Card({
+		Title = "MY ISLAND",
+		Icon = "🏝️",
+		Color = Theme.Colors.Level,
 		Size = UDim2.new(1, 0, 0, PANEL_HEIGHT),
-		BackgroundColor3 = Theme.Colors.Panel,
-		LayoutOrder = 1,
 		Parent = parent,
+		LayoutOrder = 1,
 	})
-	Components.Corner(card)
-	Components.Stroke(card)
-	Components.Gradient(card, Color3.new(1, 1, 1), Theme.Colors.PanelAlt)
-
-	local header = Create("Frame", { Name = "Header", Size = UDim2.new(1, 0, 0, 40), BackgroundColor3 = Theme.Colors.Level, Parent = card })
-	Components.Corner(header)
-	Components.Gradient(header, Color3.new(1, 1, 1), Color3.fromRGB(200, 200, 200))
-	local headerLabel = Components.Label({
-		Text = "🏝️ MY ISLAND",
-		Size = UDim2.new(1, -50, 1, 0),
-		Position = UDim2.fromOffset(12, 0),
-		TextXAlignment = Enum.TextXAlignment.Left,
-		TextColor3 = Theme.Colors.TextLight,
-		TextSize = Theme.TextSize.Medium,
-		Parent = header,
-	})
-	Components.TextStroke(headerLabel)
+	card.Name = "IslandPanel"
 	local toggle = Components.Button({
 		Name = "Toggle",
 		Text = "–",
@@ -195,7 +180,6 @@ local function buildCard(parent: Frame): Refs
 	})
 	Components.Corner(toggle, UDim.new(1, 0))
 
-	local body = Create("Frame", { Name = "Body", Size = UDim2.new(1, -20, 1, -50), Position = UDim2.fromOffset(10, 46), BackgroundTransparency = 1, Parent = card })
 	local name = Components.Label({ Size = UDim2.new(1, 0, 0, 26), TextScaled = true, Text = "", Parent = body })
 	local title = Components.Label({ Size = UDim2.new(1, 0, 0, 18), Position = UDim2.fromOffset(0, 26), Font = Theme.Fonts.Bold, TextSize = Theme.TextSize.Small, TextColor3 = Theme.Colors.TextMuted, TextScaled = true, Text = "", Parent = body })
 	local xpBar = Components.ProgressBar({ Size = UDim2.new(1, 0, 0, 12), Position = UDim2.fromOffset(0, 50), Color = Theme.Colors.Level, Parent = body })

@@ -4,36 +4,41 @@
 	WHERE:        StarterPlayerScripts/Client/UI/Theme
 	DEPENDENCIES: none
 
-	The single source of UI colours, fonts and sizes. A warm, friendly island
-	look: creamy panels with soft drop shadows, chunky rounded buttons with a
-	light-to-dark gradient, bright accent colours and crisp Builder Sans text
-	(Fredoka One for titles).
+	The single source of UI colours, fonts and sizes ("Island Pop" style):
+	warm cream paper panels with a chocolate outline, candy-bright accent
+	colours with glossy highlights and a 3D lip, soft layered drop shadows,
+	Fredoka One titles and Builder Sans text.
 ]]
 
 local Theme = {}
 
 Theme.Colors = {
-	Panel = Color3.fromRGB(255, 251, 242),
-	PanelAlt = Color3.fromRGB(246, 238, 222),
-	PanelDark = Color3.fromRGB(226, 212, 186),
-	Header = Color3.fromRGB(52, 150, 230),
-	HeaderDark = Color3.fromRGB(36, 112, 196),
-	Outline = Color3.fromRGB(62, 44, 30),
-	Text = Color3.fromRGB(58, 40, 26),
-	TextMuted = Color3.fromRGB(138, 112, 88),
+	-- Paper
+	Panel = Color3.fromRGB(255, 251, 240),
+	PanelAlt = Color3.fromRGB(248, 239, 220),
+	PanelDark = Color3.fromRGB(230, 214, 186),
+	Inset = Color3.fromRGB(239, 227, 203), -- recessed wells (lists, grids)
+	-- Chrome
+	Header = Color3.fromRGB(58, 162, 242),
+	HeaderDark = Color3.fromRGB(36, 116, 200),
+	Outline = Color3.fromRGB(56, 38, 26),
+	Text = Color3.fromRGB(62, 42, 28),
+	TextMuted = Color3.fromRGB(140, 112, 86),
 	TextLight = Color3.fromRGB(255, 255, 255),
-	Coins = Color3.fromRGB(255, 196, 40),
-	Gems = Color3.fromRGB(80, 200, 255),
-	Level = Color3.fromRGB(110, 205, 85),
-	Blue = Color3.fromRGB(64, 156, 255),
-	Green = Color3.fromRGB(76, 196, 96),
-	Red = Color3.fromRGB(236, 86, 86),
-	Orange = Color3.fromRGB(255, 150, 60),
-	Purple = Color3.fromRGB(160, 110, 250),
-	Pink = Color3.fromRGB(255, 120, 170),
-	Teal = Color3.fromRGB(46, 190, 180),
-	Shadow = Color3.fromRGB(0, 0, 0),
-	Glass = Color3.fromRGB(20, 26, 40),
+	-- Accents
+	Coins = Color3.fromRGB(255, 200, 40),
+	Gems = Color3.fromRGB(86, 204, 255),
+	Level = Color3.fromRGB(112, 210, 86),
+	Blue = Color3.fromRGB(62, 164, 255),
+	Green = Color3.fromRGB(86, 204, 96),
+	Red = Color3.fromRGB(242, 86, 86),
+	Orange = Color3.fromRGB(255, 156, 52),
+	Purple = Color3.fromRGB(162, 112, 255),
+	Pink = Color3.fromRGB(255, 118, 172),
+	Teal = Color3.fromRGB(38, 196, 184),
+	-- Effects
+	Shadow = Color3.fromRGB(20, 12, 6),
+	Glass = Color3.fromRGB(26, 32, 50),
 }
 
 Theme.Fonts = {
@@ -43,13 +48,13 @@ Theme.Fonts = {
 	Heavy = Enum.Font.BuilderSansExtraBold,
 }
 
-Theme.Corner = UDim.new(0, 16)
-Theme.SmallCorner = UDim.new(0, 11)
+Theme.Corner = UDim.new(0, 18)
+Theme.SmallCorner = UDim.new(0, 12)
 Theme.StrokeThickness = 3
 
 Theme.TextSize = {
 	Huge = 44,
-	Title = 26,
+	Title = 28,
 	Large = 22,
 	Medium = 18,
 	Small = 15,

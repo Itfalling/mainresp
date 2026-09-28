@@ -4,11 +4,14 @@
 	WHERE:        StarterPlayerScripts/Client/UI/HUD
 	DEPENDENCIES: Client.UI.{Theme, Components}
 
-	Builds the main HUD layout once (spec §83):
-		Top     island level, coins, gems
-		Right   slot for the island/quest panel (IslandController)
-		Bottom  slot for the tool hotbar (ToolController)
-		Left    slot for the menu buttons (Bag, Build, Players, Emotes, Settings)
+	Builds the main HUD layout once (spec §83), "Island Pop" style:
+		Top-left  PLAYER CARD: round avatar with a level badge, your name and
+		          an XP bar
+		Top       coin + gem pills
+		Right     slot for the island / quest cards (IslandController, QuestController)
+		Left      frosted menu DOCK (Bag, Build, Players, Emotes, Settings)
+		Bottom    frosted tray + slot for the hotbar (ToolController)
+		Touch     touch-only action buttons
 	Controllers fill the slots; UIController updates the values.
 ]]
 
@@ -22,15 +25,119 @@ local HUD = {}
 export type HUDRefs = {
 	Root: Frame,
 	TopBar: Frame,
-	IslandPill: Frame,
-	IslandLabel: TextLabel,
-	IslandXP: Components.ProgressBar,
+	PlayerCard: Frame,
+	PlayerAvatar: ImageLabel,
+	PlayerName: TextLabel,
+	PlayerLevel: TextLabel,
+	PlayerLevelBadge: Frame,
+	PlayerXP: Components.ProgressBar,
+	PlayerXPText: TextLabel,
 	CoinsPill: Frame,
 	CoinsLabel: TextLabel,
 	GemsPill: Frame,
 	GemsLabel: TextLabel,
 	Slots: { [string]: Frame },
 }
+
+local function frosted(frame: Frame)
+	frame.BackgroundColor3 = Theme.Colors.Glass
+	frame.BackgroundTransparency = 0.45
+	Components.Corner(frame, UDim.new(0, 24))
+	local stroke = Components.Stroke(frame, Color3.new(1, 1, 1), 2)
+	stroke.Transparency = 0.75
+end
+
+local function playerCard(root: Frame)
+	local card = Create("Frame", {
+		Name = "PlayerCard",
+		Size = UDim2.fromOffset(262, 74),
+		Position = UDim2.fromOffset(52, 14),
+		BackgroundColor3 = Theme.Colors.Panel,
+		Parent = root,
+	})
+	Components.Corner(card, UDim.new(0, 20))
+	Components.Stroke(card, Theme.Colors.Outline, 3)
+	Components.Gloss(card, 0.4)
+	Components.Lip(card, Theme.Colors.PanelDark, 6)
+
+	-- Round avatar overhanging the left edge.
+	local avatarRing = Create("Frame", {
+		Name = "AvatarRing",
+		Size = UDim2.fromOffset(84, 84),
+		Position = UDim2.new(0, -42, 0.5, 0),
+		AnchorPoint = Vector2.new(0, 0.5),
+		BackgroundColor3 = Theme.Colors.Level,
+		ZIndex = 2,
+		Parent = card,
+	})
+	Components.Corner(avatarRing, UDim.new(1, 0))
+	Components.Stroke(avatarRing, Theme.Colors.Outline, 3)
+	Components.Gloss(avatarRing)
+	local avatar = Create("ImageLabel", {
+		Name = "Avatar",
+		Size = UDim2.new(1, -12, 1, -12),
+		Position = UDim2.fromOffset(6, 6),
+		BackgroundColor3 = Theme.Colors.PanelAlt,
+		Image = "",
+		ZIndex = 3,
+		Parent = avatarRing,
+	})
+	Components.Corner(avatar, UDim.new(1, 0))
+
+	-- Level badge on the avatar.
+	local badge = Create("Frame", {
+		Name = "LevelBadge",
+		Size = UDim2.fromOffset(38, 38),
+		Position = UDim2.new(1, 4, 1, 4),
+		AnchorPoint = Vector2.new(1, 1),
+		BackgroundColor3 = Theme.Colors.Coins,
+		ZIndex = 4,
+		Parent = avatarRing,
+	})
+	Components.Corner(badge, UDim.new(1, 0))
+	Components.Stroke(badge, Theme.Colors.Outline, 3)
+	Components.Gloss(badge)
+	local level = Components.Label({
+		Name = "Level",
+		Text = "1",
+		Size = UDim2.fromScale(1, 1),
+		TextSize = 20,
+		TextColor3 = Theme.Colors.TextLight,
+		ZIndex = 5,
+		Parent = badge,
+	})
+	Components.TextStroke(level, Theme.Colors.Outline, 2)
+
+	local name = Components.Label({
+		Name = "PlayerName",
+		Text = "Player",
+		Size = UDim2.new(1, -62, 0, 28),
+		Position = UDim2.fromOffset(52, 7),
+		TextXAlignment = Enum.TextXAlignment.Left,
+		TextSize = 21,
+		TextWrapped = false,
+		TextTruncate = Enum.TextTruncate.AtEnd,
+		Parent = card,
+	})
+	local xp = Components.ProgressBar({
+		Size = UDim2.new(1, -66, 0, 18),
+		Position = UDim2.fromOffset(52, 40),
+		Color = Theme.Colors.Level,
+		Parent = card,
+	})
+	local xpText = Components.Label({
+		Name = "XPText",
+		Text = "",
+		Size = UDim2.fromScale(1, 1),
+		Font = Theme.Fonts.Heavy,
+		TextSize = 12,
+		TextColor3 = Theme.Colors.TextLight,
+		ZIndex = 3,
+		Parent = xp.Frame,
+	})
+	Components.TextStroke(xpText, Theme.Colors.Outline, 1.5)
+	return card, avatar, name, level, badge, xp, xpText
+end
 
 function HUD.Create(parent: Instance): HUDRefs
 	local root = Create("Frame", {
@@ -40,10 +147,12 @@ function HUD.Create(parent: Instance): HUDRefs
 		Parent = parent,
 	})
 
+	local card, avatar, name, level, badge, xp, xpText = playerCard(root)
+
 	local topBar = Create("Frame", {
 		Name = "TopBar",
-		Size = UDim2.fromOffset(620, 60),
-		Position = UDim2.new(0.5, 0, 0, 10),
+		Size = UDim2.fromOffset(440, 60),
+		Position = UDim2.new(0.5, 0, 0, 14),
 		AnchorPoint = Vector2.new(0.5, 0),
 		BackgroundTransparency = 1,
 		Parent = root,
@@ -52,62 +161,64 @@ function HUD.Create(parent: Instance): HUDRefs
 			FillDirection = Enum.FillDirection.Horizontal,
 			HorizontalAlignment = Enum.HorizontalAlignment.Center,
 			VerticalAlignment = Enum.VerticalAlignment.Center,
-			Padding = UDim.new(0, 30),
+			Padding = UDim.new(0, 34),
 			SortOrder = Enum.SortOrder.LayoutOrder,
 		}),
 	})
+	local coinsPill, coinsLabel = Components.Pill({ Icon = "🪙", Color = Theme.Colors.Coins, Width = 200, Parent = topBar, LayoutOrder = 1 })
+	local gemsPill, gemsLabel = Components.Pill({ Icon = "💎", Color = Theme.Colors.Gems, Width = 160, Parent = topBar, LayoutOrder = 2 })
 
-	local islandPill, islandLabel = Components.Pill({ Icon = "🏝️", Color = Theme.Colors.Level, Width = 170, Parent = topBar, LayoutOrder = 1 })
-	islandLabel.Size = UDim2.new(1, -56, 0, 28)
-	islandLabel.Position = UDim2.fromOffset(46, 2)
-	islandLabel.TextSize = Theme.TextSize.Medium
-	local islandXP = Components.ProgressBar({
-		Size = UDim2.new(1, -60, 0, 8),
-		Position = UDim2.fromOffset(46, 30),
-		Color = Theme.Colors.Level,
-		Parent = islandPill,
+	local dock = Create("Frame", {
+		Name = "LeftSlot",
+		Size = UDim2.fromOffset(92, 476),
+		Position = UDim2.new(0, 12, 0.5, 30),
+		AnchorPoint = Vector2.new(0, 0.5),
+		Parent = root,
+	}, {
+		Create("UIListLayout", {
+			Padding = UDim.new(0, 28),
+			HorizontalAlignment = Enum.HorizontalAlignment.Center,
+			VerticalAlignment = Enum.VerticalAlignment.Center,
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+		Create("UIPadding", { PaddingBottom = UDim.new(0, 16) }),
 	})
+	frosted(dock)
 
-	local coinsPill, coinsLabel = Components.Pill({ Icon = "🪙", Color = Theme.Colors.Coins, Width = 170, Parent = topBar, LayoutOrder = 2 })
-	local gemsPill, gemsLabel = Components.Pill({ Icon = "💎", Color = Theme.Colors.Gems, Width = 130, Parent = topBar, LayoutOrder = 3 })
+	local bottom = Create("Frame", {
+		Name = "BottomSlot",
+		Size = UDim2.fromOffset(720, 96),
+		Position = UDim2.new(0.5, 0, 1, -12),
+		AnchorPoint = Vector2.new(0.5, 1),
+		BackgroundTransparency = 1,
+		Parent = root,
+	})
+	local tray = Create("Frame", {
+		Name = "Tray",
+		Size = UDim2.new(1, 16, 0, 62),
+		Position = UDim2.new(0.5, 0, 1, 6),
+		AnchorPoint = Vector2.new(0.5, 1),
+		ZIndex = 0,
+		Parent = bottom,
+	})
+	frosted(tray)
 
 	local slots = {
 		Right = Create("Frame", {
 			Name = "RightSlot",
-			Size = UDim2.fromOffset(250, 540),
-			Position = UDim2.new(1, -12, 0, 80),
+			Size = UDim2.fromOffset(256, 560),
+			Position = UDim2.new(1, -14, 0, 86),
 			AnchorPoint = Vector2.new(1, 0),
 			BackgroundTransparency = 1,
 			Parent = root,
 		}, {
 			Create("UIListLayout", {
-				Padding = UDim.new(0, 10),
+				Padding = UDim.new(0, 12),
 				SortOrder = Enum.SortOrder.LayoutOrder,
 			}),
 		}),
-		Bottom = Create("Frame", {
-			Name = "BottomSlot",
-			Size = UDim2.fromOffset(720, 96),
-			Position = UDim2.new(0.5, 0, 1, -12),
-			AnchorPoint = Vector2.new(0.5, 1),
-			BackgroundTransparency = 1,
-			Parent = root,
-		}),
-		Left = Create("Frame", {
-			Name = "LeftSlot",
-			Size = UDim2.fromOffset(84, 480),
-			Position = UDim2.new(0, 14, 0.5, 10),
-			AnchorPoint = Vector2.new(0, 0.5),
-			BackgroundTransparency = 1,
-			Parent = root,
-		}, {
-			Create("UIListLayout", {
-				Padding = UDim.new(0, 24),
-				HorizontalAlignment = Enum.HorizontalAlignment.Center,
-				VerticalAlignment = Enum.VerticalAlignment.Center,
-				SortOrder = Enum.SortOrder.LayoutOrder,
-			}),
-		}),
+		Bottom = bottom,
+		Left = dock,
 		-- Touch-only action buttons (bottom-right, above the jump button).
 		Touch = Create("Frame", {
 			Name = "TouchSlot",
@@ -122,9 +233,13 @@ function HUD.Create(parent: Instance): HUDRefs
 	return {
 		Root = root,
 		TopBar = topBar,
-		IslandPill = islandPill,
-		IslandLabel = islandLabel,
-		IslandXP = islandXP,
+		PlayerCard = card,
+		PlayerAvatar = avatar,
+		PlayerName = name,
+		PlayerLevel = level,
+		PlayerLevelBadge = badge,
+		PlayerXP = xp,
+		PlayerXPText = xpText,
 		CoinsPill = coinsPill,
 		CoinsLabel = coinsLabel,
 		GemsPill = gemsPill,

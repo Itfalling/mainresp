@@ -87,7 +87,7 @@ function InventoryController.Init()
 
 	Components.IconButton({
 		Icon = "🎒",
-		Caption = "Bag",
+		Caption = "Bag", Key = "I",
 		Color = Theme.Colors.Blue,
 		Parent = UIController.GetSlot("Left"),
 		LayoutOrder = 1,

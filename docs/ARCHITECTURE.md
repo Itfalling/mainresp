@@ -441,7 +441,7 @@ See `docs/ASSETS.md` for tweaking keyframes or swapping in uploaded animations.
 
 - One `ScreenGui` (`IslandUI`, `ResetOnSpawn = false`, `CoreUISafeInsets`) authored at **1280×720 design size** and scaled with `UIScale`, so it fits phones, tablets, PC and console.
 - Layers: HUD (TopBar, Left, Right, Bottom and Touch slots) → Modals (Backpack...) → Overlay (toasts, banners, floats).
-- A **Theme** module holds all colours and fonts. **Components** provides Create, Button (with press bounce and click sound), Pill, ProgressBar, Panel and Bounce.
+- A **Theme** module holds all colours and fonts. **Components** provides Create, Button (with press bounce and click sound), IconButton (with hotkey badge), Pill, ProgressBar, Panel (glossy header, soft shadow, round close button), Card, Tabs, Gloss, Shine, Lip, SoftShadow and Bounce. UIController adds a dimmed, blurred backdrop behind open windows (click it to close).
 - Frames are created once, updated in place, and pooled (item cards, float labels, VFX).
 - **State-driven:** UI observes `ClientState` keys. Coin and item feedback is automatic, based on value diffs.
 - **Mobile:** 64 px+ touch targets, tap an object to use it, a USE button while something is held (auto-targets what's in front of you), the left menu buttons, and a collapsible island panel that starts collapsed on touch.
