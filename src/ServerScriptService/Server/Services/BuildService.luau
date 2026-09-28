@@ -559,7 +559,6 @@ local function advance(player: Player, site: Site)
 	local def = site.Def
 	local offset = Vector3.new((math.random() - 0.5) * def.Footprint.X * 0.6, math.random() * def.Height * 0.6, (math.random() - 0.5) * def.Footprint.Y * 0.6)
 	local hitPoint = (pivot * CFrame.new(offset)).Position
-	AnimationService.Recoil(player.Character, 0.9)
 	VFXService.PlayAt("BuildDust", hitPoint)
 	VFXService.PlayAt("HitPop", hitPoint)
 	VFXService.PlayAt("Stars", hitPoint, { Count = 4 })

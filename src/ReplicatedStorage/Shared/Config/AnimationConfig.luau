@@ -16,10 +16,6 @@
 	Length and Markers here drive BOTH the keyframes (impact frames sit on the
 	markers) and the server's gameplay timing (AnimationService.PerformAction).
 
-	MOVEMENT (idle / walk / run / jump / fall / swim / climb) is procedural:
-	Client/Animation/Locomotion, which replaces Roblox's default Animate
-	script. The Movement entries below are kept as documentation.
-
 	Field reference (spec §74):
 		Id            rbxassetid:// of the uploaded animation
 		Purpose       what gameplay it supports

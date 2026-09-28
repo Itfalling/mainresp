@@ -135,7 +135,6 @@ local function till(player: Player, tile: Tile, hoe: any)
 	AnimationService.PerformAction(player, hoe.Animations.Use or "HoeTill", "Till", function()
 		if tile.Entry == nil and tilesById[tile.Id] == tile then
 			setEntry(tile, { TileId = tile.Id, State = "Tilled" })
-			AnimationService.Recoil(player.Character, 0.6)
 			VFXService.PlayAt("DirtPuff", tile.Part.Position + Vector3.new(0, 0.5, 0))
 			VFXService.PlayAt("Puff", tile.Part.Position, { Scale = 0.45, Count = 5, Color = Color3.fromRGB(170, 130, 90) })
 			VFXService.Jiggle(tile.Part:FindFirstAncestorOfClass("Model"), "Squash")
