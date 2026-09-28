@@ -435,6 +435,242 @@ A.CraftStart = A.PickCrop
 A.CraftWork = A.HammerSwing
 A.CraftFinish = A.Cheer
 
+---------------------------------------------------------------------------
+-- Swing variants: every tool has three swings, picked at random each use.
+-- They keep the base swing's impact time (see AnimationConfig.Variants),
+-- and use cartoon anticipation -> smash -> overshoot timing.
+---------------------------------------------------------------------------
+
+local AXE = { Waist = { 0, 0, 0 }, Neck = { 0, 0, 0 }, RightShoulder = { 16, 0, 6 }, RightElbow = { 78, 0, 0 }, RightWrist = { -8, 0, 0 }, LeftShoulder = { 0, 0, 0 }, LeftElbow = { 0, 0, 0 } }
+local PICK = { Waist = { 0, 0, 0 }, Neck = { 0, 0, 0 }, RightShoulder = { 18, 0, 6 }, RightElbow = { 74, 0, 0 }, RightWrist = { 0, 0, 0 }, LeftShoulder = { 0, 0, 0 }, LeftElbow = { 0, 0, 0 } }
+local HAMMER = { Waist = { 0, 0, 0 }, Neck = { 0, 0, 0 }, RightShoulder = { 14, 0, 6 }, RightElbow = { 70, 0, 0 }, RightWrist = { 0, 0, 0 }, LeftShoulder = { 0, 0, 0 }, LeftElbow = { 0, 0, 0 } }
+local HOE = { Waist = { 0, 0, 0 }, Neck = { 0, 0, 0 }, RightShoulder = { 22, 0, 4 }, RightElbow = { 60, 0, 0 }, RightWrist = { 0, 0, 0 }, LeftShoulder = { 30, 0, 18 }, LeftElbow = { 50, 0, 0 } }
+local SHOVEL = { Waist = { 0, 0, 0 }, Neck = { 0, 0, 0 }, RightShoulder = { 20, 0, 4 }, RightElbow = { 62, 0, 0 }, RightWrist = { 0, 0, 0 }, LeftShoulder = { 28, 0, 18 }, LeftElbow = { 48, 0, 0 } }
+local CAN = { Waist = { 0, 0, 0 }, Neck = { 0, 0, 0 }, RightShoulder = { 34, 0, 4 }, RightElbow = { 30, 0, 0 }, RightWrist = { -20, 0, 0 } }
+local ROD = { Waist = { 0, 0, 0 }, Neck = { 0, 0, 0 }, RightShoulder = { 30, 0, 4 }, RightElbow = { 18, 0, 0 }, RightWrist = { 0, 0, 0 }, LeftShoulder = { 26, 0, 14 }, LeftElbow = { 40, 0, 0 } }
+local BUCKET = { Waist = { 0, 0, 0 }, Neck = { 0, 0, 0 }, RightShoulder = { 8, 0, 8 }, RightElbow = { 12, 0, 0 }, RightWrist = { -80, 0, 0 } }
+local SHEARS = { Waist = { 0, 0, 0 }, Neck = { 0, 0, 0 }, RightShoulder = { 12, 0, 6 }, RightElbow = { 55, 0, 0 }, RightWrist = { 0, 0, 0 }, LeftShoulder = { 0, 0, 0 }, LeftElbow = { 0, 0, 0 } }
+
+-- AXE 2: two-handed overhead chop straight down.
+A.AxeChopHigh = {
+	Keys = {
+		{ T = 0, Pose = AXE },
+		{ T = 0.3, Ease = "Out", Pose = { Waist = { 14, 0, 0 }, Neck = { 8, 0, 0 }, RightShoulder = { 172, 0, 8 }, RightElbow = { 64, 0, 0 }, RightWrist = { 10, 0, 0 }, LeftShoulder = { 160, 0, -10 }, LeftElbow = { 64, 0, 0 } } },
+		{ T = 0.5, Ease = "In", Pose = { Waist = { -26, 0, 0 }, Neck = { -12, 0, 0 }, RightShoulder = { 66, 0, -6 }, RightElbow = { 4, 0, 0 }, RightWrist = { -76, 0, 0 }, LeftShoulder = { 60, 0, 10 }, LeftElbow = { 8, 0, 0 } } },
+		{ T = 0.62, Ease = "Out", Pose = { Waist = { -20, 0, 0 }, Neck = { -8, 0, 0 }, RightShoulder = { 74, 0, -6 }, RightElbow = { 10, 0, 0 }, RightWrist = { -64, 0, 0 }, LeftShoulder = { 66, 0, 10 }, LeftElbow = { 12, 0, 0 } } },
+		{ T = 1, Pose = AXE },
+	},
+}
+
+-- AXE 3: flat horizontal slash with a big torso twist.
+A.AxeSlash = {
+	Keys = {
+		{ T = 0, Pose = AXE },
+		{ T = 0.3, Ease = "Out", Pose = { Waist = { 4, -48, 0 }, Neck = { 0, 30, 0 }, RightShoulder = { 90, 0, 62 }, RightElbow = { 40, 0, 0 }, RightWrist = { -60, 0, 0 }, LeftShoulder = { 40, 0, -20 }, LeftElbow = { 60, 0, 0 } } },
+		{ T = 0.5, Ease = "In", Pose = { Waist = { -6, 40, 0 }, Neck = { 0, -24, 0 }, RightShoulder = { 86, 0, -18 }, RightElbow = { 6, 0, 0 }, RightWrist = { -84, 0, 0 }, LeftShoulder = { 20, 0, 20 }, LeftElbow = { 30, 0, 0 } } },
+		{ T = 0.66, Ease = "Out", Pose = { Waist = { -4, 46, 0 }, Neck = { 0, -26, 0 }, RightShoulder = { 80, 0, -26 }, RightElbow = { 10, 0, 0 }, RightWrist = { -80, 0, 0 }, LeftShoulder = { 16, 0, 20 }, LeftElbow = { 26, 0, 0 } } },
+		{ T = 1, Pose = AXE },
+	},
+}
+
+-- PICKAXE 2: diagonal strike from the right shoulder.
+A.PickaxeSide = {
+	Keys = {
+		{ T = 0, Pose = PICK },
+		{ T = 0.3, Ease = "Out", Pose = { Waist = { 6, -30, 0 }, Neck = { 0, 14, 0 }, RightShoulder = { 140, 0, 40 }, RightElbow = { 60, 0, 0 }, RightWrist = { 10, 0, 0 }, LeftShoulder = { 50, 0, -6 }, LeftElbow = { 40, 0, 0 } } },
+		{ T = 0.49, Ease = "In", Pose = { Waist = { -22, 20, 0 }, Neck = { -12, -8, 0 }, RightShoulder = { 54, 0, -12 }, RightElbow = { 8, 0, 0 }, RightWrist = { -96, 0, 0 }, LeftShoulder = { 30, 0, 12 }, LeftElbow = { 30, 0, 0 } } },
+		{ T = 0.62, Ease = "Out", Pose = { Waist = { -18, 22, 0 }, Neck = { -10, -8, 0 }, RightShoulder = { 50, 0, -12 }, RightElbow = { 12, 0, 0 }, RightWrist = { -86, 0, 0 }, LeftShoulder = { 26, 0, 12 }, LeftElbow = { 26, 0, 0 } } },
+		{ T = 1, Pose = PICK },
+	},
+}
+
+-- PICKAXE 3: hop up and SLAM down with both hands.
+A.PickaxeSlam = {
+	Legs = true,
+	Keys = {
+		{ T = 0, Pose = merge(STAND, PICK) },
+		{ T = 0.3, Ease = "Out", Pose = merge(STAND, { Root = { 0, 0, 0, 0, 0.5, 0 }, RightKnee = { -20, 0, 0 }, LeftKnee = { -20, 0, 0 }, Waist = { 16, 0, 0 }, Neck = { 10, 0, 0 }, RightShoulder = { 178, 0, 6 }, RightElbow = { 30, 0, 0 }, RightWrist = { 0, 0, 0 }, LeftShoulder = { 170, 0, -6 }, LeftElbow = { 30, 0, 0 } }) },
+		{ T = 0.49, Ease = "In", Pose = merge(STAND, { Root = { 0, 0, 0, 0, -0.45, 0 }, RightHip = { 22, 0, 0 }, RightKnee = { -40, 0, 0 }, RightAnkle = { 18, 0, 0 }, LeftHip = { 22, 0, 0 }, LeftKnee = { -40, 0, 0 }, LeftAnkle = { 18, 0, 0 }, Waist = { -32, 0, 0 }, Neck = { -16, 0, 0 }, RightShoulder = { 56, 0, -2 }, RightElbow = { 6, 0, 0 }, RightWrist = { -104, 0, 0 }, LeftShoulder = { 52, 0, 4 }, LeftElbow = { 8, 0, 0 } }) },
+		{ T = 0.66, Ease = "Out", Pose = merge(STAND, { Root = { 0, 0, 0, 0, -0.3, 0 }, RightHip = { 16, 0, 0 }, RightKnee = { -28, 0, 0 }, RightAnkle = { 12, 0, 0 }, LeftHip = { 16, 0, 0 }, LeftKnee = { -28, 0, 0 }, LeftAnkle = { 12, 0, 0 }, Waist = { -26, 0, 0 }, Neck = { -12, 0, 0 }, RightShoulder = { 58, 0, -2 }, RightElbow = { 10, 0, 0 }, RightWrist = { -94, 0, 0 }, LeftShoulder = { 50, 0, 4 }, LeftElbow = { 12, 0, 0 } }) },
+		{ T = 1, Pose = merge(STAND, PICK) },
+	},
+}
+
+-- HAMMER 2: sideways bash.
+A.HammerBash = {
+	Keys = {
+		{ T = 0, Pose = HAMMER },
+		{ T = 0.26, Ease = "Out", Pose = { Waist = { 2, -40, 0 }, Neck = { 0, 24, 0 }, RightShoulder = { 100, 0, 58 }, RightElbow = { 60, 0, 0 }, RightWrist = { -40, 0, 0 }, LeftShoulder = { 30, 0, -10 }, LeftElbow = { 40, 0, 0 } } },
+		{ T = 0.48, Ease = "In", Pose = { Waist = { -6, 32, 0 }, Neck = { 0, -20, 0 }, RightShoulder = { 84, 0, -14 }, RightElbow = { 8, 0, 0 }, RightWrist = { -86, 0, 0 }, LeftShoulder = { 20, 0, 14 }, LeftElbow = { 30, 0, 0 } } },
+		{ T = 0.62, Ease = "Out", Pose = { Waist = { -4, 36, 0 }, Neck = { 0, -22, 0 }, RightShoulder = { 80, 0, -20 }, RightElbow = { 12, 0, 0 }, RightWrist = { -80, 0, 0 }, LeftShoulder = { 18, 0, 14 }, LeftElbow = { 28, 0, 0 } } },
+		{ T = 1, Pose = HAMMER },
+	},
+}
+
+-- HAMMER 3: lean way back, then a big overhead slam with bent knees.
+A.HammerSlam = {
+	Legs = true,
+	Keys = {
+		{ T = 0, Pose = merge(STAND, HAMMER) },
+		{ T = 0.28, Ease = "Out", Pose = merge(STAND, { Waist = { 18, -6, 0 }, Neck = { 12, 0, 0 }, RightShoulder = { 176, 0, 12 }, RightElbow = { 90, 0, 0 }, RightWrist = { 20, 0, 0 }, LeftShoulder = { 80, 0, -20 }, LeftElbow = { 50, 0, 0 } }) },
+		{ T = 0.48, Ease = "In", Pose = merge(STAND, { Root = { 0, 0, 0, 0, -0.3, 0 }, RightHip = { 14, 0, 0 }, RightKnee = { -22, 0, 0 }, LeftHip = { 14, 0, 0 }, LeftKnee = { -22, 0, 0 }, Waist = { -24, 6, 0 }, Neck = { -12, 0, 0 }, RightShoulder = { 56, 0, -2 }, RightElbow = { 10, 0, 0 }, RightWrist = { -90, 0, 0 }, LeftShoulder = { 40, 0, 8 }, LeftElbow = { 30, 0, 0 } }) },
+		{ T = 0.62, Ease = "Out", Pose = merge(STAND, { Root = { 0, 0, 0, 0, -0.18, 0 }, RightHip = { 8, 0, 0 }, RightKnee = { -12, 0, 0 }, LeftHip = { 8, 0, 0 }, LeftKnee = { -12, 0, 0 }, Waist = { -18, 6, 0 }, Neck = { -8, 0, 0 }, RightShoulder = { 60, 0, -2 }, RightElbow = { 16, 0, 0 }, RightWrist = { -80, 0, 0 }, LeftShoulder = { 36, 0, 8 }, LeftElbow = { 30, 0, 0 } }) },
+		{ T = 1, Pose = merge(STAND, HAMMER) },
+	},
+}
+
+-- HOE 2: short, snappy chop.
+A.HoeChop = {
+	Keys = {
+		{ T = 0, Pose = HOE },
+		{ T = 0.36, Ease = "Out", Pose = { Waist = { 6, 0, 0 }, Neck = { 2, 0, 0 }, RightShoulder = { 110, 0, 6 }, RightElbow = { 40, 0, 0 }, RightWrist = { 0, 0, 0 }, LeftShoulder = { 100, 0, -2 }, LeftElbow = { 40, 0, 0 } } },
+		{ T = 0.54, Ease = "In", Pose = { Waist = { -24, 0, 0 }, Neck = { -14, 0, 0 }, RightShoulder = { 48, 0, 0 }, RightElbow = { 6, 0, 0 }, RightWrist = { -90, 0, 0 }, LeftShoulder = { 44, 0, 6 }, LeftElbow = { 10, 0, 0 } } },
+		{ T = 0.64, Ease = "Out", Pose = { Waist = { -20, 0, 0 }, Neck = { -12, 0, 0 }, RightShoulder = { 54, 0, 0 }, RightElbow = { 10, 0, 0 }, RightWrist = { -80, 0, 0 }, LeftShoulder = { 48, 0, 6 }, LeftElbow = { 14, 0, 0 } } },
+		{ T = 1, Pose = HOE },
+	},
+}
+
+-- HOE 3: reach forward and rake the soil back towards you.
+A.HoeScrape = {
+	Keys = {
+		{ T = 0, Pose = HOE },
+		{ T = 0.3, Ease = "Out", Pose = { Waist = { -20, 0, 0 }, Neck = { -10, 0, 0 }, RightShoulder = { 80, 0, 4 }, RightElbow = { 10, 0, 0 }, RightWrist = { -60, 0, 0 }, LeftShoulder = { 76, 0, 8 }, LeftElbow = { 12, 0, 0 } } },
+		{ T = 0.54, Ease = "In", Pose = { Waist = { -34, 0, 0 }, Neck = { -18, 0, 0 }, RightShoulder = { 40, 0, 0 }, RightElbow = { 40, 0, 0 }, RightWrist = { -100, 0, 0 }, LeftShoulder = { 38, 0, 6 }, LeftElbow = { 44, 0, 0 } } },
+		{ T = 0.75, Ease = "Out", Pose = { Waist = { -10, 10, 0 }, Neck = { -4, 0, 0 }, RightShoulder = { 30, 0, 4 }, RightElbow = { 60, 0, 0 }, RightWrist = { -40, 0, 0 }, LeftShoulder = { 30, 0, 14 }, LeftElbow = { 50, 0, 0 } } },
+		{ T = 1, Pose = HOE },
+	},
+}
+
+-- SHOVEL 2: stab low and toss the dirt over your shoulder.
+A.ShovelScoop = {
+	Legs = true,
+	Keys = {
+		{ T = 0, Pose = merge(STAND, SHOVEL) },
+		{ T = 0.3, Ease = "Out", Pose = merge(STAND, { Waist = { -14, 0, 0 }, RightShoulder = { 40, 0, 4 }, RightElbow = { 20, 0, 0 }, RightWrist = { -80, 0, 0 }, LeftShoulder = { 50, 0, 10 }, LeftElbow = { 20, 0, 0 } }) },
+		{ T = 0.56, Ease = "In", Pose = merge(STAND, { Root = { 0, 0, 0, 0, -0.35, 0 }, RightHip = { 24, 0, 0 }, RightKnee = { -36, 0, 0 }, LeftHip = { 14, 0, 0 }, LeftKnee = { -24, 0, 0 }, Waist = { -30, 0, 0 }, Neck = { -14, 0, 0 }, RightShoulder = { 26, 0, 0 }, RightElbow = { 6, 0, 0 }, RightWrist = { -114, 0, 0 }, LeftShoulder = { 36, 0, 10 }, LeftElbow = { 14, 0, 0 } }) },
+		{ T = 0.8, Ease = "Out", Pose = merge(STAND, { Waist = { 10, 40, 0 }, Neck = { 6, 20, 0 }, RightShoulder = { 110, 0, -10 }, RightElbow = { 40, 0, 0 }, RightWrist = { -20, 0, 0 }, LeftShoulder = { 100, 0, 10 }, LeftElbow = { 60, 0, 0 } }) },
+		{ T = 1, Pose = merge(STAND, SHOVEL) },
+	},
+}
+
+-- SHOVEL 3: lift a foot and stomp the blade into the ground.
+A.ShovelStomp = {
+	Legs = true,
+	Keys = {
+		{ T = 0, Pose = merge(STAND, SHOVEL) },
+		{ T = 0.3, Ease = "Out", Pose = merge(STAND, { Root = { 0, 0, 0, 0, 0.15, 0 }, RightHip = { 60, 0, 0 }, RightKnee = { -70, 0, 0 }, Waist = { -10, 0, 0 }, RightShoulder = { 50, 0, 4 }, RightElbow = { 30, 0, 0 }, RightWrist = { -80, 0, 0 }, LeftShoulder = { 56, 0, 10 }, LeftElbow = { 30, 0, 0 } }) },
+		{ T = 0.56, Ease = "In", Pose = merge(STAND, { Root = { 0, 0, 0, 0, -0.3, 0 }, RightHip = { 24, 0, 0 }, RightKnee = { -20, 0, 0 }, LeftHip = { 12, 0, 0 }, LeftKnee = { -26, 0, 0 }, Waist = { -26, 0, 0 }, Neck = { -14, 0, 0 }, RightShoulder = { 34, 0, 0 }, RightElbow = { 10, 0, 0 }, RightWrist = { -108, 0, 0 }, LeftShoulder = { 44, 0, 10 }, LeftElbow = { 18, 0, 0 } }) },
+		{ T = 0.8, Ease = "Out", Pose = merge(STAND, { Waist = { -6, -16, 0 }, Neck = { -4, 0, 0 }, RightShoulder = { 70, 0, 10 }, RightElbow = { 50, 0, 0 }, RightWrist = { -40, 0, 0 }, LeftShoulder = { 60, 0, 10 }, LeftElbow = { 40, 0, 0 } }) },
+		{ T = 1, Pose = merge(STAND, SHOVEL) },
+	},
+}
+
+-- WATERING CAN 2: sweep the spout side to side.
+A.WaterSweep = {
+	Keys = {
+		{ T = 0, Pose = CAN },
+		{ T = 0.25, Ease = "Out", Pose = { Waist = { -10, 20, 0 }, Neck = { -16, 10, 0 }, RightShoulder = { 60, 0, 20 }, RightElbow = { 14, 0, 0 }, RightWrist = { -30, 0, 0 } } },
+		{ T = 0.42, Pose = { Waist = { -12, 20, 0 }, Neck = { -20, 10, 0 }, RightShoulder = { 62, 0, 22 }, RightElbow = { 10, 0, 0 }, RightWrist = { -84, 0, 0 } } },
+		{ T = 0.62, Pose = { Waist = { -12, -20, 0 }, Neck = { -20, -10, 0 }, RightShoulder = { 60, 0, -10 }, RightElbow = { 10, 0, 0 }, RightWrist = { -86, 0, 0 } } },
+		{ T = 0.8, Pose = { Waist = { -12, 10, 0 }, Neck = { -18, 6, 0 }, RightShoulder = { 60, 0, 12 }, RightElbow = { 10, 0, 0 }, RightWrist = { -84, 0, 0 } } },
+		{ T = 1, Pose = CAN },
+	},
+}
+
+-- WATERING CAN 3: stand on tiptoe and pour from high up.
+A.WaterHigh = {
+	Legs = true,
+	Keys = {
+		{ T = 0, Pose = merge(STAND, CAN) },
+		{ T = 0.25, Ease = "Out", Pose = merge(STAND, { Root = { 0, 0, 0, 0, 0.25, 0 }, RightAnkle = { -20, 0, 0 }, LeftAnkle = { -20, 0, 0 }, Waist = { 6, 0, 0 }, Neck = { 6, 0, 0 }, RightShoulder = { 130, 0, 6 }, RightElbow = { 30, 0, 0 }, RightWrist = { -20, 0, 0 }, LeftShoulder = { 40, 0, -10 } }) },
+		{ T = 0.42, Pose = merge(STAND, { Root = { 0, 0, 0, 0, 0.25, 0 }, RightAnkle = { -20, 0, 0 }, LeftAnkle = { -20, 0, 0 }, Waist = { 0, 0, 0 }, Neck = { -10, 0, 0 }, RightShoulder = { 126, 0, 6 }, RightElbow = { 20, 0, 0 }, RightWrist = { -90, 0, 0 }, LeftShoulder = { 40, 0, -10 } }) },
+		{ T = 0.7, Pose = merge(STAND, { Root = { 0, 0, 0, 0, 0.2, 0 }, RightAnkle = { -16, 0, 0 }, LeftAnkle = { -16, 0, 0 }, Waist = { 0, 8, 0 }, Neck = { -12, 8, 0 }, RightShoulder = { 124, 0, 8 }, RightElbow = { 20, 0, 0 }, RightWrist = { -96, 0, 0 }, LeftShoulder = { 36, 0, -10 } }) },
+		{ T = 1, Pose = merge(STAND, merge(CAN, { LeftShoulder = { 0, 0, 0 } })) },
+	},
+}
+
+-- FISHING ROD 2: sidearm cast.
+A.FishingCastSide = {
+	Keys = {
+		{ T = 0, Pose = ROD },
+		{ T = 0.3, Ease = "Out", Pose = { Waist = { 4, -40, 0 }, Neck = { 0, 20, 0 }, RightShoulder = { 70, 0, 70 }, RightElbow = { 30, 0, 0 }, RightWrist = { -20, 0, 0 }, LeftShoulder = { 20, 0, -10 }, LeftElbow = { 40, 0, 0 } } },
+		{ T = 0.5, Ease = "In", Pose = { Waist = { -8, 30, 0 }, Neck = { 0, -14, 0 }, RightShoulder = { 70, 0, -16 }, RightElbow = { 4, 0, 0 }, RightWrist = { -10, 0, 0 }, LeftShoulder = { 30, 0, 14 }, LeftElbow = { 30, 0, 0 } } },
+		{ T = 1, Pose = ROD },
+	},
+}
+
+-- FISHING ROD 3: quick two-handed flick.
+A.FishingCastFlick = {
+	Keys = {
+		{ T = 0, Pose = ROD },
+		{ T = 0.34, Ease = "Out", Pose = { Waist = { 12, 0, 0 }, Neck = { 6, 0, 0 }, RightShoulder = { 140, 0, 8 }, RightElbow = { 50, 0, 0 }, RightWrist = { 20, 0, 0 }, LeftShoulder = { 130, 0, -8 }, LeftElbow = { 50, 0, 0 } } },
+		{ T = 0.5, Ease = "In", Pose = { Waist = { -12, 0, 0 }, Neck = { -4, 0, 0 }, RightShoulder = { 74, 0, 0 }, RightElbow = { 6, 0, 0 }, RightWrist = { -6, 0, 0 }, LeftShoulder = { 70, 0, 6 }, LeftElbow = { 10, 0, 0 } } },
+		{ T = 0.62, Ease = "Out", Pose = { Waist = { -8, 0, 0 }, Neck = { -2, 0, 0 }, RightShoulder = { 66, 0, 0 }, RightElbow = { 10, 0, 0 }, RightWrist = { -4, 0, 0 }, LeftShoulder = { 62, 0, 6 }, LeftElbow = { 14, 0, 0 } } },
+		{ T = 1, Pose = ROD },
+	},
+}
+
+-- BUCKET 1-3: pendulum swing, scoop from the ground, toss forward.
+A.BucketSwing = {
+	Keys = {
+		{ T = 0, Pose = BUCKET },
+		{ T = 0.28, Ease = "Out", Pose = { Waist = { 4, -10, 0 }, Neck = { 0, 0, 0 }, RightShoulder = { -40, 0, 10 }, RightElbow = { 8, 0, 0 }, RightWrist = { -70, 0, 0 } } },
+		{ T = 0.5, Ease = "In", Pose = { Waist = { -6, 8, 0 }, Neck = { -4, 0, 0 }, RightShoulder = { 80, 0, 4 }, RightElbow = { 6, 0, 0 }, RightWrist = { -90, 0, 0 } } },
+		{ T = 0.7, Ease = "Out", Pose = { Waist = { -4, 6, 0 }, Neck = { -2, 0, 0 }, RightShoulder = { 60, 0, 4 }, RightElbow = { 10, 0, 0 }, RightWrist = { -84, 0, 0 } } },
+		{ T = 1, Pose = BUCKET },
+	},
+}
+A.BucketScoop = {
+	Legs = true,
+	Keys = {
+		{ T = 0, Pose = merge(STAND, BUCKET) },
+		{ T = 0.3, Ease = "Out", Pose = merge(CROUCH, { Waist = { -30, 0, 0 }, Neck = { -16, 0, 0 }, RightShoulder = { 40, 0, 0 }, RightElbow = { 6, 0, 0 }, RightWrist = { -60, 0, 0 } }) },
+		{ T = 0.5, Pose = merge(CROUCH, { Waist = { -26, 0, 0 }, Neck = { -12, 0, 0 }, RightShoulder = { 60, 0, 0 }, RightElbow = { 30, 0, 0 }, RightWrist = { -40, 0, 0 } }) },
+		{ T = 0.75, Ease = "Out", Pose = merge(STAND, { Waist = { 4, 0, 0 }, Neck = { 4, 0, 0 }, RightShoulder = { 90, 0, 4 }, RightElbow = { 40, 0, 0 }, RightWrist = { -60, 0, 0 } }) },
+		{ T = 1, Pose = merge(STAND, BUCKET) },
+	},
+}
+A.BucketToss = {
+	Keys = {
+		{ T = 0, Pose = BUCKET },
+		{ T = 0.28, Ease = "Out", Pose = { Waist = { 6, -20, 0 }, Neck = { 0, 8, 0 }, RightShoulder = { -30, 0, 20 }, RightElbow = { 10, 0, 0 }, RightWrist = { -80, 0, 0 } } },
+		{ T = 0.5, Ease = "In", Pose = { Waist = { -10, 10, 0 }, Neck = { -4, 0, 0 }, RightShoulder = { 120, 0, 0 }, RightElbow = { 10, 0, 0 }, RightWrist = { -120, 0, 0 } } },
+		{ T = 0.66, Ease = "Out", Pose = { Waist = { -8, 10, 0 }, Neck = { -2, 0, 0 }, RightShoulder = { 110, 0, 0 }, RightElbow = { 10, 0, 0 }, RightWrist = { -110, 0, 0 } } },
+		{ T = 1, Pose = BUCKET },
+	},
+}
+
+-- SHEARS 1-3: snip in front, low (crouched) and high.
+A.ShearsSnip = {
+	Keys = {
+		{ T = 0, Pose = SHEARS },
+		{ T = 0.25, Ease = "Out", Pose = { Waist = { -10, 0, 0 }, Neck = { -6, 0, 0 }, RightShoulder = { 70, 0, 0 }, RightElbow = { 20, 0, 0 }, RightWrist = { -10, 0, 0 }, LeftShoulder = { 40, 0, -10 }, LeftElbow = { 40, 0, 0 } } },
+		{ T = 0.4, Pose = { Waist = { -10, 0, 0 }, RightShoulder = { 72, 0, 0 }, RightElbow = { 20, 0, 0 }, RightWrist = { 10, 0, 0 } } },
+		{ T = 0.5, Ease = "In", Pose = { Waist = { -12, 0, 0 }, RightShoulder = { 74, 0, 0 }, RightElbow = { 18, 0, 0 }, RightWrist = { -20, 0, 0 } } },
+		{ T = 0.62, Pose = { Waist = { -10, 0, 0 }, RightShoulder = { 72, 0, 0 }, RightElbow = { 20, 0, 0 }, RightWrist = { 10, 0, 0 } } },
+		{ T = 1, Pose = SHEARS },
+	},
+}
+A.ShearsSnipLow = {
+	Legs = true,
+	Keys = {
+		{ T = 0, Pose = merge(STAND, SHEARS) },
+		{ T = 0.3, Ease = "Out", Pose = merge(CROUCH, { Waist = { -24, 0, 0 }, Neck = { -14, 0, 0 }, RightShoulder = { 50, 0, -4 }, RightElbow = { 10, 0, 0 }, RightWrist = { -20, 0, 0 } }) },
+		{ T = 0.5, Pose = merge(CROUCH, { Waist = { -24, 0, 0 }, Neck = { -14, 0, 0 }, RightShoulder = { 54, 0, -4 }, RightElbow = { 10, 0, 0 }, RightWrist = { 10, 0, 0 } }) },
+		{ T = 0.65, Pose = merge(CROUCH, { Waist = { -22, 0, 0 }, Neck = { -12, 0, 0 }, RightShoulder = { 52, 0, -4 }, RightElbow = { 10, 0, 0 }, RightWrist = { -20, 0, 0 } }) },
+		{ T = 1, Pose = merge(STAND, SHEARS) },
+	},
+}
+A.ShearsSnipHigh = {
+	Keys = {
+		{ T = 0, Pose = SHEARS },
+		{ T = 0.3, Ease = "Out", Pose = { Waist = { 6, 0, 0 }, Neck = { 12, 0, 0 }, RightShoulder = { 130, 0, 6 }, RightElbow = { 10, 0, 0 }, RightWrist = { 0, 0, 0 } } },
+		{ T = 0.5, Pose = { Waist = { 6, 0, 0 }, Neck = { 12, 0, 0 }, RightShoulder = { 132, 0, 6 }, RightElbow = { 10, 0, 0 }, RightWrist = { -24, 0, 0 } } },
+		{ T = 0.62, Pose = { Waist = { 6, 0, 0 }, Neck = { 12, 0, 0 }, RightShoulder = { 130, 0, 6 }, RightElbow = { 10, 0, 0 }, RightWrist = { 12, 0, 0 } } },
+		{ T = 1, Pose = SHEARS },
+	},
+}
+
 Keyframes.Actions = A
 
 -- Idle life for NPC rigs (no Animate script): breathing + looking around.
@@ -1114,6 +1350,13 @@ return TableUtil.DeepFreeze(AnimalConfig)
 		Start / End   start + end conditions (documentation)
 		Interruptible can a new action cut it off
 		Repeat        play the keyframe cycle this many times (emotes)
+		Trail         { from, to } fraction of Length when the held tool's
+		              swing trail is visible (cartoon smear)
+		MarkerEffects[...].Punch   camera punch strength for YOUR swings
+
+	SWING VARIANTS: every tool has three swings (AnimationConfig.Variants).
+	Each swing plays a random one; the client picks it (so its prediction
+	matches) and tells the server, which plays the same one for everyone.
 		Fallback      (legacy, unused)
 		AnimateSlot   (Movement only) { childName, animationName } inside the default Animate script
 
@@ -1170,22 +1413,25 @@ local AnimationConfig = {
 				Purpose = "Chop a tree",
 				Length = 0.6,
 				Markers = { Hit = 0.3 },
-				MarkerEffects = { Hit = { Sound = "AxeSwing" } },
+				MarkerEffects = { Hit = { Sound = "AxeSwing", Punch = 1 } },
+				Trail = { 0.3, 0.62 },
 				Fallback = "Swing",
 				Start = "UseTool with axe equipped",
 				End = "Animation finishes (cooldown = ToolConfig UseCooldown)",
 			}),
-			AxeHeavySwing = anim({ Purpose = "Final chop / heavy hit", Length = 0.9, Markers = { Hit = 0.5 }, MarkerEffects = { Hit = { Sound = "AxeSwing", Shake = 0.25 } }, Fallback = "HeavySwing" }),
+			AxeHeavySwing = anim({ Purpose = "Final chop / heavy hit", Length = 0.9, Markers = { Hit = 0.5 }, MarkerEffects = { Hit = { Sound = "AxeSwing", Punch = 1.6 } }, Trail = { 0.36, 0.66 }, Fallback = "HeavySwing" }),
 			PickaxeIdle = anim({ Purpose = "Holding a pickaxe", Looped = true, Length = 2, Fallback = "Hold" }),
-			PickaxeSwing = anim({ Purpose = "Mine a rock", Length = 0.65, Markers = { Hit = 0.32 }, MarkerEffects = { Hit = { Sound = "PickaxeSwing" } }, Fallback = "Swing" }),
-			PickaxeHeavySwing = anim({ Purpose = "Break a rock", Length = 0.95, Markers = { Hit = 0.52 }, MarkerEffects = { Hit = { Sound = "PickaxeSwing", Shake = 0.3 } }, Fallback = "HeavySwing" }),
-			ShovelDig = anim({ Purpose = "Dig clay/sand", Length = 0.8, Markers = { Dig = 0.45 }, MarkerEffects = { Dig = { Sound = "ShovelDig", VFX = "DirtPuff" } }, Fallback = "Dig", BodyParts = FULL_BODY }),
-			ShovelDigHeavy = anim({ Purpose = "Dig treasure", Length = 1.1, Markers = { Dig = 0.6 }, MarkerEffects = { Dig = { Sound = "ShovelDig", VFX = "DirtPuff" } }, Fallback = "Dig", BodyParts = FULL_BODY }),
-			HoeTill = anim({ Purpose = "Till soil", Length = 0.7, Markers = { Till = 0.38 }, MarkerEffects = { Till = { Sound = "HoeTill", VFX = "DirtPuff" } }, Fallback = "Till" }),
+			PickaxeSwing = anim({ Purpose = "Mine a rock", Length = 0.65, Markers = { Hit = 0.32 }, MarkerEffects = { Hit = { Sound = "PickaxeSwing", Punch = 1 } }, Trail = { 0.28, 0.6 }, Fallback = "Swing" }),
+			PickaxeHeavySwing = anim({ Purpose = "Break a rock", Length = 0.95, Markers = { Hit = 0.52 }, MarkerEffects = { Hit = { Sound = "PickaxeSwing", Punch = 1.6 } }, Trail = { 0.3, 0.62 }, Fallback = "HeavySwing" }),
+			ShovelDig = anim({ Purpose = "Dig clay/sand", Length = 0.8, Markers = { Dig = 0.45 }, MarkerEffects = { Dig = { Sound = "ShovelDig", VFX = "DirtPuff", Punch = 0.6 } }, Trail = { 0.28, 0.62 }, Fallback = "Dig", BodyParts = FULL_BODY }),
+			ShovelDigHeavy = anim({ Purpose = "Dig treasure", Length = 1.1, Markers = { Dig = 0.6 }, MarkerEffects = { Dig = { Sound = "ShovelDig", VFX = "DirtPuff", Punch = 1 } }, Trail = { 0.3, 0.62 }, Fallback = "Dig", BodyParts = FULL_BODY }),
+			HoeTill = anim({ Purpose = "Till soil", Length = 0.7, Markers = { Till = 0.38 }, MarkerEffects = { Till = { Sound = "HoeTill", VFX = "DirtPuff", Punch = 0.6 } }, Trail = { 0.32, 0.62 }, Fallback = "Till" }),
 			HoeSwing = anim({ Purpose = "Alias swing for hoe", Length = 0.7, Markers = { Till = 0.38 }, Fallback = "Till" }),
 			WaterStart = anim({ Purpose = "Raise watering can", Length = 0.3, Fallback = "Pour" }),
 			WaterLoop = anim({ Purpose = "Pouring water", Looped = true, Length = 0.8, Markers = { Water = 0.4 }, MarkerEffects = { Water = { VFX = "WaterSplash" } }, Fallback = "Pour" }),
 			WaterEnd = anim({ Purpose = "Lower watering can", Length = 0.3, Fallback = "Pour" }),
+			BucketSwing = anim({ Purpose = "Swing the bucket", Length = 0.7, Markers = { Hit = 0.35 }, MarkerEffects = { Hit = { Sound = "ToolSwing" } }, Trail = { 0.3, 0.62 } }),
+			ShearsSnip = anim({ Purpose = "Snip with the shears", Length = 0.6, Markers = { Snip = 0.3 }, MarkerEffects = { Snip = { Sound = "Shears", VFX = "Sparkle" } }, Trail = { 0.3, 0.6 } }),
 		},
 
 		Building = {
@@ -1195,12 +1441,13 @@ local AnimationConfig = {
 				Purpose = "Advance construction by one step",
 				Length = 0.65,
 				Markers = { HammerHit = 0.31 },
-				MarkerEffects = { HammerHit = { Sound = "HammerHit", VFX = "BuildDust", Shake = 0.1 } },
+				MarkerEffects = { HammerHit = { Sound = "HammerHit", VFX = "BuildDust", Punch = 1 } },
+				Trail = { 0.28, 0.6 },
 				Fallback = "Swing",
 				Start = "Player hammers a construction site",
 				End = "Animation finishes; loop again if still building",
 			}),
-			HammerHeavy = anim({ Purpose = "Final hammer hit", Length = 0.9, Markers = { HammerHit = 0.5 }, MarkerEffects = { HammerHit = { Sound = "HammerHit", VFX = "BuildDust", Shake = 0.3 } }, Fallback = "HeavySwing" }),
+			HammerHeavy = anim({ Purpose = "Final hammer hit", Length = 0.9, Markers = { HammerHit = 0.5 }, MarkerEffects = { HammerHit = { Sound = "HammerHit", VFX = "BuildDust", Punch = 1.8 } }, Trail = { 0.34, 0.64 }, Fallback = "HeavySwing" }),
 			CarryMaterials = anim({ Purpose = "Carrying planks/stone", Looped = true, Length = 1, Fallback = "Carry" }),
 			PlaceWood = anim({ Purpose = "Place a wood piece", Length = 0.7, Markers = { WoodPlace = 0.4 }, MarkerEffects = { WoodPlace = { Sound = "WoodPlace", VFX = "BuildDust" } }, Fallback = "Reach" }),
 			PlaceStone = anim({ Purpose = "Place a stone piece", Length = 0.8, Markers = { StonePlace = 0.45 }, MarkerEffects = { StonePlace = { Sound = "StonePlace", VFX = "BuildDust" } }, Fallback = "Reach" }),
@@ -1214,7 +1461,7 @@ local AnimationConfig = {
 		Farming = {
 			TillGround = anim({ Purpose = "Till a soil tile", Length = 0.7, Markers = { Till = 0.38 }, MarkerEffects = { Till = { Sound = "HoeTill", VFX = "DirtPuff" } }, Fallback = "Till" }),
 			PlantSeed = anim({ Purpose = "Plant a seed", Length = 0.9, Markers = { Plant = 0.5 }, MarkerEffects = { Plant = { Sound = "PlantSeed", VFX = "DirtPuff" } }, Fallback = "Reach", BodyParts = FULL_BODY }),
-			WaterPlant = anim({ Purpose = "Water a crop", Length = 1.2, Markers = { Water = 0.5 }, MarkerEffects = { Water = { Sound = "Watering", VFX = "WaterSplash" } }, Fallback = "Pour" }),
+			WaterPlant = anim({ Purpose = "Water a crop", Length = 1.2, Markers = { Water = 0.5 }, MarkerEffects = { Water = { Sound = "Watering", VFX = "WaterSplash" } }, Trail = { 0.2, 0.8 }, Fallback = "Pour" }),
 			HarvestCrop = anim({ Purpose = "Harvest a mature crop", Length = 0.8, Markers = { Pick = 0.42 }, MarkerEffects = { Pick = { Sound = "Harvest", VFX = "LeafBurst" } }, Fallback = "Reach", BodyParts = FULL_BODY }),
 			PickCrop = anim({ Purpose = "Pick fruit from a plant", Length = 0.6, Markers = { Pick = 0.3 }, MarkerEffects = { Pick = { Sound = "Harvest", VFX = "LeafBurst" } }, Fallback = "Reach" }),
 			CarryBasket = anim({ Purpose = "Carry a harvest basket", Looped = true, Length = 1, Fallback = "Carry" }),
@@ -1231,7 +1478,7 @@ local AnimationConfig = {
 
 		Fishing = {
 			FishingIdle = anim({ Purpose = "Holding the rod", Priority = "Action", Looped = true, Length = 2, Fallback = "Hold" }),
-			FishingCast = anim({ Purpose = "Cast the line", Priority = "Action2", Length = 0.9, Markers = { Cast = 0.45 }, MarkerEffects = { Cast = { Sound = "FishingCast" } }, Fallback = "Cast" }),
+			FishingCast = anim({ Purpose = "Cast the line", Priority = "Action2", Length = 0.9, Markers = { Cast = 0.45 }, MarkerEffects = { Cast = { Sound = "FishingCast", Punch = 0.5 } }, Trail = { 0.28, 0.6 }, Fallback = "Cast" }),
 			FishingWait = anim({ Purpose = "Waiting for a bite", Priority = "Action2", Looped = true, Length = 3, Fallback = "Hold" }),
 			FishingBite = anim({ Purpose = "Rod jerks on a bite", Priority = "Action2", Length = 0.4, Markers = { Splash = 0.1 }, MarkerEffects = { Splash = { Sound = "FishBite", VFX = "WaterSplash" } }, Fallback = "Reel" }),
 			FishingReel = anim({ Purpose = "Reeling in", Priority = "Action2", Looped = true, Length = 0.6, Markers = { Reel = 0.3 }, MarkerEffects = { Reel = { Sound = "Reel" } }, Fallback = "Reel" }),
@@ -1271,9 +1518,39 @@ local AnimationConfig = {
 		},
 	},
 
+	-- Every tool has THREE swings; a swing plays one of them at random.
+	-- The first name is the "base" that configs and services refer to.
+	Variants = {
+		AxeSwing = { "AxeSwing", "AxeChopHigh", "AxeSlash" },
+		PickaxeSwing = { "PickaxeSwing", "PickaxeSide", "PickaxeSlam" },
+		HammerSwing = { "HammerSwing", "HammerBash", "HammerSlam" },
+		HoeTill = { "HoeTill", "HoeChop", "HoeScrape" },
+		ShovelDig = { "ShovelDig", "ShovelScoop", "ShovelStomp" },
+		WaterPlant = { "WaterPlant", "WaterSweep", "WaterHigh" },
+		FishingCast = { "FishingCast", "FishingCastSide", "FishingCastFlick" },
+		BucketSwing = { "BucketSwing", "BucketScoop", "BucketToss" },
+		ShearsSnip = { "ShearsSnip", "ShearsSnipLow", "ShearsSnipHigh" },
+	} :: { [string]: { string } },
+
 	-- Built below: flat lookup { [AnimationName] = def } (names must be unique).
 	Index = {} :: { [string]: any },
 }
+
+-- Variants share the base's timing (Length, markers, effects, trail) so
+-- gameplay is identical whichever one plays; only the keyframes differ.
+for baseName, names in AnimationConfig.Variants do
+	for _, entries in AnimationConfig.Categories do
+		local base = entries[baseName]
+		if base then
+			for index = 2, #names do
+				local copy = TableUtil.DeepCopy(base)
+				copy.Purpose = base.Purpose .. " (variant " .. index .. ")"
+				copy.VariantOf = baseName
+				entries[names[index]] = copy
+			end
+		end
+	end
+end
 
 for categoryName, entries in AnimationConfig.Categories do
 	for name, def in entries do
@@ -1286,6 +1563,21 @@ end
 
 function AnimationConfig.Get(name: string)
 	return AnimationConfig.Index[name]
+end
+
+-- How many swings `name` has (1 if it has no variants).
+function AnimationConfig.VariantCount(name: string): number
+	local names = AnimationConfig.Variants[name]
+	return if names then #names else 1
+end
+
+-- The index-th variant of `name` (index is clamped; unknown -> name).
+function AnimationConfig.Variant(name: string, index: number): string
+	local names = AnimationConfig.Variants[name]
+	if not names then
+		return name
+	end
+	return names[math.clamp(math.floor(index), 1, #names)]
 end
 
 return TableUtil.DeepFreeze(AnimationConfig)
@@ -3117,7 +3409,7 @@ local ToolConfig = {
 			Tiers = { "Wooden", "Iron", "Gold" },
 			UseCooldown = 1.0,
 			Grip = { Hand = "RightHand", Offset = CFrame.new() },
-			Animations = { Idle = "ToolHoldIdle", Use = "WaterStart", Loop = "WaterLoop", End = "WaterEnd" },
+			Animations = { Idle = "ToolHoldIdle", Use = "WaterPlant", Loop = "WaterLoop", End = "WaterEnd" },
 			Sounds = { Use = "Watering" },
 			Description = "Waters crops so they grow faster.",
 		},
@@ -3139,7 +3431,7 @@ local ToolConfig = {
 			Tiers = { "Wooden", "Iron" },
 			UseCooldown = 1.0,
 			Grip = { Hand = "RightHand", Offset = CFrame.new() },
-			Animations = { Idle = "CarryBucket", Use = "MilkCow" },
+			Animations = { Idle = "CarryBucket", Use = "BucketSwing" },
 			Sounds = { Use = "Milk" },
 			Description = "Carries water and collects milk.",
 		},
@@ -3150,7 +3442,7 @@ local ToolConfig = {
 			Tiers = { "Iron", "Gold" },
 			UseCooldown = 1.0,
 			Grip = { Hand = "RightHand", Offset = CFrame.new() },
-			Animations = { Idle = "ToolHoldIdle", Use = "PetAnimal" },
+			Animations = { Idle = "ToolHoldIdle", Use = "ShearsSnip" },
 			Sounds = { Use = "Shears" },
 			Description = "Shears wool from happy sheep.",
 		},
@@ -3214,9 +3506,15 @@ return TableUtil.DeepFreeze(ToolConfig)
 	uploaded assets. To use custom art, set Texture to a real image id.
 
 	Types:
-		Burst  one-shot particle emission (pooled emitters)
-		Ring   an expanding, fading neon ring (pooled parts)
-	Keep counts small — spec §150: subtle effects, no giant explosions.
+		Burst   one-shot particle emission (pooled emitters)
+		Ring    an expanding, fading neon ring (pooled parts)
+		Puff    cartoon dust clouds: soft balls that swell and fade
+		Debris  chunks that fly out, bounce on the ground, shrink away
+		        (rock shatter; `Confetti = true` = colourful paper bits)
+		Pop     a quick neon flash sphere (impact "pow")
+		Jiggle  squash / tilt / pop the TARGET model (options.Target)
+	Effects can take options from the server: { Color, Count, Scale,
+	Target, Style, From }.
 ]]
 
 local TableUtil = require(script.Parent.Parent.Util.TableUtil)
@@ -3240,6 +3538,17 @@ local VFXConfig = {
 		WaterSplash = { Type = "Burst", Count = 12, Color = Color3.fromRGB(170, 225, 255), Size = 0.5, Lifetime = 0.6, Speed = 12, Spread = 35, LightEmission = 0.3, Acceleration = Vector3.new(0, -50, 0) },
 		MilkSplash = { Type = "Burst", Count = 8, Color = Color3.fromRGB(255, 255, 250), Size = 0.4, Lifetime = 0.5, Speed = 6, Spread = 30, LightEmission = 0.2, Acceleration = Vector3.new(0, -40, 0) },
 		Hearts = { Type = "Burst", Count = 5, Color = Color3.fromRGB(255, 110, 150), Size = 0.6, Lifetime = 1.1, Speed = 4, Spread = 30, LightEmission = 0.5, Acceleration = Vector3.new(0, 3, 0) },
+
+		-- Cartoon juice
+		HitRing = { Type = "Ring", Color = Color3.fromRGB(255, 255, 255), StartSize = 1, EndSize = 7, Duration = 0.22, Height = 0.15 },
+		Stars = { Type = "Burst", Count = 6, Color = Color3.fromRGB(255, 232, 90), Size = 0.8, Lifetime = 0.55, Speed = 18, Spread = 180, LightEmission = 1 },
+		HitPop = { Type = "Pop", Color = Color3.fromRGB(255, 250, 220), StartSize = 0.6, EndSize = 3.2, Duration = 0.16 },
+		Puff = { Type = "Puff", Count = 6, Color = Color3.fromRGB(236, 226, 206), Size = 2.4, Radius = 3.5, Duration = 0.9 },
+		BigPuff = { Type = "Puff", Count = 11, Color = Color3.fromRGB(232, 222, 200), Size = 4, Radius = 7, Duration = 1.2 },
+		RockShatter = { Type = "Debris", Count = 11, Color = Color3.fromRGB(150, 150, 155), Size = 1.2, Speed = 24, Duration = 1.6 },
+		WoodSplinters = { Type = "Debris", Count = 6, Color = Color3.fromRGB(176, 124, 72), Size = 0.6, Speed = 16, Duration = 1.1 },
+		Confetti = { Type = "Debris", Count = 26, Color = Color3.fromRGB(255, 255, 255), Size = 0.5, Speed = 30, Duration = 2.2, Confetti = true },
+		Jiggle = { Type = "Jiggle" },
 	},
 }
 
@@ -7677,6 +7986,7 @@ local function pet(player: Player, animal: Animal)
 		local happiness = math.min(100, AnimalMath.GetHappiness(current, os.time()) + AnimalConfig.PetHappiness)
 		writeEntry(animal, { Happiness = happiness, HappinessAt = os.time(), PettedAt = os.time() })
 		VFXService.PlayAt("Hearts", animal.Body.Position + Vector3.new(0, 2, 0))
+		VFXService.Jiggle(animal.Model, "Squash")
 		GameSoundService.PlayAt(animal.Def.Voice, animal.Body.Position)
 		refresh(animal)
 	end)
@@ -7711,6 +8021,7 @@ local function feed(player: Player, animal: Animal)
 			ProduceReadyAt = now + math.floor(AnimalMath.ProduceDuration(animal.AnimalId, happiness)),
 		})
 		VFXService.PlayAt("Hearts", animal.Body.Position + Vector3.new(0, 2, 0))
+		VFXService.Jiggle(animal.Model, "Squash")
 		GameSoundService.PlayAt("Feed", animal.Body.Position)
 		playRig(animal, "Eat")
 		ProgressionService.Award(player, "FeedAnimal")
@@ -7745,6 +8056,9 @@ local function collect(player: Player, animal: Animal)
 		writeEntry(animal, { ProduceReadyAt = 0 })
 		DataService.Increment(player, { "Stats", if def.Produce == "Milk" then "MilkCollected" else "EggsCollected" }, added)
 		VFXService.PlayAt(def.ProduceVFX, animal.Body.Position + Vector3.new(0, 1, 0))
+		VFXService.PlayAt("HitPop", animal.Body.Position + Vector3.new(0, 2, 0), { Color = Color3.fromRGB(255, 240, 200) })
+		VFXService.PlayAt("Stars", animal.Body.Position + Vector3.new(0, 2, 0), { Count = 5 })
+		VFXService.Jiggle(animal.Model, "Squash")
 		GameSoundService.PlayAt(def.ProduceSound, animal.Body.Position)
 		playRig(animal, "Happy")
 		ProgressionService.Award(player, "CollectProduce")
@@ -7809,6 +8123,7 @@ function AnimalService.AddAnimal(player: Player, animalId: string): (boolean, st
 	local animal = spawnAnimal(player, island, entry)
 	if animal then
 		VFXService.PlayAt("Hearts", animal.Body.Position + Vector3.new(0, 2, 0))
+		VFXService.Jiggle(animal.Model, "Squash")
 		GameSoundService.PlayAt(def.Voice, animal.Body.Position)
 	end
 	local variantName = if entry.Variant ~= "Default" then entry.Variant .. " " else ""
@@ -7971,6 +8286,12 @@ return AnimalService
 	The gameplay result is applied at the SAME marker time the animation
 	uses (from AnimationConfig). A per-player busy lock stops actions from
 	overlapping or being spammed.
+
+	SWING VARIANTS: PerformAction("AxeSwing", ...) plays one of the three
+	axe swings (AnimationConfig.Variants). The client picks which one (so
+	its instant local prediction matches) and sends the index with its
+	request; SetVariantHint stores it for the next action. No hint (or a
+	bad one) = random. Variants share timing, so gameplay never changes.
 ]]
 
 local Players = game:GetService("Players")
@@ -7984,7 +8305,10 @@ local R15 = require(Shared.Util.R15)
 local AnimationService = {}
 
 local busyUntil: { [Player]: number } = {}
+local variantHints: { [Player]: { Index: number, At: number } } = {}
 local sequence = 0
+local random = Random.new()
+local HINT_LIFETIME = 1.5
 
 local function currentName(rig: Instance): string?
 	local value = rig:GetAttribute("ActionAnim")
@@ -8025,6 +8349,27 @@ function AnimationService.SetHoldPose(rig: Model, pose: string?)
 	rig:SetAttribute("HoldPose", pose)
 end
 
+-- The client's chosen swing variant for its next action (validated here).
+function AnimationService.SetVariantHint(player: Player, index: any)
+	if type(index) == "number" and index == index and index >= 1 and index <= 8 and math.floor(index) == index then
+		variantHints[player] = { Index = index, At = os.clock() }
+	else
+		variantHints[player] = nil
+	end
+end
+
+-- Picks which variant of `name` to play for this player.
+function AnimationService.ResolveVariant(player: Player, name: string): string
+	local count = AnimationConfig.VariantCount(name)
+	if count <= 1 then
+		return name
+	end
+	local hint = variantHints[player]
+	variantHints[player] = nil
+	local index = if hint and os.clock() - hint.At < HINT_LIFETIME and hint.Index <= count then hint.Index else random:NextInteger(1, count)
+	return AnimationConfig.Variant(name, index)
+end
+
 function AnimationService.IsBusy(player: Player): boolean
 	return (busyUntil[player] or 0) > os.clock()
 end
@@ -8040,6 +8385,7 @@ function AnimationService.PerformAction(player: Player, animationName: string, m
 	if AnimationService.IsBusy(player) then
 		return false
 	end
+	animationName = AnimationService.ResolveVariant(player, animationName)
 	local def = AnimationConfig.Get(animationName)
 	if not def then
 		warn("[AnimationService] Unknown action animation " .. tostring(animationName))
@@ -8067,6 +8413,7 @@ end
 
 Players.PlayerRemoving:Connect(function(player)
 	busyUntil[player] = nil
+	variantHints[player] = nil
 end)
 
 -- Writes real Movement ids into the default Animate script (idle/walk/run...).
@@ -8743,11 +9090,15 @@ function BuildService.Place(player: Player, buildingId: any, localX: any, localZ
 	if instant then
 		GameSoundService.PlayAt(if def.Node then "PlantSeed" else "WoodPlace", worldCFrame.Position)
 		VFXService.PlayAt(if def.Node then "LeafBurst" else "BuildDust", worldCFrame.Position + Vector3.new(0, 1, 0))
+		VFXService.PlayAt("Puff", worldCFrame.Position, { Scale = 0.7 })
+		VFXService.Jiggle(site.Model, "Pop")
 		ProgressionService.Award(player, "BuildStep")
 		BuildService.BuildingCompleted:Fire(player, site.BuildingId, def, site)
 	else
 		GameSoundService.PlayAt("ConstructionStart", worldCFrame.Position)
 		VFXService.PlayAt("BuildDust", worldCFrame.Position + Vector3.new(0, 1, 0))
+		VFXService.PlayAt("Puff", worldCFrame.Position, { Scale = 0.8 })
+		VFXService.Jiggle(site.Model, "Pop")
 		Notify.Success(player, ("%s placed! Hold your 🔨 hammer and click it %d times."):format(def.DisplayName, def.Steps), "🔨")
 	end
 	return true, nil
@@ -8770,9 +9121,11 @@ local function complete(player: Player, site: Site)
 	BuildingModels.SetStage(site.Model, math.huge, true)
 	local position = site.Model:GetPivot().Position
 	VFXService.PlayAt("BuildComplete", position + Vector3.new(0, def.Height * 0.5, 0))
-	VFXService.PlayAt("BuildDust", position + Vector3.new(0, 0.5, 0))
+	VFXService.PlayAt("Confetti", position + Vector3.new(0, def.Height * 0.8, 0))
+	VFXService.PlayAt("BigPuff", position, { Scale = math.clamp(def.Footprint.X / 10, 0.7, 1.6) })
+	VFXService.Jiggle(site.Model, "Pop")
 	GameSoundService.PlayAt("BuildComplete", position)
-	VFXService.ShakeCamera(player, 0.35, 0.4)
+	VFXService.WobbleNear(position, 60, 0.8, 0.8)
 	Notify.Banner(player, "BUILD COMPLETE!", def.DisplayName, "Build")
 	ProgressionService.Award(player, "BuildComplete")
 	DataService.Increment(player, { "Stats", "BuildingsBuilt" }, 1)
@@ -8800,7 +9153,11 @@ local function advance(player: Player, site: Site)
 	local pivot = site.Model:GetPivot()
 	local def = site.Def
 	local offset = Vector3.new((math.random() - 0.5) * def.Footprint.X * 0.6, math.random() * def.Height * 0.6, (math.random() - 0.5) * def.Footprint.Y * 0.6)
-	VFXService.PlayAt("BuildDust", (pivot * CFrame.new(offset)).Position)
+	local hitPoint = (pivot * CFrame.new(offset)).Position
+	VFXService.PlayAt("BuildDust", hitPoint)
+	VFXService.PlayAt("HitPop", hitPoint)
+	VFXService.PlayAt("Stars", hitPoint, { Count = 4 })
+	VFXService.Jiggle(site.Model, "Squash")
 	GameSoundService.PlayAt("HammerHit", pivot.Position)
 	ProgressionService.Award(player, "BuildStep")
 	if progress >= def.Steps then
@@ -10071,6 +10428,8 @@ local function till(player: Player, tile: Tile, hoe: any)
 		if tile.Entry == nil and tilesById[tile.Id] == tile then
 			setEntry(tile, { TileId = tile.Id, State = "Tilled" })
 			VFXService.PlayAt("DirtPuff", tile.Part.Position + Vector3.new(0, 0.5, 0))
+			VFXService.PlayAt("Puff", tile.Part.Position, { Scale = 0.45, Count = 5, Color = Color3.fromRGB(170, 130, 90) })
+			VFXService.Jiggle(tile.Part:FindFirstAncestorOfClass("Model"), "Squash")
 		end
 	end, { Speed = hoe.Speed })
 end
@@ -10090,6 +10449,10 @@ local function plant(player: Player, tile: Tile, seedId: string)
 		end
 		setEntry(tile, { TileId = tile.Id, State = "Planted", CropId = cropId, PlantedAt = os.time(), WateredAt = 0 })
 		VFXService.PlayAt("DirtPuff", tile.Part.Position + Vector3.new(0, 0.5, 0))
+		VFXService.PlayAt("Sparkle", tile.Part.Position + Vector3.new(0, 1, 0), { Count = 6 })
+		task.defer(function()
+			VFXService.Jiggle(tile.CropModel, "Pop")
+		end)
 		ProgressionService.Award(player, "PlantCrop")
 		FarmService.CropPlanted:Fire(player, cropId)
 	end)
@@ -10104,6 +10467,7 @@ local function water(player: Player, tile: Tile, can: any)
 			watered.WateredAt = os.time()
 			setEntry(tile, watered)
 			VFXService.PlayAt("WaterSplash", tile.Part.Position + Vector3.new(0, 1, 0))
+			VFXService.Jiggle(tile.CropModel, "Squash")
 			Notify.Toast(player, ("%s watered! It grows %d%% faster now."):format(crop.DisplayName, math.floor((CropConfig.WaterSpeedMultiplier - 1) * 100)), "💧")
 		end
 	end, { Speed = can.Speed })
@@ -10123,7 +10487,10 @@ local function harvest(player: Player, tile: Tile)
 		end
 		setEntry(tile, { TileId = tile.Id, State = "Tilled" })
 		GameSoundService.PlayAt("Harvest", tile.Part.Position)
-		VFXService.PlayAt("LeafBurst", tile.Part.Position + Vector3.new(0, 1, 0))
+		VFXService.PlayAt("LeafBurst", tile.Part.Position + Vector3.new(0, 1, 0), { Count = 16 })
+		VFXService.PlayAt("HitPop", tile.Part.Position + Vector3.new(0, 1.5, 0), { Color = Color3.fromRGB(255, 240, 150) })
+		VFXService.PlayAt("Stars", tile.Part.Position + Vector3.new(0, 1.5, 0), { Count = 5 })
+		VFXService.Jiggle(tile.Part:FindFirstAncestorOfClass("Model"), "Squash")
 		DataService.Increment(player, { "Stats", "CropsHarvested" }, added)
 		ProgressionService.Award(player, "HarvestCrop")
 		FarmService.CropHarvested:Fire(player, entry.CropId, added)
@@ -10565,10 +10932,13 @@ local function finishReel(player: Player, success: boolean, token: any)
 	if character then
 		AnimationService.PlayAnimation(character, if rarity.Rank >= 4 then "FishingCelebrate" else "FishingCatch")
 	end
-	VFXService.PlayAt("WaterSplash", session.Spot.Position + Vector3.new(0, 1, 0))
+	VFXService.PlayAt("WaterSplash", session.Spot.Position + Vector3.new(0, 1, 0), { Count = 24, Scale = 1.4 })
+	VFXService.PlayAt("HitRing", session.Spot.Position + Vector3.new(0, 0.3, 0), { Color = Color3.fromRGB(200, 240, 255), Scale = 1.5 })
 	if rarity.Rank >= 3 then
 		VFXService.PlayAt("Sparkle", session.Spot.Position + Vector3.new(0, 3, 0))
+		VFXService.PlayAt("Confetti", session.Spot.Position + Vector3.new(0, 4, 0))
 	end
+	VFXService.ShakeCamera(player, if rarity.Rank >= 3 then 0.9 else 0.5, 0.6, "Wobble")
 	GameSoundService.PlayFor(player, if rarity.Rank >= 4 then "RareReward" else "FishCatch")
 	ProgressionService.Award(player, "CatchFish", rarity.Rank)
 	send(player, { Op = "Caught", FishId = session.FishId, Weight = weight, New = isNew })
@@ -10586,6 +10956,7 @@ function FishingService.Init()
 			return
 		end
 		if payload.Op == "Cast" then
+			AnimationService.SetVariantHint(player, payload.Variant)
 			FishingService.Cast(player, payload.Target)
 		elseif payload.Op == "Hook" then
 			hook(player)
@@ -10615,7 +10986,7 @@ return FishingService
 	SCRIPT TYPE:  ModuleScript (server service)
 	WHERE:        ServerScriptService/Server/Services/GatherService
 	DEPENDENCIES: ResourceService, IslandService, ToolService, InventoryService, ProgressionService,
-	              AnimationService, InteractionService, SoundService, VFXService,
+	              AnimationService, InteractionService, SoundService,
 	              Shared.Config.{ToolConfig, AnimationConfig, ResourceConfig}
 
 	Server-authoritative gathering. HOLD the right tool and CLICK the node:
@@ -10643,7 +11014,6 @@ local InventoryService = require(Services.InventoryService)
 local ProgressionService = require(Services.ProgressionService)
 local AnimationService = require(Services.AnimationService)
 local InteractionService = require(Services.InteractionService)
-local VFXService = require(Services.VFXService)
 local Notify = require(script.Parent.Parent.Util.Notify)
 
 local GatherService = {}
@@ -10679,9 +11049,6 @@ local function applyHit(player: Player, node: any, tool: any)
 	end
 	local def = node.Def
 	local damage = if tool then tool.Power * def.DamagePerPower else def.Health
-	if def.Shake then
-		VFXService.ShakeCamera(player, def.Shake, 0.2)
-	end
 	local root = R15.GetRootPart(player.Character)
 	local broke = ResourceService.Damage(node, damage, root and root.Position)
 	if not broke then
@@ -10774,7 +11141,7 @@ return GatherService
 	InteractDisabled, OwnerUserId. Services update InteractHint / InteractLabel
 	as state changes ("Ready to harvest!").
 
-	Server checks on every click (InteractRequest(object)): rate limit, object
+	Server checks on every click (InteractRequest(object, swingVariant?)): rate limit, object
 	registered + enabled, player alive, distance to the object's bounding box,
 	per-player cooldown, island permission, then the handler runs in pcall.
 	Handlers decide what happens from what the player is HOLDING
@@ -10791,6 +11158,7 @@ local RateLimiter = require(Shared.Util.RateLimiter)
 
 local Services = script.Parent
 local AntiExploitService = require(Services.AntiExploitService)
+local AnimationService = require(Services.AnimationService)
 local Notify = require(script.Parent.Parent.Util.Notify)
 
 export type KindDef = {
@@ -10915,7 +11283,7 @@ function InteractionService.DistanceTo(object: Instance, point: Vector3): number
 	return distanceTo(object, point) or math.huge
 end
 
-local function onRequest(player: Player, object: any)
+local function onRequest(player: Player, object: any, variant: any)
 	if typeof(object) ~= "Instance" then
 		AntiExploitService.Flag(player, "BadInteract", 2)
 		return
@@ -10956,6 +11324,8 @@ local function onRequest(player: Player, object: any)
 		return
 	end
 
+	-- Which of the tool's swings the client is already playing (cosmetic).
+	AnimationService.SetVariantHint(player, variant)
 	local def = kinds[entry.Kind]
 	local ok, err = pcall(def.Handler, player, entry.Object)
 	if not ok then
@@ -11634,7 +12004,8 @@ function IslandService.TryExpand(player: Player, cx: any, cz: any): (boolean, st
 	GameSoundService.PlayAt("AreaUnlock", centerWorld)
 	GameSoundService.PlayAt("LandRise", centerWorld)
 	VFXService.PlayAt("AreaUnlock", centerWorld)
-	VFXService.ShakeCamera(player, 0.35, 0.8)
+	VFXService.PlayAt("BigPuff", centerWorld, { Color = Color3.fromRGB(220, 240, 255), Scale = 1.5 })
+	VFXService.WobbleNear(centerWorld, 90, 0.9, 1.4)
 	task.spawn(function()
 		local steps = 8
 		for step = 1, steps do
@@ -11788,6 +12159,8 @@ local function claimStarterChest(player: Player, chest: Instance)
 	if chest:IsA("Model") then
 		local pivot = chest:GetPivot().Position
 		VFXService.PlayAt("ChestOpen", pivot + Vector3.new(0, 2.5, 0))
+		VFXService.PlayAt("Confetti", pivot + Vector3.new(0, 3, 0))
+		VFXService.Jiggle(chest, "Squash")
 	end
 	GameSoundService.PlayFor(player, "ChestOpen")
 	Notify.Banner(player, "STARTER KIT!", "Tools and seeds are in your hotbar — press 1-9 to hold one!", "Reward")
@@ -12401,6 +12774,7 @@ function ProgressionService.AddPlayerXP(player: Player, amount: number, reason: 
 		local position = characterPosition(player)
 		if position then
 			VFXService.PlayAt("LevelUp", position)
+			VFXService.PlayAt("Confetti", position + Vector3.new(0, 4, 0))
 		end
 		ProgressionService.PlayerLevelUp:Fire(player, newLevel)
 	end
@@ -12928,10 +13302,31 @@ local function respawn(node: Node)
 	end)
 	tween:Play()
 	VFXService.PlayAt("Sparkle", node.BaseCFrame.Position + Vector3.new(0, 2, 0))
+	VFXService.PlayAt("Puff", node.BaseCFrame.Position, { Scale = 0.6, Color = Color3.fromRGB(210, 240, 190) })
 end
 
+-- The main (largest visible) colour of a node, for its debris.
+local function mainColor(model: Model): Color3
+	local best, bestVolume = nil, 0
+	for _, part in model:GetDescendants() do
+		if part:IsA("BasePart") and part.Transparency < 0.5 then
+			local volume = part.Size.X * part.Size.Y * part.Size.Z
+			if volume > bestVolume then
+				best, bestVolume = part, volume
+			end
+		end
+	end
+	return if best then best.Color else Color3.fromRGB(150, 150, 155)
+end
+
+-- TIMBER! The tree leans back a touch (anticipation), then crashes down
+-- away from the player with a cartoon bounce. On impact: crash sound, a
+-- big dust cloud, leaves and splinters, and the camera of everyone nearby
+-- wobbles. Then it poofs away.
+local FALL_TIME = 1.3
+local FIRST_CONTACT = 0.364 -- Bounce/Out first reaches 1 at t = 1 / 2.75
+
 local function fallOver(node: Node, fromPosition: Vector3?)
-	-- Tip the tree away from the player around its base, then hide it.
 	local base = node.BaseCFrame
 	local away = if fromPosition then (base.Position - fromPosition) * Vector3.new(1, 0, 1) else Vector3.new(1, 0, 0)
 	if away.Magnitude < 0.1 then
@@ -12939,6 +13334,8 @@ local function fallOver(node: Node, fromPosition: Vector3?)
 	end
 	away = away.Unit
 	local axis = Vector3.new(0, 1, 0):Cross(away).Unit
+	local height = node.Model:GetExtentsSize().Y
+	local landing = base.Position + away * math.max(4, height * 0.55)
 	local driver = Instance.new("NumberValue")
 	driver.Value = 0
 	driver.Changed:Connect(function(alpha)
@@ -12946,20 +13343,47 @@ local function fallOver(node: Node, fromPosition: Vector3?)
 			node.Model:PivotTo(CFrame.fromAxisAngle(axis, math.rad(84) * alpha) * (base - base.Position) + base.Position)
 		end
 	end)
-	local tween = TweenService:Create(driver, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Value = 1 })
-	tween.Completed:Once(function()
-		driver:Destroy()
-		if node.Depleted and node.Model.Parent then
-			GameSoundService.PlayAt("RockHit", base.Position + away * 6)
-			VFXService.PlayAt("BuildDust", base.Position + away * 6)
-			task.wait(0.35)
+	local lean = TweenService:Create(driver, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Value = -0.07 })
+	local fall = TweenService:Create(driver, TweenInfo.new(FALL_TIME, Enum.EasingStyle.Bounce, Enum.EasingDirection.Out), { Value = 1 })
+	lean.Completed:Once(function()
+		if not node.Depleted or not node.Model.Parent then
+			driver:Destroy()
+			return
+		end
+		fall:Play()
+		task.delay(FALL_TIME * FIRST_CONTACT, function()
 			if node.Depleted and node.Model.Parent then
-				NodeModels.SetVisible(node.Model, false)
-				VFXService.PlayAt(node.Def.BreakVFX or "LeafBurst", base.Position + away * 5 + Vector3.new(0, 1, 0))
+				GameSoundService.PlayAt("TreeFall", landing)
+				VFXService.PlayAt("BigPuff", landing)
+				VFXService.PlayAt(node.Def.BreakVFX or "LeafBurst", landing + Vector3.new(0, 1.5, 0), { Count = 22, Scale = 1.4 })
+				VFXService.PlayAt("WoodSplinters", base.Position + Vector3.new(0, 1, 0))
+				VFXService.WobbleNear(landing, 70, 1.1, 0.9)
 			end
+		end)
+	end)
+	fall.Completed:Once(function()
+		driver:Destroy()
+		task.wait(0.45)
+		if node.Depleted and node.Model.Parent then
+			NodeModels.SetVisible(node.Model, false)
+			VFXService.PlayAt("Puff", landing, { Scale = 1.3 })
+			VFXService.PlayAt("Sparkle", landing + Vector3.new(0, 1, 0))
 		end
 	end)
-	tween:Play()
+	lean:Play()
+end
+
+-- Rocks / ore burst into chunks with dust, a flash and a camera wobble.
+local function shatter(node: Node)
+	local position = node.BaseCFrame.Position
+	local size = node.Model:GetExtentsSize()
+	local scale = math.clamp(math.max(size.X, size.Z) / 5, 0.6, 1.8)
+	local center = position + Vector3.new(0, size.Y * 0.4, 0)
+	VFXService.PlayAt("RockShatter", center, { Color = mainColor(node.Model), Scale = scale })
+	VFXService.PlayAt("Puff", position, { Scale = scale })
+	VFXService.PlayAt("HitPop", center, { Scale = 1.6 * scale })
+	VFXService.PlayAt("Stars", center)
+	VFXService.WobbleNear(position, 50, 0.85, 0.7)
 end
 
 -- Applies damage. Returns true if this hit broke the node.
@@ -12972,22 +13396,34 @@ function ResourceService.Damage(node: Node, amount: number, fromPosition: Vector
 	if node.Def.HitSound then
 		GameSoundService.PlayAt(node.Def.HitSound, node.BaseCFrame.Position + Vector3.new(0, 2, 0))
 	end
+	local hitPoint = node.BaseCFrame.Position + Vector3.new(0, 2.5, 0)
 	if node.Def.HitVFX then
-		VFXService.PlayAt(node.Def.HitVFX, node.BaseCFrame.Position + Vector3.new(0, 2.5, 0))
+		VFXService.PlayAt(node.Def.HitVFX, hitPoint)
 	end
 	if node.Health > 0 then
+		-- Cartoon hit: a flash, a few stars and the node squashes / sways.
+		VFXService.PlayAt("HitPop", hitPoint)
+		VFXService.PlayAt("Stars", hitPoint, { Count = 4 })
+		VFXService.Jiggle(node.Model, if node.Def.FallOver then "Tilt" else "Squash", fromPosition)
 		return false
 	end
 
 	node.Depleted = true
 	node.Model:SetAttribute("Depleted", true)
 	InteractionService.SetEnabled(node.Model, false)
-	if node.Def.BreakSound then
-		GameSoundService.PlayAt(node.Def.BreakSound, node.BaseCFrame.Position)
-	end
 	if node.Def.FallOver then
+		-- The crash sound plays when the tree hits the ground.
 		fallOver(node, fromPosition)
 	else
+		if node.Def.BreakSound then
+			GameSoundService.PlayAt(node.Def.BreakSound, node.BaseCFrame.Position)
+		end
+		if node.Def.ToolType == "Pickaxe" then
+			shatter(node)
+		else
+			VFXService.PlayAt("Puff", node.BaseCFrame.Position, { Scale = 0.7 })
+			VFXService.PlayAt("HitPop", node.BaseCFrame.Position + Vector3.new(0, 1, 0))
+		end
 		NodeModels.SetVisible(node.Model, false)
 		VFXService.PlayAt(node.Def.BreakVFX or "RockChips", node.BaseCFrame.Position + Vector3.new(0, 1, 0))
 	end
@@ -13792,11 +14228,12 @@ function ToolService.Init()
 	end)
 	Net.OnServerEvent("HotbarRequest", onHotbarRequest)
 	-- Cosmetic swing at nothing: everyone sees the animation, nothing is hit.
-	Net.OnServerEvent("SwingRequest", function(player: Player)
+	Net.OnServerEvent("SwingRequest", function(player: Player, variant: any)
 		local tool = ToolService.GetEquipped(player)
 		if not tool or tool.Type == "FishingRod" or AnimationService.IsBusy(player) then
 			return
 		end
+		AnimationService.SetVariantHint(player, variant)
 		AnimationService.PerformAction(player, tool.Animations.Use, nil, function() end, { Speed = tool.Speed, LockFraction = 0.7 })
 	end)
 end
@@ -14229,6 +14666,7 @@ return TradeService
 	them (VFXController / CameraController) with pooling and distance culling.
 ]]
 
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage.Shared
@@ -14246,23 +14684,59 @@ local function isKnown(effectName: string): boolean
 	return false
 end
 
+export type Options = {
+	Color: Color3?,
+	Count: number?,
+	Scale: number?,
+	Target: Instance?,
+	Style: string?, -- Jiggle: "Squash" | "Tilt" | "Pop" | "Hop"
+	From: Vector3?,
+}
+
 -- Everyone nearby sees it (clients cull by VFXConfig.MaxDistance).
-function VFXService.PlayAt(effectName: string, position: Vector3)
+function VFXService.PlayAt(effectName: string, position: Vector3, options: Options?)
 	if isKnown(effectName) then
-		Net.FireAllClients("PlayVFX", effectName, position)
+		Net.FireAllClients("PlayVFX", effectName, position, options)
 	end
 end
 
 -- Only one player sees it (personal feedback).
-function VFXService.PlayFor(player: Player, effectName: string, position: Vector3)
+function VFXService.PlayFor(player: Player, effectName: string, position: Vector3, options: Options?)
 	if isKnown(effectName) then
-		Net.FireClient("PlayVFX", player, effectName, position)
+		Net.FireClient("PlayVFX", player, effectName, position, options)
 	end
 end
 
-function VFXService.ShakeCamera(player: Player, intensity: number, duration: number?)
+-- Cartoon squash / tilt / pop of a model, seen by everyone.
+function VFXService.Jiggle(target: Instance?, style: string, from: Vector3?)
+	if not target or not target.Parent then
+		return
+	end
+	local position = if target:IsA("Model") then target:GetPivot().Position elseif target:IsA("BasePart") then target.Position else nil
+	if position then
+		VFXService.PlayAt("Jiggle", position, { Target = target, Style = style, From = from })
+	end
+end
+
+-- style: nil (noise shake) | "Wobble" (bouncy cartoon wobble) | "Kick" (hit nod)
+function VFXService.ShakeCamera(player: Player, intensity: number, duration: number?, style: string?)
 	local capped = math.clamp(intensity, 0, GameConfig.Camera.MaxShakeIntensity)
-	Net.FireClient("CameraShake", player, capped, duration or 0.3)
+	Net.FireClient("CameraShake", player, capped, duration or 0.3, style)
+end
+
+-- Wobbles the camera of everyone near a big impact (stronger up close).
+function VFXService.WobbleNear(position: Vector3, radius: number, strength: number, duration: number?)
+	for _, player in Players:GetPlayers() do
+		local character = player.Character
+		local root = character and character:FindFirstChild("HumanoidRootPart")
+		if root and root:IsA("BasePart") then
+			local distance = (root.Position - position).Magnitude
+			if distance <= radius then
+				local falloff = 1 - (distance / radius) * 0.7
+				VFXService.ShakeCamera(player, strength * falloff, duration, "Wobble")
+			end
+		end
+	end
 end
 
 return VFXService
@@ -14722,6 +15196,11 @@ return WorldService
 	    its -Z axis points where the blade/tip faces.
 	If no art exists, a clean low-poly placeholder is generated from the
 	tool's Shape + tier colours so the game is fully playable today.
+
+	SWING TRAIL: every tool gets a "SwingTrail" (Trail between two
+	attachments along the head / handle), disabled by default. Clients
+	switch it on during the swing window of each animation (AnimationConfig
+	Trail), so every swing leaves a cartoon smear in the tool's tier colour.
 ]]
 
 local ServerStorage = game:GetService("ServerStorage")
@@ -14739,6 +15218,19 @@ type PartSpec = {
 }
 
 type ShapeSpec = { HandleLength: number, HandleThickness: number, Parts: { PartSpec } }
+
+-- Trail endpoints in Handle space: { outer, inner } (outer = the fast end).
+local TRAILS: { [string]: { Vector3 } } = {
+	Axe = { Vector3.new(0, 1.7, -0.55), Vector3.new(0, 0.35, -0.1) },
+	Pickaxe = { Vector3.new(0, 1.65, 0), Vector3.new(0, 0.3, 0) },
+	Hammer = { Vector3.new(0, 1.45, 0), Vector3.new(0, 0.25, 0) },
+	Shovel = { Vector3.new(0, 2.85, 0), Vector3.new(0, 1.1, 0) },
+	Hoe = { Vector3.new(0, 2.05, -0.8), Vector3.new(0, 0.7, -0.1) },
+	WateringCan = { Vector3.new(0, 1.15, -1.75), Vector3.new(0, 0.95, -0.7) },
+	FishingRod = { Vector3.new(0, 2.95, 0), Vector3.new(0, 1.3, 0) },
+	Bucket = { Vector3.new(0, -0.3, 0), Vector3.new(0, -1.15, 0) },
+	Shears = { Vector3.new(0, 1.4, 0), Vector3.new(0, 0.6, 0) },
+}
 
 -- Handle is centred at the origin with its long axis along +Y.
 local SHAPES: { [string]: ShapeSpec } = {
@@ -14825,6 +15317,44 @@ local function preparePart(part: BasePart)
 	part.CastShadow = true
 end
 
+-- A cartoon smear between two attachments on the handle (off until a swing).
+local function addTrail(handle: BasePart, outer: Vector3, inner: Vector3, color: Color3, isWater: boolean)
+	local a0 = Instance.new("Attachment")
+	a0.Name = "TrailOuter"
+	a0.Position = outer
+	a0.Parent = handle
+	local a1 = Instance.new("Attachment")
+	a1.Name = "TrailInner"
+	a1.Position = inner
+	a1.Parent = handle
+	local trail = Instance.new("Trail")
+	trail.Name = "SwingTrail"
+	trail.Attachment0 = a0
+	trail.Attachment1 = a1
+	trail.Enabled = false
+	trail.FaceCamera = false
+	trail.Lifetime = if isWater then 0.35 else 0.2
+	trail.MinLength = 0.05
+	trail.LightEmission = if isWater then 0.2 else 0.55
+	trail.LightInfluence = 0.3
+	local tint = if isWater then Color3.fromRGB(150, 220, 255) else color:Lerp(Color3.new(1, 1, 1), 0.35)
+	trail.Color = ColorSequence.new({
+		ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
+		ColorSequenceKeypoint.new(0.35, tint),
+		ColorSequenceKeypoint.new(1, tint),
+	})
+	trail.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 0.1),
+		NumberSequenceKeypoint.new(0.5, 0.45),
+		NumberSequenceKeypoint.new(1, 1),
+	})
+	trail.WidthScale = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 1),
+		NumberSequenceKeypoint.new(1, 0.25),
+	})
+	trail.Parent = handle
+end
+
 local function fromCustomArt(toolId: string): Model?
 	local folder = ServerStorage:FindFirstChild("Tools")
 	local template = folder and folder:FindFirstChild(toolId)
@@ -14844,6 +15374,10 @@ local function fromCustomArt(toolId: string): Model?
 		end
 	end
 	model.PrimaryPart = handle
+	if not handle:FindFirstChild("SwingTrail", true) then
+		-- Custom art without its own trail: smear along the handle.
+		addTrail(handle, Vector3.new(0, handle.Size.Y / 2, 0), Vector3.new(0, 0, 0), Color3.new(1, 1, 1), false)
+	end
 	return model
 end
 
@@ -14888,6 +15422,10 @@ local function fromShape(toolDef: any): Model
 		part.Parent = model
 	end
 
+	local trail = TRAILS[toolDef.Shape]
+	if trail then
+		addTrail(handle, trail[1], trail[2], toolDef.HeadColor, toolDef.Shape == "WateringCan")
+	end
 	model.PrimaryPart = handle
 	return model
 end
@@ -15782,7 +16320,10 @@ return AnimalController
 	  * ANIMALS (tag "Animal") walk, graze, chew, wag and flap from their
 	             AnimalAnim attribute using their own joints.
 	  * MARKER EFFECTS (AnimationConfig) — whoosh sounds / dust — fire at the
-	             marker time on every client, positioned at that rig.
+	             marker time on every client, positioned at that rig; your
+	             own hits also kick the camera (CameraController.Kick).
+	  * SWING TRAILS: during an action's Trail window the held tool's
+	             SwingTrail is switched on (with a whoosh), on every client.
 
 	Your own actions are PREDICTED: PlayLocal() starts instantly on click; the
 	server's attribute for the same action simply continues it.
@@ -15841,6 +16382,7 @@ type Rig = {
 	IsNPC: boolean,
 	Tracks: { [string]: AnimationTrack },
 	Connections: { RBXScriptConnection },
+	TrailOn: boolean,
 }
 
 local rigs: { [Model]: Rig } = {}
@@ -15949,8 +16491,13 @@ local function fireMarkers(rig: Rig, state: ActionState, elapsed: number)
 						VFXController.Play(effects.VFX, position)
 					end
 				end
-				if effects.Shake and rig.Model == localCharacter then
-					CameraController.Shake(effects.Shake, 0.25)
+				if rig.Model == localCharacter then
+					if effects.Punch then
+						CameraController.Kick(effects.Punch)
+					end
+					if effects.Shake then
+						CameraController.Shake(effects.Shake, 0.25)
+					end
 				end
 			end
 			AnimationController.MarkerReached:Fire(state.Name, markerName, rig.Model)
@@ -16073,6 +16620,7 @@ local function addRig(model: Model, isNPC: boolean)
 		IsNPC = isNPC,
 		Tracks = {},
 		Connections = {},
+		TrailOn = false,
 	}
 	rigs[model] = rig
 	table.insert(rig.Connections, model:GetAttributeChangedSignal("ActionAnim"):Connect(function()
@@ -16189,6 +16737,27 @@ local function applyRig(rig: Rig, now: number, clock: number, dt: number)
 		applyAction(action, math.clamp(elapsed / FADE_IN, 0, 1))
 	end
 
+	-- Swing trail on the held tool during the action's Trail window.
+	local trailOn = false
+	if action and action.Def.Trail then
+		local fraction = (now - action.Start) * action.Speed / action.Def.Length
+		trailOn = fraction >= action.Def.Trail[1] and fraction <= action.Def.Trail[2]
+	end
+	if trailOn ~= rig.TrailOn then
+		rig.TrailOn = trailOn
+		local tool = model:FindFirstChild("EquippedTool")
+		local trail = tool and tool:FindFirstChild("SwingTrail", true)
+		if trail and trail:IsA("Trail") then
+			trail.Enabled = trailOn
+			if trailOn then
+				local root = R15.GetRootPart(model)
+				if root then
+					AudioController.PlayAt("ToolSwing", root.Position)
+				end
+			end
+		end
+	end
+
 	for joint, target in targets do
 		local motor = motors[joint]
 		if motor and motor.Parent then
@@ -16263,6 +16832,24 @@ end
 ---------------------------------------------------------------------------
 -- Public API
 ---------------------------------------------------------------------------
+
+local lastVariant: { [string]: number } = {}
+
+-- Picks one of an action's swing variants at random (never the same one
+-- twice in a row). Returns (animationName, index); send the index to the
+-- server so everyone sees the same swing.
+function AnimationController.PickVariant(base: string): (string, number)
+	local count = AnimationConfig.VariantCount(base)
+	if count <= 1 then
+		return base, 1
+	end
+	local index = math.random(1, count)
+	if index == lastVariant[base] then
+		index = index % count + 1
+	end
+	lastVariant[base] = index
+	return AnimationConfig.Variant(base, index), index
+end
 
 -- Starts an action on YOUR character right away (the server will confirm it).
 function AnimationController.PlayLocal(name: string, speed: number?)
@@ -17589,95 +18176,173 @@ return BuildController
 	DEPENDENCIES: Shared.Net, Shared.Config.GameConfig, Client.ClientState
 
 	Keeps Roblox's default R15 third-person camera (it already handles mobile,
-	gamepad and collisions well) and layers on top:
-	  * zoom limits + field of view per MODE (Default / Build / Fishing),
-	  * gentle, CAPPED camera shake that only runs while shaking (no permanent
-	    per-frame work) and respects the player's CameraShake setting,
-	  * a short FOV "punch" for big moments.
+	gamepad and collisions well) and layers CARTOON camera feel on top:
+
+	  Kick(strength)          a springy nod on every hit you land (pitch
+	                          down + a little roll + a tiny zoom-in squash)
+	  Wobble(strength, time)  a wobbly, bouncy roll/pitch for big moments:
+	                          a tree crashing down, a rock shattering,
+	                          new land rising
+	  Shake(strength, time)   classic noisy shake (capped)
+	  Punch(amount)           a springy field-of-view pop (level ups)
+	  SetMode(mode)           Default / Build / Fishing field of view
+
+	Everything runs through one damped spring, applied after the default
+	camera script each frame, so offsets never accumulate. Rotation effects
+	respect the player's "Camera shake" setting; FOV pops always play.
 ]]
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
-local TweenService = game:GetService("TweenService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Net = require(Shared:WaitForChild("Net"))
 local GameConfig = require(Shared.Config.GameConfig)
 local ClientState = require(script.Parent.Parent.ClientState)
 
-local SHAKE_BIND_NAME = "IslandCameraShake"
+local BIND_NAME = "IslandCameraJuice"
 
 local MODES = {
 	Default = { FieldOfView = GameConfig.Camera.DefaultFieldOfView },
-	Build = { FieldOfView = GameConfig.Camera.DefaultFieldOfView + 6 }, -- Phase 3
-	Fishing = { FieldOfView = GameConfig.Camera.DefaultFieldOfView - 6 }, -- Phase 5
+	Build = { FieldOfView = GameConfig.Camera.DefaultFieldOfView + 6 },
+	Fishing = { FieldOfView = GameConfig.Camera.DefaultFieldOfView - 6 },
 }
+
+-- Spring tuning: stiff + light damping = bouncy, cartoony.
+local STIFFNESS = 170
+local DAMPING = 11
+local FOV_STIFFNESS = 120
+local FOV_DAMPING = 9
+local MAX_ANGLE = math.rad(9)
 
 local CameraController = {}
 
 local mode = "Default"
-local trauma = 0
-local shakeDuration = 0.3
-local shakeBound = false
+local baseFov = GameConfig.Camera.DefaultFieldOfView
+local targetFov = baseFov
+-- Spring state: X = pitch, Y = yaw, Z = roll (radians).
+local angle = Vector3.zero
+local angleVelocity = Vector3.zero
+local fovOffset, fovVelocity = 0, 0
+-- Noise shake.
+local trauma, traumaDuration = 0, 0.3
 local noiseSeed = math.random() * 1000
+-- Wobbles: several can overlap (a tree falling while you mine).
+type Wobble = { Start: number, Duration: number, Strength: number, Phase: number }
+local wobbles: { Wobble } = {}
 
-local function camera(): Camera?
-	return workspace.CurrentCamera
+local function shakeAllowed(): boolean
+	return ClientState.Get("Settings", "CameraShake") ~= false
 end
 
-local function stepShake(deltaTime: number)
-	local cam = camera()
-	if trauma <= 0 or not cam then
-		RunService:UnbindFromRenderStep(SHAKE_BIND_NAME)
-		shakeBound = false
+local function step(dt: number)
+	local cam = workspace.CurrentCamera
+	if not cam then
 		return
 	end
-	local time = os.clock() * 25
-	local strength = trauma * trauma
-	local pitch = math.noise(noiseSeed, time) * 0.035 * strength
-	local yaw = math.noise(noiseSeed + 10, time) * 0.035 * strength
-	local roll = math.noise(noiseSeed + 20, time) * 0.02 * strength
-	-- Applied after the default camera script each frame, so it never accumulates.
-	cam.CFrame *= CFrame.Angles(pitch, yaw, roll)
-	trauma = math.max(0, trauma - deltaTime / math.max(shakeDuration, 0.05))
+	dt = math.min(dt, 1 / 20)
+
+	-- Base field of view eases towards the mode's FOV.
+	baseFov += (targetFov - baseFov) * math.min(1, dt * 8)
+
+	-- Springs.
+	local accel = -angle * STIFFNESS - angleVelocity * DAMPING
+	angleVelocity += accel * dt
+	angle += angleVelocity * dt
+	local fovAccel = -fovOffset * FOV_STIFFNESS - fovVelocity * FOV_DAMPING
+	fovVelocity += fovAccel * dt
+	fovOffset += fovVelocity * dt
+
+	local pitch, yaw, roll = angle.X, angle.Y, angle.Z
+
+	-- Wobbles: decaying sine on roll + pitch (cartoon "boing").
+	local now = os.clock()
+	for index = #wobbles, 1, -1 do
+		local wobble = wobbles[index]
+		local t = now - wobble.Start
+		if t >= wobble.Duration then
+			table.remove(wobbles, index)
+		else
+			local decay = (1 - t / wobble.Duration) ^ 2
+			local s = wobble.Strength * decay
+			roll += math.sin(t * 17 + wobble.Phase) * 0.055 * s
+			pitch += math.sin(t * 23 + wobble.Phase * 2) * 0.03 * s
+			yaw += math.sin(t * 11 + wobble.Phase) * 0.012 * s
+		end
+	end
+
+	-- Noise shake.
+	if trauma > 0 then
+		local time = now * 25
+		local strength = trauma * trauma
+		pitch += math.noise(noiseSeed, time) * 0.035 * strength
+		yaw += math.noise(noiseSeed + 10, time) * 0.035 * strength
+		roll += math.noise(noiseSeed + 20, time) * 0.02 * strength
+		trauma = math.max(0, trauma - dt / math.max(traumaDuration, 0.05))
+	end
+
+	pitch = math.clamp(pitch, -MAX_ANGLE, MAX_ANGLE)
+	yaw = math.clamp(yaw, -MAX_ANGLE, MAX_ANGLE)
+	roll = math.clamp(roll, -MAX_ANGLE, MAX_ANGLE)
+	if math.abs(pitch) + math.abs(yaw) + math.abs(roll) > 1e-5 then
+		cam.CFrame *= CFrame.Angles(pitch, yaw, roll)
+	end
+	cam.FieldOfView = math.clamp(baseFov + fovOffset, 30, 110)
+end
+
+-- A springy nod when YOUR hit lands.
+function CameraController.Kick(strength: number?)
+	local s = math.clamp(strength or 1, 0, 3)
+	fovVelocity -= 34 * s -- quick zoom-in squash
+	if not shakeAllowed() then
+		return
+	end
+	local side = if math.random() < 0.5 then -1 else 1
+	angleVelocity += Vector3.new(-0.55 * s, 0.12 * s * side, 0.35 * s * side)
+end
+
+-- A decaying, bouncy wobble (tree falls, rocks shatter, land rises).
+function CameraController.Wobble(strength: number, duration: number?)
+	if not shakeAllowed() then
+		return
+	end
+	table.insert(wobbles, {
+		Start = os.clock(),
+		Duration = math.clamp(duration or 0.8, 0.1, 3),
+		Strength = math.clamp(strength, 0, 2),
+		Phase = math.random() * math.pi * 2,
+	})
+	if #wobbles > 4 then
+		table.remove(wobbles, 1)
+	end
+	angleVelocity += Vector3.new(-0.4 * strength, 0, 0)
 end
 
 function CameraController.Shake(intensity: number, duration: number?)
-	if ClientState.Get("Settings", "CameraShake") == false then
+	if not shakeAllowed() then
 		return
 	end
 	trauma = math.clamp(math.max(trauma, intensity), 0, GameConfig.Camera.MaxShakeIntensity)
-	shakeDuration = duration or 0.3
-	if not shakeBound then
-		shakeBound = true
-		RunService:BindToRenderStep(SHAKE_BIND_NAME, Enum.RenderPriority.Camera.Value + 1, stepShake)
-	end
+	traumaDuration = duration or 0.3
 end
 
 function CameraController.SetMode(newMode: string)
 	local def = MODES[newMode]
-	local cam = camera()
-	if not def or not cam then
+	if not def then
 		return
 	end
 	mode = newMode
-	TweenService:Create(cam, TweenInfo.new(0.35, Enum.EasingStyle.Quad), { FieldOfView = def.FieldOfView }):Play()
+	targetFov = def.FieldOfView
 end
 
 function CameraController.GetMode(): string
 	return mode
 end
 
--- Short FOV pulse for level ups / unlocks.
+-- Springy FOV pop for level ups / unlocks.
 function CameraController.Punch(amount: number?)
-	local cam = camera()
-	if not cam then
-		return
-	end
-	local base = MODES[mode].FieldOfView
-	cam.FieldOfView = base + (amount or 4)
-	TweenService:Create(cam, TweenInfo.new(0.5, Enum.EasingStyle.Back), { FieldOfView = base }):Play()
+	fovVelocity += 55 * (amount or 4) / 4
 end
 
 function CameraController.Init()
@@ -17687,13 +18352,19 @@ function CameraController.Init()
 end
 
 function CameraController.Start()
-	local cam = camera()
-	if cam then
-		cam.FieldOfView = MODES.Default.FieldOfView
-	end
-	Net.OnClientEvent("CameraShake", function(intensity: number, duration: number?)
-		if type(intensity) == "number" then
-			CameraController.Shake(intensity, duration)
+	-- After the default camera script, every frame.
+	RunService:BindToRenderStep(BIND_NAME, Enum.RenderPriority.Camera.Value + 1, step)
+	Net.OnClientEvent("CameraShake", function(intensity: any, duration: any, style: any)
+		if type(intensity) ~= "number" then
+			return
+		end
+		local time = if type(duration) == "number" then duration else nil
+		if style == "Wobble" then
+			CameraController.Wobble(intensity, time)
+		elseif style == "Kick" then
+			CameraController.Kick(intensity)
+		else
+			CameraController.Shake(intensity, time)
 		end
 	end)
 end
@@ -18531,8 +19202,9 @@ local function onClick(target: any): boolean
 		end
 		castRequestedAt = now
 		state = "Casting"
-		AnimationController.PlayLocal("FishingCast", 1)
-		Net.FireServer("FishingRequest", { Op = "Cast", Target = target.Position })
+		local castName, castVariant = AnimationController.PickVariant("FishingCast")
+		AnimationController.PlayLocal(castName, 1)
+		Net.FireServer("FishingRequest", { Op = "Cast", Target = target.Position, Variant = castVariant })
 		task.delay(CAST_TIMEOUT, expireCast, now)
 	elseif state == "Waiting" then
 		-- Too early: the server scares the fish off and tells us why.
@@ -18782,6 +19454,7 @@ local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
@@ -18798,6 +19471,7 @@ local UIController = require(script.Parent.UIController)
 local ToolController = require(script.Parent.ToolController)
 local AnimationController = require(script.Parent.AnimationController)
 local AudioController = require(script.Parent.AudioController)
+local VFXController = require(script.Parent.VFXController)
 local Components = require(Client.UI.Components)
 local Theme = require(Client.UI.Theme)
 
@@ -18808,7 +19482,7 @@ local TAG = "Interactable"
 local RAY_LENGTH = 320
 local WALK_TIMEOUT = 5
 local VISITOR_PERMISSIONS = { Visitor = true, Fish = true, Market = true }
-local SWING_TYPES = { Axe = true, Pickaxe = true, Hammer = true, Hoe = true, Shovel = true }
+local SWING_TYPES = { Axe = true, Pickaxe = true, Hammer = true, Hoe = true, Shovel = true, WateringCan = true, Bucket = true, Shears = true }
 local TOOL_KEYS = { Axe = "🪓 Axe", Pickaxe = "⛏️ Pickaxe", Hammer = "🔨 Hammer", Hoe = "🌱 Hoe", Shovel = "🪏 Shovel", WateringCan = "🚿 Watering Can", FishingRod = "🎣 Fishing Rod", Bucket = "🪣 Bucket" }
 
 local COLORS = {
@@ -19085,6 +19759,16 @@ end
 
 local function setHighlight(object: Instance?, color: Color3)
 	if object and (object:IsA("Model") or object:IsA("BasePart")) then
+		if highlight.Adornee ~= object then
+			-- A tiny cartoon "boing" + outline flash when something new is under the cursor.
+			if object:IsA("Model") then
+				VFXController.Jiggle(object, "Nudge")
+			end
+			highlight.OutlineTransparency = 0
+			highlight.FillTransparency = 0.6
+			Components.Bounce(tooltip, 0.18)
+			TweenService:Create(highlight, TweenInfo.new(0.35, Enum.EasingStyle.Quad), { FillTransparency = 0.86 }):Play()
+		end
 		highlight.Adornee = object
 		highlight.OutlineColor = color
 		highlight.FillColor = color
@@ -19178,15 +19862,20 @@ end
 local function perform(object: Instance, hint: Hint)
 	faceTarget(objectPosition(object))
 	local now = os.clock()
+	local variant = nil
 	if hint.Anim and now >= localBusyUntil then
-		local def = AnimationConfig.Get(hint.Anim)
+		local name, index = AnimationController.PickVariant(hint.Anim)
+		local def = AnimationConfig.Get(name)
 		if def then
 			local speed = hint.Speed or 1
 			localBusyUntil = now + def.Length / speed * 0.85
-			AnimationController.PlayLocal(hint.Anim, speed)
+			AnimationController.PlayLocal(name, speed)
+			variant = index
 		end
 	end
-	Net.FireServer("InteractRequest", object)
+	Net.FireServer("InteractRequest", object, variant)
+	-- Instant local feedback on the thing you clicked.
+	VFXController.Play("HitRing", objectPosition(object) + Vector3.new(0, 0.5, 0), { Scale = 0.6, Color = COLORS.Ok })
 end
 
 local function cancelWalk()
@@ -19237,11 +19926,12 @@ local function practiceSwing()
 		return
 	end
 	lastSwing = now
-	local def = AnimationConfig.Get(tool.Animations.Use)
+	local name, index = AnimationController.PickVariant(tool.Animations.Use)
+	local def = AnimationConfig.Get(name)
 	if def then
 		localBusyUntil = now + def.Length / tool.Speed * 0.7
-		AnimationController.PlayLocal(tool.Animations.Use, tool.Speed)
-		Net.FireServer("SwingRequest")
+		AnimationController.PlayLocal(name, tool.Speed)
+		Net.FireServer("SwingRequest", index)
 	end
 end
 
@@ -19357,8 +20047,8 @@ function InteractionController.Init()
 		ZIndex = 50,
 		Parent = overlay,
 	})
-	Components.Corner(tooltip, UDim.new(0, 10))
-	Components.Stroke(tooltip, COLORS.Ok, 2)
+	Components.Corner(tooltip, UDim.new(0, 12))
+	Components.Stroke(tooltip, COLORS.Ok, 3)
 	tooltipText = Components.Label({
 		Size = UDim2.new(1, -18, 0, 26),
 		Position = UDim2.fromOffset(9, 3),
@@ -20102,9 +20792,14 @@ return IslandController
 	The map in the middle is a LIVE preview drawn with the exact same
 	generator the server uses (Shared/Util/IslandGen), so what you see is
 	the island you get. CREATE sends CreateIslandRequest{Theme, Shape, Seed, Name}.
+
+	The screen has its own ScreenGui and scales to FILL any screen (phone,
+	laptop or a small Studio window), with big chunky text.
 ]]
 
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Net = require(Shared:WaitForChild("Net"))
@@ -20121,7 +20816,7 @@ local Theme = require(Client.UI.Theme)
 local Create = Components.Create
 
 local PREVIEW_PIXELS = 46
-local PREVIEW_SIZE = 322
+local PREVIEW_SIZE = 380
 
 -- Map colours for the preview (terrain materials by name).
 local MATERIAL_COLORS: { [string]: Color3 } = {
@@ -20140,6 +20835,7 @@ local SHALLOW_WATER = Color3.fromRGB(70, 196, 220)
 
 local IslandCreatorController = {}
 
+local gui: ScreenGui
 local root: Frame
 local shown = false
 local submitted = false
@@ -20214,64 +20910,135 @@ local function refresh()
 	task.spawn(drawPreview)
 end
 
+local DESIGN = Vector2.new(1240, 720)
+
+-- Soft floating bubbles behind the menu (cartoon sky).
+local function addBubbles(parent: Frame)
+	local spots = {
+		{ 0.08, 0.2, 260 },
+		{ 0.9, 0.15, 340 },
+		{ 0.18, 0.85, 380 },
+		{ 0.82, 0.8, 300 },
+		{ 0.5, 0.05, 220 },
+		{ 0.62, 0.95, 240 },
+	}
+	for index, spot in spots do
+		local bubble = Create("Frame", {
+			Name = "Bubble",
+			Size = UDim2.fromOffset(spot[3], spot[3]),
+			Position = UDim2.fromScale(spot[1], spot[2]),
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			BackgroundColor3 = Color3.new(1, 1, 1),
+			BackgroundTransparency = 0.88,
+			Parent = parent,
+		})
+		Components.Corner(bubble, UDim.new(1, 0))
+		TweenService:Create(bubble, TweenInfo.new(3 + index * 0.7, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), {
+			Position = UDim2.fromScale(spot[1], spot[2] - 0.035),
+		}):Play()
+	end
+end
+
+local function header(parent: Instance, text: string)
+	local label = Components.Label({ Text = text, Size = UDim2.new(1, 0, 0, 38), TextSize = 34, TextColor3 = Theme.Colors.TextLight, Parent = parent })
+	Components.TextStroke(label, Theme.Colors.Outline, 2.5)
+end
+
+local function column(parent: Instance, x: number, width: number, color: Color3): Frame
+	local frame = Create("Frame", { Size = UDim2.fromOffset(width, 600), Position = UDim2.fromOffset(x, 0), BackgroundColor3 = color, Parent = parent })
+	Components.Corner(frame, UDim.new(0, 26))
+	Components.Stroke(frame, Theme.Colors.Outline, 5)
+	Components.Gloss(frame, 0.3)
+	Components.Padding(frame, 14)
+	return frame
+end
+
 local function build()
+	local playerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
+	gui = Create("ScreenGui", {
+		Name = "IslandCreatorGui",
+		ResetOnSpawn = false,
+		IgnoreGuiInset = true,
+		DisplayOrder = 5,
+		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
+		Enabled = false,
+		Parent = playerGui,
+	})
 	root = Create("Frame", {
 		Name = "IslandCreator",
 		Size = UDim2.fromScale(1, 1),
-		BackgroundColor3 = Color3.fromRGB(40, 150, 210),
-		Visible = false,
-		ZIndex = 0, -- under the notifications that share the overlay
-		Parent = UIController.GetOverlay(),
+		BackgroundColor3 = Color3.new(1, 1, 1),
+		Parent = gui,
 	})
 	Create("UIGradient", {
 		Rotation = 90,
-		Color = ColorSequence.new(Color3.fromRGB(120, 215, 255), Color3.fromRGB(30, 110, 200)),
+		Color = ColorSequence.new({
+			ColorSequenceKeypoint.new(0, Color3.fromRGB(130, 220, 255)),
+			ColorSequenceKeypoint.new(0.6, Color3.fromRGB(60, 160, 235)),
+			ColorSequenceKeypoint.new(1, Color3.fromRGB(30, 105, 200)),
+		}),
 		Parent = root,
 	})
-	local title = Components.Label({
-		Text = "🏝️ CREATE YOUR ISLAND",
-		Size = UDim2.fromOffset(700, 56),
-		Position = UDim2.new(0.5, 0, 0, 14),
-		AnchorPoint = Vector2.new(0.5, 0),
-		TextSize = Theme.TextSize.Huge,
-		TextColor3 = Theme.Colors.TextLight,
-		Parent = root,
-	})
-	Components.TextStroke(title, Theme.Colors.Outline, 3)
-	local subtitle = Components.Label({
-		Text = "Every island is unique — pick a look, reroll until you love the shape!",
-		Size = UDim2.fromOffset(800, 24),
-		Position = UDim2.new(0.5, 0, 0, 70),
-		AnchorPoint = Vector2.new(0.5, 0),
-		Font = Theme.Fonts.Bold,
-		TextSize = Theme.TextSize.Medium,
-		TextColor3 = Theme.Colors.TextLight,
-		Parent = root,
-	})
-	Components.TextStroke(subtitle, Theme.Colors.Outline, 1.5)
+	addBubbles(root)
 
-	local container = Create("Frame", {
-		Size = UDim2.fromOffset(1180, 560),
-		Position = UDim2.new(0.5, 0, 0, 106),
-		AnchorPoint = Vector2.new(0.5, 0),
+	-- Everything below is laid out at DESIGN size and scaled to FILL the screen.
+	local stage = Create("Frame", {
+		Name = "Stage",
+		Size = UDim2.fromOffset(DESIGN.X, DESIGN.Y),
+		Position = UDim2.fromScale(0.5, 0.5),
+		AnchorPoint = Vector2.new(0.5, 0.5),
 		BackgroundTransparency = 1,
 		Parent = root,
 	})
+	local stageScale = Create("UIScale", { Parent = stage })
+	local function fit()
+		local size = root.AbsoluteSize
+		if size.X > 0 and size.Y > 0 then
+			stageScale.Scale = math.max(0.35, math.min(size.X * 0.97 / DESIGN.X, size.Y * 0.96 / DESIGN.Y))
+		end
+	end
+	root:GetPropertyChangedSignal("AbsoluteSize"):Connect(fit)
+	fit()
+
+	local title = Components.Label({
+		Text = "🏝️ CREATE YOUR ISLAND",
+		Size = UDim2.new(1, 0, 0, 70),
+		TextSize = 64,
+		TextColor3 = Theme.Colors.TextLight,
+		TextWrapped = false,
+		Parent = stage,
+	})
+	Components.TextStroke(title, Theme.Colors.Outline, 4)
+	TweenService:Create(title, TweenInfo.new(1.6, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { Rotation = 1.5 }):Play()
+	local subtitle = Components.Label({
+		Text = "Every island is unique — pick a look, then reroll until you love the shape!",
+		Size = UDim2.new(1, 0, 0, 30),
+		Position = UDim2.fromOffset(0, 72),
+		Font = Theme.Fonts.Heavy,
+		TextSize = 26,
+		TextColor3 = Theme.Colors.TextLight,
+		Parent = stage,
+	})
+	Components.TextStroke(subtitle, Theme.Colors.Outline, 2)
+
+	local container = Create("Frame", {
+		Size = UDim2.fromOffset(DESIGN.X, 600),
+		Position = UDim2.fromOffset(0, 116),
+		BackgroundTransparency = 1,
+		Parent = stage,
+	})
 
 	-- 1: THEME
-	local themeColumn = Create("Frame", { Size = UDim2.fromOffset(360, 560), BackgroundColor3 = Theme.Colors.Panel, Parent = container })
-	Components.Corner(themeColumn)
-	Components.Stroke(themeColumn, Theme.Colors.Outline, 4)
-	Components.Padding(themeColumn, 12)
-	Components.Label({ Text = "1 · THEME", Size = UDim2.new(1, 0, 0, 30), TextSize = Theme.TextSize.Title, Parent = themeColumn })
+	local themeColumn = column(container, 0, 380, Color3.fromRGB(255, 196, 90))
+	header(themeColumn, "1 · THEME")
 	for index, themeId in IslandConfig.ThemeOrder do
 		local theme = IslandConfig.Themes[themeId]
 		local card = Components.Button({
 			Name = themeId,
 			Text = "",
 			Color = Theme.Colors.PanelAlt,
-			Size = UDim2.new(1, 0, 0, 90),
-			Position = UDim2.fromOffset(0, 38 + (index - 1) * 98),
+			Size = UDim2.new(1, 0, 0, 100),
+			Position = UDim2.fromOffset(0, 46 + (index - 1) * 108),
 			Parent = themeColumn,
 			Flat = true,
 			OnClick = function()
@@ -20279,43 +21046,40 @@ local function build()
 				refresh()
 			end,
 		})
-		Components.Label({ Text = theme.Icon, Size = UDim2.fromOffset(70, 90), TextSize = 46, Parent = card })
-		local name = Components.Label({ Text = theme.DisplayName, Size = UDim2.new(1, -80, 0, 32), Position = UDim2.fromOffset(74, 10), TextXAlignment = Enum.TextXAlignment.Left, TextSize = Theme.TextSize.Large, TextColor3 = Theme.Colors.TextLight, Parent = card })
-		Components.TextStroke(name, Theme.Colors.Outline, 2)
-		Components.Label({ Text = theme.Description, Size = UDim2.new(1, -84, 0, 40), Position = UDim2.fromOffset(74, 42), TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top, Font = Theme.Fonts.Bold, TextSize = Theme.TextSize.Small, TextColor3 = Theme.Colors.Text, Parent = card })
+		Components.Label({ Text = theme.Icon, Size = UDim2.fromOffset(80, 100), TextSize = 56, Parent = card })
+		local name = Components.Label({ Text = theme.DisplayName, Size = UDim2.new(1, -90, 0, 36), Position = UDim2.fromOffset(80, 10), TextXAlignment = Enum.TextXAlignment.Left, TextSize = 30, TextColor3 = Theme.Colors.TextLight, Parent = card })
+		Components.TextStroke(name, Theme.Colors.Outline, 2.5)
+		Components.Label({ Text = theme.Description, Size = UDim2.new(1, -92, 0, 46), Position = UDim2.fromOffset(80, 48), TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top, Font = Theme.Fonts.Heavy, TextSize = 17, TextColor3 = Theme.Colors.Text, Parent = card })
 		themeCards[themeId] = card
 	end
 
 	-- 2: SHAPE + PREVIEW
-	local middle = Create("Frame", { Size = UDim2.fromOffset(420, 560), Position = UDim2.fromOffset(380, 0), BackgroundColor3 = Theme.Colors.Panel, Parent = container })
-	Components.Corner(middle)
-	Components.Stroke(middle, Theme.Colors.Outline, 4)
-	Components.Padding(middle, 12)
-	Components.Label({ Text = "2 · SHAPE", Size = UDim2.new(1, 0, 0, 30), TextSize = Theme.TextSize.Title, Parent = middle })
+	local middle = column(container, 395, 450, Color3.fromRGB(120, 215, 140))
+	header(middle, "2 · SHAPE")
 	local map = Create("Frame", {
 		Name = "Preview",
 		Size = UDim2.fromOffset(PREVIEW_SIZE, PREVIEW_SIZE),
-		Position = UDim2.new(0.5, 0, 0, 38),
+		Position = UDim2.new(0.5, 0, 0, 46),
 		AnchorPoint = Vector2.new(0.5, 0),
 		BackgroundColor3 = DEEP_WATER,
 		ClipsDescendants = true,
 		Parent = middle,
 	})
-	Components.Corner(map, UDim.new(0, 18))
-	Components.Stroke(map, Theme.Colors.Outline, 4)
+	Components.Corner(map, UDim.new(0, 22))
+	Components.Stroke(map, Theme.Colors.Outline, 5)
 	local pixelSize = PREVIEW_SIZE / PREVIEW_PIXELS
 	for row = 0, PREVIEW_PIXELS - 1 do
-		for column = 0, PREVIEW_PIXELS - 1 do
+		for columnIndex = 0, PREVIEW_PIXELS - 1 do
 			table.insert(pixels, Create("Frame", {
 				Size = UDim2.fromOffset(math.ceil(pixelSize), math.ceil(pixelSize)),
-				Position = UDim2.fromOffset(column * pixelSize, row * pixelSize),
+				Position = UDim2.fromOffset(columnIndex * pixelSize, row * pixelSize),
 				BackgroundColor3 = DEEP_WATER,
 				BorderSizePixel = 0,
 				Parent = map,
 			}))
 		end
 	end
-	local shapeRow = Create("Frame", { Size = UDim2.new(1, 0, 0, 56), Position = UDim2.fromOffset(0, 372), BackgroundTransparency = 1, Parent = middle }, {
+	local shapeRow = Create("Frame", { Size = UDim2.new(1, 0, 0, 70), Position = UDim2.fromOffset(0, 438), BackgroundTransparency = 1, Parent = middle }, {
 		Create("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, HorizontalAlignment = Enum.HorizontalAlignment.Center, Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }),
 	})
 	for index, shapeId in IslandConfig.ShapeOrder do
@@ -20325,8 +21089,8 @@ local function build()
 			Text = shape.Icon .. "\n" .. shape.DisplayName,
 			Color = Theme.Colors.PanelAlt,
 			TextColor = Theme.Colors.Text,
-			Size = UDim2.fromOffset(72, 56),
-			TextSize = Theme.TextSize.Tiny,
+			Size = UDim2.fromOffset(78, 70),
+			TextSize = 16,
 			Parent = shapeRow,
 			Flat = true,
 			OnClick = function()
@@ -20340,65 +21104,71 @@ local function build()
 	Components.Button({
 		Text = "🎲 REROLL SHAPE",
 		Color = Theme.Colors.Purple,
-		Size = UDim2.new(1, 0, 0, 52),
-		Position = UDim2.fromOffset(0, 440),
+		Size = UDim2.new(1, 0, 0, 58),
+		Position = UDim2.fromOffset(0, 516),
+		TextSize = 26,
 		Parent = middle,
 		OnClick = function()
 			choice.Seed = newSeed()
 			refresh()
 		end,
 	})
-	Components.Label({
-		Text = "You can grow your island in any direction later!",
-		Size = UDim2.new(1, 0, 0, 24),
-		Position = UDim2.fromOffset(0, 500),
-		Font = Theme.Fonts.Bold,
-		TextSize = Theme.TextSize.Small,
-		TextColor3 = Theme.Colors.TextMuted,
-		Parent = middle,
-	})
 
 	-- 3: NAME + CREATE
-	local right = Create("Frame", { Size = UDim2.fromOffset(360, 560), Position = UDim2.fromOffset(820, 0), BackgroundColor3 = Theme.Colors.Panel, Parent = container })
-	Components.Corner(right)
-	Components.Stroke(right, Theme.Colors.Outline, 4)
-	Components.Padding(right, 12)
-	Components.Label({ Text = "3 · NAME", Size = UDim2.new(1, 0, 0, 30), TextSize = Theme.TextSize.Title, Parent = right })
+	local right = column(container, 860, 380, Color3.fromRGB(255, 150, 190))
+	header(right, "3 · NAME")
 	nameBox = Create("TextBox", {
-		Size = UDim2.new(1, 0, 0, 50),
-		Position = UDim2.fromOffset(0, 40),
+		Size = UDim2.new(1, 0, 0, 62),
+		Position = UDim2.fromOffset(0, 48),
 		BackgroundColor3 = Color3.new(1, 1, 1),
-		Font = Theme.Fonts.Bold,
-		TextSize = Theme.TextSize.Large,
+		Font = Theme.Fonts.Heavy,
+		TextSize = 28,
 		TextColor3 = Theme.Colors.Text,
 		PlaceholderText = "My Island",
 		ClearTextOnFocus = false,
 		Text = "",
 		Parent = right,
 	})
-	Components.Corner(nameBox, Theme.SmallCorner)
-	Components.Stroke(nameBox, Theme.Colors.Outline, 3)
+	Components.Corner(nameBox, UDim.new(0, 16))
+	Components.Stroke(nameBox, Theme.Colors.Outline, 4)
 	nameBox:GetPropertyChangedSignal("Text"):Connect(function()
 		if #nameBox.Text > IslandConfig.NameMaxLength then
 			nameBox.Text = string.sub(nameBox.Text, 1, IslandConfig.NameMaxLength)
 		end
 	end)
+	local card = Create("Frame", {
+		Size = UDim2.new(1, 0, 0, 290),
+		Position = UDim2.fromOffset(0, 124),
+		BackgroundColor3 = Theme.Colors.Panel,
+		Parent = right,
+	})
+	Components.Corner(card, UDim.new(0, 18))
+	Components.Stroke(card, Theme.Colors.Outline, 3)
+	Components.Padding(card, 12)
 	summary = Components.Label({
-		Size = UDim2.new(1, 0, 0, 250),
-		Position = UDim2.fromOffset(0, 110),
-		Font = Theme.Fonts.Bold,
-		TextSize = Theme.TextSize.Medium,
-		TextColor3 = Theme.Colors.TextMuted,
+		Size = UDim2.fromScale(1, 1),
+		Font = Theme.Fonts.Heavy,
+		TextSize = 22,
+		TextColor3 = Theme.Colors.Text,
 		TextYAlignment = Enum.TextYAlignment.Top,
 		Text = "",
+		Parent = card,
+	})
+	Components.Label({
+		Text = "You can grow your island in any direction later!",
+		Size = UDim2.new(1, 0, 0, 44),
+		Position = UDim2.fromOffset(0, 420),
+		Font = Theme.Fonts.Heavy,
+		TextSize = 18,
+		TextColor3 = Theme.Colors.TextLight,
 		Parent = right,
 	})
 	createButton = Components.Button({
 		Text = "✨ CREATE ISLAND!",
 		Color = Theme.Colors.Green,
-		Size = UDim2.new(1, 0, 0, 80),
-		Position = UDim2.new(0, 0, 1, -84),
-		TextSize = Theme.TextSize.Title,
+		Size = UDim2.new(1, 0, 0, 96),
+		Position = UDim2.new(0, 0, 1, -100),
+		TextSize = 36,
 		Parent = right,
 		OnClick = function()
 			if submitted then
@@ -20406,6 +21176,7 @@ local function build()
 			end
 			submitted = true
 			createButton.Text = "⏳ RAISING YOUR ISLAND…"
+			createButton.TextSize = 24
 			Components.SetButtonColor(createButton, Theme.Colors.PanelDark)
 			AudioController.Play("LevelUp")
 			Net.FireServer("CreateIslandRequest", { Theme = choice.Theme, Shape = choice.Shape, Seed = choice.Seed, Name = nameBox.Text })
@@ -20414,11 +21185,25 @@ local function build()
 				if shown then
 					submitted = false
 					createButton.Text = "✨ CREATE ISLAND!"
+					createButton.TextSize = 36
 					Components.SetButtonColor(createButton, Theme.Colors.Green)
 				end
 			end)
 		end,
 	})
+	-- A glow pulses behind the CREATE button to draw the eye.
+	local glow = Create("Frame", {
+		Name = "CreateGlow",
+		Size = UDim2.new(1, 16, 0, 112),
+		Position = UDim2.new(0, -8, 1, -108),
+		BackgroundColor3 = Color3.fromRGB(255, 255, 160),
+		BackgroundTransparency = 0.5,
+		ZIndex = 0,
+		Parent = right,
+	})
+	Components.Corner(glow, UDim.new(0, 22))
+	TweenService:Create(glow, TweenInfo.new(0.9, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { BackgroundTransparency = 0.9 }):Play()
+	createButton.ZIndex = 2
 end
 
 local function show()
@@ -20428,7 +21213,7 @@ local function show()
 	shown = true
 	submitted = false
 	choice.Seed = newSeed()
-	root.Visible = true
+	gui.Enabled = true
 	UIController.SetModalOpen("IslandCreator", true)
 	refresh()
 end
@@ -20440,7 +21225,7 @@ local function hide()
 	shown = false
 	drawToken += 1
 	UIController.SetModalOpen("IslandCreator", false)
-	root.Visible = false
+	gui.Enabled = false
 end
 
 function IslandCreatorController.IsOpen(): boolean
@@ -22657,30 +23442,88 @@ return UIController
 	WHERE:        StarterPlayerScripts/Client/Controllers/VFXController
 	DEPENDENCIES: Shared.Net, Shared.Config.VFXConfig
 
-	Renders VFXConfig effects locally with pooled emitters/parts (spec §79):
-	no Instances are created per effect after warm-up, effects far from the
-	camera are skipped, and everything uses the engine's default particle
-	texture so it works without uploaded art.
+	Renders VFXConfig effects locally with POOLED emitters and parts (no
+	Instances are created per effect after warm-up; far effects are skipped).
+	Everything is procedural, so it works without uploaded art:
+
+	  Burst   particles (sparkles, chips, leaves, hearts, stars...)
+	  Ring    expanding neon ring
+	  Puff    cartoon dust clouds: soft balls swell, drift and fade
+	  Debris  chunks fly out, bounce on the ground and shrink (rock shatter),
+	          or colourful confetti that flutters down
+	  Pop     quick neon flash sphere at an impact
+	  Jiggle  cartoon squash / tilt / pop / hop / nudge of a MODEL (trees
+	          wobble when chopped, rocks squash, crops and buildings pop,
+	          whatever you hover gives a tiny boing)
+
+	Jiggles move / scale the model LOCALLY and put it back exactly where it
+	was, so they never fight the server.
 ]]
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Net = require(Shared:WaitForChild("Net"))
 local VFXConfig = require(Shared.Config.VFXConfig)
 
-local BURST_POOL = 10
-local RING_POOL = 6
+local BURST_POOL = 12
+local RING_POOL = 8
+local PUFF_POOL = 40
+local DEBRIS_POOL = 60
+local POP_POOL = 8
+local GRAVITY = Vector3.new(0, -70, 0)
 
 type BurstEmitter = { Part: Part, Emitter: ParticleEmitter, BusyUntil: number }
-type Ring = { Part: Part, BusyUntil: number }
+type PooledPart = { Part: Part, BusyUntil: number, Token: number }
+type Chunk = {
+	Item: PooledPart,
+	Token: number,
+	Position: Vector3,
+	Velocity: Vector3,
+	Spin: Vector3,
+	Rotation: CFrame,
+	Size: Vector3,
+	Born: number,
+	Life: number,
+	Ground: number,
+	Flutter: boolean,
+}
+type Jiggle = {
+	Model: Model,
+	Style: string,
+	Start: number,
+	Duration: number,
+	BasePivot: CFrame,
+	BaseScale: number,
+	Axis: Vector3,
+	Amplitude: number,
+}
+
+local CONFETTI_COLORS = {
+	Color3.fromRGB(255, 90, 110),
+	Color3.fromRGB(255, 200, 60),
+	Color3.fromRGB(90, 210, 120),
+	Color3.fromRGB(80, 170, 255),
+	Color3.fromRGB(190, 120, 255),
+	Color3.fromRGB(255, 150, 70),
+}
 
 local VFXController = {}
 
 local bursts: { BurstEmitter } = {}
-local rings: { Ring } = {}
+local rings: { PooledPart } = {}
+local puffs: { PooledPart } = {}
+local debris: { PooledPart } = {}
+local pops: { PooledPart } = {}
+local chunks: { Chunk } = {}
+local jiggles: { [Model]: Jiggle } = {}
 local folder: Folder
+local groundParams = RaycastParams.new()
+groundParams.FilterType = Enum.RaycastFilterType.Include
+groundParams.IgnoreWater = false
+local random = Random.new()
 
 local function newAnchorPart(name: string): Part
 	local part = Instance.new("Part")
@@ -22692,6 +23535,8 @@ local function newAnchorPart(name: string): Part
 	part.CastShadow = false
 	part.Transparency = 1
 	part.Size = Vector3.one
+	part.TopSurface = Enum.SurfaceType.Smooth
+	part.BottomSurface = Enum.SurfaceType.Smooth
 	part.Parent = folder
 	return part
 end
@@ -22715,16 +23560,28 @@ local function isVisible(position: Vector3): boolean
 	return camera ~= nil and (camera.CFrame.Position - position).Magnitude <= VFXConfig.MaxDistance
 end
 
-local function playBurst(def: any, position: Vector3)
+local function groundHeight(position: Vector3): number
+	groundParams.FilterDescendantsInstances = { workspace.Terrain }
+	local hit = workspace:Raycast(position + Vector3.new(0, 6, 0), Vector3.new(0, -40, 0), groundParams)
+	return if hit then hit.Position.Y else position.Y - 3
+end
+
+---------------------------------------------------------------------------
+-- Effect types
+---------------------------------------------------------------------------
+
+local function playBurst(def: any, position: Vector3, options: any)
 	local item = acquire(bursts)
 	if not item then
 		return
 	end
 	local emitter = item.Emitter
+	local scale = options.Scale or 1
 	item.Part.CFrame = CFrame.new(position)
-	emitter.Color = ColorSequence.new(def.Color)
+	emitter.Color = ColorSequence.new(options.Color or def.Color)
 	emitter.Size = NumberSequence.new({
-		NumberSequenceKeypoint.new(0, def.Size),
+		NumberSequenceKeypoint.new(0, def.Size * scale),
+		NumberSequenceKeypoint.new(0.2, def.Size * scale * 1.15),
 		NumberSequenceKeypoint.new(1, 0),
 	})
 	emitter.Transparency = NumberSequence.new({
@@ -22737,28 +23594,258 @@ local function playBurst(def: any, position: Vector3)
 	emitter.SpreadAngle = Vector2.new(def.Spread, def.Spread)
 	emitter.Acceleration = def.Acceleration or Vector3.zero
 	emitter.LightEmission = def.LightEmission or 0
-	emitter:Emit(def.Count)
+	emitter:Emit(options.Count or def.Count)
 	item.BusyUntil = os.clock() + def.Lifetime + 0.1
 end
 
-local function playRing(def: any, position: Vector3)
+local function playRing(def: any, position: Vector3, options: any)
 	local item = acquire(rings)
 	if not item then
 		return
 	end
 	local part = item.Part
-	part.Color = def.Color
-	part.Transparency = 0.2
-	part.Size = Vector3.new(def.Height, def.StartSize, def.StartSize)
+	local scale = options.Scale or 1
+	part.Color = options.Color or def.Color
+	part.Transparency = 0.15
+	part.Size = Vector3.new(def.Height, def.StartSize * scale, def.StartSize * scale)
 	part.CFrame = CFrame.new(position) * CFrame.Angles(0, 0, math.rad(90))
 	TweenService:Create(part, TweenInfo.new(def.Duration, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-		Size = Vector3.new(def.Height * 0.3, def.EndSize, def.EndSize),
+		Size = Vector3.new(def.Height * 0.3, def.EndSize * scale, def.EndSize * scale),
 		Transparency = 1,
 	}):Play()
 	item.BusyUntil = os.clock() + def.Duration
 end
 
-function VFXController.Play(effectName: string, position: Vector3)
+local function playPuff(def: any, position: Vector3, options: any)
+	local scale = options.Scale or 1
+	local count = options.Count or def.Count
+	local color = options.Color or def.Color
+	local ground = groundHeight(position)
+	for index = 1, count do
+		local item = acquire(puffs)
+		if not item then
+			return
+		end
+		local part = item.Part
+		local angle = (index / count) * math.pi * 2 + random:NextNumber(-0.4, 0.4)
+		local direction = Vector3.new(math.cos(angle), 0, math.sin(angle))
+		local startSize = def.Size * scale * random:NextNumber(0.35, 0.55)
+		local endSize = def.Size * scale * random:NextNumber(0.9, 1.35)
+		local start = Vector3.new(position.X, math.max(ground + startSize * 0.4, position.Y - 1), position.Z) + direction * 0.6 * scale
+		part.Color = color:Lerp(Color3.new(1, 1, 1), random:NextNumber(0, 0.25))
+		part.Size = Vector3.one * startSize
+		part.CFrame = CFrame.new(start)
+		part.Transparency = 0.05
+		local duration = def.Duration * random:NextNumber(0.8, 1.15)
+		TweenService:Create(part, TweenInfo.new(duration, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+			Size = Vector3.one * endSize,
+			CFrame = CFrame.new(start + direction * def.Radius * scale + Vector3.new(0, endSize * 0.45, 0)),
+		}):Play()
+		TweenService:Create(part, TweenInfo.new(duration, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Transparency = 1 }):Play()
+		item.BusyUntil = os.clock() + duration + 0.05
+	end
+end
+
+local function playDebris(def: any, position: Vector3, options: any)
+	local scale = options.Scale or 1
+	local count = options.Count or def.Count
+	local color = options.Color or def.Color
+	local ground = groundHeight(position)
+	local now = os.clock()
+	for _ = 1, count do
+		local item = acquire(debris)
+		if not item then
+			return
+		end
+		local part = item.Part
+		local size: Vector3
+		if def.Confetti then
+			size = Vector3.new(0.5, 0.05, 0.3) * def.Size * 2 * scale
+			part.Color = CONFETTI_COLORS[random:NextInteger(1, #CONFETTI_COLORS)]
+			part.Material = Enum.Material.SmoothPlastic
+		else
+			local s = def.Size * scale * random:NextNumber(0.55, 1.2)
+			size = Vector3.new(s, s * random:NextNumber(0.6, 1), s * random:NextNumber(0.7, 1.1))
+			local shade = random:NextNumber(-0.12, 0.12)
+			part.Color = if shade > 0 then color:Lerp(Color3.new(1, 1, 1), shade) else color:Lerp(Color3.new(0, 0, 0), -shade)
+			part.Material = Enum.Material.SmoothPlastic
+		end
+		part.Size = size
+		part.Transparency = 0
+		local horizontal = random:NextUnitVector() * Vector3.new(1, 0, 1)
+		local speed = def.Speed * random:NextNumber(0.5, 1)
+		local velocity = horizontal * speed * 0.55 + Vector3.new(0, speed * random:NextNumber(0.6, 1.1), 0)
+		local chunk: Chunk = {
+			Item = item,
+			Token = 0,
+			Position = position + horizontal * 0.4,
+			Velocity = velocity,
+			Spin = Vector3.new(random:NextNumber(-12, 12), random:NextNumber(-12, 12), random:NextNumber(-12, 12)),
+			Rotation = CFrame.Angles(random:NextNumber(0, 6.28), random:NextNumber(0, 6.28), random:NextNumber(0, 6.28)),
+			Size = size,
+			Born = now,
+			Life = def.Duration * random:NextNumber(0.8, 1.2),
+			Ground = ground,
+			Flutter = def.Confetti == true,
+		}
+		item.BusyUntil = now + chunk.Life + 0.1
+		item.Token += 1
+		chunk.Token = item.Token
+		table.insert(chunks, chunk)
+	end
+end
+
+local function playPop(def: any, position: Vector3, options: any)
+	local item = acquire(pops)
+	if not item then
+		return
+	end
+	local scale = options.Scale or 1
+	local part = item.Part
+	part.Color = options.Color or def.Color
+	part.Size = Vector3.one * def.StartSize * scale
+	part.CFrame = CFrame.new(position)
+	part.Transparency = 0.1
+	TweenService:Create(part, TweenInfo.new(def.Duration, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+		Size = Vector3.one * def.EndSize * scale,
+		Transparency = 1,
+	}):Play()
+	item.BusyUntil = os.clock() + def.Duration
+end
+
+---------------------------------------------------------------------------
+-- Jiggles (local-only squash / tilt / pop of a model)
+---------------------------------------------------------------------------
+
+local function restore(jiggle: Jiggle)
+	local model = jiggle.Model
+	if not model.Parent then
+		return
+	end
+	if jiggle.Style == "Tilt" or jiggle.Style == "Hop" then
+		model:PivotTo(jiggle.BasePivot)
+	else
+		pcall(model.ScaleTo, model, jiggle.BaseScale)
+	end
+end
+
+local function playJiggle(options: any)
+	local model = options.Target
+	if typeof(model) ~= "Instance" or not model:IsA("Model") or not model.Parent then
+		return
+	end
+	local existing = jiggles[model]
+	if existing then
+		restore(existing)
+		jiggles[model] = nil
+	end
+	local style = if type(options.Style) == "string" then options.Style else "Squash"
+	local pivot = model:GetPivot()
+	local axis = Vector3.new(1, 0, 0)
+	if style == "Tilt" then
+		local away = if typeof(options.From) == "Vector3" then (pivot.Position - options.From) * Vector3.new(1, 0, 1) else Vector3.new(1, 0, 0)
+		if away.Magnitude < 0.1 then
+			away = Vector3.new(1, 0, 0)
+		end
+		axis = Vector3.new(0, 1, 0):Cross(away.Unit).Unit
+	end
+	jiggles[model] = {
+		Model = model,
+		Style = style,
+		Start = os.clock(),
+		Duration = if style == "Pop" then 0.55 elseif style == "Tilt" then 0.7 elseif style == "Hop" then 0.5 elseif style == "Nudge" then 0.3 else 0.45,
+		BasePivot = pivot,
+		BaseScale = model:GetScale(),
+		Axis = axis,
+		Amplitude = if style == "Tilt" then math.rad(7) elseif style == "Pop" then 0.4 elseif style == "Nudge" then 0.045 else 0.14,
+	}
+end
+
+local function stepJiggle(jiggle: Jiggle, now: number): boolean
+	local model = jiggle.Model
+	if not model.Parent then
+		return false
+	end
+	local t = now - jiggle.Start
+	if t >= jiggle.Duration then
+		restore(jiggle)
+		return false
+	end
+	local decay = math.exp(-t * 7)
+	if jiggle.Style == "Tilt" then
+		local angle = jiggle.Amplitude * decay * math.sin(t * 26)
+		local base = jiggle.BasePivot
+		model:PivotTo(CFrame.fromAxisAngle(jiggle.Axis, angle) * (base - base.Position) + base.Position)
+	elseif jiggle.Style == "Hop" then
+		local height = math.max(0, math.sin(t / jiggle.Duration * math.pi)) * 1.2
+		model:PivotTo(jiggle.BasePivot + Vector3.new(0, height, 0))
+	elseif jiggle.Style == "Pop" then
+		-- Grow in from small with a springy overshoot.
+		local alpha = t / jiggle.Duration
+		local s = 1 - jiggle.Amplitude * math.exp(-alpha * 6) * math.cos(alpha * 14)
+		pcall(model.ScaleTo, model, jiggle.BaseScale * math.max(0.05, s))
+	else
+		-- Squash: quick dip then springy bounce back.
+		local s = 1 - jiggle.Amplitude * decay * math.sin(t * 30 + 0.6)
+		pcall(model.ScaleTo, model, jiggle.BaseScale * s)
+	end
+	return true
+end
+
+---------------------------------------------------------------------------
+-- Per-frame simulation
+---------------------------------------------------------------------------
+
+local function step(dt: number)
+	dt = math.min(dt, 1 / 20)
+	local now = os.clock()
+	for index = #chunks, 1, -1 do
+		local chunk = chunks[index]
+		local age = now - chunk.Born
+		local part = chunk.Item.Part
+		if chunk.Item.Token ~= chunk.Token then
+			table.remove(chunks, index) -- the part was reused by a newer chunk
+		elseif age >= chunk.Life then
+			part.Transparency = 1
+			table.remove(chunks, index)
+		else
+			if chunk.Flutter then
+				-- Confetti: heavy drag, gentle fall, side-to-side flutter.
+				chunk.Velocity += (GRAVITY * 0.18 - chunk.Velocity * 2.2) * dt
+				chunk.Velocity += Vector3.new(math.sin(age * 9 + chunk.Spin.X), 0, math.cos(age * 7 + chunk.Spin.Z)) * 6 * dt
+			else
+				chunk.Velocity += GRAVITY * dt
+			end
+			chunk.Position += chunk.Velocity * dt
+			local bottom = chunk.Ground + chunk.Size.Y * 0.5
+			if chunk.Position.Y < bottom then
+				chunk.Position = Vector3.new(chunk.Position.X, bottom, chunk.Position.Z)
+				if chunk.Flutter then
+					chunk.Velocity = Vector3.zero
+					chunk.Spin = Vector3.zero
+				else
+					chunk.Velocity = Vector3.new(chunk.Velocity.X * 0.55, -chunk.Velocity.Y * 0.35, chunk.Velocity.Z * 0.55)
+					chunk.Spin *= 0.6
+				end
+			end
+			chunk.Rotation *= CFrame.Angles(chunk.Spin.X * dt, chunk.Spin.Y * dt, chunk.Spin.Z * dt)
+			local fade = math.clamp((chunk.Life - age) / 0.35, 0, 1)
+			part.Size = chunk.Size * math.max(0.05, fade)
+			part.CFrame = CFrame.new(chunk.Position) * chunk.Rotation
+		end
+	end
+	for model, jiggle in jiggles do
+		if not stepJiggle(jiggle, now) then
+			jiggles[model] = nil
+		end
+	end
+end
+
+---------------------------------------------------------------------------
+-- Public
+---------------------------------------------------------------------------
+
+function VFXController.Play(effectName: string, position: Vector3, options: any?)
 	local def = VFXConfig.Effects[effectName]
 	if not def then
 		warn("[VFX] Unknown effect '" .. tostring(effectName) .. "'")
@@ -22767,11 +23854,25 @@ function VFXController.Play(effectName: string, position: Vector3)
 	if not isVisible(position) then
 		return
 	end
+	local opts = if type(options) == "table" then options else {}
 	if def.Type == "Burst" then
-		playBurst(def, position)
+		playBurst(def, position, opts)
 	elseif def.Type == "Ring" then
-		playRing(def, position)
+		playRing(def, position, opts)
+	elseif def.Type == "Puff" then
+		playPuff(def, position, opts)
+	elseif def.Type == "Debris" then
+		playDebris(def, position, opts)
+	elseif def.Type == "Pop" then
+		playPop(def, position, opts)
+	elseif def.Type == "Jiggle" then
+		playJiggle(opts)
 	end
+end
+
+-- Cartoon squash / tilt / pop / hop of a model on this client only.
+function VFXController.Jiggle(model: Model, style: string, from: Vector3?)
+	playJiggle({ Target = model, Style = style, From = from })
 end
 
 function VFXController.Init()
@@ -22793,17 +23894,34 @@ function VFXController.Init()
 		local part = newAnchorPart("Ring")
 		part.Shape = Enum.PartType.Cylinder
 		part.Material = Enum.Material.Neon
-		part.Transparency = 1
-		table.insert(rings, { Part = part, BusyUntil = 0 })
+		table.insert(rings, { Part = part, BusyUntil = 0, Token = 0 })
+	end
+	for _ = 1, PUFF_POOL do
+		local part = newAnchorPart("Puff")
+		part.Shape = Enum.PartType.Ball
+		part.Material = Enum.Material.SmoothPlastic
+		table.insert(puffs, { Part = part, BusyUntil = 0, Token = 0 })
+	end
+	for _ = 1, DEBRIS_POOL do
+		local part = newAnchorPart("Debris")
+		part.CastShadow = true
+		table.insert(debris, { Part = part, BusyUntil = 0, Token = 0 })
+	end
+	for _ = 1, POP_POOL do
+		local part = newAnchorPart("Pop")
+		part.Shape = Enum.PartType.Ball
+		part.Material = Enum.Material.Neon
+		table.insert(pops, { Part = part, BusyUntil = 0, Token = 0 })
 	end
 end
 
 function VFXController.Start()
-	Net.OnClientEvent("PlayVFX", function(effectName: string, position: Vector3)
+	Net.OnClientEvent("PlayVFX", function(effectName: string, position: Vector3, options: any)
 		if typeof(position) == "Vector3" then
-			VFXController.Play(effectName, position)
+			VFXController.Play(effectName, position, options)
 		end
 	end)
+	RunService.RenderStepped:Connect(step)
 end
 
 return VFXController
@@ -22925,10 +24043,10 @@ end
 	DEPENDENCIES: Client.UI.Theme
 
 	Tiny UI kit so every screen looks consistent and nothing is rebuilt from
-	scratch: Create(), rounded panels with drop shadows and gradient headers,
-	chunky "3D" buttons (gradient + bevel + press bounce + click sound),
-	currency pills, progress bars, tab rows. Frames are created once and
-	updated in place (spec §116).
+	scratch: Create(), rounded panels with drop shadows and glossy headers,
+	chunky cartoon buttons (glossy gradient + 3D bevel + springy hover grow /
+	press squash + click sound), currency pills, progress bars, tab rows.
+	Frames are created once and updated in place (spec §116).
 ]]
 
 local TweenService = game:GetService("TweenService")
@@ -23005,6 +24123,38 @@ function Components.Gradient(parent: Instance, top: Color3, bottom: Color3): UIG
 	})
 end
 
+-- Cartoon "gloss": bright top half with a soft horizon line (multiplies the colour).
+function Components.Gloss(parent: Instance, strength: number?): UIGradient
+	local s = strength or 1
+	local function shade(value: number): Color3
+		local v = 1 - (1 - value) * s
+		return Color3.new(v, v, v)
+	end
+	return Create("UIGradient", {
+		Rotation = 90,
+		Color = ColorSequence.new({
+			ColorSequenceKeypoint.new(0, shade(1)),
+			ColorSequenceKeypoint.new(0.46, shade(0.94)),
+			ColorSequenceKeypoint.new(0.54, shade(0.82)),
+			ColorSequenceKeypoint.new(1, shade(0.74)),
+		}),
+		Parent = parent,
+	})
+end
+
+-- Springy scale helper (one UIScale per object, shared with Bounce / PopIn).
+local function scaleOf(guiObject: GuiObject): UIScale
+	local scale = guiObject:FindFirstChild("BounceScale")
+	if not scale then
+		scale = Create("UIScale", { Name = "BounceScale", Parent = guiObject })
+	end
+	return scale :: UIScale
+end
+
+function Components.SpringScale(guiObject: GuiObject, target: number, time: number?)
+	TweenService:Create(scaleOf(guiObject), TweenInfo.new(time or 0.18, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = target }):Play()
+end
+
 function Components.Padding(parent: Instance, pixels: number)
 	return Create("UIPadding", {
 		PaddingTop = UDim.new(0, pixels),
@@ -23031,22 +24181,20 @@ end
 
 -- Quick "pop" on any GuiObject (uses/creates a UIScale child).
 function Components.Bounce(guiObject: GuiObject, amount: number?)
-	local scale = guiObject:FindFirstChild("BounceScale")
-	if not scale then
-		scale = Create("UIScale", { Name = "BounceScale", Parent = guiObject })
-	end
+	local scale = scaleOf(guiObject)
 	scale.Scale = 1 + (amount or 0.15)
 	TweenService:Create(scale, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
 end
 
 -- Fade + scale a window in (and optionally out).
 function Components.PopIn(guiObject: GuiObject)
-	local scale = guiObject:FindFirstChild("BounceScale")
-	if not scale then
-		scale = Create("UIScale", { Name = "BounceScale", Parent = guiObject })
+	local scale = scaleOf(guiObject)
+	scale.Scale = 0.7
+	TweenService:Create(scale, TweenInfo.new(0.38, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
+	if guiObject:IsA("GuiObject") then
+		guiObject.Rotation = -3
+		TweenService:Create(guiObject, TweenInfo.new(0.45, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out), { Rotation = 0 }):Play()
 	end
-	scale.Scale = 0.85
-	TweenService:Create(scale, TweenInfo.new(0.28, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
 end
 
 export type ButtonProps = {
@@ -23091,14 +24239,14 @@ function Components.Button(props: ButtonProps): TextButton
 	button:SetAttribute("BaseColor", color)
 	Components.Corner(button, Theme.SmallCorner)
 	Components.Stroke(button, Theme.Colors.Outline, if props.Flat then 2 else 3)
-	Components.Gradient(button, Color3.new(1, 1, 1), Color3.fromRGB(215, 215, 215))
+	Components.Gloss(button, if props.Flat then 0.5 else 1)
 	if not props.Flat then
 		Components.TextStroke(button, Theme.Colors.Outline, 1.6)
 		-- Darker bevel along the bottom edge gives the "chunky" 3D look.
 		local bevel = Create("Frame", {
 			Name = "Bevel",
-			Size = UDim2.new(1, 0, 0, 5),
-			Position = UDim2.new(0, 0, 1, -5),
+			Size = UDim2.new(1, 0, 0, 6),
+			Position = UDim2.new(0, 0, 1, -6),
 			BackgroundColor3 = Theme.Darken(color, 0.28),
 			BorderSizePixel = 0,
 			Parent = button,
@@ -23110,23 +24258,33 @@ function Components.Button(props: ButtonProps): TextButton
 		local value = button:GetAttribute("BaseColor")
 		return if typeof(value) == "Color3" then value else color
 	end
+	-- Cartoon feel: grow on hover, squash on press, spring back on release.
+	local hovered = false
 	button.MouseEnter:Connect(function()
+		hovered = true
 		button.BackgroundColor3 = Theme.Lighten(base(), 0.14)
+		Components.SpringScale(button, 1.06)
 		if hoverSound and button.Active then
 			hoverSound()
 		end
 	end)
 	button.MouseLeave:Connect(function()
+		hovered = false
 		button.BackgroundColor3 = base()
+		Components.SpringScale(button, 1)
 	end)
 	button.MouseButton1Down:Connect(function()
 		button.BackgroundColor3 = Theme.Darken(base(), 0.08)
+		Components.SpringScale(button, 0.92, 0.08)
 	end)
 	button.MouseButton1Up:Connect(function()
-		button.BackgroundColor3 = base()
+		button.BackgroundColor3 = if hovered then Theme.Lighten(base(), 0.14) else base()
+		Components.SpringScale(button, if hovered then 1.06 else 1, 0.3)
 	end)
 	button.Activated:Connect(function()
-		Components.Bounce(button, 0.08)
+		if not hovered then
+			Components.Bounce(button, 0.1)
+		end
 		if clickSound then
 			clickSound()
 		end
@@ -23171,14 +24329,14 @@ end
 -- Top-bar style pill: [icon] value. Returns (frame, valueLabel).
 function Components.Pill(props: { Icon: string, Color: Color3, Width: number?, Parent: Instance?, LayoutOrder: number? }): (Frame, TextLabel)
 	local frame = Create("Frame", {
-		Size = UDim2.fromOffset(props.Width or 150, 44),
+		Size = UDim2.fromOffset(props.Width or 150, 48),
 		BackgroundColor3 = Theme.Colors.Panel,
 		LayoutOrder = props.LayoutOrder or 0,
 		Parent = props.Parent,
 	})
 	Components.Corner(frame, UDim.new(1, 0))
 	Components.Stroke(frame)
-	Components.Gradient(frame, Color3.new(1, 1, 1), Color3.fromRGB(232, 226, 214))
+	Components.Gloss(frame, 0.45)
 
 	local iconBubble = Create("Frame", {
 		Size = UDim2.fromOffset(52, 52),
@@ -23189,7 +24347,10 @@ function Components.Pill(props: { Icon: string, Color: Color3, Width: number?, P
 	})
 	Components.Corner(iconBubble, UDim.new(1, 0))
 	Components.Stroke(iconBubble)
-	Components.Gradient(iconBubble, Color3.new(1, 1, 1), Color3.fromRGB(205, 205, 205))
+	Components.Gloss(iconBubble)
+	-- The icon gently rocks back and forth (cartoon idle).
+	iconBubble.Rotation = -6
+	TweenService:Create(iconBubble, TweenInfo.new(1.4, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { Rotation = 6 }):Play()
 	Components.Label({
 		Text = props.Icon,
 		Size = UDim2.fromScale(1, 1),
@@ -23228,7 +24389,7 @@ function Components.ProgressBar(props: { Size: UDim2, Position: UDim2?, Color: C
 		Parent = frame,
 	})
 	Components.Corner(fill, UDim.new(1, 0))
-	Components.Gradient(fill, Color3.new(1, 1, 1), Color3.fromRGB(200, 200, 200))
+	Components.Gloss(fill)
 
 	local function setProgress(alpha: number, animate: boolean?)
 		local target = UDim2.fromScale(math.clamp(alpha, 0, 1), 1)
@@ -23270,6 +24431,7 @@ function Components.Panel(props: { Title: string, Size: UDim2, Parent: Instance?
 	})
 	Components.Corner(body)
 	Components.Stroke(body, Theme.Colors.Outline, 4)
+	Components.Gradient(body, Color3.new(1, 1, 1), Color3.fromRGB(242, 234, 218))
 
 	local header = Create("Frame", {
 		Name = "Header",
@@ -23278,7 +24440,7 @@ function Components.Panel(props: { Title: string, Size: UDim2, Parent: Instance?
 		Parent = body,
 	})
 	Components.Corner(header)
-	Components.Gradient(header, Color3.new(1, 1, 1), Color3.fromRGB(190, 190, 190))
+	Components.Gloss(header)
 	-- Square off the header's bottom corners.
 	local squareOff = Create("Frame", {
 		Size = UDim2.new(1, 0, 0, 16),
@@ -23287,7 +24449,7 @@ function Components.Panel(props: { Title: string, Size: UDim2, Parent: Instance?
 		BorderSizePixel = 0,
 		Parent = header,
 	})
-	Components.Gradient(squareOff, Color3.fromRGB(205, 205, 205), Color3.fromRGB(190, 190, 190))
+	Components.Gradient(squareOff, Color3.fromRGB(199, 199, 199), Color3.fromRGB(189, 189, 189))
 	local title = Components.Label({
 		Name = "Title",
 		Text = props.Title,
@@ -23511,11 +24673,13 @@ return HUD
 
 	The bottom hotbar: tools AND holdable items (seed sacks, crops to feed
 	animals). Slots are created ONCE and updated in place. Big touch-friendly
-	buttons with a key number, a tier strip for tools and a count for items.
-	The slot in your hands glows gold and pops.
+	glossy buttons with a round key badge, a tier strip for tools and a count
+	for items, each on a soft drop shadow. The slot in your hands LIFTS up,
+	grows, glows gold and wiggles.
 ]]
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local ToolConfig = require(Shared.Config.ToolConfig)
@@ -23538,7 +24702,11 @@ local TIER_COLORS = {
 	Mythic = Color3.fromRGB(200, 100, 255),
 }
 
-type Slot = { Button: TextButton, Icon: TextLabel, Name: TextLabel, Count: TextLabel, Stroke: UIStroke, Strip: Frame, Id: string? }
+type Slot = { Button: TextButton, Glow: Frame, Icon: TextLabel, Name: TextLabel, Count: TextLabel, Stroke: UIStroke, Strip: Frame, Id: string?, Equipped: boolean }
+
+local LIFT = 12
+local REST_POSITION = UDim2.new(0.5, 0, 1, -6)
+local LIFT_POSITION = UDim2.new(0.5, 0, 1, -6 - LIFT)
 
 local Hotbar = {}
 Hotbar.__index = Hotbar
@@ -23563,19 +24731,48 @@ function Hotbar.new(parent: Instance, onSelect: (index: number) -> ())
 	self.Counts = {} :: { [string]: number }
 
 	for index = 1, ToolConfig.HotbarSize do
-		local button = Create("TextButton", {
+		-- Container keeps the list layout still while the button lifts.
+		local holder = Create("Frame", {
 			Name = "Slot" .. index,
+			Size = UDim2.fromOffset(SLOT_SIZE + 4, SLOT_SIZE + LIFT + 12),
+			BackgroundTransparency = 1,
+			LayoutOrder = index,
+			Parent = self.Frame,
+		})
+		local shadow = Create("Frame", {
+			Name = "Shadow",
+			Size = UDim2.fromOffset(SLOT_SIZE - 4, 12),
+			Position = UDim2.new(0.5, 0, 1, -2),
+			AnchorPoint = Vector2.new(0.5, 1),
+			BackgroundColor3 = Color3.new(0, 0, 0),
+			BackgroundTransparency = 0.72,
+			Parent = holder,
+		})
+		Components.Corner(shadow, UDim.new(1, 0))
+		local glow = Create("Frame", {
+			Name = "Glow",
+			Size = UDim2.fromOffset(SLOT_SIZE + 16, SLOT_SIZE + 16),
+			Position = LIFT_POSITION + UDim2.fromOffset(0, 8),
+			AnchorPoint = Vector2.new(0.5, 1),
+			BackgroundColor3 = Theme.Colors.Coins,
+			BackgroundTransparency = 1,
+			Parent = holder,
+		})
+		Components.Corner(glow, UDim.new(0, 20))
+		local button = Create("TextButton", {
+			Name = "Button",
 			Size = UDim2.fromOffset(SLOT_SIZE, SLOT_SIZE),
+			Position = REST_POSITION,
+			AnchorPoint = Vector2.new(0.5, 1),
 			BackgroundColor3 = Theme.Colors.Panel,
 			BackgroundTransparency = 0.05,
 			AutoButtonColor = false,
 			Text = "",
-			LayoutOrder = index,
-			Parent = self.Frame,
+			Parent = holder,
 		})
-		Components.Corner(button, UDim.new(0, 14))
+		Components.Corner(button, UDim.new(0, 16))
 		local stroke = Components.Stroke(button)
-		Components.Gradient(button, Color3.new(1, 1, 1), Color3.fromRGB(226, 220, 206))
+		Components.Gloss(button, 0.55)
 		local strip = Create("Frame", {
 			Name = "TierStrip",
 			Size = UDim2.new(1, -14, 0, 5),
@@ -23618,23 +24815,35 @@ function Hotbar.new(parent: Instance, onSelect: (index: number) -> ())
 			Parent = button,
 		})
 		Components.TextStroke(count, Theme.Colors.Outline, 2)
-		local badge = Components.Label({
+		local badge = Create("Frame", {
+			Name = "KeyBadge",
+			Size = UDim2.fromOffset(22, 22),
+			Position = UDim2.fromOffset(-6, -6),
+			BackgroundColor3 = Theme.Colors.Outline,
+			ZIndex = 3,
+			Parent = button,
+		})
+		Components.Corner(badge, UDim.new(1, 0))
+		Components.Label({
 			Name = "Key",
-			Size = UDim2.fromOffset(20, 18),
-			Position = UDim2.fromOffset(5, 2),
+			Size = UDim2.fromScale(1, 1),
 			Font = Theme.Fonts.Heavy,
 			TextSize = 13,
 			Text = tostring(index),
-			TextColor3 = Theme.Colors.TextMuted,
-			TextXAlignment = Enum.TextXAlignment.Left,
-			ZIndex = 2,
-			Parent = button,
+			TextColor3 = Theme.Colors.TextLight,
+			ZIndex = 4,
+			Parent = badge,
 		})
-		badge.ZIndex = 2
+		button.MouseEnter:Connect(function()
+			Components.SpringScale(button, 1.08)
+		end)
+		button.MouseLeave:Connect(function()
+			Components.SpringScale(button, 1)
+		end)
 		button.Activated:Connect(function()
 			onSelect(index)
 		end)
-		table.insert(self.Slots, { Button = button, Icon = icon, Name = name, Count = count, Stroke = stroke, Strip = strip, Id = nil })
+		table.insert(self.Slots, { Button = button, Glow = glow, Icon = icon, Name = name, Count = count, Stroke = stroke, Strip = strip, Id = nil, Equipped = false })
 	end
 	return self
 end
@@ -23681,12 +24890,22 @@ end
 function Hotbar:SetEquipped(id: string?)
 	for _, slot in self.Slots do
 		local equipped = id ~= nil and slot.Id == id
-		slot.Stroke.Color = if equipped then Theme.Colors.Coins else Theme.Colors.Outline
-		slot.Stroke.Thickness = if equipped then 5 else Theme.StrokeThickness
-		slot.Button.BackgroundColor3 = if equipped then Color3.fromRGB(255, 240, 190) else Theme.Colors.Panel
-		slot.Button.Size = if equipped then UDim2.fromOffset(SLOT_SIZE + 6, SLOT_SIZE + 6) else UDim2.fromOffset(SLOT_SIZE, SLOT_SIZE)
-		if equipped then
-			Components.Bounce(slot.Button, 0.1)
+		slot.Stroke.Color = if equipped then Color3.fromRGB(255, 170, 30) else Theme.Colors.Outline
+		slot.Stroke.Thickness = if equipped then 4 else Theme.StrokeThickness
+		slot.Button.BackgroundColor3 = if equipped then Color3.fromRGB(255, 244, 200) else Theme.Colors.Panel
+		if equipped ~= slot.Equipped then
+			slot.Equipped = equipped
+			local info = TweenInfo.new(0.32, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+			TweenService:Create(slot.Button, info, {
+				Position = if equipped then LIFT_POSITION else REST_POSITION,
+				Size = if equipped then UDim2.fromOffset(SLOT_SIZE + 6, SLOT_SIZE + 6) else UDim2.fromOffset(SLOT_SIZE, SLOT_SIZE),
+			}):Play()
+			TweenService:Create(slot.Glow, TweenInfo.new(0.25), { BackgroundTransparency = if equipped then 0.55 else 1 }):Play()
+			if equipped then
+				-- A happy little wiggle.
+				slot.Button.Rotation = -10
+				TweenService:Create(slot.Button, TweenInfo.new(0.6, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out), { Rotation = 0 }):Play()
+			end
 		end
 	end
 end
@@ -24170,10 +25389,11 @@ return InventoryPanel
 	WHERE:        StarterPlayerScripts/Client/UI/Notifications
 	DEPENDENCIES: Client.UI.{Theme, Components}
 
-	"Did that work?" feedback (spec §151/§152):
-	  Toast   small message under the top bar (max 4, auto-fade)
-	  Banner  big centred title for milestones (queued, one at a time)
-	  Float   pooled floating text ("+25 🪙", "+3 Wood") that rises and fades
+	"Did that work?" feedback (spec §151/§152), cartoon style:
+	  Toast   glossy pill with an icon bubble; pops in, fades out (max 4)
+	  Banner  big title on a ribbon that bounces + wobbles in (queued)
+	  Float   pooled floating text ("+25 🪙", "+3 Wood") that pops, tilts,
+	          rises and fades
 ]]
 
 local TweenService = game:GetService("TweenService")
@@ -24189,9 +25409,9 @@ local BANNER_TIME = 2.6
 local FLOAT_POOL = 12
 
 local TOAST_STYLES = {
-	Toast = { Background = Theme.Colors.Panel, Text = Theme.Colors.Text },
-	Success = { Background = Theme.Colors.Green, Text = Theme.Colors.TextLight },
-	Error = { Background = Theme.Colors.Red, Text = Theme.Colors.TextLight },
+	Toast = { Background = Theme.Colors.Panel, Text = Theme.Colors.Text, Bubble = Theme.Colors.Blue, Icon = "💬" },
+	Success = { Background = Theme.Colors.Green, Text = Theme.Colors.TextLight, Bubble = Theme.Colors.Panel, Icon = "✔" },
+	Error = { Background = Theme.Colors.Red, Text = Theme.Colors.TextLight, Bubble = Theme.Colors.Panel, Icon = "✖" },
 }
 
 local BANNER_COLORS = {
@@ -24235,11 +25455,36 @@ function Notifications.new(parent: Instance)
 		Parent = parent,
 	})
 	self.BannerScale = Create("UIScale", { Parent = self.Banner })
+	-- Ribbon behind the title (colour follows the banner style).
+	self.BannerRibbon = Create("Frame", {
+		Name = "Ribbon",
+		Size = UDim2.new(0.86, 0, 0, 74),
+		Position = UDim2.new(0.5, 0, 0, 6),
+		AnchorPoint = Vector2.new(0.5, 0),
+		BackgroundColor3 = Theme.Colors.Coins,
+		Parent = self.Banner,
+	})
+	Components.Corner(self.BannerRibbon, UDim.new(0, 22))
+	Components.Stroke(self.BannerRibbon, Theme.Colors.Outline, 4)
+	Components.Gloss(self.BannerRibbon)
+	for index, side in { -1, 1 } do
+		Components.Label({
+			Name = "Star" .. index,
+			Text = "✦",
+			Size = UDim2.fromOffset(60, 60),
+			Position = UDim2.new(0.5 + side * 0.47, 0, 0, 13),
+			AnchorPoint = Vector2.new(0.5, 0),
+			TextSize = 48,
+			TextColor3 = Color3.fromRGB(255, 245, 170),
+			Parent = self.Banner,
+		})
+	end
 	self.BannerTitle = Components.Label({
 		Name = "Title",
 		Size = UDim2.new(1, 0, 0, 80),
-		TextSize = Theme.TextSize.Huge + 12,
-		TextColor3 = Theme.Colors.Coins,
+		Position = UDim2.fromOffset(0, 2),
+		TextSize = Theme.TextSize.Huge + 8,
+		TextColor3 = Theme.Colors.TextLight,
 		TextWrapped = false,
 		Parent = self.Banner,
 	})
@@ -24247,8 +25492,8 @@ function Notifications.new(parent: Instance)
 	self.BannerSubtitle = Components.Label({
 		Name = "Subtitle",
 		Size = UDim2.new(1, 0, 0, 50),
-		Position = UDim2.fromOffset(0, 82),
-		TextSize = Theme.TextSize.Large,
+		Position = UDim2.fromOffset(0, 86),
+		TextSize = Theme.TextSize.Large + 2,
 		TextColor3 = Theme.Colors.TextLight,
 		Parent = self.Banner,
 	})
@@ -24268,12 +25513,13 @@ function Notifications.new(parent: Instance)
 			Name = "Float" .. index,
 			Size = UDim2.fromOffset(260, 40),
 			AnchorPoint = Vector2.new(0.5, 0.5),
-			TextSize = Theme.TextSize.Large + 4,
+			TextSize = Theme.TextSize.Large + 6,
 			TextWrapped = false,
 			Visible = false,
 			Parent = self.FloatLayer,
 		})
-		Components.TextStroke(label, Theme.Colors.Outline, 2.5)
+		Components.TextStroke(label, Theme.Colors.Outline, 3)
+		Create("UIScale", { Name = "PopScale", Parent = label })
 		table.insert(self.Floats, label)
 	end
 	self.NextFloat = 1
@@ -24300,26 +25546,45 @@ function Notifications:Toast(kind: string, text: string, icon: string?)
 
 	self.ToastCount += 1
 	local toast = Create("CanvasGroup", {
-		Size = UDim2.fromOffset(440, 44),
+		Size = UDim2.fromOffset(450, 48),
 		BackgroundColor3 = style.Background,
 		GroupTransparency = 1,
 		LayoutOrder = self.ToastCount,
 		Parent = self.ToastContainer,
 	})
 	Components.Corner(toast, UDim.new(1, 0))
-	Components.Stroke(toast, Theme.Colors.Outline, 2.5)
+	Components.Stroke(toast, Theme.Colors.Outline, 3)
+	Components.Gloss(toast, 0.5)
+	local bubble = Create("Frame", {
+		Size = UDim2.fromOffset(38, 38),
+		Position = UDim2.new(0, 5, 0.5, 0),
+		AnchorPoint = Vector2.new(0, 0.5),
+		BackgroundColor3 = style.Bubble,
+		Parent = toast,
+	})
+	Components.Corner(bubble, UDim.new(1, 0))
+	Components.Gloss(bubble, 0.6)
+	Components.Label({
+		Text = icon or style.Icon,
+		Size = UDim2.fromScale(1, 1),
+		TextSize = 22,
+		TextColor3 = if style.Bubble == Theme.Colors.Panel then style.Background else Theme.Colors.TextLight,
+		Parent = bubble,
+	})
 	local label = Components.Label({
-		Text = if icon then icon .. "  " .. text else text,
-		Size = UDim2.new(1, -24, 1, 0),
-		Position = UDim2.fromOffset(12, 0),
+		Text = text,
+		Size = UDim2.new(1, -62, 1, 0),
+		Position = UDim2.fromOffset(50, 0),
 		TextColor3 = style.Text,
 		TextSize = Theme.TextSize.Medium,
 		TextScaled = true,
+		TextXAlignment = Enum.TextXAlignment.Left,
 		Parent = toast,
 	})
-	Create("UITextSizeConstraint", { MaxTextSize = Theme.TextSize.Medium, Parent = label })
+	Create("UITextSizeConstraint", { MaxTextSize = Theme.TextSize.Medium + 1, Parent = label })
 
-	TweenService:Create(toast, TweenInfo.new(0.2), { GroupTransparency = 0 }):Play()
+	Components.PopIn(toast)
+	TweenService:Create(toast, TweenInfo.new(0.18), { GroupTransparency = 0 }):Play()
 	task.delay(TOAST_TIME, function()
 		if toast.Parent then
 			local fade = TweenService:Create(toast, TweenInfo.new(0.35), { GroupTransparency = 1 })
@@ -24338,13 +25603,15 @@ function Notifications:_showNextBanner()
 	end
 	self.BannerBusy = true
 	self.BannerTitle.Text = nextBanner.Title
-	self.BannerTitle.TextColor3 = BANNER_COLORS[nextBanner.Style] or Theme.Colors.Coins
+	self.BannerRibbon.BackgroundColor3 = BANNER_COLORS[nextBanner.Style] or Theme.Colors.Coins
 	self.BannerSubtitle.Text = nextBanner.Subtitle or ""
 	self.Banner.Visible = true
 	self.Banner.GroupTransparency = 1
-	self.BannerScale.Scale = 0.6
-	TweenService:Create(self.Banner, TweenInfo.new(0.25), { GroupTransparency = 0 }):Play()
-	TweenService:Create(self.BannerScale, TweenInfo.new(0.45, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
+	self.BannerScale.Scale = 0.4
+	self.Banner.Rotation = -8
+	TweenService:Create(self.Banner, TweenInfo.new(0.2), { GroupTransparency = 0 }):Play()
+	TweenService:Create(self.BannerScale, TweenInfo.new(0.55, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
+	TweenService:Create(self.Banner, TweenInfo.new(0.9, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out), { Rotation = 0 }):Play()
 	task.delay(BANNER_TIME, function()
 		local fade = TweenService:Create(self.Banner, TweenInfo.new(0.35), { GroupTransparency = 1 })
 		fade:Play()
@@ -24376,6 +25643,14 @@ function Notifications:Float(text: string, color: Color3, position: UDim2, rise:
 	end
 	local target = position - UDim2.fromOffset(0, rise or 60)
 	local info = TweenInfo.new(1.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+	-- Pop in big with a little tilt, then rise and fade.
+	local pop = label:FindFirstChild("PopScale")
+	if pop and pop:IsA("UIScale") then
+		pop.Scale = 1.6
+		TweenService:Create(pop, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
+	end
+	label.Rotation = math.random(-10, 10)
+	TweenService:Create(label, TweenInfo.new(0.5, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out), { Rotation = 0 }):Play()
 	TweenService:Create(label, info, { Position = target, TextTransparency = 1 }):Play()
 	if stroke then
 		TweenService:Create(stroke, info, { Transparency = 1 }):Play()

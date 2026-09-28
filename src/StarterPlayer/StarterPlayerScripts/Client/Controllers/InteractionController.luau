@@ -29,6 +29,7 @@ local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
@@ -45,6 +46,7 @@ local UIController = require(script.Parent.UIController)
 local ToolController = require(script.Parent.ToolController)
 local AnimationController = require(script.Parent.AnimationController)
 local AudioController = require(script.Parent.AudioController)
+local VFXController = require(script.Parent.VFXController)
 local Components = require(Client.UI.Components)
 local Theme = require(Client.UI.Theme)
 
@@ -55,7 +57,7 @@ local TAG = "Interactable"
 local RAY_LENGTH = 320
 local WALK_TIMEOUT = 5
 local VISITOR_PERMISSIONS = { Visitor = true, Fish = true, Market = true }
-local SWING_TYPES = { Axe = true, Pickaxe = true, Hammer = true, Hoe = true, Shovel = true }
+local SWING_TYPES = { Axe = true, Pickaxe = true, Hammer = true, Hoe = true, Shovel = true, WateringCan = true, Bucket = true, Shears = true }
 local TOOL_KEYS = { Axe = "🪓 Axe", Pickaxe = "⛏️ Pickaxe", Hammer = "🔨 Hammer", Hoe = "🌱 Hoe", Shovel = "🪏 Shovel", WateringCan = "🚿 Watering Can", FishingRod = "🎣 Fishing Rod", Bucket = "🪣 Bucket" }
 
 local COLORS = {
@@ -332,6 +334,16 @@ end
 
 local function setHighlight(object: Instance?, color: Color3)
 	if object and (object:IsA("Model") or object:IsA("BasePart")) then
+		if highlight.Adornee ~= object then
+			-- A tiny cartoon "boing" + outline flash when something new is under the cursor.
+			if object:IsA("Model") then
+				VFXController.Jiggle(object, "Nudge")
+			end
+			highlight.OutlineTransparency = 0
+			highlight.FillTransparency = 0.6
+			Components.Bounce(tooltip, 0.18)
+			TweenService:Create(highlight, TweenInfo.new(0.35, Enum.EasingStyle.Quad), { FillTransparency = 0.86 }):Play()
+		end
 		highlight.Adornee = object
 		highlight.OutlineColor = color
 		highlight.FillColor = color
@@ -425,15 +437,20 @@ end
 local function perform(object: Instance, hint: Hint)
 	faceTarget(objectPosition(object))
 	local now = os.clock()
+	local variant = nil
 	if hint.Anim and now >= localBusyUntil then
-		local def = AnimationConfig.Get(hint.Anim)
+		local name, index = AnimationController.PickVariant(hint.Anim)
+		local def = AnimationConfig.Get(name)
 		if def then
 			local speed = hint.Speed or 1
 			localBusyUntil = now + def.Length / speed * 0.85
-			AnimationController.PlayLocal(hint.Anim, speed)
+			AnimationController.PlayLocal(name, speed)
+			variant = index
 		end
 	end
-	Net.FireServer("InteractRequest", object)
+	Net.FireServer("InteractRequest", object, variant)
+	-- Instant local feedback on the thing you clicked.
+	VFXController.Play("HitRing", objectPosition(object) + Vector3.new(0, 0.5, 0), { Scale = 0.6, Color = COLORS.Ok })
 end
 
 local function cancelWalk()
@@ -484,11 +501,12 @@ local function practiceSwing()
 		return
 	end
 	lastSwing = now
-	local def = AnimationConfig.Get(tool.Animations.Use)
+	local name, index = AnimationController.PickVariant(tool.Animations.Use)
+	local def = AnimationConfig.Get(name)
 	if def then
 		localBusyUntil = now + def.Length / tool.Speed * 0.7
-		AnimationController.PlayLocal(tool.Animations.Use, tool.Speed)
-		Net.FireServer("SwingRequest")
+		AnimationController.PlayLocal(name, tool.Speed)
+		Net.FireServer("SwingRequest", index)
 	end
 end
 
@@ -604,8 +622,8 @@ function InteractionController.Init()
 		ZIndex = 50,
 		Parent = overlay,
 	})
-	Components.Corner(tooltip, UDim.new(0, 10))
-	Components.Stroke(tooltip, COLORS.Ok, 2)
+	Components.Corner(tooltip, UDim.new(0, 12))
+	Components.Stroke(tooltip, COLORS.Ok, 3)
 	tooltipText = Components.Label({
 		Size = UDim2.new(1, -18, 0, 26),
 		Position = UDim2.fromOffset(9, 3),

@@ -23,7 +23,7 @@
 	InteractDisabled, OwnerUserId. Services update InteractHint / InteractLabel
 	as state changes ("Ready to harvest!").
 
-	Server checks on every click (InteractRequest(object)): rate limit, object
+	Server checks on every click (InteractRequest(object, swingVariant?)): rate limit, object
 	registered + enabled, player alive, distance to the object's bounding box,
 	per-player cooldown, island permission, then the handler runs in pcall.
 	Handlers decide what happens from what the player is HOLDING
@@ -40,6 +40,7 @@ local RateLimiter = require(Shared.Util.RateLimiter)
 
 local Services = script.Parent
 local AntiExploitService = require(Services.AntiExploitService)
+local AnimationService = require(Services.AnimationService)
 local Notify = require(script.Parent.Parent.Util.Notify)
 
 export type KindDef = {
@@ -164,7 +165,7 @@ function InteractionService.DistanceTo(object: Instance, point: Vector3): number
 	return distanceTo(object, point) or math.huge
 end
 
-local function onRequest(player: Player, object: any)
+local function onRequest(player: Player, object: any, variant: any)
 	if typeof(object) ~= "Instance" then
 		AntiExploitService.Flag(player, "BadInteract", 2)
 		return
@@ -205,6 +206,8 @@ local function onRequest(player: Player, object: any)
 		return
 	end
 
+	-- Which of the tool's swings the client is already playing (cosmetic).
+	AnimationService.SetVariantHint(player, variant)
 	local def = kinds[entry.Kind]
 	local ok, err = pcall(def.Handler, player, entry.Object)
 	if not ok then

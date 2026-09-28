@@ -22,6 +22,12 @@
 	The gameplay result is applied at the SAME marker time the animation
 	uses (from AnimationConfig). A per-player busy lock stops actions from
 	overlapping or being spammed.
+
+	SWING VARIANTS: PerformAction("AxeSwing", ...) plays one of the three
+	axe swings (AnimationConfig.Variants). The client picks which one (so
+	its instant local prediction matches) and sends the index with its
+	request; SetVariantHint stores it for the next action. No hint (or a
+	bad one) = random. Variants share timing, so gameplay never changes.
 ]]
 
 local Players = game:GetService("Players")
@@ -35,7 +41,10 @@ local R15 = require(Shared.Util.R15)
 local AnimationService = {}
 
 local busyUntil: { [Player]: number } = {}
+local variantHints: { [Player]: { Index: number, At: number } } = {}
 local sequence = 0
+local random = Random.new()
+local HINT_LIFETIME = 1.5
 
 local function currentName(rig: Instance): string?
 	local value = rig:GetAttribute("ActionAnim")
@@ -76,6 +85,27 @@ function AnimationService.SetHoldPose(rig: Model, pose: string?)
 	rig:SetAttribute("HoldPose", pose)
 end
 
+-- The client's chosen swing variant for its next action (validated here).
+function AnimationService.SetVariantHint(player: Player, index: any)
+	if type(index) == "number" and index == index and index >= 1 and index <= 8 and math.floor(index) == index then
+		variantHints[player] = { Index = index, At = os.clock() }
+	else
+		variantHints[player] = nil
+	end
+end
+
+-- Picks which variant of `name` to play for this player.
+function AnimationService.ResolveVariant(player: Player, name: string): string
+	local count = AnimationConfig.VariantCount(name)
+	if count <= 1 then
+		return name
+	end
+	local hint = variantHints[player]
+	variantHints[player] = nil
+	local index = if hint and os.clock() - hint.At < HINT_LIFETIME and hint.Index <= count then hint.Index else random:NextInteger(1, count)
+	return AnimationConfig.Variant(name, index)
+end
+
 function AnimationService.IsBusy(player: Player): boolean
 	return (busyUntil[player] or 0) > os.clock()
 end
@@ -91,6 +121,7 @@ function AnimationService.PerformAction(player: Player, animationName: string, m
 	if AnimationService.IsBusy(player) then
 		return false
 	end
+	animationName = AnimationService.ResolveVariant(player, animationName)
 	local def = AnimationConfig.Get(animationName)
 	if not def then
 		warn("[AnimationService] Unknown action animation " .. tostring(animationName))
@@ -118,6 +149,7 @@ end
 
 Players.PlayerRemoving:Connect(function(player)
 	busyUntil[player] = nil
+	variantHints[player] = nil
 end)
 
 -- Writes real Movement ids into the default Animate script (idle/walk/run...).

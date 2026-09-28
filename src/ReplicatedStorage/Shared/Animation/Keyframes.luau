@@ -407,6 +407,242 @@ A.CraftStart = A.PickCrop
 A.CraftWork = A.HammerSwing
 A.CraftFinish = A.Cheer
 
+---------------------------------------------------------------------------
+-- Swing variants: every tool has three swings, picked at random each use.
+-- They keep the base swing's impact time (see AnimationConfig.Variants),
+-- and use cartoon anticipation -> smash -> overshoot timing.
+---------------------------------------------------------------------------
+
+local AXE = { Waist = { 0, 0, 0 }, Neck = { 0, 0, 0 }, RightShoulder = { 16, 0, 6 }, RightElbow = { 78, 0, 0 }, RightWrist = { -8, 0, 0 }, LeftShoulder = { 0, 0, 0 }, LeftElbow = { 0, 0, 0 } }
+local PICK = { Waist = { 0, 0, 0 }, Neck = { 0, 0, 0 }, RightShoulder = { 18, 0, 6 }, RightElbow = { 74, 0, 0 }, RightWrist = { 0, 0, 0 }, LeftShoulder = { 0, 0, 0 }, LeftElbow = { 0, 0, 0 } }
+local HAMMER = { Waist = { 0, 0, 0 }, Neck = { 0, 0, 0 }, RightShoulder = { 14, 0, 6 }, RightElbow = { 70, 0, 0 }, RightWrist = { 0, 0, 0 }, LeftShoulder = { 0, 0, 0 }, LeftElbow = { 0, 0, 0 } }
+local HOE = { Waist = { 0, 0, 0 }, Neck = { 0, 0, 0 }, RightShoulder = { 22, 0, 4 }, RightElbow = { 60, 0, 0 }, RightWrist = { 0, 0, 0 }, LeftShoulder = { 30, 0, 18 }, LeftElbow = { 50, 0, 0 } }
+local SHOVEL = { Waist = { 0, 0, 0 }, Neck = { 0, 0, 0 }, RightShoulder = { 20, 0, 4 }, RightElbow = { 62, 0, 0 }, RightWrist = { 0, 0, 0 }, LeftShoulder = { 28, 0, 18 }, LeftElbow = { 48, 0, 0 } }
+local CAN = { Waist = { 0, 0, 0 }, Neck = { 0, 0, 0 }, RightShoulder = { 34, 0, 4 }, RightElbow = { 30, 0, 0 }, RightWrist = { -20, 0, 0 } }
+local ROD = { Waist = { 0, 0, 0 }, Neck = { 0, 0, 0 }, RightShoulder = { 30, 0, 4 }, RightElbow = { 18, 0, 0 }, RightWrist = { 0, 0, 0 }, LeftShoulder = { 26, 0, 14 }, LeftElbow = { 40, 0, 0 } }
+local BUCKET = { Waist = { 0, 0, 0 }, Neck = { 0, 0, 0 }, RightShoulder = { 8, 0, 8 }, RightElbow = { 12, 0, 0 }, RightWrist = { -80, 0, 0 } }
+local SHEARS = { Waist = { 0, 0, 0 }, Neck = { 0, 0, 0 }, RightShoulder = { 12, 0, 6 }, RightElbow = { 55, 0, 0 }, RightWrist = { 0, 0, 0 }, LeftShoulder = { 0, 0, 0 }, LeftElbow = { 0, 0, 0 } }
+
+-- AXE 2: two-handed overhead chop straight down.
+A.AxeChopHigh = {
+	Keys = {
+		{ T = 0, Pose = AXE },
+		{ T = 0.3, Ease = "Out", Pose = { Waist = { 14, 0, 0 }, Neck = { 8, 0, 0 }, RightShoulder = { 172, 0, 8 }, RightElbow = { 64, 0, 0 }, RightWrist = { 10, 0, 0 }, LeftShoulder = { 160, 0, -10 }, LeftElbow = { 64, 0, 0 } } },
+		{ T = 0.5, Ease = "In", Pose = { Waist = { -26, 0, 0 }, Neck = { -12, 0, 0 }, RightShoulder = { 66, 0, -6 }, RightElbow = { 4, 0, 0 }, RightWrist = { -76, 0, 0 }, LeftShoulder = { 60, 0, 10 }, LeftElbow = { 8, 0, 0 } } },
+		{ T = 0.62, Ease = "Out", Pose = { Waist = { -20, 0, 0 }, Neck = { -8, 0, 0 }, RightShoulder = { 74, 0, -6 }, RightElbow = { 10, 0, 0 }, RightWrist = { -64, 0, 0 }, LeftShoulder = { 66, 0, 10 }, LeftElbow = { 12, 0, 0 } } },
+		{ T = 1, Pose = AXE },
+	},
+}
+
+-- AXE 3: flat horizontal slash with a big torso twist.
+A.AxeSlash = {
+	Keys = {
+		{ T = 0, Pose = AXE },
+		{ T = 0.3, Ease = "Out", Pose = { Waist = { 4, -48, 0 }, Neck = { 0, 30, 0 }, RightShoulder = { 90, 0, 62 }, RightElbow = { 40, 0, 0 }, RightWrist = { -60, 0, 0 }, LeftShoulder = { 40, 0, -20 }, LeftElbow = { 60, 0, 0 } } },
+		{ T = 0.5, Ease = "In", Pose = { Waist = { -6, 40, 0 }, Neck = { 0, -24, 0 }, RightShoulder = { 86, 0, -18 }, RightElbow = { 6, 0, 0 }, RightWrist = { -84, 0, 0 }, LeftShoulder = { 20, 0, 20 }, LeftElbow = { 30, 0, 0 } } },
+		{ T = 0.66, Ease = "Out", Pose = { Waist = { -4, 46, 0 }, Neck = { 0, -26, 0 }, RightShoulder = { 80, 0, -26 }, RightElbow = { 10, 0, 0 }, RightWrist = { -80, 0, 0 }, LeftShoulder = { 16, 0, 20 }, LeftElbow = { 26, 0, 0 } } },
+		{ T = 1, Pose = AXE },
+	},
+}
+
+-- PICKAXE 2: diagonal strike from the right shoulder.
+A.PickaxeSide = {
+	Keys = {
+		{ T = 0, Pose = PICK },
+		{ T = 0.3, Ease = "Out", Pose = { Waist = { 6, -30, 0 }, Neck = { 0, 14, 0 }, RightShoulder = { 140, 0, 40 }, RightElbow = { 60, 0, 0 }, RightWrist = { 10, 0, 0 }, LeftShoulder = { 50, 0, -6 }, LeftElbow = { 40, 0, 0 } } },
+		{ T = 0.49, Ease = "In", Pose = { Waist = { -22, 20, 0 }, Neck = { -12, -8, 0 }, RightShoulder = { 54, 0, -12 }, RightElbow = { 8, 0, 0 }, RightWrist = { -96, 0, 0 }, LeftShoulder = { 30, 0, 12 }, LeftElbow = { 30, 0, 0 } } },
+		{ T = 0.62, Ease = "Out", Pose = { Waist = { -18, 22, 0 }, Neck = { -10, -8, 0 }, RightShoulder = { 50, 0, -12 }, RightElbow = { 12, 0, 0 }, RightWrist = { -86, 0, 0 }, LeftShoulder = { 26, 0, 12 }, LeftElbow = { 26, 0, 0 } } },
+		{ T = 1, Pose = PICK },
+	},
+}
+
+-- PICKAXE 3: hop up and SLAM down with both hands.
+A.PickaxeSlam = {
+	Legs = true,
+	Keys = {
+		{ T = 0, Pose = merge(STAND, PICK) },
+		{ T = 0.3, Ease = "Out", Pose = merge(STAND, { Root = { 0, 0, 0, 0, 0.5, 0 }, RightKnee = { -20, 0, 0 }, LeftKnee = { -20, 0, 0 }, Waist = { 16, 0, 0 }, Neck = { 10, 0, 0 }, RightShoulder = { 178, 0, 6 }, RightElbow = { 30, 0, 0 }, RightWrist = { 0, 0, 0 }, LeftShoulder = { 170, 0, -6 }, LeftElbow = { 30, 0, 0 } }) },
+		{ T = 0.49, Ease = "In", Pose = merge(STAND, { Root = { 0, 0, 0, 0, -0.45, 0 }, RightHip = { 22, 0, 0 }, RightKnee = { -40, 0, 0 }, RightAnkle = { 18, 0, 0 }, LeftHip = { 22, 0, 0 }, LeftKnee = { -40, 0, 0 }, LeftAnkle = { 18, 0, 0 }, Waist = { -32, 0, 0 }, Neck = { -16, 0, 0 }, RightShoulder = { 56, 0, -2 }, RightElbow = { 6, 0, 0 }, RightWrist = { -104, 0, 0 }, LeftShoulder = { 52, 0, 4 }, LeftElbow = { 8, 0, 0 } }) },
+		{ T = 0.66, Ease = "Out", Pose = merge(STAND, { Root = { 0, 0, 0, 0, -0.3, 0 }, RightHip = { 16, 0, 0 }, RightKnee = { -28, 0, 0 }, RightAnkle = { 12, 0, 0 }, LeftHip = { 16, 0, 0 }, LeftKnee = { -28, 0, 0 }, LeftAnkle = { 12, 0, 0 }, Waist = { -26, 0, 0 }, Neck = { -12, 0, 0 }, RightShoulder = { 58, 0, -2 }, RightElbow = { 10, 0, 0 }, RightWrist = { -94, 0, 0 }, LeftShoulder = { 50, 0, 4 }, LeftElbow = { 12, 0, 0 } }) },
+		{ T = 1, Pose = merge(STAND, PICK) },
+	},
+}
+
+-- HAMMER 2: sideways bash.
+A.HammerBash = {
+	Keys = {
+		{ T = 0, Pose = HAMMER },
+		{ T = 0.26, Ease = "Out", Pose = { Waist = { 2, -40, 0 }, Neck = { 0, 24, 0 }, RightShoulder = { 100, 0, 58 }, RightElbow = { 60, 0, 0 }, RightWrist = { -40, 0, 0 }, LeftShoulder = { 30, 0, -10 }, LeftElbow = { 40, 0, 0 } } },
+		{ T = 0.48, Ease = "In", Pose = { Waist = { -6, 32, 0 }, Neck = { 0, -20, 0 }, RightShoulder = { 84, 0, -14 }, RightElbow = { 8, 0, 0 }, RightWrist = { -86, 0, 0 }, LeftShoulder = { 20, 0, 14 }, LeftElbow = { 30, 0, 0 } } },
+		{ T = 0.62, Ease = "Out", Pose = { Waist = { -4, 36, 0 }, Neck = { 0, -22, 0 }, RightShoulder = { 80, 0, -20 }, RightElbow = { 12, 0, 0 }, RightWrist = { -80, 0, 0 }, LeftShoulder = { 18, 0, 14 }, LeftElbow = { 28, 0, 0 } } },
+		{ T = 1, Pose = HAMMER },
+	},
+}
+
+-- HAMMER 3: lean way back, then a big overhead slam with bent knees.
+A.HammerSlam = {
+	Legs = true,
+	Keys = {
+		{ T = 0, Pose = merge(STAND, HAMMER) },
+		{ T = 0.28, Ease = "Out", Pose = merge(STAND, { Waist = { 18, -6, 0 }, Neck = { 12, 0, 0 }, RightShoulder = { 176, 0, 12 }, RightElbow = { 90, 0, 0 }, RightWrist = { 20, 0, 0 }, LeftShoulder = { 80, 0, -20 }, LeftElbow = { 50, 0, 0 } }) },
+		{ T = 0.48, Ease = "In", Pose = merge(STAND, { Root = { 0, 0, 0, 0, -0.3, 0 }, RightHip = { 14, 0, 0 }, RightKnee = { -22, 0, 0 }, LeftHip = { 14, 0, 0 }, LeftKnee = { -22, 0, 0 }, Waist = { -24, 6, 0 }, Neck = { -12, 0, 0 }, RightShoulder = { 56, 0, -2 }, RightElbow = { 10, 0, 0 }, RightWrist = { -90, 0, 0 }, LeftShoulder = { 40, 0, 8 }, LeftElbow = { 30, 0, 0 } }) },
+		{ T = 0.62, Ease = "Out", Pose = merge(STAND, { Root = { 0, 0, 0, 0, -0.18, 0 }, RightHip = { 8, 0, 0 }, RightKnee = { -12, 0, 0 }, LeftHip = { 8, 0, 0 }, LeftKnee = { -12, 0, 0 }, Waist = { -18, 6, 0 }, Neck = { -8, 0, 0 }, RightShoulder = { 60, 0, -2 }, RightElbow = { 16, 0, 0 }, RightWrist = { -80, 0, 0 }, LeftShoulder = { 36, 0, 8 }, LeftElbow = { 30, 0, 0 } }) },
+		{ T = 1, Pose = merge(STAND, HAMMER) },
+	},
+}
+
+-- HOE 2: short, snappy chop.
+A.HoeChop = {
+	Keys = {
+		{ T = 0, Pose = HOE },
+		{ T = 0.36, Ease = "Out", Pose = { Waist = { 6, 0, 0 }, Neck = { 2, 0, 0 }, RightShoulder = { 110, 0, 6 }, RightElbow = { 40, 0, 0 }, RightWrist = { 0, 0, 0 }, LeftShoulder = { 100, 0, -2 }, LeftElbow = { 40, 0, 0 } } },
+		{ T = 0.54, Ease = "In", Pose = { Waist = { -24, 0, 0 }, Neck = { -14, 0, 0 }, RightShoulder = { 48, 0, 0 }, RightElbow = { 6, 0, 0 }, RightWrist = { -90, 0, 0 }, LeftShoulder = { 44, 0, 6 }, LeftElbow = { 10, 0, 0 } } },
+		{ T = 0.64, Ease = "Out", Pose = { Waist = { -20, 0, 0 }, Neck = { -12, 0, 0 }, RightShoulder = { 54, 0, 0 }, RightElbow = { 10, 0, 0 }, RightWrist = { -80, 0, 0 }, LeftShoulder = { 48, 0, 6 }, LeftElbow = { 14, 0, 0 } } },
+		{ T = 1, Pose = HOE },
+	},
+}
+
+-- HOE 3: reach forward and rake the soil back towards you.
+A.HoeScrape = {
+	Keys = {
+		{ T = 0, Pose = HOE },
+		{ T = 0.3, Ease = "Out", Pose = { Waist = { -20, 0, 0 }, Neck = { -10, 0, 0 }, RightShoulder = { 80, 0, 4 }, RightElbow = { 10, 0, 0 }, RightWrist = { -60, 0, 0 }, LeftShoulder = { 76, 0, 8 }, LeftElbow = { 12, 0, 0 } } },
+		{ T = 0.54, Ease = "In", Pose = { Waist = { -34, 0, 0 }, Neck = { -18, 0, 0 }, RightShoulder = { 40, 0, 0 }, RightElbow = { 40, 0, 0 }, RightWrist = { -100, 0, 0 }, LeftShoulder = { 38, 0, 6 }, LeftElbow = { 44, 0, 0 } } },
+		{ T = 0.75, Ease = "Out", Pose = { Waist = { -10, 10, 0 }, Neck = { -4, 0, 0 }, RightShoulder = { 30, 0, 4 }, RightElbow = { 60, 0, 0 }, RightWrist = { -40, 0, 0 }, LeftShoulder = { 30, 0, 14 }, LeftElbow = { 50, 0, 0 } } },
+		{ T = 1, Pose = HOE },
+	},
+}
+
+-- SHOVEL 2: stab low and toss the dirt over your shoulder.
+A.ShovelScoop = {
+	Legs = true,
+	Keys = {
+		{ T = 0, Pose = merge(STAND, SHOVEL) },
+		{ T = 0.3, Ease = "Out", Pose = merge(STAND, { Waist = { -14, 0, 0 }, RightShoulder = { 40, 0, 4 }, RightElbow = { 20, 0, 0 }, RightWrist = { -80, 0, 0 }, LeftShoulder = { 50, 0, 10 }, LeftElbow = { 20, 0, 0 } }) },
+		{ T = 0.56, Ease = "In", Pose = merge(STAND, { Root = { 0, 0, 0, 0, -0.35, 0 }, RightHip = { 24, 0, 0 }, RightKnee = { -36, 0, 0 }, LeftHip = { 14, 0, 0 }, LeftKnee = { -24, 0, 0 }, Waist = { -30, 0, 0 }, Neck = { -14, 0, 0 }, RightShoulder = { 26, 0, 0 }, RightElbow = { 6, 0, 0 }, RightWrist = { -114, 0, 0 }, LeftShoulder = { 36, 0, 10 }, LeftElbow = { 14, 0, 0 } }) },
+		{ T = 0.8, Ease = "Out", Pose = merge(STAND, { Waist = { 10, 40, 0 }, Neck = { 6, 20, 0 }, RightShoulder = { 110, 0, -10 }, RightElbow = { 40, 0, 0 }, RightWrist = { -20, 0, 0 }, LeftShoulder = { 100, 0, 10 }, LeftElbow = { 60, 0, 0 } }) },
+		{ T = 1, Pose = merge(STAND, SHOVEL) },
+	},
+}
+
+-- SHOVEL 3: lift a foot and stomp the blade into the ground.
+A.ShovelStomp = {
+	Legs = true,
+	Keys = {
+		{ T = 0, Pose = merge(STAND, SHOVEL) },
+		{ T = 0.3, Ease = "Out", Pose = merge(STAND, { Root = { 0, 0, 0, 0, 0.15, 0 }, RightHip = { 60, 0, 0 }, RightKnee = { -70, 0, 0 }, Waist = { -10, 0, 0 }, RightShoulder = { 50, 0, 4 }, RightElbow = { 30, 0, 0 }, RightWrist = { -80, 0, 0 }, LeftShoulder = { 56, 0, 10 }, LeftElbow = { 30, 0, 0 } }) },
+		{ T = 0.56, Ease = "In", Pose = merge(STAND, { Root = { 0, 0, 0, 0, -0.3, 0 }, RightHip = { 24, 0, 0 }, RightKnee = { -20, 0, 0 }, LeftHip = { 12, 0, 0 }, LeftKnee = { -26, 0, 0 }, Waist = { -26, 0, 0 }, Neck = { -14, 0, 0 }, RightShoulder = { 34, 0, 0 }, RightElbow = { 10, 0, 0 }, RightWrist = { -108, 0, 0 }, LeftShoulder = { 44, 0, 10 }, LeftElbow = { 18, 0, 0 } }) },
+		{ T = 0.8, Ease = "Out", Pose = merge(STAND, { Waist = { -6, -16, 0 }, Neck = { -4, 0, 0 }, RightShoulder = { 70, 0, 10 }, RightElbow = { 50, 0, 0 }, RightWrist = { -40, 0, 0 }, LeftShoulder = { 60, 0, 10 }, LeftElbow = { 40, 0, 0 } }) },
+		{ T = 1, Pose = merge(STAND, SHOVEL) },
+	},
+}
+
+-- WATERING CAN 2: sweep the spout side to side.
+A.WaterSweep = {
+	Keys = {
+		{ T = 0, Pose = CAN },
+		{ T = 0.25, Ease = "Out", Pose = { Waist = { -10, 20, 0 }, Neck = { -16, 10, 0 }, RightShoulder = { 60, 0, 20 }, RightElbow = { 14, 0, 0 }, RightWrist = { -30, 0, 0 } } },
+		{ T = 0.42, Pose = { Waist = { -12, 20, 0 }, Neck = { -20, 10, 0 }, RightShoulder = { 62, 0, 22 }, RightElbow = { 10, 0, 0 }, RightWrist = { -84, 0, 0 } } },
+		{ T = 0.62, Pose = { Waist = { -12, -20, 0 }, Neck = { -20, -10, 0 }, RightShoulder = { 60, 0, -10 }, RightElbow = { 10, 0, 0 }, RightWrist = { -86, 0, 0 } } },
+		{ T = 0.8, Pose = { Waist = { -12, 10, 0 }, Neck = { -18, 6, 0 }, RightShoulder = { 60, 0, 12 }, RightElbow = { 10, 0, 0 }, RightWrist = { -84, 0, 0 } } },
+		{ T = 1, Pose = CAN },
+	},
+}
+
+-- WATERING CAN 3: stand on tiptoe and pour from high up.
+A.WaterHigh = {
+	Legs = true,
+	Keys = {
+		{ T = 0, Pose = merge(STAND, CAN) },
+		{ T = 0.25, Ease = "Out", Pose = merge(STAND, { Root = { 0, 0, 0, 0, 0.25, 0 }, RightAnkle = { -20, 0, 0 }, LeftAnkle = { -20, 0, 0 }, Waist = { 6, 0, 0 }, Neck = { 6, 0, 0 }, RightShoulder = { 130, 0, 6 }, RightElbow = { 30, 0, 0 }, RightWrist = { -20, 0, 0 }, LeftShoulder = { 40, 0, -10 } }) },
+		{ T = 0.42, Pose = merge(STAND, { Root = { 0, 0, 0, 0, 0.25, 0 }, RightAnkle = { -20, 0, 0 }, LeftAnkle = { -20, 0, 0 }, Waist = { 0, 0, 0 }, Neck = { -10, 0, 0 }, RightShoulder = { 126, 0, 6 }, RightElbow = { 20, 0, 0 }, RightWrist = { -90, 0, 0 }, LeftShoulder = { 40, 0, -10 } }) },
+		{ T = 0.7, Pose = merge(STAND, { Root = { 0, 0, 0, 0, 0.2, 0 }, RightAnkle = { -16, 0, 0 }, LeftAnkle = { -16, 0, 0 }, Waist = { 0, 8, 0 }, Neck = { -12, 8, 0 }, RightShoulder = { 124, 0, 8 }, RightElbow = { 20, 0, 0 }, RightWrist = { -96, 0, 0 }, LeftShoulder = { 36, 0, -10 } }) },
+		{ T = 1, Pose = merge(STAND, merge(CAN, { LeftShoulder = { 0, 0, 0 } })) },
+	},
+}
+
+-- FISHING ROD 2: sidearm cast.
+A.FishingCastSide = {
+	Keys = {
+		{ T = 0, Pose = ROD },
+		{ T = 0.3, Ease = "Out", Pose = { Waist = { 4, -40, 0 }, Neck = { 0, 20, 0 }, RightShoulder = { 70, 0, 70 }, RightElbow = { 30, 0, 0 }, RightWrist = { -20, 0, 0 }, LeftShoulder = { 20, 0, -10 }, LeftElbow = { 40, 0, 0 } } },
+		{ T = 0.5, Ease = "In", Pose = { Waist = { -8, 30, 0 }, Neck = { 0, -14, 0 }, RightShoulder = { 70, 0, -16 }, RightElbow = { 4, 0, 0 }, RightWrist = { -10, 0, 0 }, LeftShoulder = { 30, 0, 14 }, LeftElbow = { 30, 0, 0 } } },
+		{ T = 1, Pose = ROD },
+	},
+}
+
+-- FISHING ROD 3: quick two-handed flick.
+A.FishingCastFlick = {
+	Keys = {
+		{ T = 0, Pose = ROD },
+		{ T = 0.34, Ease = "Out", Pose = { Waist = { 12, 0, 0 }, Neck = { 6, 0, 0 }, RightShoulder = { 140, 0, 8 }, RightElbow = { 50, 0, 0 }, RightWrist = { 20, 0, 0 }, LeftShoulder = { 130, 0, -8 }, LeftElbow = { 50, 0, 0 } } },
+		{ T = 0.5, Ease = "In", Pose = { Waist = { -12, 0, 0 }, Neck = { -4, 0, 0 }, RightShoulder = { 74, 0, 0 }, RightElbow = { 6, 0, 0 }, RightWrist = { -6, 0, 0 }, LeftShoulder = { 70, 0, 6 }, LeftElbow = { 10, 0, 0 } } },
+		{ T = 0.62, Ease = "Out", Pose = { Waist = { -8, 0, 0 }, Neck = { -2, 0, 0 }, RightShoulder = { 66, 0, 0 }, RightElbow = { 10, 0, 0 }, RightWrist = { -4, 0, 0 }, LeftShoulder = { 62, 0, 6 }, LeftElbow = { 14, 0, 0 } } },
+		{ T = 1, Pose = ROD },
+	},
+}
+
+-- BUCKET 1-3: pendulum swing, scoop from the ground, toss forward.
+A.BucketSwing = {
+	Keys = {
+		{ T = 0, Pose = BUCKET },
+		{ T = 0.28, Ease = "Out", Pose = { Waist = { 4, -10, 0 }, Neck = { 0, 0, 0 }, RightShoulder = { -40, 0, 10 }, RightElbow = { 8, 0, 0 }, RightWrist = { -70, 0, 0 } } },
+		{ T = 0.5, Ease = "In", Pose = { Waist = { -6, 8, 0 }, Neck = { -4, 0, 0 }, RightShoulder = { 80, 0, 4 }, RightElbow = { 6, 0, 0 }, RightWrist = { -90, 0, 0 } } },
+		{ T = 0.7, Ease = "Out", Pose = { Waist = { -4, 6, 0 }, Neck = { -2, 0, 0 }, RightShoulder = { 60, 0, 4 }, RightElbow = { 10, 0, 0 }, RightWrist = { -84, 0, 0 } } },
+		{ T = 1, Pose = BUCKET },
+	},
+}
+A.BucketScoop = {
+	Legs = true,
+	Keys = {
+		{ T = 0, Pose = merge(STAND, BUCKET) },
+		{ T = 0.3, Ease = "Out", Pose = merge(CROUCH, { Waist = { -30, 0, 0 }, Neck = { -16, 0, 0 }, RightShoulder = { 40, 0, 0 }, RightElbow = { 6, 0, 0 }, RightWrist = { -60, 0, 0 } }) },
+		{ T = 0.5, Pose = merge(CROUCH, { Waist = { -26, 0, 0 }, Neck = { -12, 0, 0 }, RightShoulder = { 60, 0, 0 }, RightElbow = { 30, 0, 0 }, RightWrist = { -40, 0, 0 } }) },
+		{ T = 0.75, Ease = "Out", Pose = merge(STAND, { Waist = { 4, 0, 0 }, Neck = { 4, 0, 0 }, RightShoulder = { 90, 0, 4 }, RightElbow = { 40, 0, 0 }, RightWrist = { -60, 0, 0 } }) },
+		{ T = 1, Pose = merge(STAND, BUCKET) },
+	},
+}
+A.BucketToss = {
+	Keys = {
+		{ T = 0, Pose = BUCKET },
+		{ T = 0.28, Ease = "Out", Pose = { Waist = { 6, -20, 0 }, Neck = { 0, 8, 0 }, RightShoulder = { -30, 0, 20 }, RightElbow = { 10, 0, 0 }, RightWrist = { -80, 0, 0 } } },
+		{ T = 0.5, Ease = "In", Pose = { Waist = { -10, 10, 0 }, Neck = { -4, 0, 0 }, RightShoulder = { 120, 0, 0 }, RightElbow = { 10, 0, 0 }, RightWrist = { -120, 0, 0 } } },
+		{ T = 0.66, Ease = "Out", Pose = { Waist = { -8, 10, 0 }, Neck = { -2, 0, 0 }, RightShoulder = { 110, 0, 0 }, RightElbow = { 10, 0, 0 }, RightWrist = { -110, 0, 0 } } },
+		{ T = 1, Pose = BUCKET },
+	},
+}
+
+-- SHEARS 1-3: snip in front, low (crouched) and high.
+A.ShearsSnip = {
+	Keys = {
+		{ T = 0, Pose = SHEARS },
+		{ T = 0.25, Ease = "Out", Pose = { Waist = { -10, 0, 0 }, Neck = { -6, 0, 0 }, RightShoulder = { 70, 0, 0 }, RightElbow = { 20, 0, 0 }, RightWrist = { -10, 0, 0 }, LeftShoulder = { 40, 0, -10 }, LeftElbow = { 40, 0, 0 } } },
+		{ T = 0.4, Pose = { Waist = { -10, 0, 0 }, RightShoulder = { 72, 0, 0 }, RightElbow = { 20, 0, 0 }, RightWrist = { 10, 0, 0 } } },
+		{ T = 0.5, Ease = "In", Pose = { Waist = { -12, 0, 0 }, RightShoulder = { 74, 0, 0 }, RightElbow = { 18, 0, 0 }, RightWrist = { -20, 0, 0 } } },
+		{ T = 0.62, Pose = { Waist = { -10, 0, 0 }, RightShoulder = { 72, 0, 0 }, RightElbow = { 20, 0, 0 }, RightWrist = { 10, 0, 0 } } },
+		{ T = 1, Pose = SHEARS },
+	},
+}
+A.ShearsSnipLow = {
+	Legs = true,
+	Keys = {
+		{ T = 0, Pose = merge(STAND, SHEARS) },
+		{ T = 0.3, Ease = "Out", Pose = merge(CROUCH, { Waist = { -24, 0, 0 }, Neck = { -14, 0, 0 }, RightShoulder = { 50, 0, -4 }, RightElbow = { 10, 0, 0 }, RightWrist = { -20, 0, 0 } }) },
+		{ T = 0.5, Pose = merge(CROUCH, { Waist = { -24, 0, 0 }, Neck = { -14, 0, 0 }, RightShoulder = { 54, 0, -4 }, RightElbow = { 10, 0, 0 }, RightWrist = { 10, 0, 0 } }) },
+		{ T = 0.65, Pose = merge(CROUCH, { Waist = { -22, 0, 0 }, Neck = { -12, 0, 0 }, RightShoulder = { 52, 0, -4 }, RightElbow = { 10, 0, 0 }, RightWrist = { -20, 0, 0 } }) },
+		{ T = 1, Pose = merge(STAND, SHEARS) },
+	},
+}
+A.ShearsSnipHigh = {
+	Keys = {
+		{ T = 0, Pose = SHEARS },
+		{ T = 0.3, Ease = "Out", Pose = { Waist = { 6, 0, 0 }, Neck = { 12, 0, 0 }, RightShoulder = { 130, 0, 6 }, RightElbow = { 10, 0, 0 }, RightWrist = { 0, 0, 0 } } },
+		{ T = 0.5, Pose = { Waist = { 6, 0, 0 }, Neck = { 12, 0, 0 }, RightShoulder = { 132, 0, 6 }, RightElbow = { 10, 0, 0 }, RightWrist = { -24, 0, 0 } } },
+		{ T = 0.62, Pose = { Waist = { 6, 0, 0 }, Neck = { 12, 0, 0 }, RightShoulder = { 130, 0, 6 }, RightElbow = { 10, 0, 0 }, RightWrist = { 12, 0, 0 } } },
+		{ T = 1, Pose = SHEARS },
+	},
+}
+
 Keyframes.Actions = A
 
 -- Idle life for NPC rigs (no Animate script): breathing + looking around.

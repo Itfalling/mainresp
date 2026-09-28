@@ -502,7 +502,8 @@ function IslandService.TryExpand(player: Player, cx: any, cz: any): (boolean, st
 	GameSoundService.PlayAt("AreaUnlock", centerWorld)
 	GameSoundService.PlayAt("LandRise", centerWorld)
 	VFXService.PlayAt("AreaUnlock", centerWorld)
-	VFXService.ShakeCamera(player, 0.35, 0.8)
+	VFXService.PlayAt("BigPuff", centerWorld, { Color = Color3.fromRGB(220, 240, 255), Scale = 1.5 })
+	VFXService.WobbleNear(centerWorld, 90, 0.9, 1.4)
 	task.spawn(function()
 		local steps = 8
 		for step = 1, steps do
@@ -656,6 +657,8 @@ local function claimStarterChest(player: Player, chest: Instance)
 	if chest:IsA("Model") then
 		local pivot = chest:GetPivot().Position
 		VFXService.PlayAt("ChestOpen", pivot + Vector3.new(0, 2.5, 0))
+		VFXService.PlayAt("Confetti", pivot + Vector3.new(0, 3, 0))
+		VFXService.Jiggle(chest, "Squash")
 	end
 	GameSoundService.PlayFor(player, "ChestOpen")
 	Notify.Banner(player, "STARTER KIT!", "Tools and seeds are in your hotbar — press 1-9 to hold one!", "Reward")

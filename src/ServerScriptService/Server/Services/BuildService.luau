@@ -495,11 +495,15 @@ function BuildService.Place(player: Player, buildingId: any, localX: any, localZ
 	if instant then
 		GameSoundService.PlayAt(if def.Node then "PlantSeed" else "WoodPlace", worldCFrame.Position)
 		VFXService.PlayAt(if def.Node then "LeafBurst" else "BuildDust", worldCFrame.Position + Vector3.new(0, 1, 0))
+		VFXService.PlayAt("Puff", worldCFrame.Position, { Scale = 0.7 })
+		VFXService.Jiggle(site.Model, "Pop")
 		ProgressionService.Award(player, "BuildStep")
 		BuildService.BuildingCompleted:Fire(player, site.BuildingId, def, site)
 	else
 		GameSoundService.PlayAt("ConstructionStart", worldCFrame.Position)
 		VFXService.PlayAt("BuildDust", worldCFrame.Position + Vector3.new(0, 1, 0))
+		VFXService.PlayAt("Puff", worldCFrame.Position, { Scale = 0.8 })
+		VFXService.Jiggle(site.Model, "Pop")
 		Notify.Success(player, ("%s placed! Hold your 🔨 hammer and click it %d times."):format(def.DisplayName, def.Steps), "🔨")
 	end
 	return true, nil
@@ -522,9 +526,11 @@ local function complete(player: Player, site: Site)
 	BuildingModels.SetStage(site.Model, math.huge, true)
 	local position = site.Model:GetPivot().Position
 	VFXService.PlayAt("BuildComplete", position + Vector3.new(0, def.Height * 0.5, 0))
-	VFXService.PlayAt("BuildDust", position + Vector3.new(0, 0.5, 0))
+	VFXService.PlayAt("Confetti", position + Vector3.new(0, def.Height * 0.8, 0))
+	VFXService.PlayAt("BigPuff", position, { Scale = math.clamp(def.Footprint.X / 10, 0.7, 1.6) })
+	VFXService.Jiggle(site.Model, "Pop")
 	GameSoundService.PlayAt("BuildComplete", position)
-	VFXService.ShakeCamera(player, 0.35, 0.4)
+	VFXService.WobbleNear(position, 60, 0.8, 0.8)
 	Notify.Banner(player, "BUILD COMPLETE!", def.DisplayName, "Build")
 	ProgressionService.Award(player, "BuildComplete")
 	DataService.Increment(player, { "Stats", "BuildingsBuilt" }, 1)
@@ -552,7 +558,11 @@ local function advance(player: Player, site: Site)
 	local pivot = site.Model:GetPivot()
 	local def = site.Def
 	local offset = Vector3.new((math.random() - 0.5) * def.Footprint.X * 0.6, math.random() * def.Height * 0.6, (math.random() - 0.5) * def.Footprint.Y * 0.6)
-	VFXService.PlayAt("BuildDust", (pivot * CFrame.new(offset)).Position)
+	local hitPoint = (pivot * CFrame.new(offset)).Position
+	VFXService.PlayAt("BuildDust", hitPoint)
+	VFXService.PlayAt("HitPop", hitPoint)
+	VFXService.PlayAt("Stars", hitPoint, { Count = 4 })
+	VFXService.Jiggle(site.Model, "Squash")
 	GameSoundService.PlayAt("HammerHit", pivot.Position)
 	ProgressionService.Award(player, "BuildStep")
 	if progress >= def.Steps then

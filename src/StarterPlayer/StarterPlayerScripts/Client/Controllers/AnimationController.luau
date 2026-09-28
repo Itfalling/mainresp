@@ -21,7 +21,10 @@
 	  * ANIMALS (tag "Animal") walk, graze, chew, wag and flap from their
 	             AnimalAnim attribute using their own joints.
 	  * MARKER EFFECTS (AnimationConfig) — whoosh sounds / dust — fire at the
-	             marker time on every client, positioned at that rig.
+	             marker time on every client, positioned at that rig; your
+	             own hits also kick the camera (CameraController.Kick).
+	  * SWING TRAILS: during an action's Trail window the held tool's
+	             SwingTrail is switched on (with a whoosh), on every client.
 
 	Your own actions are PREDICTED: PlayLocal() starts instantly on click; the
 	server's attribute for the same action simply continues it.
@@ -80,6 +83,7 @@ type Rig = {
 	IsNPC: boolean,
 	Tracks: { [string]: AnimationTrack },
 	Connections: { RBXScriptConnection },
+	TrailOn: boolean,
 }
 
 local rigs: { [Model]: Rig } = {}
@@ -188,8 +192,13 @@ local function fireMarkers(rig: Rig, state: ActionState, elapsed: number)
 						VFXController.Play(effects.VFX, position)
 					end
 				end
-				if effects.Shake and rig.Model == localCharacter then
-					CameraController.Shake(effects.Shake, 0.25)
+				if rig.Model == localCharacter then
+					if effects.Punch then
+						CameraController.Kick(effects.Punch)
+					end
+					if effects.Shake then
+						CameraController.Shake(effects.Shake, 0.25)
+					end
 				end
 			end
 			AnimationController.MarkerReached:Fire(state.Name, markerName, rig.Model)
@@ -312,6 +321,7 @@ local function addRig(model: Model, isNPC: boolean)
 		IsNPC = isNPC,
 		Tracks = {},
 		Connections = {},
+		TrailOn = false,
 	}
 	rigs[model] = rig
 	table.insert(rig.Connections, model:GetAttributeChangedSignal("ActionAnim"):Connect(function()
@@ -428,6 +438,27 @@ local function applyRig(rig: Rig, now: number, clock: number, dt: number)
 		applyAction(action, math.clamp(elapsed / FADE_IN, 0, 1))
 	end
 
+	-- Swing trail on the held tool during the action's Trail window.
+	local trailOn = false
+	if action and action.Def.Trail then
+		local fraction = (now - action.Start) * action.Speed / action.Def.Length
+		trailOn = fraction >= action.Def.Trail[1] and fraction <= action.Def.Trail[2]
+	end
+	if trailOn ~= rig.TrailOn then
+		rig.TrailOn = trailOn
+		local tool = model:FindFirstChild("EquippedTool")
+		local trail = tool and tool:FindFirstChild("SwingTrail", true)
+		if trail and trail:IsA("Trail") then
+			trail.Enabled = trailOn
+			if trailOn then
+				local root = R15.GetRootPart(model)
+				if root then
+					AudioController.PlayAt("ToolSwing", root.Position)
+				end
+			end
+		end
+	end
+
 	for joint, target in targets do
 		local motor = motors[joint]
 		if motor and motor.Parent then
@@ -502,6 +533,24 @@ end
 ---------------------------------------------------------------------------
 -- Public API
 ---------------------------------------------------------------------------
+
+local lastVariant: { [string]: number } = {}
+
+-- Picks one of an action's swing variants at random (never the same one
+-- twice in a row). Returns (animationName, index); send the index to the
+-- server so everyone sees the same swing.
+function AnimationController.PickVariant(base: string): (string, number)
+	local count = AnimationConfig.VariantCount(base)
+	if count <= 1 then
+		return base, 1
+	end
+	local index = math.random(1, count)
+	if index == lastVariant[base] then
+		index = index % count + 1
+	end
+	lastVariant[base] = index
+	return AnimationConfig.Variant(base, index), index
+end
 
 -- Starts an action on YOUR character right away (the server will confirm it).
 function AnimationController.PlayLocal(name: string, speed: number?)

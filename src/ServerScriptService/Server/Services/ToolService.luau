@@ -379,11 +379,12 @@ function ToolService.Init()
 	end)
 	Net.OnServerEvent("HotbarRequest", onHotbarRequest)
 	-- Cosmetic swing at nothing: everyone sees the animation, nothing is hit.
-	Net.OnServerEvent("SwingRequest", function(player: Player)
+	Net.OnServerEvent("SwingRequest", function(player: Player, variant: any)
 		local tool = ToolService.GetEquipped(player)
 		if not tool or tool.Type == "FishingRod" or AnimationService.IsBusy(player) then
 			return
 		end
+		AnimationService.SetVariantHint(player, variant)
 		AnimationService.PerformAction(player, tool.Animations.Use, nil, function() end, { Speed = tool.Speed, LockFraction = 0.7 })
 	end)
 end

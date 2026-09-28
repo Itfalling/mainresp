@@ -5,95 +5,173 @@
 	DEPENDENCIES: Shared.Net, Shared.Config.GameConfig, Client.ClientState
 
 	Keeps Roblox's default R15 third-person camera (it already handles mobile,
-	gamepad and collisions well) and layers on top:
-	  * zoom limits + field of view per MODE (Default / Build / Fishing),
-	  * gentle, CAPPED camera shake that only runs while shaking (no permanent
-	    per-frame work) and respects the player's CameraShake setting,
-	  * a short FOV "punch" for big moments.
+	gamepad and collisions well) and layers CARTOON camera feel on top:
+
+	  Kick(strength)          a springy nod on every hit you land (pitch
+	                          down + a little roll + a tiny zoom-in squash)
+	  Wobble(strength, time)  a wobbly, bouncy roll/pitch for big moments:
+	                          a tree crashing down, a rock shattering,
+	                          new land rising
+	  Shake(strength, time)   classic noisy shake (capped)
+	  Punch(amount)           a springy field-of-view pop (level ups)
+	  SetMode(mode)           Default / Build / Fishing field of view
+
+	Everything runs through one damped spring, applied after the default
+	camera script each frame, so offsets never accumulate. Rotation effects
+	respect the player's "Camera shake" setting; FOV pops always play.
 ]]
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
-local TweenService = game:GetService("TweenService")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Net = require(Shared:WaitForChild("Net"))
 local GameConfig = require(Shared.Config.GameConfig)
 local ClientState = require(script.Parent.Parent.ClientState)
 
-local SHAKE_BIND_NAME = "IslandCameraShake"
+local BIND_NAME = "IslandCameraJuice"
 
 local MODES = {
 	Default = { FieldOfView = GameConfig.Camera.DefaultFieldOfView },
-	Build = { FieldOfView = GameConfig.Camera.DefaultFieldOfView + 6 }, -- Phase 3
-	Fishing = { FieldOfView = GameConfig.Camera.DefaultFieldOfView - 6 }, -- Phase 5
+	Build = { FieldOfView = GameConfig.Camera.DefaultFieldOfView + 6 },
+	Fishing = { FieldOfView = GameConfig.Camera.DefaultFieldOfView - 6 },
 }
+
+-- Spring tuning: stiff + light damping = bouncy, cartoony.
+local STIFFNESS = 170
+local DAMPING = 11
+local FOV_STIFFNESS = 120
+local FOV_DAMPING = 9
+local MAX_ANGLE = math.rad(9)
 
 local CameraController = {}
 
 local mode = "Default"
-local trauma = 0
-local shakeDuration = 0.3
-local shakeBound = false
+local baseFov = GameConfig.Camera.DefaultFieldOfView
+local targetFov = baseFov
+-- Spring state: X = pitch, Y = yaw, Z = roll (radians).
+local angle = Vector3.zero
+local angleVelocity = Vector3.zero
+local fovOffset, fovVelocity = 0, 0
+-- Noise shake.
+local trauma, traumaDuration = 0, 0.3
 local noiseSeed = math.random() * 1000
+-- Wobbles: several can overlap (a tree falling while you mine).
+type Wobble = { Start: number, Duration: number, Strength: number, Phase: number }
+local wobbles: { Wobble } = {}
 
-local function camera(): Camera?
-	return workspace.CurrentCamera
+local function shakeAllowed(): boolean
+	return ClientState.Get("Settings", "CameraShake") ~= false
 end
 
-local function stepShake(deltaTime: number)
-	local cam = camera()
-	if trauma <= 0 or not cam then
-		RunService:UnbindFromRenderStep(SHAKE_BIND_NAME)
-		shakeBound = false
+local function step(dt: number)
+	local cam = workspace.CurrentCamera
+	if not cam then
 		return
 	end
-	local time = os.clock() * 25
-	local strength = trauma * trauma
-	local pitch = math.noise(noiseSeed, time) * 0.035 * strength
-	local yaw = math.noise(noiseSeed + 10, time) * 0.035 * strength
-	local roll = math.noise(noiseSeed + 20, time) * 0.02 * strength
-	-- Applied after the default camera script each frame, so it never accumulates.
-	cam.CFrame *= CFrame.Angles(pitch, yaw, roll)
-	trauma = math.max(0, trauma - deltaTime / math.max(shakeDuration, 0.05))
+	dt = math.min(dt, 1 / 20)
+
+	-- Base field of view eases towards the mode's FOV.
+	baseFov += (targetFov - baseFov) * math.min(1, dt * 8)
+
+	-- Springs.
+	local accel = -angle * STIFFNESS - angleVelocity * DAMPING
+	angleVelocity += accel * dt
+	angle += angleVelocity * dt
+	local fovAccel = -fovOffset * FOV_STIFFNESS - fovVelocity * FOV_DAMPING
+	fovVelocity += fovAccel * dt
+	fovOffset += fovVelocity * dt
+
+	local pitch, yaw, roll = angle.X, angle.Y, angle.Z
+
+	-- Wobbles: decaying sine on roll + pitch (cartoon "boing").
+	local now = os.clock()
+	for index = #wobbles, 1, -1 do
+		local wobble = wobbles[index]
+		local t = now - wobble.Start
+		if t >= wobble.Duration then
+			table.remove(wobbles, index)
+		else
+			local decay = (1 - t / wobble.Duration) ^ 2
+			local s = wobble.Strength * decay
+			roll += math.sin(t * 17 + wobble.Phase) * 0.055 * s
+			pitch += math.sin(t * 23 + wobble.Phase * 2) * 0.03 * s
+			yaw += math.sin(t * 11 + wobble.Phase) * 0.012 * s
+		end
+	end
+
+	-- Noise shake.
+	if trauma > 0 then
+		local time = now * 25
+		local strength = trauma * trauma
+		pitch += math.noise(noiseSeed, time) * 0.035 * strength
+		yaw += math.noise(noiseSeed + 10, time) * 0.035 * strength
+		roll += math.noise(noiseSeed + 20, time) * 0.02 * strength
+		trauma = math.max(0, trauma - dt / math.max(traumaDuration, 0.05))
+	end
+
+	pitch = math.clamp(pitch, -MAX_ANGLE, MAX_ANGLE)
+	yaw = math.clamp(yaw, -MAX_ANGLE, MAX_ANGLE)
+	roll = math.clamp(roll, -MAX_ANGLE, MAX_ANGLE)
+	if math.abs(pitch) + math.abs(yaw) + math.abs(roll) > 1e-5 then
+		cam.CFrame *= CFrame.Angles(pitch, yaw, roll)
+	end
+	cam.FieldOfView = math.clamp(baseFov + fovOffset, 30, 110)
+end
+
+-- A springy nod when YOUR hit lands.
+function CameraController.Kick(strength: number?)
+	local s = math.clamp(strength or 1, 0, 3)
+	fovVelocity -= 34 * s -- quick zoom-in squash
+	if not shakeAllowed() then
+		return
+	end
+	local side = if math.random() < 0.5 then -1 else 1
+	angleVelocity += Vector3.new(-0.55 * s, 0.12 * s * side, 0.35 * s * side)
+end
+
+-- A decaying, bouncy wobble (tree falls, rocks shatter, land rises).
+function CameraController.Wobble(strength: number, duration: number?)
+	if not shakeAllowed() then
+		return
+	end
+	table.insert(wobbles, {
+		Start = os.clock(),
+		Duration = math.clamp(duration or 0.8, 0.1, 3),
+		Strength = math.clamp(strength, 0, 2),
+		Phase = math.random() * math.pi * 2,
+	})
+	if #wobbles > 4 then
+		table.remove(wobbles, 1)
+	end
+	angleVelocity += Vector3.new(-0.4 * strength, 0, 0)
 end
 
 function CameraController.Shake(intensity: number, duration: number?)
-	if ClientState.Get("Settings", "CameraShake") == false then
+	if not shakeAllowed() then
 		return
 	end
 	trauma = math.clamp(math.max(trauma, intensity), 0, GameConfig.Camera.MaxShakeIntensity)
-	shakeDuration = duration or 0.3
-	if not shakeBound then
-		shakeBound = true
-		RunService:BindToRenderStep(SHAKE_BIND_NAME, Enum.RenderPriority.Camera.Value + 1, stepShake)
-	end
+	traumaDuration = duration or 0.3
 end
 
 function CameraController.SetMode(newMode: string)
 	local def = MODES[newMode]
-	local cam = camera()
-	if not def or not cam then
+	if not def then
 		return
 	end
 	mode = newMode
-	TweenService:Create(cam, TweenInfo.new(0.35, Enum.EasingStyle.Quad), { FieldOfView = def.FieldOfView }):Play()
+	targetFov = def.FieldOfView
 end
 
 function CameraController.GetMode(): string
 	return mode
 end
 
--- Short FOV pulse for level ups / unlocks.
+-- Springy FOV pop for level ups / unlocks.
 function CameraController.Punch(amount: number?)
-	local cam = camera()
-	if not cam then
-		return
-	end
-	local base = MODES[mode].FieldOfView
-	cam.FieldOfView = base + (amount or 4)
-	TweenService:Create(cam, TweenInfo.new(0.5, Enum.EasingStyle.Back), { FieldOfView = base }):Play()
+	fovVelocity += 55 * (amount or 4) / 4
 end
 
 function CameraController.Init()
@@ -103,13 +181,19 @@ function CameraController.Init()
 end
 
 function CameraController.Start()
-	local cam = camera()
-	if cam then
-		cam.FieldOfView = MODES.Default.FieldOfView
-	end
-	Net.OnClientEvent("CameraShake", function(intensity: number, duration: number?)
-		if type(intensity) == "number" then
-			CameraController.Shake(intensity, duration)
+	-- After the default camera script, every frame.
+	RunService:BindToRenderStep(BIND_NAME, Enum.RenderPriority.Camera.Value + 1, step)
+	Net.OnClientEvent("CameraShake", function(intensity: any, duration: any, style: any)
+		if type(intensity) ~= "number" then
+			return
+		end
+		local time = if type(duration) == "number" then duration else nil
+		if style == "Wobble" then
+			CameraController.Wobble(intensity, time)
+		elseif style == "Kick" then
+			CameraController.Kick(intensity)
+		else
+			CameraController.Shake(intensity, time)
 		end
 	end)
 end

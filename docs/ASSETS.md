@@ -23,6 +23,9 @@ Every client's `AnimationController` reads them for every nearby player and NPC 
 
 Animals (cow, chicken) have `Motor6D` legs, head, tail and wings driven by the `AnimalAnim` attribute (Idle / Walk / Eat / Happy).
 
+### Swing variants
+`AnimationConfig.Variants` lists three swings per tool (e.g. `AxeSwing`, `AxeChopHigh`, `AxeSlash`). Variants copy the base entry's timing (Length, markers, effects, `Trail` window), so gameplay is identical whichever plays; only the keyframes differ. To add a fourth, add its name to the list and its keys to `Keyframes.Actions`. `Trail = { from, to }` is the part of the swing where the tool's `SwingTrail` is visible, and `MarkerEffects.<marker>.Punch` is the camera kick for your own hits.
+
 ### Tweaking an animation
 Edit its keys in `Keyframes.Actions.<Name>`. The format is documented at the top of the file (angles in degrees, `T` = fraction of the length). Keep the impact key at the marker time from `AnimationConfig`.
 

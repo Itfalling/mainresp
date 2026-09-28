@@ -4,10 +4,11 @@
 	WHERE:        StarterPlayerScripts/Client/UI/Notifications
 	DEPENDENCIES: Client.UI.{Theme, Components}
 
-	"Did that work?" feedback (spec §151/§152):
-	  Toast   small message under the top bar (max 4, auto-fade)
-	  Banner  big centred title for milestones (queued, one at a time)
-	  Float   pooled floating text ("+25 🪙", "+3 Wood") that rises and fades
+	"Did that work?" feedback (spec §151/§152), cartoon style:
+	  Toast   glossy pill with an icon bubble; pops in, fades out (max 4)
+	  Banner  big title on a ribbon that bounces + wobbles in (queued)
+	  Float   pooled floating text ("+25 🪙", "+3 Wood") that pops, tilts,
+	          rises and fades
 ]]
 
 local TweenService = game:GetService("TweenService")
@@ -23,9 +24,9 @@ local BANNER_TIME = 2.6
 local FLOAT_POOL = 12
 
 local TOAST_STYLES = {
-	Toast = { Background = Theme.Colors.Panel, Text = Theme.Colors.Text },
-	Success = { Background = Theme.Colors.Green, Text = Theme.Colors.TextLight },
-	Error = { Background = Theme.Colors.Red, Text = Theme.Colors.TextLight },
+	Toast = { Background = Theme.Colors.Panel, Text = Theme.Colors.Text, Bubble = Theme.Colors.Blue, Icon = "💬" },
+	Success = { Background = Theme.Colors.Green, Text = Theme.Colors.TextLight, Bubble = Theme.Colors.Panel, Icon = "✔" },
+	Error = { Background = Theme.Colors.Red, Text = Theme.Colors.TextLight, Bubble = Theme.Colors.Panel, Icon = "✖" },
 }
 
 local BANNER_COLORS = {
@@ -69,11 +70,36 @@ function Notifications.new(parent: Instance)
 		Parent = parent,
 	})
 	self.BannerScale = Create("UIScale", { Parent = self.Banner })
+	-- Ribbon behind the title (colour follows the banner style).
+	self.BannerRibbon = Create("Frame", {
+		Name = "Ribbon",
+		Size = UDim2.new(0.86, 0, 0, 74),
+		Position = UDim2.new(0.5, 0, 0, 6),
+		AnchorPoint = Vector2.new(0.5, 0),
+		BackgroundColor3 = Theme.Colors.Coins,
+		Parent = self.Banner,
+	})
+	Components.Corner(self.BannerRibbon, UDim.new(0, 22))
+	Components.Stroke(self.BannerRibbon, Theme.Colors.Outline, 4)
+	Components.Gloss(self.BannerRibbon)
+	for index, side in { -1, 1 } do
+		Components.Label({
+			Name = "Star" .. index,
+			Text = "✦",
+			Size = UDim2.fromOffset(60, 60),
+			Position = UDim2.new(0.5 + side * 0.47, 0, 0, 13),
+			AnchorPoint = Vector2.new(0.5, 0),
+			TextSize = 48,
+			TextColor3 = Color3.fromRGB(255, 245, 170),
+			Parent = self.Banner,
+		})
+	end
 	self.BannerTitle = Components.Label({
 		Name = "Title",
 		Size = UDim2.new(1, 0, 0, 80),
-		TextSize = Theme.TextSize.Huge + 12,
-		TextColor3 = Theme.Colors.Coins,
+		Position = UDim2.fromOffset(0, 2),
+		TextSize = Theme.TextSize.Huge + 8,
+		TextColor3 = Theme.Colors.TextLight,
 		TextWrapped = false,
 		Parent = self.Banner,
 	})
@@ -81,8 +107,8 @@ function Notifications.new(parent: Instance)
 	self.BannerSubtitle = Components.Label({
 		Name = "Subtitle",
 		Size = UDim2.new(1, 0, 0, 50),
-		Position = UDim2.fromOffset(0, 82),
-		TextSize = Theme.TextSize.Large,
+		Position = UDim2.fromOffset(0, 86),
+		TextSize = Theme.TextSize.Large + 2,
 		TextColor3 = Theme.Colors.TextLight,
 		Parent = self.Banner,
 	})
@@ -102,12 +128,13 @@ function Notifications.new(parent: Instance)
 			Name = "Float" .. index,
 			Size = UDim2.fromOffset(260, 40),
 			AnchorPoint = Vector2.new(0.5, 0.5),
-			TextSize = Theme.TextSize.Large + 4,
+			TextSize = Theme.TextSize.Large + 6,
 			TextWrapped = false,
 			Visible = false,
 			Parent = self.FloatLayer,
 		})
-		Components.TextStroke(label, Theme.Colors.Outline, 2.5)
+		Components.TextStroke(label, Theme.Colors.Outline, 3)
+		Create("UIScale", { Name = "PopScale", Parent = label })
 		table.insert(self.Floats, label)
 	end
 	self.NextFloat = 1
@@ -134,26 +161,45 @@ function Notifications:Toast(kind: string, text: string, icon: string?)
 
 	self.ToastCount += 1
 	local toast = Create("CanvasGroup", {
-		Size = UDim2.fromOffset(440, 44),
+		Size = UDim2.fromOffset(450, 48),
 		BackgroundColor3 = style.Background,
 		GroupTransparency = 1,
 		LayoutOrder = self.ToastCount,
 		Parent = self.ToastContainer,
 	})
 	Components.Corner(toast, UDim.new(1, 0))
-	Components.Stroke(toast, Theme.Colors.Outline, 2.5)
+	Components.Stroke(toast, Theme.Colors.Outline, 3)
+	Components.Gloss(toast, 0.5)
+	local bubble = Create("Frame", {
+		Size = UDim2.fromOffset(38, 38),
+		Position = UDim2.new(0, 5, 0.5, 0),
+		AnchorPoint = Vector2.new(0, 0.5),
+		BackgroundColor3 = style.Bubble,
+		Parent = toast,
+	})
+	Components.Corner(bubble, UDim.new(1, 0))
+	Components.Gloss(bubble, 0.6)
+	Components.Label({
+		Text = icon or style.Icon,
+		Size = UDim2.fromScale(1, 1),
+		TextSize = 22,
+		TextColor3 = if style.Bubble == Theme.Colors.Panel then style.Background else Theme.Colors.TextLight,
+		Parent = bubble,
+	})
 	local label = Components.Label({
-		Text = if icon then icon .. "  " .. text else text,
-		Size = UDim2.new(1, -24, 1, 0),
-		Position = UDim2.fromOffset(12, 0),
+		Text = text,
+		Size = UDim2.new(1, -62, 1, 0),
+		Position = UDim2.fromOffset(50, 0),
 		TextColor3 = style.Text,
 		TextSize = Theme.TextSize.Medium,
 		TextScaled = true,
+		TextXAlignment = Enum.TextXAlignment.Left,
 		Parent = toast,
 	})
-	Create("UITextSizeConstraint", { MaxTextSize = Theme.TextSize.Medium, Parent = label })
+	Create("UITextSizeConstraint", { MaxTextSize = Theme.TextSize.Medium + 1, Parent = label })
 
-	TweenService:Create(toast, TweenInfo.new(0.2), { GroupTransparency = 0 }):Play()
+	Components.PopIn(toast)
+	TweenService:Create(toast, TweenInfo.new(0.18), { GroupTransparency = 0 }):Play()
 	task.delay(TOAST_TIME, function()
 		if toast.Parent then
 			local fade = TweenService:Create(toast, TweenInfo.new(0.35), { GroupTransparency = 1 })
@@ -172,13 +218,15 @@ function Notifications:_showNextBanner()
 	end
 	self.BannerBusy = true
 	self.BannerTitle.Text = nextBanner.Title
-	self.BannerTitle.TextColor3 = BANNER_COLORS[nextBanner.Style] or Theme.Colors.Coins
+	self.BannerRibbon.BackgroundColor3 = BANNER_COLORS[nextBanner.Style] or Theme.Colors.Coins
 	self.BannerSubtitle.Text = nextBanner.Subtitle or ""
 	self.Banner.Visible = true
 	self.Banner.GroupTransparency = 1
-	self.BannerScale.Scale = 0.6
-	TweenService:Create(self.Banner, TweenInfo.new(0.25), { GroupTransparency = 0 }):Play()
-	TweenService:Create(self.BannerScale, TweenInfo.new(0.45, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
+	self.BannerScale.Scale = 0.4
+	self.Banner.Rotation = -8
+	TweenService:Create(self.Banner, TweenInfo.new(0.2), { GroupTransparency = 0 }):Play()
+	TweenService:Create(self.BannerScale, TweenInfo.new(0.55, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
+	TweenService:Create(self.Banner, TweenInfo.new(0.9, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out), { Rotation = 0 }):Play()
 	task.delay(BANNER_TIME, function()
 		local fade = TweenService:Create(self.Banner, TweenInfo.new(0.35), { GroupTransparency = 1 })
 		fade:Play()
@@ -210,6 +258,14 @@ function Notifications:Float(text: string, color: Color3, position: UDim2, rise:
 	end
 	local target = position - UDim2.fromOffset(0, rise or 60)
 	local info = TweenInfo.new(1.1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+	-- Pop in big with a little tilt, then rise and fade.
+	local pop = label:FindFirstChild("PopScale")
+	if pop and pop:IsA("UIScale") then
+		pop.Scale = 1.6
+		TweenService:Create(pop, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
+	end
+	label.Rotation = math.random(-10, 10)
+	TweenService:Create(label, TweenInfo.new(0.5, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out), { Rotation = 0 }):Play()
 	TweenService:Create(label, info, { Position = target, TextTransparency = 1 }):Play()
 	if stroke then
 		TweenService:Create(stroke, info, { Transparency = 1 }):Play()

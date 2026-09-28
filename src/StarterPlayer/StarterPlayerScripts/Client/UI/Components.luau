@@ -5,10 +5,10 @@
 	DEPENDENCIES: Client.UI.Theme
 
 	Tiny UI kit so every screen looks consistent and nothing is rebuilt from
-	scratch: Create(), rounded panels with drop shadows and gradient headers,
-	chunky "3D" buttons (gradient + bevel + press bounce + click sound),
-	currency pills, progress bars, tab rows. Frames are created once and
-	updated in place (spec §116).
+	scratch: Create(), rounded panels with drop shadows and glossy headers,
+	chunky cartoon buttons (glossy gradient + 3D bevel + springy hover grow /
+	press squash + click sound), currency pills, progress bars, tab rows.
+	Frames are created once and updated in place (spec §116).
 ]]
 
 local TweenService = game:GetService("TweenService")
@@ -85,6 +85,38 @@ function Components.Gradient(parent: Instance, top: Color3, bottom: Color3): UIG
 	})
 end
 
+-- Cartoon "gloss": bright top half with a soft horizon line (multiplies the colour).
+function Components.Gloss(parent: Instance, strength: number?): UIGradient
+	local s = strength or 1
+	local function shade(value: number): Color3
+		local v = 1 - (1 - value) * s
+		return Color3.new(v, v, v)
+	end
+	return Create("UIGradient", {
+		Rotation = 90,
+		Color = ColorSequence.new({
+			ColorSequenceKeypoint.new(0, shade(1)),
+			ColorSequenceKeypoint.new(0.46, shade(0.94)),
+			ColorSequenceKeypoint.new(0.54, shade(0.82)),
+			ColorSequenceKeypoint.new(1, shade(0.74)),
+		}),
+		Parent = parent,
+	})
+end
+
+-- Springy scale helper (one UIScale per object, shared with Bounce / PopIn).
+local function scaleOf(guiObject: GuiObject): UIScale
+	local scale = guiObject:FindFirstChild("BounceScale")
+	if not scale then
+		scale = Create("UIScale", { Name = "BounceScale", Parent = guiObject })
+	end
+	return scale :: UIScale
+end
+
+function Components.SpringScale(guiObject: GuiObject, target: number, time: number?)
+	TweenService:Create(scaleOf(guiObject), TweenInfo.new(time or 0.18, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = target }):Play()
+end
+
 function Components.Padding(parent: Instance, pixels: number)
 	return Create("UIPadding", {
 		PaddingTop = UDim.new(0, pixels),
@@ -111,22 +143,20 @@ end
 
 -- Quick "pop" on any GuiObject (uses/creates a UIScale child).
 function Components.Bounce(guiObject: GuiObject, amount: number?)
-	local scale = guiObject:FindFirstChild("BounceScale")
-	if not scale then
-		scale = Create("UIScale", { Name = "BounceScale", Parent = guiObject })
-	end
+	local scale = scaleOf(guiObject)
 	scale.Scale = 1 + (amount or 0.15)
 	TweenService:Create(scale, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
 end
 
 -- Fade + scale a window in (and optionally out).
 function Components.PopIn(guiObject: GuiObject)
-	local scale = guiObject:FindFirstChild("BounceScale")
-	if not scale then
-		scale = Create("UIScale", { Name = "BounceScale", Parent = guiObject })
+	local scale = scaleOf(guiObject)
+	scale.Scale = 0.7
+	TweenService:Create(scale, TweenInfo.new(0.38, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
+	if guiObject:IsA("GuiObject") then
+		guiObject.Rotation = -3
+		TweenService:Create(guiObject, TweenInfo.new(0.45, Enum.EasingStyle.Elastic, Enum.EasingDirection.Out), { Rotation = 0 }):Play()
 	end
-	scale.Scale = 0.85
-	TweenService:Create(scale, TweenInfo.new(0.28, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
 end
 
 export type ButtonProps = {
@@ -171,14 +201,14 @@ function Components.Button(props: ButtonProps): TextButton
 	button:SetAttribute("BaseColor", color)
 	Components.Corner(button, Theme.SmallCorner)
 	Components.Stroke(button, Theme.Colors.Outline, if props.Flat then 2 else 3)
-	Components.Gradient(button, Color3.new(1, 1, 1), Color3.fromRGB(215, 215, 215))
+	Components.Gloss(button, if props.Flat then 0.5 else 1)
 	if not props.Flat then
 		Components.TextStroke(button, Theme.Colors.Outline, 1.6)
 		-- Darker bevel along the bottom edge gives the "chunky" 3D look.
 		local bevel = Create("Frame", {
 			Name = "Bevel",
-			Size = UDim2.new(1, 0, 0, 5),
-			Position = UDim2.new(0, 0, 1, -5),
+			Size = UDim2.new(1, 0, 0, 6),
+			Position = UDim2.new(0, 0, 1, -6),
 			BackgroundColor3 = Theme.Darken(color, 0.28),
 			BorderSizePixel = 0,
 			Parent = button,
@@ -190,23 +220,33 @@ function Components.Button(props: ButtonProps): TextButton
 		local value = button:GetAttribute("BaseColor")
 		return if typeof(value) == "Color3" then value else color
 	end
+	-- Cartoon feel: grow on hover, squash on press, spring back on release.
+	local hovered = false
 	button.MouseEnter:Connect(function()
+		hovered = true
 		button.BackgroundColor3 = Theme.Lighten(base(), 0.14)
+		Components.SpringScale(button, 1.06)
 		if hoverSound and button.Active then
 			hoverSound()
 		end
 	end)
 	button.MouseLeave:Connect(function()
+		hovered = false
 		button.BackgroundColor3 = base()
+		Components.SpringScale(button, 1)
 	end)
 	button.MouseButton1Down:Connect(function()
 		button.BackgroundColor3 = Theme.Darken(base(), 0.08)
+		Components.SpringScale(button, 0.92, 0.08)
 	end)
 	button.MouseButton1Up:Connect(function()
-		button.BackgroundColor3 = base()
+		button.BackgroundColor3 = if hovered then Theme.Lighten(base(), 0.14) else base()
+		Components.SpringScale(button, if hovered then 1.06 else 1, 0.3)
 	end)
 	button.Activated:Connect(function()
-		Components.Bounce(button, 0.08)
+		if not hovered then
+			Components.Bounce(button, 0.1)
+		end
 		if clickSound then
 			clickSound()
 		end
@@ -251,14 +291,14 @@ end
 -- Top-bar style pill: [icon] value. Returns (frame, valueLabel).
 function Components.Pill(props: { Icon: string, Color: Color3, Width: number?, Parent: Instance?, LayoutOrder: number? }): (Frame, TextLabel)
 	local frame = Create("Frame", {
-		Size = UDim2.fromOffset(props.Width or 150, 44),
+		Size = UDim2.fromOffset(props.Width or 150, 48),
 		BackgroundColor3 = Theme.Colors.Panel,
 		LayoutOrder = props.LayoutOrder or 0,
 		Parent = props.Parent,
 	})
 	Components.Corner(frame, UDim.new(1, 0))
 	Components.Stroke(frame)
-	Components.Gradient(frame, Color3.new(1, 1, 1), Color3.fromRGB(232, 226, 214))
+	Components.Gloss(frame, 0.45)
 
 	local iconBubble = Create("Frame", {
 		Size = UDim2.fromOffset(52, 52),
@@ -269,7 +309,10 @@ function Components.Pill(props: { Icon: string, Color: Color3, Width: number?, P
 	})
 	Components.Corner(iconBubble, UDim.new(1, 0))
 	Components.Stroke(iconBubble)
-	Components.Gradient(iconBubble, Color3.new(1, 1, 1), Color3.fromRGB(205, 205, 205))
+	Components.Gloss(iconBubble)
+	-- The icon gently rocks back and forth (cartoon idle).
+	iconBubble.Rotation = -6
+	TweenService:Create(iconBubble, TweenInfo.new(1.4, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true), { Rotation = 6 }):Play()
 	Components.Label({
 		Text = props.Icon,
 		Size = UDim2.fromScale(1, 1),
@@ -308,7 +351,7 @@ function Components.ProgressBar(props: { Size: UDim2, Position: UDim2?, Color: C
 		Parent = frame,
 	})
 	Components.Corner(fill, UDim.new(1, 0))
-	Components.Gradient(fill, Color3.new(1, 1, 1), Color3.fromRGB(200, 200, 200))
+	Components.Gloss(fill)
 
 	local function setProgress(alpha: number, animate: boolean?)
 		local target = UDim2.fromScale(math.clamp(alpha, 0, 1), 1)
@@ -350,6 +393,7 @@ function Components.Panel(props: { Title: string, Size: UDim2, Parent: Instance?
 	})
 	Components.Corner(body)
 	Components.Stroke(body, Theme.Colors.Outline, 4)
+	Components.Gradient(body, Color3.new(1, 1, 1), Color3.fromRGB(242, 234, 218))
 
 	local header = Create("Frame", {
 		Name = "Header",
@@ -358,7 +402,7 @@ function Components.Panel(props: { Title: string, Size: UDim2, Parent: Instance?
 		Parent = body,
 	})
 	Components.Corner(header)
-	Components.Gradient(header, Color3.new(1, 1, 1), Color3.fromRGB(190, 190, 190))
+	Components.Gloss(header)
 	-- Square off the header's bottom corners.
 	local squareOff = Create("Frame", {
 		Size = UDim2.new(1, 0, 0, 16),
@@ -367,7 +411,7 @@ function Components.Panel(props: { Title: string, Size: UDim2, Parent: Instance?
 		BorderSizePixel = 0,
 		Parent = header,
 	})
-	Components.Gradient(squareOff, Color3.fromRGB(205, 205, 205), Color3.fromRGB(190, 190, 190))
+	Components.Gradient(squareOff, Color3.fromRGB(199, 199, 199), Color3.fromRGB(189, 189, 189))
 	local title = Components.Label({
 		Name = "Title",
 		Text = props.Title,

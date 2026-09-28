@@ -28,6 +28,13 @@
 		Start / End   start + end conditions (documentation)
 		Interruptible can a new action cut it off
 		Repeat        play the keyframe cycle this many times (emotes)
+		Trail         { from, to } fraction of Length when the held tool's
+		              swing trail is visible (cartoon smear)
+		MarkerEffects[...].Punch   camera punch strength for YOUR swings
+
+	SWING VARIANTS: every tool has three swings (AnimationConfig.Variants).
+	Each swing plays a random one; the client picks it (so its prediction
+	matches) and tells the server, which plays the same one for everyone.
 		Fallback      (legacy, unused)
 		AnimateSlot   (Movement only) { childName, animationName } inside the default Animate script
 
@@ -84,22 +91,25 @@ local AnimationConfig = {
 				Purpose = "Chop a tree",
 				Length = 0.6,
 				Markers = { Hit = 0.3 },
-				MarkerEffects = { Hit = { Sound = "AxeSwing" } },
+				MarkerEffects = { Hit = { Sound = "AxeSwing", Punch = 1 } },
+				Trail = { 0.3, 0.62 },
 				Fallback = "Swing",
 				Start = "UseTool with axe equipped",
 				End = "Animation finishes (cooldown = ToolConfig UseCooldown)",
 			}),
-			AxeHeavySwing = anim({ Purpose = "Final chop / heavy hit", Length = 0.9, Markers = { Hit = 0.5 }, MarkerEffects = { Hit = { Sound = "AxeSwing", Shake = 0.25 } }, Fallback = "HeavySwing" }),
+			AxeHeavySwing = anim({ Purpose = "Final chop / heavy hit", Length = 0.9, Markers = { Hit = 0.5 }, MarkerEffects = { Hit = { Sound = "AxeSwing", Punch = 1.6 } }, Trail = { 0.36, 0.66 }, Fallback = "HeavySwing" }),
 			PickaxeIdle = anim({ Purpose = "Holding a pickaxe", Looped = true, Length = 2, Fallback = "Hold" }),
-			PickaxeSwing = anim({ Purpose = "Mine a rock", Length = 0.65, Markers = { Hit = 0.32 }, MarkerEffects = { Hit = { Sound = "PickaxeSwing" } }, Fallback = "Swing" }),
-			PickaxeHeavySwing = anim({ Purpose = "Break a rock", Length = 0.95, Markers = { Hit = 0.52 }, MarkerEffects = { Hit = { Sound = "PickaxeSwing", Shake = 0.3 } }, Fallback = "HeavySwing" }),
-			ShovelDig = anim({ Purpose = "Dig clay/sand", Length = 0.8, Markers = { Dig = 0.45 }, MarkerEffects = { Dig = { Sound = "ShovelDig", VFX = "DirtPuff" } }, Fallback = "Dig", BodyParts = FULL_BODY }),
-			ShovelDigHeavy = anim({ Purpose = "Dig treasure", Length = 1.1, Markers = { Dig = 0.6 }, MarkerEffects = { Dig = { Sound = "ShovelDig", VFX = "DirtPuff" } }, Fallback = "Dig", BodyParts = FULL_BODY }),
-			HoeTill = anim({ Purpose = "Till soil", Length = 0.7, Markers = { Till = 0.38 }, MarkerEffects = { Till = { Sound = "HoeTill", VFX = "DirtPuff" } }, Fallback = "Till" }),
+			PickaxeSwing = anim({ Purpose = "Mine a rock", Length = 0.65, Markers = { Hit = 0.32 }, MarkerEffects = { Hit = { Sound = "PickaxeSwing", Punch = 1 } }, Trail = { 0.28, 0.6 }, Fallback = "Swing" }),
+			PickaxeHeavySwing = anim({ Purpose = "Break a rock", Length = 0.95, Markers = { Hit = 0.52 }, MarkerEffects = { Hit = { Sound = "PickaxeSwing", Punch = 1.6 } }, Trail = { 0.3, 0.62 }, Fallback = "HeavySwing" }),
+			ShovelDig = anim({ Purpose = "Dig clay/sand", Length = 0.8, Markers = { Dig = 0.45 }, MarkerEffects = { Dig = { Sound = "ShovelDig", VFX = "DirtPuff", Punch = 0.6 } }, Trail = { 0.28, 0.62 }, Fallback = "Dig", BodyParts = FULL_BODY }),
+			ShovelDigHeavy = anim({ Purpose = "Dig treasure", Length = 1.1, Markers = { Dig = 0.6 }, MarkerEffects = { Dig = { Sound = "ShovelDig", VFX = "DirtPuff", Punch = 1 } }, Trail = { 0.3, 0.62 }, Fallback = "Dig", BodyParts = FULL_BODY }),
+			HoeTill = anim({ Purpose = "Till soil", Length = 0.7, Markers = { Till = 0.38 }, MarkerEffects = { Till = { Sound = "HoeTill", VFX = "DirtPuff", Punch = 0.6 } }, Trail = { 0.32, 0.62 }, Fallback = "Till" }),
 			HoeSwing = anim({ Purpose = "Alias swing for hoe", Length = 0.7, Markers = { Till = 0.38 }, Fallback = "Till" }),
 			WaterStart = anim({ Purpose = "Raise watering can", Length = 0.3, Fallback = "Pour" }),
 			WaterLoop = anim({ Purpose = "Pouring water", Looped = true, Length = 0.8, Markers = { Water = 0.4 }, MarkerEffects = { Water = { VFX = "WaterSplash" } }, Fallback = "Pour" }),
 			WaterEnd = anim({ Purpose = "Lower watering can", Length = 0.3, Fallback = "Pour" }),
+			BucketSwing = anim({ Purpose = "Swing the bucket", Length = 0.7, Markers = { Hit = 0.35 }, MarkerEffects = { Hit = { Sound = "ToolSwing" } }, Trail = { 0.3, 0.62 } }),
+			ShearsSnip = anim({ Purpose = "Snip with the shears", Length = 0.6, Markers = { Snip = 0.3 }, MarkerEffects = { Snip = { Sound = "Shears", VFX = "Sparkle" } }, Trail = { 0.3, 0.6 } }),
 		},
 
 		Building = {
@@ -109,12 +119,13 @@ local AnimationConfig = {
 				Purpose = "Advance construction by one step",
 				Length = 0.65,
 				Markers = { HammerHit = 0.31 },
-				MarkerEffects = { HammerHit = { Sound = "HammerHit", VFX = "BuildDust", Shake = 0.1 } },
+				MarkerEffects = { HammerHit = { Sound = "HammerHit", VFX = "BuildDust", Punch = 1 } },
+				Trail = { 0.28, 0.6 },
 				Fallback = "Swing",
 				Start = "Player hammers a construction site",
 				End = "Animation finishes; loop again if still building",
 			}),
-			HammerHeavy = anim({ Purpose = "Final hammer hit", Length = 0.9, Markers = { HammerHit = 0.5 }, MarkerEffects = { HammerHit = { Sound = "HammerHit", VFX = "BuildDust", Shake = 0.3 } }, Fallback = "HeavySwing" }),
+			HammerHeavy = anim({ Purpose = "Final hammer hit", Length = 0.9, Markers = { HammerHit = 0.5 }, MarkerEffects = { HammerHit = { Sound = "HammerHit", VFX = "BuildDust", Punch = 1.8 } }, Trail = { 0.34, 0.64 }, Fallback = "HeavySwing" }),
 			CarryMaterials = anim({ Purpose = "Carrying planks/stone", Looped = true, Length = 1, Fallback = "Carry" }),
 			PlaceWood = anim({ Purpose = "Place a wood piece", Length = 0.7, Markers = { WoodPlace = 0.4 }, MarkerEffects = { WoodPlace = { Sound = "WoodPlace", VFX = "BuildDust" } }, Fallback = "Reach" }),
 			PlaceStone = anim({ Purpose = "Place a stone piece", Length = 0.8, Markers = { StonePlace = 0.45 }, MarkerEffects = { StonePlace = { Sound = "StonePlace", VFX = "BuildDust" } }, Fallback = "Reach" }),
@@ -128,7 +139,7 @@ local AnimationConfig = {
 		Farming = {
 			TillGround = anim({ Purpose = "Till a soil tile", Length = 0.7, Markers = { Till = 0.38 }, MarkerEffects = { Till = { Sound = "HoeTill", VFX = "DirtPuff" } }, Fallback = "Till" }),
 			PlantSeed = anim({ Purpose = "Plant a seed", Length = 0.9, Markers = { Plant = 0.5 }, MarkerEffects = { Plant = { Sound = "PlantSeed", VFX = "DirtPuff" } }, Fallback = "Reach", BodyParts = FULL_BODY }),
-			WaterPlant = anim({ Purpose = "Water a crop", Length = 1.2, Markers = { Water = 0.5 }, MarkerEffects = { Water = { Sound = "Watering", VFX = "WaterSplash" } }, Fallback = "Pour" }),
+			WaterPlant = anim({ Purpose = "Water a crop", Length = 1.2, Markers = { Water = 0.5 }, MarkerEffects = { Water = { Sound = "Watering", VFX = "WaterSplash" } }, Trail = { 0.2, 0.8 }, Fallback = "Pour" }),
 			HarvestCrop = anim({ Purpose = "Harvest a mature crop", Length = 0.8, Markers = { Pick = 0.42 }, MarkerEffects = { Pick = { Sound = "Harvest", VFX = "LeafBurst" } }, Fallback = "Reach", BodyParts = FULL_BODY }),
 			PickCrop = anim({ Purpose = "Pick fruit from a plant", Length = 0.6, Markers = { Pick = 0.3 }, MarkerEffects = { Pick = { Sound = "Harvest", VFX = "LeafBurst" } }, Fallback = "Reach" }),
 			CarryBasket = anim({ Purpose = "Carry a harvest basket", Looped = true, Length = 1, Fallback = "Carry" }),
@@ -145,7 +156,7 @@ local AnimationConfig = {
 
 		Fishing = {
 			FishingIdle = anim({ Purpose = "Holding the rod", Priority = "Action", Looped = true, Length = 2, Fallback = "Hold" }),
-			FishingCast = anim({ Purpose = "Cast the line", Priority = "Action2", Length = 0.9, Markers = { Cast = 0.45 }, MarkerEffects = { Cast = { Sound = "FishingCast" } }, Fallback = "Cast" }),
+			FishingCast = anim({ Purpose = "Cast the line", Priority = "Action2", Length = 0.9, Markers = { Cast = 0.45 }, MarkerEffects = { Cast = { Sound = "FishingCast", Punch = 0.5 } }, Trail = { 0.28, 0.6 }, Fallback = "Cast" }),
 			FishingWait = anim({ Purpose = "Waiting for a bite", Priority = "Action2", Looped = true, Length = 3, Fallback = "Hold" }),
 			FishingBite = anim({ Purpose = "Rod jerks on a bite", Priority = "Action2", Length = 0.4, Markers = { Splash = 0.1 }, MarkerEffects = { Splash = { Sound = "FishBite", VFX = "WaterSplash" } }, Fallback = "Reel" }),
 			FishingReel = anim({ Purpose = "Reeling in", Priority = "Action2", Looped = true, Length = 0.6, Markers = { Reel = 0.3 }, MarkerEffects = { Reel = { Sound = "Reel" } }, Fallback = "Reel" }),
@@ -185,9 +196,39 @@ local AnimationConfig = {
 		},
 	},
 
+	-- Every tool has THREE swings; a swing plays one of them at random.
+	-- The first name is the "base" that configs and services refer to.
+	Variants = {
+		AxeSwing = { "AxeSwing", "AxeChopHigh", "AxeSlash" },
+		PickaxeSwing = { "PickaxeSwing", "PickaxeSide", "PickaxeSlam" },
+		HammerSwing = { "HammerSwing", "HammerBash", "HammerSlam" },
+		HoeTill = { "HoeTill", "HoeChop", "HoeScrape" },
+		ShovelDig = { "ShovelDig", "ShovelScoop", "ShovelStomp" },
+		WaterPlant = { "WaterPlant", "WaterSweep", "WaterHigh" },
+		FishingCast = { "FishingCast", "FishingCastSide", "FishingCastFlick" },
+		BucketSwing = { "BucketSwing", "BucketScoop", "BucketToss" },
+		ShearsSnip = { "ShearsSnip", "ShearsSnipLow", "ShearsSnipHigh" },
+	} :: { [string]: { string } },
+
 	-- Built below: flat lookup { [AnimationName] = def } (names must be unique).
 	Index = {} :: { [string]: any },
 }
+
+-- Variants share the base's timing (Length, markers, effects, trail) so
+-- gameplay is identical whichever one plays; only the keyframes differ.
+for baseName, names in AnimationConfig.Variants do
+	for _, entries in AnimationConfig.Categories do
+		local base = entries[baseName]
+		if base then
+			for index = 2, #names do
+				local copy = TableUtil.DeepCopy(base)
+				copy.Purpose = base.Purpose .. " (variant " .. index .. ")"
+				copy.VariantOf = baseName
+				entries[names[index]] = copy
+			end
+		end
+	end
+end
 
 for categoryName, entries in AnimationConfig.Categories do
 	for name, def in entries do
@@ -200,6 +241,21 @@ end
 
 function AnimationConfig.Get(name: string)
 	return AnimationConfig.Index[name]
+end
+
+-- How many swings `name` has (1 if it has no variants).
+function AnimationConfig.VariantCount(name: string): number
+	local names = AnimationConfig.Variants[name]
+	return if names then #names else 1
+end
+
+-- The index-th variant of `name` (index is clamped; unknown -> name).
+function AnimationConfig.Variant(name: string, index: number): string
+	local names = AnimationConfig.Variants[name]
+	if not names then
+		return name
+	end
+	return names[math.clamp(math.floor(index), 1, #names)]
 end
 
 return TableUtil.DeepFreeze(AnimationConfig)

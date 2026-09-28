@@ -15,6 +15,11 @@
 	    its -Z axis points where the blade/tip faces.
 	If no art exists, a clean low-poly placeholder is generated from the
 	tool's Shape + tier colours so the game is fully playable today.
+
+	SWING TRAIL: every tool gets a "SwingTrail" (Trail between two
+	attachments along the head / handle), disabled by default. Clients
+	switch it on during the swing window of each animation (AnimationConfig
+	Trail), so every swing leaves a cartoon smear in the tool's tier colour.
 ]]
 
 local ServerStorage = game:GetService("ServerStorage")
@@ -32,6 +37,19 @@ type PartSpec = {
 }
 
 type ShapeSpec = { HandleLength: number, HandleThickness: number, Parts: { PartSpec } }
+
+-- Trail endpoints in Handle space: { outer, inner } (outer = the fast end).
+local TRAILS: { [string]: { Vector3 } } = {
+	Axe = { Vector3.new(0, 1.7, -0.55), Vector3.new(0, 0.35, -0.1) },
+	Pickaxe = { Vector3.new(0, 1.65, 0), Vector3.new(0, 0.3, 0) },
+	Hammer = { Vector3.new(0, 1.45, 0), Vector3.new(0, 0.25, 0) },
+	Shovel = { Vector3.new(0, 2.85, 0), Vector3.new(0, 1.1, 0) },
+	Hoe = { Vector3.new(0, 2.05, -0.8), Vector3.new(0, 0.7, -0.1) },
+	WateringCan = { Vector3.new(0, 1.15, -1.75), Vector3.new(0, 0.95, -0.7) },
+	FishingRod = { Vector3.new(0, 2.95, 0), Vector3.new(0, 1.3, 0) },
+	Bucket = { Vector3.new(0, -0.3, 0), Vector3.new(0, -1.15, 0) },
+	Shears = { Vector3.new(0, 1.4, 0), Vector3.new(0, 0.6, 0) },
+}
 
 -- Handle is centred at the origin with its long axis along +Y.
 local SHAPES: { [string]: ShapeSpec } = {
@@ -118,6 +136,44 @@ local function preparePart(part: BasePart)
 	part.CastShadow = true
 end
 
+-- A cartoon smear between two attachments on the handle (off until a swing).
+local function addTrail(handle: BasePart, outer: Vector3, inner: Vector3, color: Color3, isWater: boolean)
+	local a0 = Instance.new("Attachment")
+	a0.Name = "TrailOuter"
+	a0.Position = outer
+	a0.Parent = handle
+	local a1 = Instance.new("Attachment")
+	a1.Name = "TrailInner"
+	a1.Position = inner
+	a1.Parent = handle
+	local trail = Instance.new("Trail")
+	trail.Name = "SwingTrail"
+	trail.Attachment0 = a0
+	trail.Attachment1 = a1
+	trail.Enabled = false
+	trail.FaceCamera = false
+	trail.Lifetime = if isWater then 0.35 else 0.2
+	trail.MinLength = 0.05
+	trail.LightEmission = if isWater then 0.2 else 0.55
+	trail.LightInfluence = 0.3
+	local tint = if isWater then Color3.fromRGB(150, 220, 255) else color:Lerp(Color3.new(1, 1, 1), 0.35)
+	trail.Color = ColorSequence.new({
+		ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
+		ColorSequenceKeypoint.new(0.35, tint),
+		ColorSequenceKeypoint.new(1, tint),
+	})
+	trail.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 0.1),
+		NumberSequenceKeypoint.new(0.5, 0.45),
+		NumberSequenceKeypoint.new(1, 1),
+	})
+	trail.WidthScale = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 1),
+		NumberSequenceKeypoint.new(1, 0.25),
+	})
+	trail.Parent = handle
+end
+
 local function fromCustomArt(toolId: string): Model?
 	local folder = ServerStorage:FindFirstChild("Tools")
 	local template = folder and folder:FindFirstChild(toolId)
@@ -137,6 +193,10 @@ local function fromCustomArt(toolId: string): Model?
 		end
 	end
 	model.PrimaryPart = handle
+	if not handle:FindFirstChild("SwingTrail", true) then
+		-- Custom art without its own trail: smear along the handle.
+		addTrail(handle, Vector3.new(0, handle.Size.Y / 2, 0), Vector3.new(0, 0, 0), Color3.new(1, 1, 1), false)
+	end
 	return model
 end
 
@@ -181,6 +241,10 @@ local function fromShape(toolDef: any): Model
 		part.Parent = model
 	end
 
+	local trail = TRAILS[toolDef.Shape]
+	if trail then
+		addTrail(handle, trail[1], trail[2], toolDef.HeadColor, toolDef.Shape == "WateringCan")
+	end
 	model.PrimaryPart = handle
 	return model
 end

@@ -662,8 +662,9 @@ local function onClick(target: any): boolean
 		end
 		castRequestedAt = now
 		state = "Casting"
-		AnimationController.PlayLocal("FishingCast", 1)
-		Net.FireServer("FishingRequest", { Op = "Cast", Target = target.Position })
+		local castName, castVariant = AnimationController.PickVariant("FishingCast")
+		AnimationController.PlayLocal(castName, 1)
+		Net.FireServer("FishingRequest", { Op = "Cast", Target = target.Position, Variant = castVariant })
 		task.delay(CAST_TIMEOUT, expireCast, now)
 	elseif state == "Waiting" then
 		-- Too early: the server scares the fish off and tells us why.

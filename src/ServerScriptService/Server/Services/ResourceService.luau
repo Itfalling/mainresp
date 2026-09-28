@@ -238,10 +238,31 @@ local function respawn(node: Node)
 	end)
 	tween:Play()
 	VFXService.PlayAt("Sparkle", node.BaseCFrame.Position + Vector3.new(0, 2, 0))
+	VFXService.PlayAt("Puff", node.BaseCFrame.Position, { Scale = 0.6, Color = Color3.fromRGB(210, 240, 190) })
 end
 
+-- The main (largest visible) colour of a node, for its debris.
+local function mainColor(model: Model): Color3
+	local best, bestVolume = nil, 0
+	for _, part in model:GetDescendants() do
+		if part:IsA("BasePart") and part.Transparency < 0.5 then
+			local volume = part.Size.X * part.Size.Y * part.Size.Z
+			if volume > bestVolume then
+				best, bestVolume = part, volume
+			end
+		end
+	end
+	return if best then best.Color else Color3.fromRGB(150, 150, 155)
+end
+
+-- TIMBER! The tree leans back a touch (anticipation), then crashes down
+-- away from the player with a cartoon bounce. On impact: crash sound, a
+-- big dust cloud, leaves and splinters, and the camera of everyone nearby
+-- wobbles. Then it poofs away.
+local FALL_TIME = 1.3
+local FIRST_CONTACT = 0.364 -- Bounce/Out first reaches 1 at t = 1 / 2.75
+
 local function fallOver(node: Node, fromPosition: Vector3?)
-	-- Tip the tree away from the player around its base, then hide it.
 	local base = node.BaseCFrame
 	local away = if fromPosition then (base.Position - fromPosition) * Vector3.new(1, 0, 1) else Vector3.new(1, 0, 0)
 	if away.Magnitude < 0.1 then
@@ -249,6 +270,8 @@ local function fallOver(node: Node, fromPosition: Vector3?)
 	end
 	away = away.Unit
 	local axis = Vector3.new(0, 1, 0):Cross(away).Unit
+	local height = node.Model:GetExtentsSize().Y
+	local landing = base.Position + away * math.max(4, height * 0.55)
 	local driver = Instance.new("NumberValue")
 	driver.Value = 0
 	driver.Changed:Connect(function(alpha)
@@ -256,20 +279,47 @@ local function fallOver(node: Node, fromPosition: Vector3?)
 			node.Model:PivotTo(CFrame.fromAxisAngle(axis, math.rad(84) * alpha) * (base - base.Position) + base.Position)
 		end
 	end)
-	local tween = TweenService:Create(driver, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Value = 1 })
-	tween.Completed:Once(function()
-		driver:Destroy()
-		if node.Depleted and node.Model.Parent then
-			GameSoundService.PlayAt("RockHit", base.Position + away * 6)
-			VFXService.PlayAt("BuildDust", base.Position + away * 6)
-			task.wait(0.35)
+	local lean = TweenService:Create(driver, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Value = -0.07 })
+	local fall = TweenService:Create(driver, TweenInfo.new(FALL_TIME, Enum.EasingStyle.Bounce, Enum.EasingDirection.Out), { Value = 1 })
+	lean.Completed:Once(function()
+		if not node.Depleted or not node.Model.Parent then
+			driver:Destroy()
+			return
+		end
+		fall:Play()
+		task.delay(FALL_TIME * FIRST_CONTACT, function()
 			if node.Depleted and node.Model.Parent then
-				NodeModels.SetVisible(node.Model, false)
-				VFXService.PlayAt(node.Def.BreakVFX or "LeafBurst", base.Position + away * 5 + Vector3.new(0, 1, 0))
+				GameSoundService.PlayAt("TreeFall", landing)
+				VFXService.PlayAt("BigPuff", landing)
+				VFXService.PlayAt(node.Def.BreakVFX or "LeafBurst", landing + Vector3.new(0, 1.5, 0), { Count = 22, Scale = 1.4 })
+				VFXService.PlayAt("WoodSplinters", base.Position + Vector3.new(0, 1, 0))
+				VFXService.WobbleNear(landing, 70, 1.1, 0.9)
 			end
+		end)
+	end)
+	fall.Completed:Once(function()
+		driver:Destroy()
+		task.wait(0.45)
+		if node.Depleted and node.Model.Parent then
+			NodeModels.SetVisible(node.Model, false)
+			VFXService.PlayAt("Puff", landing, { Scale = 1.3 })
+			VFXService.PlayAt("Sparkle", landing + Vector3.new(0, 1, 0))
 		end
 	end)
-	tween:Play()
+	lean:Play()
+end
+
+-- Rocks / ore burst into chunks with dust, a flash and a camera wobble.
+local function shatter(node: Node)
+	local position = node.BaseCFrame.Position
+	local size = node.Model:GetExtentsSize()
+	local scale = math.clamp(math.max(size.X, size.Z) / 5, 0.6, 1.8)
+	local center = position + Vector3.new(0, size.Y * 0.4, 0)
+	VFXService.PlayAt("RockShatter", center, { Color = mainColor(node.Model), Scale = scale })
+	VFXService.PlayAt("Puff", position, { Scale = scale })
+	VFXService.PlayAt("HitPop", center, { Scale = 1.6 * scale })
+	VFXService.PlayAt("Stars", center)
+	VFXService.WobbleNear(position, 50, 0.85, 0.7)
 end
 
 -- Applies damage. Returns true if this hit broke the node.
@@ -282,22 +332,34 @@ function ResourceService.Damage(node: Node, amount: number, fromPosition: Vector
 	if node.Def.HitSound then
 		GameSoundService.PlayAt(node.Def.HitSound, node.BaseCFrame.Position + Vector3.new(0, 2, 0))
 	end
+	local hitPoint = node.BaseCFrame.Position + Vector3.new(0, 2.5, 0)
 	if node.Def.HitVFX then
-		VFXService.PlayAt(node.Def.HitVFX, node.BaseCFrame.Position + Vector3.new(0, 2.5, 0))
+		VFXService.PlayAt(node.Def.HitVFX, hitPoint)
 	end
 	if node.Health > 0 then
+		-- Cartoon hit: a flash, a few stars and the node squashes / sways.
+		VFXService.PlayAt("HitPop", hitPoint)
+		VFXService.PlayAt("Stars", hitPoint, { Count = 4 })
+		VFXService.Jiggle(node.Model, if node.Def.FallOver then "Tilt" else "Squash", fromPosition)
 		return false
 	end
 
 	node.Depleted = true
 	node.Model:SetAttribute("Depleted", true)
 	InteractionService.SetEnabled(node.Model, false)
-	if node.Def.BreakSound then
-		GameSoundService.PlayAt(node.Def.BreakSound, node.BaseCFrame.Position)
-	end
 	if node.Def.FallOver then
+		-- The crash sound plays when the tree hits the ground.
 		fallOver(node, fromPosition)
 	else
+		if node.Def.BreakSound then
+			GameSoundService.PlayAt(node.Def.BreakSound, node.BaseCFrame.Position)
+		end
+		if node.Def.ToolType == "Pickaxe" then
+			shatter(node)
+		else
+			VFXService.PlayAt("Puff", node.BaseCFrame.Position, { Scale = 0.7 })
+			VFXService.PlayAt("HitPop", node.BaseCFrame.Position + Vector3.new(0, 1, 0))
+		end
 		NodeModels.SetVisible(node.Model, false)
 		VFXService.PlayAt(node.Def.BreakVFX or "RockChips", node.BaseCFrame.Position + Vector3.new(0, 1, 0))
 	end

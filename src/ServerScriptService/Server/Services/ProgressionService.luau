@@ -71,6 +71,7 @@ function ProgressionService.AddPlayerXP(player: Player, amount: number, reason: 
 		local position = characterPosition(player)
 		if position then
 			VFXService.PlayAt("LevelUp", position)
+			VFXService.PlayAt("Confetti", position + Vector3.new(0, 4, 0))
 		end
 		ProgressionService.PlayerLevelUp:Fire(player, newLevel)
 	end

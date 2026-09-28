@@ -413,6 +413,47 @@ test("keyframe animations: every action has real keyframes on real R15 joints", 
 	end
 end)
 
+test("every tool has three swings that share timing, with keyframes and a trail window", function()
+	local AnimationConfig = require(Shared.Config.AnimationConfig)
+	local Keyframes = require(Shared.Animation.Keyframes)
+	local ToolConfig = require(Shared.Config.ToolConfig)
+	local VFXConfig = require(Shared.Config.VFXConfig)
+	for toolId, tool in ToolConfig.Tools do
+		eq(AnimationConfig.VariantCount(tool.Animations.Use), 3, toolId .. " swing variants")
+	end
+	for base, names in AnimationConfig.Variants do
+		local baseDef = AnimationConfig.Get(base)
+		assert(baseDef, "variant base " .. base .. " missing")
+		eq(names[1], base, base .. " lists itself first")
+		local seen = {}
+		for index, name in names do
+			assert(not seen[name], base .. " repeats " .. name)
+			seen[name] = true
+			local def = AnimationConfig.Get(name)
+			assert(def, name .. " has no AnimationConfig entry")
+			assert(Keyframes.Actions[name], name .. " has no keyframes")
+			eq(def.Length, baseDef.Length, name .. " length matches its base")
+			for marker, time in baseDef.Markers do
+				eq(def.Markers[marker], time, name .. " marker " .. marker)
+			end
+			eq(AnimationConfig.Variant(base, index), name, "Variant(" .. base .. ", " .. index .. ")")
+		end
+		eq(AnimationConfig.Variant(base, 99), names[#names], base .. " index clamps")
+	end
+	eq(AnimationConfig.Variant("PlantSeed", 2), "PlantSeed", "no variants -> itself")
+	for name, def in AnimationConfig.Index do
+		if def.Trail then
+			assert(def.Trail[1] >= 0 and def.Trail[1] < def.Trail[2] and def.Trail[2] <= 1, name .. " trail window")
+		end
+		for marker, effects in def.MarkerEffects do
+			assert(effects.Punch == nil or (effects.Punch > 0 and effects.Punch <= 3), name .. "." .. marker .. " punch")
+		end
+	end
+	for _, effect in { "HitRing", "Stars", "HitPop", "Puff", "BigPuff", "RockShatter", "WoodSplinters", "Confetti", "Jiggle" } do
+		assert(VFXConfig.Effects[effect], "VFX " .. effect .. " missing")
+	end
+end)
+
 ---------------------------------------------------------------------------
 -- First playable loop: gathering, building, farming, fishing, animals, shop, quests
 ---------------------------------------------------------------------------

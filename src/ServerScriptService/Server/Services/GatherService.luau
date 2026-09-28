@@ -3,7 +3,7 @@
 	SCRIPT TYPE:  ModuleScript (server service)
 	WHERE:        ServerScriptService/Server/Services/GatherService
 	DEPENDENCIES: ResourceService, IslandService, ToolService, InventoryService, ProgressionService,
-	              AnimationService, InteractionService, SoundService, VFXService,
+	              AnimationService, InteractionService, SoundService,
 	              Shared.Config.{ToolConfig, AnimationConfig, ResourceConfig}
 
 	Server-authoritative gathering. HOLD the right tool and CLICK the node:
@@ -31,7 +31,6 @@ local InventoryService = require(Services.InventoryService)
 local ProgressionService = require(Services.ProgressionService)
 local AnimationService = require(Services.AnimationService)
 local InteractionService = require(Services.InteractionService)
-local VFXService = require(Services.VFXService)
 local Notify = require(script.Parent.Parent.Util.Notify)
 
 local GatherService = {}
@@ -67,9 +66,6 @@ local function applyHit(player: Player, node: any, tool: any)
 	end
 	local def = node.Def
 	local damage = if tool then tool.Power * def.DamagePerPower else def.Health
-	if def.Shake then
-		VFXService.ShakeCamera(player, def.Shake, 0.2)
-	end
 	local root = R15.GetRootPart(player.Character)
 	local broke = ResourceService.Damage(node, damage, root and root.Position)
 	if not broke then

@@ -118,7 +118,16 @@ Hold the rod and click the water. The bobber lands where you clicked (up to 36 s
 
 ---
 
-## Animations and sounds
+## Animations, effects and sounds
+
+**Game feel (cartoon juice).**
+- Every tool has **three swings** (for example the axe has a diagonal chop, an overhead chop and a flat slash). Each swing picks one at random and never repeats the last one. Everyone sees the same swing: your client picks it, plays it instantly and tells the server which one.
+- Swings leave a **trail** in the tool's tier colour (water drops for the watering can) and make a whoosh.
+- **Camera:** each hit you land gives a springy nod and a tiny zoom squash. A tree crashing down, a rock shattering, a finished building, new land rising and a big catch all make the camera **wobble** for everyone nearby. The "Camera shake" setting turns the rotation off.
+- **Trees** sway when hit, lean back, then crash down with a cartoon bounce. On impact you get a crash sound, a dust cloud, leaves, splinters and a camera wobble, then the tree poofs away.
+- **Rocks and ore** squash on every hit, then **shatter into bouncing chunks** in their own colour, with dust, a flash, stars, a sound and a wobble.
+- Hits flash with stars, and hovering anything clickable gives a little "boing" and outline flash. Soil squashes when tilled, sprouts pop up when planted, and harvests burst. Animals squash happily. Construction sites squash on every hammer hit, and finished buildings pop with confetti and big dust clouds. Chests and level ups throw confetti.
+- **UI:** glossy buttons grow on hover and squash on press. Windows and toasts pop in with a wobble, the banner arrives on a ribbon, and "+N" numbers pop and tilt. The held hotbar slot lifts, glows and wiggles.
 
 - Every action is a **keyframed R15 animation**: chop, mine, hammer, till, plant, water, harvest, feed, milk, pet, cast, wait, bite, reel, catch, cheer, wave, point, dance and open chest. Each tool also has its own **hold pose**. Animations are replicated: **every player sees everyone's swings**, and your own starts instantly (predicted locally). Hits land on the exact animation frame (marker) with sound, particles and a small camera shake. Cows and chickens have jointed legs, heads, tails and wings that walk, eat and hop.
 - Sounds come from two sources that exist for sure: files built into the Roblox client and audio from Roblox's official tutorials. There's background music and a sea ambience; volume is in ⚙️ Settings. See [ASSETS.md](ASSETS.md#sounds).
@@ -162,7 +171,11 @@ In Studio everyone can use these; in a live game only `GameConfig.AdminUserIds` 
 - [ ] Hovering a tree with the axe outlines it green ("🪓 Chop · Oak Tree"). With the pickaxe it turns orange ("Hold your Axe to chop").
 - [ ] Holding a seed sack and hovering tilled soil outlines the tile; clicking plants with the crouch + plant animation.
 - [ ] Clicking a tree far away walks you to it, then chops. Pressing WASD cancels the walk.
-- [ ] Other players see your hold pose and every swing.
+- [ ] Other players see your hold pose and every swing (the same one of the three).
+- [ ] Swinging the axe 6 times shows at least two different swings, each with a coloured trail and a whoosh.
+- [ ] Chopping a tree: it sways on each hit, then crashes down with a bounce, dust, leaves and a camera wobble.
+- [ ] Mining a rock: it squashes on each hit, then shatters into bouncing chunks with a wobble.
+- [ ] The island creator fills the whole screen on a small Studio window and on a phone.
 
 ### Multiplayer (2-player test)
 - [ ] P lists the other player with their island name, theme, level and likes.
@@ -190,7 +203,7 @@ In Studio everyone can use these; in a live game only `GameConfig.AdminUserIds` 
 
 ### Automated
 ```bash
-./tests/run_logic_tests.sh     # 30 engine-free tests: island generator, migration, keyframes, configs, math
+./tests/run_logic_tests.sh     # 31 engine-free tests: island generator, migration, keyframes + swing variants, configs, math
 ```
 
 ---

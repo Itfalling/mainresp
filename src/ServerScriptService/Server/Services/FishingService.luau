@@ -323,10 +323,13 @@ local function finishReel(player: Player, success: boolean, token: any)
 	if character then
 		AnimationService.PlayAnimation(character, if rarity.Rank >= 4 then "FishingCelebrate" else "FishingCatch")
 	end
-	VFXService.PlayAt("WaterSplash", session.Spot.Position + Vector3.new(0, 1, 0))
+	VFXService.PlayAt("WaterSplash", session.Spot.Position + Vector3.new(0, 1, 0), { Count = 24, Scale = 1.4 })
+	VFXService.PlayAt("HitRing", session.Spot.Position + Vector3.new(0, 0.3, 0), { Color = Color3.fromRGB(200, 240, 255), Scale = 1.5 })
 	if rarity.Rank >= 3 then
 		VFXService.PlayAt("Sparkle", session.Spot.Position + Vector3.new(0, 3, 0))
+		VFXService.PlayAt("Confetti", session.Spot.Position + Vector3.new(0, 4, 0))
 	end
+	VFXService.ShakeCamera(player, if rarity.Rank >= 3 then 0.9 else 0.5, 0.6, "Wobble")
 	GameSoundService.PlayFor(player, if rarity.Rank >= 4 then "RareReward" else "FishCatch")
 	ProgressionService.Award(player, "CatchFish", rarity.Rank)
 	send(player, { Op = "Caught", FishId = session.FishId, Weight = weight, New = isNew })
@@ -344,6 +347,7 @@ function FishingService.Init()
 			return
 		end
 		if payload.Op == "Cast" then
+			AnimationService.SetVariantHint(player, payload.Variant)
 			FishingService.Cast(player, payload.Target)
 		elseif payload.Op == "Hook" then
 			hook(player)
