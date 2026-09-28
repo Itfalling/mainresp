@@ -16,14 +16,15 @@ local BuildConfig = {
 	Rotations = { 0, 90, 180, 270 },
 	MaxSlope = 4, -- max terrain height difference (studs) across a footprint
 	PlacementRange = 80, -- how far from the player a building can be placed
-	EdgeMargin = 1, -- footprint corners must be this far inside unlocked land
 	PlaceCooldown = 0.5,
 	HammerRange = 16,
 	HammerCooldown = 0.45,
 	OverlapShrink = 0.4, -- shrink overlap boxes so neighbours can touch
 
 	-- Island model folders whose contents block placement.
-	BlockingFolders = { "Buildings", "Landmarks", "Interactables", "Resources", "Crops", "FishingSpots", "AreaMarkers", "Decorations", "Animals" },
+	-- (Decorations are cosmetic: builds hide the scatter under them instead.)
+	BlockingFolders = { "Buildings", "Landmarks", "Interactables", "Resources", "Crops", "Animals" },
+	RemoveNodeRefund = true, -- clearing a natural tree/rock gives its resources once
 }
 
 return TableUtil.DeepFreeze(BuildConfig)

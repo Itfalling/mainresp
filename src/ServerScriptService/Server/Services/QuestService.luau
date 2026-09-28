@@ -132,8 +132,6 @@ local function syncState(player: Player)
 		local value: number? = nil
 		if questTask.Event == "IslandLevel" then
 			value = DataService.Get(player, { "Island", "Level" }) or 1
-		elseif questTask.Event == "UnlockArea" and questTask.Target then
-			value = if IslandService.IsAreaUnlocked(player, questTask.Target) then 1 else 0
 		elseif questTask.Event == "BuildComplete" and questTask.Target then
 			value = BuildService.CountComplete(player, questTask.Target, nil) + BuildService.CountComplete(player, nil, questTask.Target)
 		end
@@ -197,8 +195,11 @@ function QuestService.Start()
 	AnimalService.ProduceCollected:Connect(function(player: Player, animalId: string, itemId: string, amount: number)
 		QuestService.Record(player, "CollectProduce", { itemId, animalId }, amount)
 	end)
-	IslandService.AreaUnlocked:Connect(function(player: Player, areaId: string)
-		QuestService.Record(player, "UnlockArea", { areaId }, 1)
+	IslandService.ChunkAdded:Connect(function(player: Player)
+		QuestService.Record(player, "ExpandIsland", nil, 1)
+	end)
+	IslandService.Customized:Connect(function(player: Player, kind: string, amount: number)
+		QuestService.Record(player, if kind == "Paint" then "PaintTerrain" else "RenameIsland", nil, amount)
 	end)
 	ProgressionService.IslandLevelUp:Connect(function(player: Player, level: number)
 		QuestService.Record(player, "IslandLevel", nil, level)

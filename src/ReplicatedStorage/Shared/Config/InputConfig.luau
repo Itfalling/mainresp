@@ -21,6 +21,8 @@ local InputConfig = {
 			Inputs = { Enum.UserInputType.MouseButton1 },
 			Gamepad = { Enum.KeyCode.ButtonR2 },
 		},
+		-- Interact with whatever you hover (same as clicking it).
+		Interact = { Inputs = { Enum.KeyCode.E, Enum.KeyCode.F }, Gamepad = { Enum.KeyCode.ButtonX } },
 		ToggleInventory = {
 			Inputs = { Enum.KeyCode.I, Enum.KeyCode.G },
 			Gamepad = { Enum.KeyCode.ButtonY },
@@ -43,6 +45,10 @@ local InputConfig = {
 		Hotbar6 = { Inputs = { Enum.KeyCode.Six }, Gamepad = {} },
 		Hotbar7 = { Inputs = { Enum.KeyCode.Seven }, Gamepad = {} },
 		Hotbar8 = { Inputs = { Enum.KeyCode.Eight }, Gamepad = {} },
+		Hotbar9 = { Inputs = { Enum.KeyCode.Nine }, Gamepad = {} },
+		Unequip = { Inputs = { Enum.KeyCode.Zero, Enum.KeyCode.Backquote }, Gamepad = {} },
+		Emotes = { Inputs = { Enum.KeyCode.T }, Gamepad = { Enum.KeyCode.DPadDown } },
+		PlayersMenu = { Inputs = { Enum.KeyCode.P }, Gamepad = {} },
 		-- Build mode
 		BuildPlace = { Inputs = { Enum.UserInputType.MouseButton1 }, Gamepad = { Enum.KeyCode.ButtonR2 } },
 		RotateBuild = { Inputs = { Enum.KeyCode.R }, Gamepad = { Enum.KeyCode.ButtonX } },

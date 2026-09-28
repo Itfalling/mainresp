@@ -45,7 +45,6 @@ local ShopConfig = {
 		IronPickaxe = { Category = "Tools", DisplayName = "Iron Pickaxe", Icon = "⛏️", Price = 800, Items = { Iron = 10 }, Grant = { Tool = "IronPickaxe" }, UnlockLevel = 5, Order = 7, Description = "Mines Crystal clusters." },
 
 		-- UPGRADES
-		BiggerFarm = { Category = "Upgrades", DisplayName = "Bigger Farm", Icon = "🌾", Price = 100, Grant = { Upgrade = "FarmTiles", Amount = 3 }, MaxOwned = 2, UnlockLevel = 1, Order = 1, Description = "+3 farm tiles on your starter farm." },
 		BiggerBackpack = { Category = "Upgrades", DisplayName = "Bigger Backpack", Icon = "🎒", Price = 150, Grant = { Upgrade = "Capacity", Amount = 100 }, MaxOwned = 5, UnlockLevel = 1, Order = 2, Description = "+100 backpack capacity." },
 	},
 }

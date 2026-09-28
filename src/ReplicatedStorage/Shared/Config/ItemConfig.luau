@@ -72,4 +72,13 @@ function ItemConfig.Exists(itemId: any): boolean
 	return type(itemId) == "string" and ItemConfig.Items[itemId] ~= nil
 end
 
+-- Items you can hold in your hand from the hotbar: seeds (plant by clicking
+-- soil) and crops (feed animals by clicking them).
+ItemConfig.HoldableCategories = { Seeds = true, Crops = true }
+
+function ItemConfig.IsHoldable(itemId: any): boolean
+	local def = type(itemId) == "string" and ItemConfig.Items[itemId]
+	return def ~= nil and def ~= false and ItemConfig.HoldableCategories[def.Category] == true
+end
+
 return TableUtil.DeepFreeze(ItemConfig)

@@ -2,39 +2,39 @@
 	SCRIPT NAME:  InteractionService
 	SCRIPT TYPE:  ModuleScript (server service)
 	WHERE:        ServerScriptService/Server/Services/InteractionService
-	DEPENDENCIES: AntiExploitService, Shared.Util.{R15, RateLimiter}, Server.Util.Notify
+	DEPENDENCIES: AntiExploitService, Shared.Net, Shared.Util.{R15, RateLimiter}, Server.Util.Notify
 
-	ONE reusable interaction system for trees, rocks, crops, animals, shops,
-	chests, signs... (spec §49/§50). Built on ProximityPrompt, which gives:
-	  * "[E] Chop Tree" on keyboard, a tap button on mobile, gamepad support,
-	  * a server-side Triggered event (the client cannot fake distance).
+	ONE click-to-interact system for trees, rocks, soil, animals, the market,
+	chests, signs, NPCs... No ProximityPrompts: you HOLD a tool or item and
+	CLICK / TAP the thing (the client outlines what you hover).
 
 	Each interactable has a KIND registered once by the owning service:
 
 		InteractionService.RegisterKind("StarterChest", {
-			ActionText = "Open",
-			ObjectText = "Starter Chest",
-			Permission = "Owner",      -- "Owner" | "Visitor" | any island permission key
-			HoldDuration = 0,
-			MaxDistance = 10,
+			Permission = "Owner",      -- island permission (see IslandService.CanAccess)
+			MaxDistance = 12,          -- studs from the object's bounding box
 			Cooldown = 0.5,
-			Handler = function(player, object, prompt) ... end,
+			Handler = function(player, object) ... end,
 		})
-		InteractionService.Attach(chestModel, "StarterChest", { OwnerUserId = 123 })
+		InteractionService.Attach(chestModel, "StarterChest", { OwnerUserId = 123, Label = "Starter Chest" })
 
-	Server checks on every trigger: rate limit, object still registered, player
-	alive, distance, per-player cooldown, island permission (via the resolver
-	IslandService installs), then the handler runs inside pcall.
+	Attach tags the object "Interactable" and sets attributes the client reads
+	for hover outlines + tooltips: Interact (kind), InteractLabel, InteractRange,
+	InteractDisabled, OwnerUserId. Services update InteractHint / InteractLabel
+	as state changes ("Ready to harvest!").
 
-	Prompts with Permission "Owner" are tagged "OwnerOnlyPrompt" so the client
-	hides them from visitors (cosmetic only — the server still validates).
+	Server checks on every click (InteractRequest(object)): rate limit, object
+	registered + enabled, player alive, distance to the object's bounding box,
+	per-player cooldown, island permission, then the handler runs in pcall.
+	Handlers decide what happens from what the player is HOLDING
+	(ToolService.GetHeld) — the client never says what it holds.
 ]]
 
 local CollectionService = game:GetService("CollectionService")
-local ProximityPromptService = game:GetService("ProximityPromptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage.Shared
+local Net = require(Shared.Net)
 local R15 = require(Shared.Util.R15)
 local RateLimiter = require(Shared.Util.RateLimiter)
 
@@ -43,34 +43,30 @@ local AntiExploitService = require(Services.AntiExploitService)
 local Notify = require(script.Parent.Parent.Util.Notify)
 
 export type KindDef = {
-	ActionText: string,
-	ObjectText: string?,
 	Permission: string?,
-	HoldDuration: number?,
 	MaxDistance: number?,
 	Cooldown: number?,
-	Handler: (player: Player, object: Instance, prompt: ProximityPrompt) -> (),
+	Handler: (player: Player, object: Instance) -> (),
 }
 
 type Entry = {
 	Object: Instance,
 	Kind: string,
-	Prompt: ProximityPrompt,
 	Permission: string,
 	OwnerUserId: number?,
 	Cooldown: number,
+	MaxDistance: number,
 	LastUse: { [Player]: number },
 }
 
-local DISTANCE_TOLERANCE = 6
-local OWNER_ONLY_TAG = "OwnerOnlyPrompt"
+local TAG = "Interactable"
+local DISTANCE_TOLERANCE = 5
 
 local InteractionService = {}
 
 local kinds: { [string]: KindDef } = {}
-local entriesByPrompt: { [ProximityPrompt]: Entry } = {}
-local entriesByObject: { [Instance]: Entry } = {}
-local limiter = RateLimiter.new(6, 10)
+local entries: { [Instance]: Entry } = {}
+local limiter = RateLimiter.new(8, 12)
 
 -- (player, object, permission, ownerUserId) -> boolean. Installed by IslandService.
 local accessResolver: ((Player, Instance, string, number?) -> boolean)? = nil
@@ -85,134 +81,115 @@ function InteractionService.RegisterKind(kind: string, def: KindDef)
 	kinds[kind] = def
 end
 
-local function getPromptParent(object: Instance): Instance?
-	if object:IsA("BasePart") or object:IsA("Attachment") then
-		return object
-	end
-	if object:IsA("Model") then
-		local anchor = object:FindFirstChild("PromptAnchor", true)
-		if anchor and (anchor:IsA("Attachment") or anchor:IsA("BasePart")) then
-			return anchor
-		end
-		return object.PrimaryPart or object:FindFirstChildWhichIsA("BasePart", true)
-	end
-	return nil
-end
-
-local function getWorldPosition(instance: Instance): Vector3?
-	if instance:IsA("Attachment") then
-		return instance.WorldPosition
-	elseif instance:IsA("BasePart") then
-		return instance.Position
-	end
-	return nil
-end
-
-function InteractionService.Attach(object: Instance, kind: string, overrides: { [string]: any }?): ProximityPrompt?
+function InteractionService.Attach(object: Instance, kind: string, options: { [string]: any }?)
 	local def = kinds[kind]
 	assert(def, "Unknown interaction kind: " .. kind)
 	InteractionService.Detach(object)
-
-	local parent = getPromptParent(object)
-	if not parent then
-		warn("[Interaction] No part to attach prompt to on " .. object:GetFullName())
-		return nil
-	end
-	local options = overrides or {}
-
-	local prompt = Instance.new("ProximityPrompt")
-	prompt.Name = "InteractPrompt"
-	prompt.ActionText = options.ActionText or def.ActionText
-	prompt.ObjectText = options.ObjectText or def.ObjectText or ""
-	prompt.HoldDuration = options.HoldDuration or def.HoldDuration or 0
-	prompt.MaxActivationDistance = options.MaxDistance or def.MaxDistance or 10
-	prompt.RequiresLineOfSight = false
-	prompt.KeyboardKeyCode = options.KeyboardKeyCode or Enum.KeyCode.E
-	prompt.GamepadKeyCode = options.GamepadKeyCode or Enum.KeyCode.ButtonX
-	prompt.Style = Enum.ProximityPromptStyle.Default
-	prompt:SetAttribute("InteractKind", kind)
-
-	local permission = options.Permission or def.Permission or "Owner"
-	local ownerUserId = options.OwnerUserId
-	if ownerUserId then
-		prompt:SetAttribute("OwnerUserId", ownerUserId)
-	end
-	if permission == "Owner" then
-		CollectionService:AddTag(prompt, OWNER_ONLY_TAG)
-	end
-	prompt.Parent = parent
-
+	local opts = options or {}
+	local permission = opts.Permission or def.Permission or "Owner"
 	local entry: Entry = {
 		Object = object,
 		Kind = kind,
-		Prompt = prompt,
 		Permission = permission,
-		OwnerUserId = ownerUserId,
-		Cooldown = options.Cooldown or def.Cooldown or 0.4,
+		OwnerUserId = opts.OwnerUserId,
+		Cooldown = opts.Cooldown or def.Cooldown or 0.35,
+		MaxDistance = opts.MaxDistance or def.MaxDistance or 10,
 		LastUse = setmetatable({}, { __mode = "k" }) :: any,
 	}
-	entriesByPrompt[prompt] = entry
-	entriesByObject[object] = entry
-
+	entries[object] = entry
+	object:SetAttribute("Interact", kind)
+	object:SetAttribute("InteractLabel", opts.Label or kind)
+	object:SetAttribute("InteractRange", entry.MaxDistance)
+	object:SetAttribute("InteractPermission", permission)
+	object:SetAttribute("InteractDisabled", nil)
+	if opts.OwnerUserId then
+		object:SetAttribute("OwnerUserId", opts.OwnerUserId)
+	end
+	CollectionService:AddTag(object, TAG)
 	object.Destroying:Once(function()
-		InteractionService.Detach(object)
+		entries[object] = nil
 	end)
-	return prompt
 end
 
 function InteractionService.Detach(object: Instance)
-	local entry = entriesByObject[object]
-	if not entry then
+	if not entries[object] then
 		return
 	end
-	entriesByObject[object] = nil
-	entriesByPrompt[entry.Prompt] = nil
-	entry.Prompt:Destroy()
+	entries[object] = nil
+	CollectionService:RemoveTag(object, TAG)
+	object:SetAttribute("Interact", nil)
+	object:SetAttribute("InteractHint", nil)
 end
 
--- Dynamic prompt text, e.g. "Harvest Wheat" -> "Water Wheat".
-function InteractionService.SetText(object: Instance, actionText: string?, objectText: string?)
-	local entry = entriesByObject[object]
-	if not entry then
+-- Dynamic hover text: hint = what a click will do now, label = what it is.
+function InteractionService.SetText(object: Instance, hint: string?, label: string?)
+	if not entries[object] then
 		return
 	end
-	if actionText then
-		entry.Prompt.ActionText = actionText
+	if hint then
+		object:SetAttribute("InteractHint", hint)
 	end
-	if objectText then
-		entry.Prompt.ObjectText = objectText
+	if label then
+		object:SetAttribute("InteractLabel", label)
 	end
 end
 
 function InteractionService.SetEnabled(object: Instance, enabled: boolean)
-	local entry = entriesByObject[object]
-	if entry then
-		entry.Prompt.Enabled = enabled
+	if entries[object] then
+		object:SetAttribute("InteractDisabled", if enabled then nil else true)
 	end
 end
 
-local function onTriggered(prompt: ProximityPrompt, player: Player)
-	local entry = entriesByPrompt[prompt]
-	if not entry then
+function InteractionService.IsAttached(object: Instance): boolean
+	return entries[object] ~= nil
+end
+
+-- Distance from a point to the object's bounding box (0 when inside).
+local function distanceTo(object: Instance, point: Vector3): number?
+	local cframe: CFrame, size: Vector3
+	if object:IsA("Model") then
+		cframe, size = object:GetBoundingBox()
+	elseif object:IsA("BasePart") then
+		cframe, size = object.CFrame, object.Size
+	else
+		return nil
+	end
+	local relative = cframe:PointToObjectSpace(point)
+	local half = size / 2
+	local clamped = Vector3.new(math.clamp(relative.X, -half.X, half.X), math.clamp(relative.Y, -half.Y, half.Y), math.clamp(relative.Z, -half.Z, half.Z))
+	return (relative - clamped).Magnitude
+end
+
+function InteractionService.DistanceTo(object: Instance, point: Vector3): number
+	return distanceTo(object, point) or math.huge
+end
+
+local function onRequest(player: Player, object: any)
+	if typeof(object) ~= "Instance" then
+		AntiExploitService.Flag(player, "BadInteract", 2)
 		return
+	end
+	local entry = entries[object]
+	if not entry then
+		return -- destroyed / not interactable (latency), not suspicious
 	end
 	if not limiter:Check(player) then
 		AntiExploitService.Flag(player, "InteractSpam", 1)
 		return
 	end
-	if not prompt.Enabled then
+	if object:GetAttribute("InteractDisabled") then
 		return
 	end
-
 	local character = player.Character
 	local root = R15.GetRootPart(character)
 	if not root or not R15.IsAlive(character) then
 		return
 	end
-	local promptParent = prompt.Parent
-	local position = promptParent and getWorldPosition(promptParent)
-	if not position or (root.Position - position).Magnitude > prompt.MaxActivationDistance + DISTANCE_TOLERANCE then
-		AntiExploitService.Flag(player, "InteractTooFar:" .. entry.Kind, 2)
+	local distance = distanceTo(object, root.Position)
+	if not distance or distance > entry.MaxDistance + DISTANCE_TOLERANCE then
+		if distance and distance > entry.MaxDistance + 40 then
+			AntiExploitService.Flag(player, "InteractTooFar:" .. entry.Kind, 1)
+		end
 		return
 	end
 
@@ -224,19 +201,19 @@ local function onTriggered(prompt: ProximityPrompt, player: Player)
 	entry.LastUse[player] = now
 
 	if accessResolver and not accessResolver(player, entry.Object, entry.Permission, entry.OwnerUserId) then
-		Notify.Error(player, "You can't do that on someone else's island.")
+		Notify.Error(player, "You can't do that on someone else's island (ask the owner to make you a helper).")
 		return
 	end
 
 	local def = kinds[entry.Kind]
-	local ok, err = pcall(def.Handler, player, entry.Object, prompt)
+	local ok, err = pcall(def.Handler, player, entry.Object)
 	if not ok then
 		warn(("[Interaction] %s handler failed for %s: %s"):format(entry.Kind, player.Name, tostring(err)))
 	end
 end
 
-function InteractionService.Start()
-	ProximityPromptService.PromptTriggered:Connect(onTriggered)
+function InteractionService.Init()
+	Net.OnServerEvent("InteractRequest", onRequest)
 end
 
 return InteractionService

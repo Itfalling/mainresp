@@ -299,6 +299,56 @@ BUILDERS.ChickenCoop = function(model, def)
 	fenceLine(model, s(5), Vector3.new(-4.6, 0, 6.6), Vector3.new(4.6, 0, 6.6), 2, 2)
 end
 
+-- A single 4x4 farm tile. The "Soil" part is what FarmService recolours
+-- (untilled / tilled / watered) and what crops grow on.
+BUILDERS.SoilTile = function(model, _def)
+	part(model, 1, { Name = "Soil", Size = Vector3.new(3.8, 0.5, 3.8), CFrame = CFrame.new(0, 0.2, 0), Color = Color3.fromRGB(150, 118, 78), Material = Enum.Material.Ground })
+	for _, spec in { { 0, -1.95, 4.1, 0.3 }, { 0, 1.95, 4.1, 0.3 }, { -1.95, 0, 0.3, 3.6 }, { 1.95, 0, 0.3, 3.6 } } do
+		part(model, 1, { Name = "Edge", Size = Vector3.new(spec[3], 0.45, spec[4]), CFrame = CFrame.new(spec[1], 0.25, spec[2]), Color = C.WoodDark, Material = Enum.Material.Wood, CanCollide = false })
+	end
+end
+
+-- Market stall: counter + awning + produce crates. Click it to trade. Faces -Z.
+BUILDERS.MarketStall = function(model, _def)
+	part(model, 1, { Name = "Counter", Size = Vector3.new(8.6, 3, 2.4), CFrame = CFrame.new(0, 1.5, -1.6), Color = C.Wood, Material = Enum.Material.WoodPlanks })
+	part(model, 1, { Name = "CounterTop", Size = Vector3.new(9, 0.3, 2.8), CFrame = CFrame.new(0, 3.15, -1.6), Color = C.WoodDark, Material = Enum.Material.Wood })
+	for _, x in { -4.1, 4.1 } do
+		for _, z in { -2.6, 2.6 } do
+			part(model, 1, { Name = "Post", Size = Vector3.new(0.5, 7.6, 0.5), CFrame = CFrame.new(x, 3.8, z), Color = C.WoodDark, Material = Enum.Material.Wood })
+		end
+	end
+	for index = 0, 5 do
+		local color = if index % 2 == 0 then Color3.fromRGB(235, 82, 70) else Color3.fromRGB(252, 246, 236)
+		part(model, 1, { Name = "Awning", Size = Vector3.new(1.55, 0.25, 6.6), CFrame = CFrame.new(-3.9 + index * 1.55, 7.9, 0) * CFrame.Angles(math.rad(-10), 0, 0), Color = color, Material = Enum.Material.Fabric, CanCollide = false })
+	end
+	local produce = { Color3.fromRGB(235, 200, 90), Color3.fromRGB(255, 140, 40), Color3.fromRGB(230, 50, 45), Color3.fromRGB(120, 200, 90) }
+	for index, color in produce do
+		local x = -3.3 + (index - 1) * 2.2
+		part(model, 1, { Name = "Crate", Size = Vector3.new(1.8, 0.8, 1.4), CFrame = CFrame.new(x, 3.7, -1.6), Color = C.Wood, Material = Enum.Material.WoodPlanks, CanCollide = false })
+		for ball = 1, 3 do
+			part(model, 1, { Name = "Produce", Shape = Enum.PartType.Ball, Size = Vector3.new(0.6, 0.6, 0.6), CFrame = CFrame.new(x - 0.5 + (ball - 1) * 0.5, 4.2, -1.6 + (ball % 2) * 0.3), Color = color, CanCollide = false })
+		end
+	end
+	local board = part(model, 1, { Name = "SignBoard", Size = Vector3.new(5.6, 1.5, 0.3), CFrame = CFrame.new(0, 9.3, -2.3), Color = Color3.fromRGB(226, 184, 124), Material = Enum.Material.Wood })
+	local gui = Instance.new("SurfaceGui")
+	gui.Face = Enum.NormalId.Front
+	gui.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+	gui.PixelsPerStud = 50
+	gui.LightInfluence = 0.5
+	gui.Parent = board
+	local label = Instance.new("TextLabel")
+	label.BackgroundTransparency = 1
+	label.Size = UDim2.fromScale(1, 1)
+	label.Font = Enum.Font.FredokaOne
+	label.TextScaled = true
+	label.TextColor3 = Color3.fromRGB(78, 50, 28)
+	label.Text = "🛒 MARKET"
+	label.Parent = gui
+	-- Barrels + sacks behind the counter.
+	part(model, 1, { Name = "Barrel", Shape = Enum.PartType.Cylinder, Size = Vector3.new(1.8, 1.6, 1.6), CFrame = CFrame.new(-3, 0.9, 1.6) * CFrame.Angles(0, 0, math.rad(90)), Color = C.WoodDark, Material = Enum.Material.Wood })
+	part(model, 1, { Name = "Sack", Shape = Enum.PartType.Ball, Size = Vector3.one * 1.5, CFrame = CFrame.new(2.8, 0.7, 1.8), Color = Color3.fromRGB(200, 170, 120), Material = Enum.Material.Fabric })
+end
+
 BUILDERS.StorageChest = function(model, _def)
 	part(model, 1, { Name = "Body", Size = Vector3.new(3.4, 2.2, 2.6), CFrame = CFrame.new(0, 1.1, 0), Color = Color3.fromRGB(150, 95, 52), Material = Enum.Material.Wood })
 	part(model, 1, { Name = "BandL", Size = Vector3.new(0.3, 2.25, 2.65), CFrame = CFrame.new(-1.2, 1.1, 0), Color = Color3.fromRGB(90, 90, 95), Material = Enum.Material.Metal })
@@ -412,8 +462,10 @@ function BuildingModels.Build(buildingId: string): Model
 	if builder then
 		builder(model, def)
 	end
+	-- Pivot = base centre ON the ground (explicit, so it never depends on
+	-- how Roblox maps WorldPivot onto a PrimaryPart).
+	base.PivotOffset = base.CFrame:ToObjectSpace(CFrame.new())
 	model.PrimaryPart = base
-	model.WorldPivot = CFrame.new()
 	return model
 end
 

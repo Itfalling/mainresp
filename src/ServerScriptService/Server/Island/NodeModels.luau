@@ -4,19 +4,24 @@
 	WHERE:        ServerScriptService/Server/Island/NodeModels
 	DEPENDENCIES: none
 
-	Procedural resource-node models (trees, rocks, ore, crystals, bushes,
-	sand, clay). Each model:
+	Procedural resource-node models: oak, pine, snowy pine, palm, maple,
+	ancient tree, cactus, rocks, iron, crystal, fiber bush, sand, clay.
+	Round canopies/rocks use SpecialMesh spheres (squashable ellipsoids) and
+	trunks taper, so the island looks soft and hand-made rather than blocky.
+
+	Each model:
 	  * is built around the origin with its base at Y = 0,
-	  * has an invisible "Hitbox" PrimaryPart (targeting + build blocking),
-	  * has a "PromptAnchor" attachment at a comfortable height,
-	  * stores BaseTransparency on every part so pooling can hide/show it.
+	  * has an invisible "Hitbox" PrimaryPart (click target + build blocking),
+	  * stores BaseTransparency / BaseCanCollide so pooling can hide/show it.
 	Put a Model named after the node's Model key in ServerStorage/Resources
-	to use real art instead (keep a Hitbox part and a PromptAnchor).
+	to use real art instead (keep a Hitbox part).
 ]]
 
 local ServerStorage = game:GetService("ServerStorage")
 
 local NodeModels = {}
+
+local UPRIGHT = CFrame.Angles(0, 0, math.rad(90))
 
 local function part(model: Model, props: { [string]: any }): BasePart
 	local newPart = Instance.new("Part")
@@ -29,9 +34,14 @@ local function part(model: Model, props: { [string]: any }): BasePart
 		newPart.Shape = props.Shape
 	end
 	for key, value in props do
-		if key ~= "Shape" then
+		if key ~= "Shape" and key ~= "Mesh" then
 			(newPart :: any)[key] = value
 		end
+	end
+	if props.Mesh == "Sphere" then
+		local mesh = Instance.new("SpecialMesh")
+		mesh.MeshType = Enum.MeshType.Sphere
+		mesh.Parent = newPart
 	end
 	newPart:SetAttribute("BaseTransparency", newPart.Transparency)
 	newPart:SetAttribute("BaseCanCollide", newPart.CanCollide)
@@ -39,7 +49,7 @@ local function part(model: Model, props: { [string]: any }): BasePart
 	return newPart
 end
 
-local function hitbox(model: Model, size: Vector3, promptHeight: number)
+local function hitbox(model: Model, size: Vector3)
 	local box = part(model, {
 		Name = "Hitbox",
 		Size = size,
@@ -47,159 +57,266 @@ local function hitbox(model: Model, size: Vector3, promptHeight: number)
 		Transparency = 1,
 		CanCollide = false,
 	})
-	local anchor = Instance.new("Attachment")
-	anchor.Name = "PromptAnchor"
-	anchor.Position = Vector3.new(0, promptHeight - size.Y / 2, 0)
-	anchor.Parent = box
+	-- Model pivot = the node's base on the ground (not the hitbox centre).
+	box.PivotOffset = CFrame.new(0, -size.Y / 2, 0)
 	model.PrimaryPart = box
 end
 
-local function vertical(height: number, diameter: number): Vector3
-	return Vector3.new(height, diameter, diameter)
+-- Tapered trunk: two stacked cylinders + a root flare.
+local function trunk(model: Model, height: number, diameter: number, color: Color3)
+	local lower = height * 0.55
+	part(model, { Name = "Trunk", Shape = Enum.PartType.Cylinder, Size = Vector3.new(lower, diameter, diameter), CFrame = CFrame.new(0, lower / 2, 0) * UPRIGHT, Color = color, Material = Enum.Material.Wood })
+	part(model, {
+		Name = "Trunk",
+		Shape = Enum.PartType.Cylinder,
+		Size = Vector3.new(height - lower + 0.4, diameter * 0.78, diameter * 0.78),
+		CFrame = CFrame.new(0, lower + (height - lower) / 2 - 0.2, 0) * UPRIGHT,
+		Color = color:Lerp(Color3.new(1, 1, 1), 0.05),
+		Material = Enum.Material.Wood,
+	})
+	part(model, { Name = "Roots", Size = Vector3.new(diameter * 1.8, 0.9, diameter * 1.8), CFrame = CFrame.new(0, 0.2, 0), Color = color:Lerp(Color3.new(0, 0, 0), 0.1), Material = Enum.Material.Wood, Mesh = "Sphere", CanCollide = false })
 end
-local UPRIGHT = CFrame.Angles(0, 0, math.rad(90))
+
+local function canopy(model: Model, random: Random, center: Vector3, radius: number, colors: { Color3 }, count: number, material: Enum.Material?)
+	for index = 1, count do
+		local angle = random:NextNumber(0, math.pi * 2)
+		local spread = if index == 1 then 0 else random:NextNumber(0.35, 0.75) * radius
+		local size = radius * (if index == 1 then 2 else random:NextNumber(1.1, 1.5))
+		part(model, {
+			Name = "Leaves",
+			Size = Vector3.new(size, size * random:NextNumber(0.72, 0.9), size),
+			CFrame = CFrame.new(center + Vector3.new(math.cos(angle) * spread, random:NextNumber(-0.6, 0.8), math.sin(angle) * spread)),
+			Color = colors[(index - 1) % #colors + 1],
+			Material = material or Enum.Material.Grass,
+			Mesh = "Sphere",
+			CanCollide = false,
+		})
+	end
+end
 
 local BUILDERS: { [string]: (Model, Random) -> () } = {}
 
 BUILDERS.Oak = function(model, random)
-	local trunkHeight = random:NextNumber(5.5, 7)
-	part(model, { Name = "Trunk", Shape = Enum.PartType.Cylinder, Size = vertical(trunkHeight, 1.6), CFrame = CFrame.new(0, trunkHeight / 2, 0) * UPRIGHT, Color = Color3.fromRGB(120, 85, 55), Material = Enum.Material.Wood })
-	local greens = { Color3.fromRGB(80, 170, 70), Color3.fromRGB(95, 185, 80), Color3.fromRGB(70, 150, 60) }
-	for index, spec in { { 0, 0, 0, 6.2 }, { 1.6, -0.6, 0.8, 4.6 }, { -1.4, -0.4, -1, 4.4 } } do
+	local height = random:NextNumber(6, 7.5)
+	trunk(model, height, 1.5, Color3.fromRGB(122, 86, 56))
+	canopy(model, random, Vector3.new(0, height + 1.8, 0), 3.3, { Color3.fromRGB(86, 176, 72), Color3.fromRGB(104, 192, 84), Color3.fromRGB(72, 156, 62) }, 5)
+	hitbox(model, Vector3.new(3, height + 2, 3))
+end
+
+BUILDERS.Maple = function(model, random)
+	local height = random:NextNumber(6, 7.5)
+	trunk(model, height, 1.4, Color3.fromRGB(96, 66, 50))
+	canopy(model, random, Vector3.new(0, height + 1.8, 0), 3.2, { Color3.fromRGB(236, 120, 40), Color3.fromRGB(214, 70, 42), Color3.fromRGB(246, 180, 60) }, 5)
+	hitbox(model, Vector3.new(3, height + 2, 3))
+end
+
+BUILDERS.Ancient = function(model, random)
+	trunk(model, 10, 2.8, Color3.fromRGB(96, 72, 62))
+	canopy(model, random, Vector3.new(0, 12.5, 0), 4.6, { Color3.fromRGB(90, 200, 170), Color3.fromRGB(70, 170, 150), Color3.fromRGB(120, 220, 190) }, 6)
+	local glow = part(model, { Name = "Glow", Size = Vector3.new(1, 1, 1), CFrame = CFrame.new(0, 12, 0), Transparency = 1, CanCollide = false })
+	local light = Instance.new("PointLight")
+	light.Color = Color3.fromRGB(140, 255, 210)
+	light.Range = 14
+	light.Brightness = 1
+	light.Parent = glow
+	hitbox(model, Vector3.new(4, 11, 4))
+end
+
+local function pineLayers(model: Model, random: Random, height: number, colors: { Color3 }, snow: boolean)
+	for index = 1, 5 do
+		local width = 6.2 - index * 1.0
+		local y = height * 0.35 + index * 1.55
 		part(model, {
-			Name = "Leaves",
-			Shape = Enum.PartType.Ball,
-			Size = Vector3.one * spec[4],
-			CFrame = CFrame.new(spec[1], trunkHeight + 1.8 + spec[2], spec[3]),
-			Color = greens[index],
+			Name = "Needles",
+			Size = Vector3.new(width, 2.1, width),
+			CFrame = CFrame.new(0, y, 0) * CFrame.Angles(0, random:NextNumber(0, 6.28), 0),
+			Color = colors[(index - 1) % #colors + 1],
 			Material = Enum.Material.Grass,
+			Mesh = "Sphere",
 			CanCollide = false,
 		})
+		if snow then
+			part(model, {
+				Name = "Snow",
+				Size = Vector3.new(width * 0.8, 0.7, width * 0.8),
+				CFrame = CFrame.new(0, y + 0.8, 0),
+				Color = Color3.fromRGB(248, 252, 255),
+				Material = Enum.Material.Snow,
+				Mesh = "Sphere",
+				CanCollide = false,
+			})
+		end
 	end
-	hitbox(model, Vector3.new(3, trunkHeight + 1, 3), 3)
 end
 
 BUILDERS.Pine = function(model, random)
-	local trunkHeight = random:NextNumber(4, 5)
-	part(model, { Name = "Trunk", Shape = Enum.PartType.Cylinder, Size = vertical(trunkHeight + 3, 1.2), CFrame = CFrame.new(0, (trunkHeight + 3) / 2, 0) * UPRIGHT, Color = Color3.fromRGB(105, 70, 45), Material = Enum.Material.Wood })
-	for index = 1, 4 do
-		local width = 6.4 - index * 1.25
-		part(model, {
-			Name = "Needles",
-			Size = Vector3.new(width, 1.8, width),
-			CFrame = CFrame.new(0, trunkHeight + index * 1.5, 0) * CFrame.Angles(0, math.rad(index * 22), 0),
-			Color = Color3.fromRGB(40, 120 + index * 8, 70),
-			Material = Enum.Material.Grass,
-			CanCollide = false,
-		})
-	end
-	hitbox(model, Vector3.new(2.6, trunkHeight + 1, 2.6), 3)
+	local height = random:NextNumber(7, 8.5)
+	trunk(model, height, 1.2, Color3.fromRGB(104, 70, 45))
+	pineLayers(model, random, height, { Color3.fromRGB(42, 124, 72), Color3.fromRGB(52, 138, 80), Color3.fromRGB(38, 112, 66) }, false)
+	hitbox(model, Vector3.new(2.6, height, 2.6))
 end
 
-BUILDERS.Ancient = function(model, _random)
-	part(model, { Name = "Trunk", Shape = Enum.PartType.Cylinder, Size = vertical(10, 2.8), CFrame = CFrame.new(0, 5, 0) * UPRIGHT, Color = Color3.fromRGB(95, 70, 60), Material = Enum.Material.Wood })
-	for index, spec in { { 0, 0, 0, 8 }, { 2.4, -1, 1, 6 }, { -2.2, -0.6, -1.4, 6 } } do
+BUILDERS.SnowPine = function(model, random)
+	local height = random:NextNumber(7, 8.5)
+	trunk(model, height, 1.2, Color3.fromRGB(96, 70, 52))
+	pineLayers(model, random, height, { Color3.fromRGB(46, 110, 84), Color3.fromRGB(56, 124, 92) }, true)
+	hitbox(model, Vector3.new(2.6, height, 2.6))
+end
+
+BUILDERS.Palm = function(model, random)
+	local segments = 6
+	local height = random:NextNumber(10, 13)
+	local segmentHeight = height / segments
+	local lean = random:NextNumber(0.12, 0.25)
+	local direction = random:NextNumber(0, math.pi * 2)
+	local position = Vector3.zero
+	for index = 1, segments do
+		local bend = lean * index * 0.5
+		local offset = Vector3.new(math.cos(direction) * bend, segmentHeight, math.sin(direction) * bend)
+		local center = position + offset / 2
+		local thickness = 1.25 - index * 0.09
 		part(model, {
-			Name = "Leaves",
-			Shape = Enum.PartType.Ball,
-			Size = Vector3.one * spec[4],
-			CFrame = CFrame.new(spec[1], 12 + spec[2], spec[3]),
-			Color = if index == 1 then Color3.fromRGB(90, 200, 170) else Color3.fromRGB(70, 170, 150),
+			Name = "Trunk",
+			Size = Vector3.new(thickness, segmentHeight + 0.25, thickness),
+			CFrame = CFrame.lookAt(center, center + offset) * CFrame.Angles(-math.pi / 2, 0, 0),
+			Color = if index % 2 == 0 then Color3.fromRGB(168, 126, 80) else Color3.fromRGB(146, 106, 66),
+			Material = Enum.Material.Wood,
+		})
+		position += offset
+	end
+	for index = 1, 8 do
+		local angle = (index / 8) * math.pi * 2 + random:NextNumber(-0.2, 0.2)
+		local frond = CFrame.new(position) * CFrame.Angles(0, angle, 0) * CFrame.new(0, -0.2, -2.8) * CFrame.Angles(math.rad(-24), 0, 0)
+		part(model, {
+			Name = "Frond",
+			Size = Vector3.new(1.7, 0.22, 6),
+			CFrame = frond,
+			Color = if index % 2 == 0 then Color3.fromRGB(76, 176, 80) else Color3.fromRGB(56, 150, 66),
 			Material = Enum.Material.Grass,
+			Mesh = "Sphere",
 			CanCollide = false,
 		})
 	end
-	hitbox(model, Vector3.new(4, 10, 4), 3.5)
+	for index = 1, 3 do
+		local angle = index * 2.1
+		part(model, {
+			Name = "Coconut",
+			Shape = Enum.PartType.Ball,
+			Size = Vector3.one * 0.85,
+			CFrame = CFrame.new(position + Vector3.new(math.cos(angle) * 0.6, -0.6, math.sin(angle) * 0.6)),
+			Color = Color3.fromRGB(112, 80, 46),
+			CanCollide = false,
+		})
+	end
+	hitbox(model, Vector3.new(2.4, height, 2.4))
+end
+
+BUILDERS.Cactus = function(model, random)
+	local height = random:NextNumber(4.5, 6.5)
+	local green = Color3.fromRGB(80, 160, 90)
+	part(model, { Name = "Body", Size = Vector3.new(1.5, height, 1.5), CFrame = CFrame.new(0, height / 2, 0), Color = green, Material = Enum.Material.Grass, Mesh = "Sphere" })
+	part(model, { Name = "Body", Size = Vector3.new(1.3, height * 0.9, 1.3), CFrame = CFrame.new(0, height * 0.45, 0), Color = green, Material = Enum.Material.Grass })
+	for _, side in { -1, 1 } do
+		local armHeight = random:NextNumber(1.6, 2.4)
+		local armY = random:NextNumber(height * 0.35, height * 0.6)
+		part(model, { Name = "ArmOut", Size = Vector3.new(1.2, 0.8, 0.8), CFrame = CFrame.new(side * 1.1, armY, 0), Color = green, Material = Enum.Material.Grass })
+		part(model, { Name = "ArmUp", Size = Vector3.new(0.85, armHeight, 0.85), CFrame = CFrame.new(side * 1.5, armY + armHeight / 2, 0), Color = green, Material = Enum.Material.Grass, Mesh = "Sphere" })
+	end
+	part(model, { Name = "Flower", Size = Vector3.new(0.8, 0.4, 0.8), CFrame = CFrame.new(0, height + 0.1, 0), Color = Color3.fromRGB(255, 120, 160), Mesh = "Sphere", CanCollide = false })
+	hitbox(model, Vector3.new(2.4, height, 2.4))
 end
 
 local function rockPile(model: Model, random: Random, color: Color3, scale: number)
-	for index = 1, 3 do
-		local size = Vector3.new(random:NextNumber(2.2, 3.2), random:NextNumber(1.6, 2.6), random:NextNumber(2.2, 3.2)) * scale
+	for index = 1, 4 do
+		local size = Vector3.new(random:NextNumber(2.2, 3.4), random:NextNumber(1.6, 2.6), random:NextNumber(2.2, 3.4)) * scale * (if index == 1 then 1.2 else 0.8)
 		part(model, {
 			Name = "Rock",
 			Size = size,
-			CFrame = CFrame.new(random:NextNumber(-0.8, 0.8), size.Y / 2 - 0.3, random:NextNumber(-0.8, 0.8))
-				* CFrame.Angles(random:NextNumber(-0.3, 0.3), random:NextNumber(0, math.pi), random:NextNumber(-0.3, 0.3)),
-			Color = color:Lerp(Color3.new(1, 1, 1), (index - 1) * 0.06),
+			CFrame = CFrame.new(random:NextNumber(-1, 1), size.Y * 0.35, random:NextNumber(-1, 1)) * CFrame.Angles(random:NextNumber(-0.3, 0.3), random:NextNumber(0, math.pi), random:NextNumber(-0.3, 0.3)),
+			Color = color:Lerp(Color3.new(1, 1, 1), (index - 1) * 0.05),
 			Material = Enum.Material.Slate,
+			Mesh = "Sphere",
 		})
 	end
+	-- A little moss on top.
+	part(model, { Name = "Moss", Size = Vector3.new(1.6, 0.4, 1.4) * scale, CFrame = CFrame.new(0.2, 2.1 * scale, 0), Color = Color3.fromRGB(96, 150, 70), Material = Enum.Material.Grass, Mesh = "Sphere", CanCollide = false })
 end
 
 BUILDERS.Rock = function(model, random)
-	rockPile(model, random, Color3.fromRGB(135, 132, 128), 1)
-	hitbox(model, Vector3.new(4.4, 3, 4.4), 2)
+	rockPile(model, random, Color3.fromRGB(138, 134, 128), 1)
+	hitbox(model, Vector3.new(4.4, 3, 4.4))
 end
 
 BUILDERS.Iron = function(model, random)
-	rockPile(model, random, Color3.fromRGB(110, 105, 100), 1.1)
-	for _ = 1, 5 do
+	rockPile(model, random, Color3.fromRGB(108, 104, 100), 1.1)
+	for _ = 1, 6 do
 		part(model, {
 			Name = "Ore",
-			Shape = Enum.PartType.Ball,
-			Size = Vector3.one * random:NextNumber(0.6, 0.9),
+			Size = Vector3.one * random:NextNumber(0.6, 0.95),
 			CFrame = CFrame.new(random:NextNumber(-1.4, 1.4), random:NextNumber(1, 2.4), random:NextNumber(-1.4, 1.4)),
-			Color = Color3.fromRGB(190, 110, 70),
+			Color = Color3.fromRGB(196, 116, 72),
 			Material = Enum.Material.Metal,
+			Mesh = "Sphere",
 			CanCollide = false,
 		})
 	end
-	hitbox(model, Vector3.new(4.6, 3.2, 4.6), 2)
+	hitbox(model, Vector3.new(4.6, 3.2, 4.6))
 end
 
 BUILDERS.Crystal = function(model, random)
 	rockPile(model, random, Color3.fromRGB(90, 85, 110), 0.9)
-	for index = 1, 4 do
-		local height = random:NextNumber(2.2, 3.6)
+	for index = 1, 5 do
+		local height = random:NextNumber(2.2, 3.8)
 		part(model, {
 			Name = "Crystal",
 			Size = Vector3.new(0.7, height, 0.7),
-			CFrame = CFrame.new(random:NextNumber(-1, 1), 1.4 + height / 2, random:NextNumber(-1, 1))
-				* CFrame.Angles(random:NextNumber(-0.4, 0.4), index, random:NextNumber(-0.4, 0.4)),
+			CFrame = CFrame.new(random:NextNumber(-1, 1), 1.4 + height / 2, random:NextNumber(-1, 1)) * CFrame.Angles(random:NextNumber(-0.4, 0.4), index, random:NextNumber(-0.4, 0.4)),
 			Color = Color3.fromRGB(130, 230, 255),
 			Material = Enum.Material.Neon,
 			Transparency = 0.15,
 			CanCollide = false,
 		})
 	end
-	hitbox(model, Vector3.new(4, 4, 4), 2)
+	hitbox(model, Vector3.new(4, 4, 4))
 end
 
 BUILDERS.Bush = function(model, random)
-	for index = 1, 3 do
+	for index = 1, 4 do
+		local size = random:NextNumber(2, 2.8)
 		part(model, {
 			Name = "Bush",
-			Shape = Enum.PartType.Ball,
-			Size = Vector3.one * random:NextNumber(2, 2.8),
-			CFrame = CFrame.new(math.cos(index * 2.1) * 0.8, 1, math.sin(index * 2.1) * 0.8),
-			Color = Color3.fromRGB(95, 160 + index * 10, 70),
+			Size = Vector3.new(size, size * 0.8, size),
+			CFrame = CFrame.new(math.cos(index * 1.7) * 0.8, 0.9, math.sin(index * 1.7) * 0.8),
+			Color = Color3.fromRGB(90, 156 + index * 8, 70),
 			Material = Enum.Material.Grass,
+			Mesh = "Sphere",
 			CanCollide = false,
 		})
 	end
-	for index = 1, 5 do
+	for index = 1, 6 do
 		part(model, {
 			Name = "Fiber",
-			Size = Vector3.new(0.12, 1.4, 0.12),
-			CFrame = CFrame.new(math.cos(index) * 0.7, 2.2, math.sin(index) * 0.7) * CFrame.Angles(0.2, index, 0.2),
-			Color = Color3.fromRGB(225, 210, 140),
+			Size = Vector3.new(0.12, 1.5, 0.12),
+			CFrame = CFrame.new(math.cos(index) * 0.7, 2.1, math.sin(index) * 0.7) * CFrame.Angles(0.2, index, 0.2),
+			Color = Color3.fromRGB(232, 214, 140),
 			CanCollide = false,
 		})
 	end
-	hitbox(model, Vector3.new(3, 2.6, 3), 1.5)
+	hitbox(model, Vector3.new(3, 2.6, 3))
 end
 
-BUILDERS.Sand = function(model, _random)
-	part(model, { Name = "Pile", Shape = Enum.PartType.Cylinder, Size = vertical(1.2, 4), CFrame = CFrame.new(0, 0.5, 0) * UPRIGHT, Color = Color3.fromRGB(240, 220, 160), Material = Enum.Material.Sand })
-	part(model, { Name = "Top", Shape = Enum.PartType.Cylinder, Size = vertical(0.6, 2.6), CFrame = CFrame.new(0, 1.3, 0) * UPRIGHT, Color = Color3.fromRGB(245, 228, 175), Material = Enum.Material.Sand })
-	part(model, { Name = "Shell", Shape = Enum.PartType.Ball, Size = Vector3.one * 0.5, CFrame = CFrame.new(0.8, 1.2, -0.4), Color = Color3.fromRGB(255, 200, 190), CanCollide = false })
-	hitbox(model, Vector3.new(4, 1.6, 4), 1.2)
+BUILDERS.Sand = function(model, random)
+	part(model, { Name = "Pile", Size = Vector3.new(4.2, 1.6, 4.2), CFrame = CFrame.new(0, 0.4, 0), Color = Color3.fromRGB(240, 220, 160), Material = Enum.Material.Sand, Mesh = "Sphere" })
+	part(model, { Name = "Top", Size = Vector3.new(2.6, 1.2, 2.6), CFrame = CFrame.new(0.2, 1, 0.1), Color = Color3.fromRGB(246, 230, 178), Material = Enum.Material.Sand, Mesh = "Sphere" })
+	part(model, { Name = "Shell", Size = Vector3.new(0.6, 0.3, 0.5), CFrame = CFrame.new(0.8, 1.3, -0.4) * CFrame.Angles(0, random:NextNumber(0, 6), 0), Color = Color3.fromRGB(255, 200, 190), Mesh = "Sphere", CanCollide = false })
+	hitbox(model, Vector3.new(4, 1.6, 4))
 end
 
 BUILDERS.Clay = function(model, _random)
-	part(model, { Name = "Clay", Shape = Enum.PartType.Cylinder, Size = vertical(0.5, 4), CFrame = CFrame.new(0, 0.2, 0) * UPRIGHT, Color = Color3.fromRGB(185, 110, 75), Material = Enum.Material.Mud })
-	part(model, { Name = "Lump", Shape = Enum.PartType.Ball, Size = Vector3.one * 1, CFrame = CFrame.new(-0.6, 0.5, 0.4), Color = Color3.fromRGB(170, 100, 70), Material = Enum.Material.Mud })
-	hitbox(model, Vector3.new(4, 1.2, 4), 1)
+	part(model, { Name = "Clay", Size = Vector3.new(4.2, 0.7, 4.2), CFrame = CFrame.new(0, 0.15, 0), Color = Color3.fromRGB(186, 112, 76), Material = Enum.Material.Mud, Mesh = "Sphere" })
+	part(model, { Name = "Lump", Size = Vector3.new(1.2, 0.9, 1.1), CFrame = CFrame.new(-0.6, 0.45, 0.4), Color = Color3.fromRGB(170, 100, 70), Material = Enum.Material.Mud, Mesh = "Sphere" })
+	part(model, { Name = "Lump", Size = Vector3.new(0.9, 0.7, 0.9), CFrame = CFrame.new(0.8, 0.35, -0.5), Color = Color3.fromRGB(176, 106, 72), Material = Enum.Material.Mud, Mesh = "Sphere" })
+	hitbox(model, Vector3.new(4, 1.2, 4))
 end
 
 -- seed keeps each node's random shape stable across servers.
@@ -228,7 +345,7 @@ function NodeModels.Build(modelKey: string, seed: number): Model
 	return model
 end
 
--- Hide / show a pooled node without destroying it.
+-- Hide / show a pooled node without destroying it (hidden nodes can't be clicked).
 function NodeModels.SetVisible(model: Model, visible: boolean)
 	for _, descendant in model:GetDescendants() do
 		if descendant:IsA("BasePart") then
@@ -236,6 +353,9 @@ function NodeModels.SetVisible(model: Model, visible: boolean)
 			local baseCollide = descendant:GetAttribute("BaseCanCollide")
 			descendant.Transparency = if visible then (if type(baseTransparency) == "number" then baseTransparency else 0) else 1
 			descendant.CanCollide = visible and baseCollide == true
+			descendant.CanQuery = visible
+		elseif descendant:IsA("Light") then
+			descendant.Enabled = visible
 		end
 	end
 end

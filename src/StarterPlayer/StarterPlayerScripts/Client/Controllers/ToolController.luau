@@ -2,18 +2,18 @@
 	SCRIPT NAME:  ToolController
 	SCRIPT TYPE:  ModuleScript (client controller)
 	WHERE:        StarterPlayerScripts/Client/Controllers/ToolController
-	DEPENDENCIES: Shared.Net, Shared.Config.ToolConfig, Client.ClientState, InputController,
+	DEPENDENCIES: Shared.Net, Shared.Config.{ToolConfig, ItemConfig}, Client.ClientState, InputController,
 	              AnimationController, UIController, Client.UI.{Hotbar, Components, Theme}
 
-	Client side of the tool framework:
-	  * renders the hotbar from replicated Tools state,
-	  * number keys / taps / gamepad bumpers REQUEST equips (server decides),
-	  * reacts to the character's EquippedTool attribute (set by the server)
-	    by playing the tool's hold animation,
-	  * UseTool plays the tool's Use animation; the FIRST gameplay marker of
-	    that animation fires ToolController.ToolImpact — Phase 2's gathering
-	    hooks in there (spec §173: interaction + animation + marker together),
-	  * shows a big USE button on touch devices while a tool is equipped.
+	What's in your hands, client side:
+	  * renders the hotbar (tools + holdable items with counts) from
+	    replicated Tools / Inventory state,
+	  * number keys 1-9 / taps / gamepad bumpers REQUEST equips (the server
+	    decides, attaches the model and sets the hold pose everyone sees),
+	    0 / ` empties your hands,
+	  * GetHeld() tells InteractionController what you hold (from the
+	    character's Held / HeldKind attributes the server sets),
+	  * shows a big USE button on touch devices while something is held.
 ]]
 
 local Players = game:GetService("Players")
@@ -22,7 +22,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Net = require(Shared:WaitForChild("Net"))
 local ToolConfig = require(Shared.Config.ToolConfig)
-local AnimationConfig = require(Shared.Config.AnimationConfig)
+local ItemConfig = require(Shared.Config.ItemConfig)
 local Signal = require(Shared.Util.Signal)
 
 local Client = script.Parent.Parent
@@ -34,131 +34,98 @@ local Hotbar = require(Client.UI.Hotbar)
 local Components = require(Client.UI.Components)
 local Theme = require(Client.UI.Theme)
 
-local EQUIP_DEBOUNCE = 0.15
+local EQUIP_DEBOUNCE = 0.12
 
 local ToolController = {}
 
-ToolController.EquippedChanged = Signal.new() -- (toolDef | nil)
-ToolController.ToolImpact = Signal.new() -- (toolDef, markerName) the moment a swing connects
+export type Held = { Kind: string, Id: string, Def: any }
+
+ToolController.EquippedChanged = Signal.new() -- (held: Held?)
 
 local hotbar: any
 local useButton: TextButton
-local equippedId: string? = nil
-local holdAnimation: string? = nil
+local heldId: string? = nil
 local lastEquipRequest = 0
-local nextUseTime = 0
 local characterConnection: RBXScriptConnection? = nil
--- toolType -> handler(def) returning true if it handled USE (e.g. fishing rod casts instead of swinging)
-local useOverrides: { [string]: (any) -> boolean } = {}
 
--- Lets a higher-level controller take over USE for one tool type.
-function ToolController.SetUseOverride(toolType: string, handler: (any) -> boolean)
-	useOverrides[toolType] = handler
+function ToolController.GetHeld(): Held?
+	if not heldId then
+		return nil
+	end
+	local tool = ToolConfig.Get(heldId)
+	if tool then
+		return { Kind = "Tool", Id = heldId, Def = tool }
+	end
+	local item = ItemConfig.Get(heldId)
+	if item then
+		return { Kind = "Item", Id = heldId, Def = item }
+	end
+	return nil
 end
 
+-- The held TOOL definition (nil for items / empty hands).
 function ToolController.GetEquipped(): any
-	return equippedId and ToolConfig.Get(equippedId)
+	return heldId and ToolConfig.Get(heldId)
 end
 
-function ToolController.RequestEquip(toolId: string?)
+function ToolController.RequestEquip(id: string?)
 	local now = os.clock()
 	if now - lastEquipRequest < EQUIP_DEBOUNCE then
 		return
 	end
 	lastEquipRequest = now
-	Net.FireServer("EquipToolRequest", toolId or "")
+	Net.FireServer("EquipToolRequest", id or "")
 end
 
 local function selectSlot(index: number)
-	local toolId = hotbar:GetToolAt(index)
-	if not toolId then
+	local id = hotbar:GetToolAt(index)
+	if not id then
 		return
 	end
-	ToolController.RequestEquip(if toolId == equippedId then nil else toolId)
+	ToolController.RequestEquip(if id == heldId then nil else id)
 end
 
 local function cycle(direction: number)
-	local hotbarIds = ClientState.Get("Tools", "Hotbar") or {}
-	if #hotbarIds == 0 then
+	local ids = ClientState.Get("Tools", "Hotbar") or {}
+	if #ids == 0 then
 		return
 	end
-	local currentIndex = if equippedId then table.find(hotbarIds, equippedId) else nil
-	local nextIndex = if currentIndex then (currentIndex - 1 + direction) % #hotbarIds + 1 else 1
-	ToolController.RequestEquip(hotbarIds[nextIndex])
+	local currentIndex = if heldId then table.find(ids, heldId) else nil
+	local nextIndex = if currentIndex then (currentIndex - 1 + direction) % #ids + 1 else 1
+	ToolController.RequestEquip(ids[nextIndex])
 end
 
-local function onEquippedChanged(toolId: string?)
-	if toolId == "" then
-		toolId = nil
+local function onHeldChanged(id: string?)
+	if id == "" then
+		id = nil
 	end
-	equippedId = toolId
-	if holdAnimation then
-		AnimationController.StopAnimation(holdAnimation, 0.2)
-		holdAnimation = nil
+	heldId = id
+	hotbar:SetEquipped(id)
+	local held = ToolController.GetHeld()
+	useButton.Visible = held ~= nil and InputController.IsTouch()
+	if held then
+		useButton.Text = held.Def.Icon .. "\nUSE"
 	end
-	local def = toolId and ToolConfig.Get(toolId)
-	if def and def.Animations.Idle then
-		holdAnimation = def.Animations.Idle
-		AnimationController.PlayAnimation(def.Animations.Idle)
-	end
-	hotbar:SetEquipped(toolId)
-	useButton.Visible = def ~= nil and InputController.IsTouch()
-	if def then
-		useButton.Text = def.Icon .. "\nUSE"
-	end
-	ToolController.EquippedChanged:Fire(def)
-end
-
-local function useTool()
-	if UIController.IsAnyModalOpen() then
-		return
-	end
-	local def = ToolController.GetEquipped()
-	if not def then
-		return
-	end
-	local override = useOverrides[def.Type]
-	if override and override(def) then
-		return
-	end
-	local now = os.clock()
-	if now < nextUseTime then
-		return
-	end
-	nextUseTime = now + def.UseCooldown
-
-	local animationName = def.Animations.Use
-	local animationDef = animationName and AnimationConfig.Get(animationName)
-	if not animationDef then
-		return
-	end
-	local handle = AnimationController.PlayAnimation(animationName, { Speed = def.Speed })
-	if not handle then
-		return
-	end
-	-- The first configured marker is the gameplay moment (Hit / Dig / Till / HammerHit...).
-	local impactFired = false
-	for markerName in animationDef.Markers do
-		handle:OnMarker(markerName, function()
-			if not impactFired then
-				impactFired = true
-				ToolController.ToolImpact:Fire(def, markerName)
-			end
-		end)
-	end
+	ToolController.EquippedChanged:Fire(held)
 end
 
 local function watchCharacter(character: Model)
 	if characterConnection then
 		characterConnection:Disconnect()
 	end
-	characterConnection = character:GetAttributeChangedSignal("EquippedTool"):Connect(function()
-		onEquippedChanged(character:GetAttribute("EquippedTool") :: string?)
+	characterConnection = character:GetAttributeChangedSignal("Held"):Connect(function()
+		onHeldChanged(character:GetAttribute("Held") :: string?)
 	end)
-	-- Wait for the AnimationPlayer so the hold pose can play.
-	task.defer(function()
-		onEquippedChanged(character:GetAttribute("EquippedTool") :: string?)
-	end)
+	onHeldChanged(character:GetAttribute("Held") :: string?)
+end
+
+local function refreshHotbar()
+	local tools = ClientState.Get("Tools")
+	local items = ClientState.Get("Inventory", "Items") or {}
+	if type(tools) == "table" then
+		hotbar:SetTools(tools.Hotbar or {}, items)
+		hotbar:SetEquipped(heldId)
+	end
 end
 
 function ToolController.Init()
@@ -175,6 +142,10 @@ function ToolController.Init()
 		end,
 	})
 	Components.Corner(useButton, UDim.new(1, 0))
+	local bevel = useButton:FindFirstChild("Bevel")
+	if bevel then
+		bevel:Destroy()
+	end
 	useButton.Visible = false
 	-- Hold support (the fishing reel is "hold to pull").
 	useButton.MouseButton1Down:Connect(function()
@@ -193,10 +164,10 @@ function ToolController.Init()
 end
 
 function ToolController.Start()
-	ClientState.Observe("Tools", function(tools)
-		if type(tools) == "table" then
-			hotbar:SetTools(tools.Hotbar or {})
-			hotbar:SetEquipped(equippedId)
+	ClientState.Observe("Tools", refreshHotbar)
+	ClientState.Observe("Inventory", function(inventory)
+		if type(inventory) == "table" then
+			hotbar:SetCounts(inventory.Items or {})
 		end
 	end)
 
@@ -211,9 +182,11 @@ function ToolController.Start()
 	InputController.On("HotbarPrevious", function()
 		cycle(-1)
 	end)
-	InputController.On("UseTool", useTool)
+	InputController.On("Unequip", function()
+		ToolController.RequestEquip(nil)
+	end)
 	InputController.DeviceChanged:Connect(function()
-		useButton.Visible = equippedId ~= nil and InputController.IsTouch()
+		useButton.Visible = heldId ~= nil and InputController.IsTouch()
 	end)
 
 	AnimationController.CharacterReady:Connect(watchCharacter)

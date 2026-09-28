@@ -11,15 +11,19 @@
 
 	PLACE   BuildRequest{Op="Place", BuildingId, X, Z, Rotation} (island-local X/Z)
 	        -> validate (own island, id, unlock level, rotation, grid snap,
-	           unlocked land, slope, overlap, distance, cooldown, cost)
+	           owned land away from the water, slope, overlap, distance, cost)
 	        -> charge coins + items atomically -> construction SITE appears
-	BUILD   hammer the site: prompt "[E] Build" (server plays HammerSwing and
-	        advances at the HammerHit marker) or swing an equipped hammer
-	        (client sends BuildRequest{Op="Hammer", UniqueId} at its marker).
-	        Each hit reveals the next Stage of the model; the last hit plays
-	        HammerHeavy and the completion reveal (dust, sparkle, banner, XP).
+	           (Steps = 0 things — soil tiles, trees, rocks — appear finished)
+	BUILD   HOLD your hammer and CLICK the site: HammerSwing plays for
+	        everyone and the site advances at the HammerHit marker. Each hit
+	        reveals the next Stage of the model; the last hit plays HammerHeavy
+	        and the completion reveal (dust, sparkle, banner, XP).
+	NATURE  buildings with a Node (Oak Tree, Boulder...) become harvestable
+	        resource nodes the player planted (ResourceService.SpawnPlaced).
 	MOVE    MoveBuildRequest(uniqueId, X, Z, Rotation) — same validation, free.
 	DELETE  DeleteBuildRequest(uniqueId) — refunds RefundPercent of the cost.
+	STARTER every island gets a market stall (movable, never deletable) and
+	        six soil tiles the first time it loads.
 
 	Every building model knows OwnerUserId, IslandId, BuildingId, UniqueId.
 	Saved in Island.Buildings[uniqueId] with island-local position.
@@ -36,15 +40,19 @@ local BuildingConfig = require(Shared.Config.BuildingConfig)
 local BuildConfig = require(Shared.Config.BuildConfig)
 local BuildingModels = require(Shared.Building.BuildingModels)
 local Placement = require(Shared.Util.Placement)
+local IslandGen = require(Shared.Util.IslandGen)
 local Serializer = require(Shared.Util.Serializer)
 local Validate = require(Shared.Util.Validate)
 local Format = require(Shared.Util.Format)
 local Signal = require(Shared.Util.Signal)
 local R15 = require(Shared.Util.R15)
 
+local IslandConfig = require(Shared.Config.IslandConfig)
+
 local Services = script.Parent
 local DataService = require(Services.DataService)
 local IslandService = require(Services.IslandService)
+local ResourceService = require(Services.ResourceService)
 local EconomyService = require(Services.EconomyService)
 local InventoryService = require(Services.InventoryService)
 local ProgressionService = require(Services.ProgressionService)
@@ -55,6 +63,7 @@ local AntiExploitService = require(Services.AntiExploitService)
 local GameSoundService = require(Services.SoundService)
 local VFXService = require(Services.VFXService)
 local Notify = require(script.Parent.Parent.Util.Notify)
+local IslandBuilder = require(script.Parent.Parent.Island.IslandBuilder)
 
 export type Site = {
 	UniqueId: string,
@@ -74,6 +83,8 @@ BuildService.BuildingPlaced = Signal.new() -- (player, site)
 BuildService.BuildingCompleted = Signal.new() -- (player, buildingId, def, site)
 BuildService.BuildingRemoved = Signal.new() -- (player, uniqueId, buildingId)
 BuildService.BuildingMoved = Signal.new() -- (player, site)
+BuildService.SiteReady = Signal.new() -- (site) a COMPLETE building exists (loaded or just finished)
+BuildService.SiteRemoved = Signal.new() -- (site) about to be destroyed
 
 local sites: { [string]: Site } = {}
 local sitesByIsland: { [string]: { [string]: Site } } = {}
@@ -155,9 +166,8 @@ function BuildService.ValidatePlacement(player: Player, island: any, def: any, l
 		return false, "Invalid position.", nil, nil
 	end
 
-	local unlocked = IslandService.GetUnlockedAreas(island.Owner)
-	if not Placement.IsOnUnlockedLand(unlocked, center, size) then
-		return false, "That spot isn't on your unlocked land.", nil, nil
+	if not Placement.IsOnLand(IslandService.GetSampler(island), center, size) then
+		return false, "Build on your own land, away from the water.", nil, nil
 	end
 
 	-- Slope: compare terrain height at the centre and corners.
@@ -272,10 +282,43 @@ local function addSiteVisuals(site: Site)
 
 	CollectionService:AddTag(model, SITE_TAG)
 	InteractionService.Attach(model, "ConstructionSite", {
-		ObjectText = def.DisplayName,
+		Label = def.DisplayName .. " (building)",
 		OwnerUserId = site.OwnerUserId,
-		MaxDistance = math.max(12, math.max(def.Footprint.X, def.Footprint.Y) / 2 + 8),
+		MaxDistance = 9,
 	})
+end
+
+-- Cosmetic scatter never pokes through floors: hide decorations under footprints.
+local function hideDecoUnder(island: any, model: Model, def: any)
+	local pivot = model:GetPivot()
+	local halfX, halfZ = def.Footprint.X / 2 + 1, def.Footprint.Y / 2 + 1
+	for _, deco in island.Folders.Decorations:GetChildren() do
+		if deco:IsA("Model") then
+			local relative = pivot:PointToObjectSpace(deco:GetPivot().Position)
+			if math.abs(relative.X) <= halfX and math.abs(relative.Z) <= halfZ then
+				deco:Destroy()
+			end
+		end
+	end
+end
+
+-- Re-grow the scatter of the chunks a building left (move / delete).
+local function restoreDecoAround(island: any, localPosition: Vector3, def: any)
+	local reach = math.max(def.Footprint.X, def.Footprint.Y) / 2 + 1
+	local done = {}
+	for _, dx in { -reach, reach } do
+		for _, dz in { -reach, reach } do
+			local cx, cz = IslandGen.ChunkOf(localPosition.X + dx, localPosition.Z + dz)
+			local key = IslandGen.Key(cx, cz)
+			if not done[key] and IslandService.GetSampler(island):IsOwnedChunk(cx, cz) then
+				done[key] = true
+				IslandBuilder.DecorateChunk(island.Origin, island.Folders, IslandService.GetSampler(island), cx, cz)
+			end
+		end
+	end
+	for _, other in sitesByIsland[island.Id] or {} :: { [string]: Site } do
+		hideDecoUnder(island, other.Model, other.Def)
+	end
 end
 
 local function removeSiteVisuals(site: Site)
@@ -300,14 +343,26 @@ local function spawnSite(island: any, entry: any): Site?
 	if not def or not position then
 		return nil
 	end
-	local model = buildModel(entry.BuildingId)
-	model.Name = entry.BuildingId
+	local worldCFrame = island.Origin * Placement.LocalCFrame(position, entry.Rotation)
+	local model: Model
+	if def.Node then
+		-- Planted nature: a harvestable node that lives in the Resources folder.
+		local nodeModel = ResourceService.SpawnPlaced(island, entry.UniqueId, def.Node, worldCFrame)
+		if not nodeModel then
+			return nil
+		end
+		model = nodeModel
+		entry.State = "Complete"
+	else
+		model = buildModel(entry.BuildingId)
+		model.Name = entry.BuildingId
+		model:PivotTo(worldCFrame)
+		model.Parent = island.Folders.Buildings
+	end
 	model:SetAttribute("OwnerUserId", island.OwnerUserId)
 	model:SetAttribute("IslandId", island.Id)
 	model:SetAttribute("BuildingId", entry.BuildingId)
 	model:SetAttribute("UniqueId", entry.UniqueId)
-	model:PivotTo(island.Origin * Placement.LocalCFrame(position, entry.Rotation))
-	model.Parent = island.Folders.Buildings
 
 	local site: Site = {
 		UniqueId = entry.UniqueId,
@@ -326,17 +381,27 @@ local function spawnSite(island: any, entry: any): Site?
 	end
 	list[entry.UniqueId] = site
 
-	if entry.State == "Complete" then
+	if def.Node then
+		-- nothing: node models are always "complete"
+	elseif entry.State == "Complete" then
 		BuildingModels.SetStage(model, math.huge, false)
 	else
 		BuildingModels.SetStage(model, entry.Progress, false)
 		addSiteVisuals(site)
 		updateSiteLabel(site, entry.Progress)
 	end
+	hideDecoUnder(island, model, def)
+	if entry.State == "Complete" then
+		BuildService.SiteReady:Fire(site)
+	end
 	return site
 end
 
 local function despawnSite(site: Site)
+	BuildService.SiteRemoved:Fire(site)
+	if site.Def.Node then
+		ResourceService.RemovePlaced(site.Island, site.UniqueId)
+	end
 	sites[site.UniqueId] = nil
 	local list = sitesByIsland[site.Island.Id]
 	if list then
@@ -382,6 +447,13 @@ function BuildService.Place(player: Player, buildingId: any, localX: any, localZ
 	if islandLevel < def.UnlockLevel then
 		return false, ("%s unlocks at Island Level %d."):format(def.DisplayName, def.UnlockLevel)
 	end
+	if def.Hidden then
+		AntiExploitService.Flag(player, "PlaceHiddenBuilding", 2)
+		return false, nil
+	end
+	if def.Unique and BuildService.FindSite(island, buildingId) then
+		return false, ("You already have a %s — move it instead."):format(def.DisplayName)
+	end
 
 	local ok, reason, worldCFrame, localPosition = BuildService.ValidatePlacement(player, island, def, localX, localZ, rotation)
 	if not ok or not worldCFrame or not localPosition then
@@ -404,13 +476,14 @@ function BuildService.Place(player: Player, buildingId: any, localX: any, localZ
 	end
 
 	local uniqueId = HttpService:GenerateGUID(false)
+	local instant = def.Steps <= 0
 	local entry = {
 		BuildingId = buildingId,
 		UniqueId = uniqueId,
 		Position = Serializer.Vector3(localPosition),
 		Rotation = rotation,
 		Variant = "Default",
-		State = "Constructing",
+		State = if instant then "Complete" else "Constructing",
 		Progress = 0,
 	}
 	DataService.Set(player, { "Island", "Buildings", uniqueId }, entry)
@@ -418,12 +491,28 @@ function BuildService.Place(player: Player, buildingId: any, localX: any, localZ
 	if not site then
 		return false, "Build failed."
 	end
-	GameSoundService.PlayAt("ConstructionStart", worldCFrame.Position)
-	VFXService.PlayAt("BuildDust", worldCFrame.Position + Vector3.new(0, 1, 0))
-	Notify.Success(player, ("%s placed! Hammer it %d times to build it."):format(def.DisplayName, def.Steps), "🔨")
-	ToolService.EquipBestOfType(player, "Hammer")
 	BuildService.BuildingPlaced:Fire(player, site)
+	if instant then
+		GameSoundService.PlayAt(if def.Node then "PlantSeed" else "WoodPlace", worldCFrame.Position)
+		VFXService.PlayAt(if def.Node then "LeafBurst" else "BuildDust", worldCFrame.Position + Vector3.new(0, 1, 0))
+		ProgressionService.Award(player, "BuildStep")
+		BuildService.BuildingCompleted:Fire(player, site.BuildingId, def, site)
+	else
+		GameSoundService.PlayAt("ConstructionStart", worldCFrame.Position)
+		VFXService.PlayAt("BuildDust", worldCFrame.Position + Vector3.new(0, 1, 0))
+		Notify.Success(player, ("%s placed! Hold your 🔨 hammer and click it %d times."):format(def.DisplayName, def.Steps), "🔨")
+	end
 	return true, nil
+end
+
+-- First site of a building type on an island (market stall lookups).
+function BuildService.FindSite(island: any, buildingId: string): Site?
+	for _, site in sitesByIsland[island.Id] or {} :: { [string]: Site } do
+		if site.BuildingId == buildingId then
+			return site
+		end
+	end
+	return nil
 end
 
 local function complete(player: Player, site: Site)
@@ -448,6 +537,7 @@ local function complete(player: Player, site: Site)
 			AnimationService.PlayAnimation(character, "CelebrateBuild")
 		end)
 	end
+	BuildService.SiteReady:Fire(site)
 	BuildService.BuildingCompleted:Fire(player, site.BuildingId, def, site)
 end
 
@@ -472,23 +562,23 @@ local function advance(player: Player, site: Site)
 	end
 end
 
--- source = "Prompt" | "Swing"
-function BuildService.Hammer(player: Player, uniqueId: any, source: string)
+-- A click on a construction site while holding a hammer.
+function BuildService.Hammer(player: Player, uniqueId: any)
 	local site = BuildService.GetSite(uniqueId)
 	if not site then
 		return
 	end
-	if not IslandService.CanAccess(player, site.Island, "Build") then
-		AntiExploitService.Flag(player, "HammerForeignSite", 1)
+	if not IslandService.CanAccess(player, site.Island, "Hammer") then
 		return
 	end
 	local entry = entryOf(site)
 	if not entry or entry.State ~= "Constructing" then
 		return
 	end
-	local root = R15.GetRootPart(player.Character)
-	local reach = BuildConfig.HammerRange + math.max(site.Def.Footprint.X, site.Def.Footprint.Y) / 2
-	if not root or (root.Position - site.Model:GetPivot().Position).Magnitude > reach then
+	local tool = ToolService.GetHeldTool(player, "Hammer")
+	if not tool then
+		local owned = ToolService.GetBestTool(player, "Hammer")
+		Notify.Error(player, if owned then "Hold your 🔨 Hammer to build (pick it on your hotbar)." else "You need a Hammer — buy one at the market.")
 		return
 	end
 	local now = os.clock()
@@ -497,19 +587,14 @@ function BuildService.Hammer(player: Player, uniqueId: any, source: string)
 	end
 	lastHammer[player] = now
 
-	if source == "Swing" then
-		local tool = ToolService.GetEquipped(player)
-		if tool and tool.Type == "Hammer" then
-			advance(player, site)
-		end
-		return
-	end
-
-	local tool = ToolService.EquipBestOfType(player, "Hammer")
 	local isLast = entry.Progress + 1 >= site.Def.Steps
 	AnimationService.PerformAction(player, if isLast then "HammerHeavy" else "HammerSwing", "HammerHit", function()
-		advance(player, site)
-	end, { Speed = if tool then tool.Speed else 1 })
+		-- The site's owner gets the progress (a helper can build for you).
+		local owner = site.Island.Owner
+		if owner and owner.Parent then
+			advance(owner, site)
+		end
+	end, { Speed = tool.Speed })
 end
 
 function BuildService.Delete(player: Player, uniqueId: any): (boolean, string?)
@@ -520,6 +605,9 @@ function BuildService.Delete(player: Player, uniqueId: any): (boolean, string?)
 	if site.OwnerUserId ~= player.UserId then
 		AntiExploitService.Flag(player, "DeleteForeignBuilding", 3)
 		return false, "That isn't your building."
+	end
+	if site.Def.NoDelete then
+		return false, ("Your %s can be moved, but not removed."):format(site.Def.DisplayName)
 	end
 	if deleteGuard then
 		local allowed, reason = deleteGuard(player, site)
@@ -547,8 +635,11 @@ function BuildService.Delete(player: Player, uniqueId: any): (boolean, string?)
 	end
 
 	local position = site.Model:GetPivot().Position
+	local island = site.Island
+	local localPosition = IslandService.ToLocal(island, position)
 	despawnSite(site)
 	DataService.Set(player, { "Island", "Buildings", uniqueId }, nil)
+	restoreDecoAround(island, localPosition, def)
 	VFXService.PlayAt("BuildDust", position + Vector3.new(0, 1, 0))
 	Notify.Toast(player, ("Removed %s (refunded %s)."):format(def.DisplayName, if costText(def, share) ~= "" then costText(def, share) else "nothing"), "🗑️")
 	BuildService.BuildingRemoved:Fire(player, uniqueId, site.BuildingId)
@@ -568,7 +659,13 @@ function BuildService.Move(player: Player, uniqueId: any, localX: any, localZ: a
 	if not ok or not worldCFrame or not localPosition then
 		return false, reason
 	end
-	site.Model:PivotTo(worldCFrame)
+	local oldLocal = IslandService.ToLocal(site.Island, site.Model:GetPivot().Position)
+	if site.Def.Node then
+		ResourceService.MovePlaced(site.Island, site.UniqueId, worldCFrame)
+	else
+		site.Model:PivotTo(worldCFrame)
+	end
+	restoreDecoAround(site.Island, oldLocal, site.Def)
 	DataService.Set(player, { "Island", "Buildings", uniqueId, "Position" }, Serializer.Vector3(localPosition))
 	DataService.Set(player, { "Island", "Buildings", uniqueId, "Rotation" }, rotation)
 	VFXService.PlayAt("BuildDust", worldCFrame.Position + Vector3.new(0, 1, 0))
@@ -591,8 +688,63 @@ function BuildService.FinishAll(player: Player)
 	end
 end
 
-local function loadIsland(player: Player, island: any)
+-- Every island gets a market stall and six soil tiles the first time it loads.
+local function ensureStarterBuildings(player: Player)
+	local layout = IslandConfig.StarterLayout
 	local buildings = DataService.Get(player, { "Island", "Buildings" }) or {}
+	local function add(buildingId: string, localXZ: Vector2, rotation: number)
+		local uniqueId = HttpService:GenerateGUID(false)
+		DataService.Set(player, { "Island", "Buildings", uniqueId }, {
+			BuildingId = buildingId,
+			UniqueId = uniqueId,
+			Position = { X = localXZ.X, Y = IslandConfig.LandHeight, Z = localXZ.Y },
+			Rotation = rotation,
+			Variant = "Default",
+			State = "Complete",
+			Progress = 0,
+		})
+	end
+	if not DataService.Get(player, { "Island", "StallPlaced" }) then
+		local hasStall = false
+		for _, entry in buildings do
+			hasStall = hasStall or entry.BuildingId == "MarketStall"
+		end
+		if not hasStall then
+			add("MarketStall", layout.MarketStall.Position, layout.MarketStall.Rotation)
+		end
+		DataService.Set(player, { "Island", "StallPlaced" }, true)
+	end
+	if not DataService.Get(player, { "Island", "StarterTilesPlaced" }) then
+		for _, position in layout.SoilTiles do
+			add("SoilTile", position, 0)
+		end
+		DataService.Set(player, { "Island", "StarterTilesPlaced" }, true)
+	end
+end
+
+-- Snaps a saved Y to the real ground (starter buildings / migrated data).
+local function groundedEntry(island: any, entry: any): any
+	local position = Serializer.ToVector3(entry.Position)
+	if position then
+		local ground = IslandService.GetGroundCFrame(island, Vector2.new(position.X, position.Z))
+		local y = ground.Position.Y - island.Origin.Position.Y
+		if math.abs(y - position.Y) > 0.05 then
+			entry.Position = { X = position.X, Y = y, Z = position.Z }
+		end
+	end
+	return entry
+end
+
+local function loadIsland(player: Player, island: any)
+	ensureStarterBuildings(player)
+	local buildings = DataService.Get(player, { "Island", "Buildings" }) or {}
+	for uniqueId, entry in buildings do
+		local grounded = groundedEntry(island, table.clone(entry))
+		if grounded.Position.Y ~= entry.Position.Y then
+			DataService.Set(player, { "Island", "Buildings", uniqueId, "Position" }, grounded.Position)
+		end
+	end
+	buildings = DataService.Get(player, { "Island", "Buildings" }) or {}
 	for _, entry in buildings do
 		local ok, err = pcall(spawnSite, island, entry)
 		if not ok then
@@ -614,12 +766,11 @@ end
 
 function BuildService.Init()
 	InteractionService.RegisterKind("ConstructionSite", {
-		ActionText = "Build",
-		Permission = "Build",
-		MaxDistance = 14,
+		Permission = "Hammer",
+		MaxDistance = 9,
 		Cooldown = 0.2,
 		Handler = function(player: Player, model: Instance)
-			BuildService.Hammer(player, model:GetAttribute("UniqueId"), "Prompt")
+			BuildService.Hammer(player, model:GetAttribute("UniqueId"))
 		end,
 	})
 
@@ -633,8 +784,6 @@ function BuildService.Init()
 			if not ok and reason then
 				Notify.Error(player, reason)
 			end
-		elseif payload.Op == "Hammer" then
-			BuildService.Hammer(player, payload.UniqueId, "Swing")
 		end
 	end)
 

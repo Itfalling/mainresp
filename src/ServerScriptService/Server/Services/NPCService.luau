@@ -2,32 +2,39 @@
 	SCRIPT NAME:  NPCService
 	SCRIPT TYPE:  ModuleScript (server service)
 	WHERE:        ServerScriptService/Server/Services/NPCService
-	DEPENDENCIES: IslandService, InteractionService, Server.Util.Notify
+	DEPENDENCIES: BuildService, InteractionService, AnimationService, Shared.Net, Server.Util.Notify
 
-	Lightweight island NPCs (spec §51/§52). Phase 1 of NPCs: a friendly R15
-	merchant behind every market stall who gives tips when you talk to her.
-	Built from a HumanoidDescription (standard R15 rig), anchored, no AI loop.
-	Quests, dialogue trees and wandering NPCs arrive in Phase 10.
+	Lightweight island NPCs (spec §51/§52): a friendly R15 merchant behind
+	every market stall (she follows the stall when you move it). Click her
+	for a tip and the Buy tab. Built from a HumanoidDescription (standard R15
+	rig), anchored root, tagged "NPCRig" so every client plays her idle
+	breathing / look-around keyframes and her wave.
 ]]
 
+local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local Net = require(ReplicatedStorage.Shared.Net)
+
 local Services = script.Parent
-local IslandService = require(Services.IslandService)
+local BuildService = require(Services.BuildService)
 local InteractionService = require(Services.InteractionService)
+local AnimationService = require(Services.AnimationService)
 local Notify = require(script.Parent.Parent.Util.Notify)
 local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
 
 local MERCHANT_NAME = "Mia the Merchant"
 
 local TIPS = {
-	"Welcome! Press [E] at my counter to SELL, or [F] at the crate to SHOP.",
+	"Welcome! Click my stall any time to buy and sell.",
 	"Crops, fish, milk and eggs all sell here. Check the market demand bonus!",
 	"Water your crops — they grow 50% faster.",
 	"Build a Barn, then come back and I'll sell you a cow.",
 	"Better tools gather faster. A Stone Axe chops trees in half the hits!",
-	"Unlocking new areas brings new resources and fishing spots.",
+	"Expand your island in any direction — new land grows new trees and rocks.",
+	"Visit friends' islands from the 🌍 menu. Their waters hold different fish!",
+	"Hold seeds in your hand and click tilled soil to plant them.",
 }
 
 local NPCService = {}
@@ -67,43 +74,64 @@ local function buildMerchant(): Model?
 	return model
 end
 
-local function spawnMerchant(island: any)
-	local stall = island.MarketStall
-	if not stall then
+local merchants: { [string]: Model } = {} -- stall site UniqueId -> merchant
+
+local function placeMerchant(site: any)
+	local merchant = merchants[site.UniqueId]
+	if merchant and merchant.Parent then
+		-- Behind the counter, facing the same way as the stall's front.
+		merchant:PivotTo(site.Model:GetPivot() * CFrame.new(0, 3.1, 0.3))
+	end
+end
+
+local function spawnMerchant(site: any)
+	if merchants[site.UniqueId] then
 		return
 	end
 	local merchant = buildMerchant()
 	if not merchant then
 		return
 	end
-	-- Behind the counter, facing the same way as the stall's front.
-	merchant:PivotTo(stall:GetPivot() * CFrame.new(0, 3, 1.6))
-	merchant.Parent = island.Folders.Landmarks
-	local root = merchant:FindFirstChild("HumanoidRootPart")
-	if root then
-		InteractionService.Attach(root, "MerchantTalk", { ObjectText = MERCHANT_NAME, OwnerUserId = island.OwnerUserId, KeyboardKeyCode = Enum.KeyCode.T })
-	end
+	merchants[site.UniqueId] = merchant
+	merchant:SetAttribute("NPC", "Merchant")
+	CollectionService:AddTag(merchant, "NPCRig")
+	merchant.Parent = site.Island.Folders.Landmarks
+	placeMerchant(site)
+	InteractionService.Attach(merchant, "MerchantTalk", { Label = MERCHANT_NAME, OwnerUserId = site.OwnerUserId })
+	site.Model.Destroying:Once(function()
+		merchants[site.UniqueId] = nil
+		merchant:Destroy()
+	end)
 end
 
 function NPCService.Init()
 	InteractionService.RegisterKind("MerchantTalk", {
-		ActionText = "Talk",
-		ObjectText = MERCHANT_NAME,
-		Permission = "Visitor",
+		Permission = "Market",
 		MaxDistance = 12,
 		Cooldown = 1,
-		Handler = function(player: Player)
+		Handler = function(player: Player, merchant: Instance)
 			local index = (tipIndex[player] or 0) % #TIPS + 1
 			tipIndex[player] = index
 			Notify.Toast(player, MERCHANT_NAME .. ": " .. TIPS[index], "💬")
+			Net.FireClient("OpenUI", player, { Screen = "Market", Tab = "Buy" })
+			if merchant:IsA("Model") then
+				AnimationService.PlayAnimation(merchant, "Wave")
+			end
 		end,
 	})
 end
 
 function NPCService.Start()
-	IslandService.IslandAssigned:Connect(function(_player: Player, island: any)
-		-- CreateHumanoidModelFromDescription can yield; don't hold up island loading.
-		task.spawn(spawnMerchant, island)
+	BuildService.SiteReady:Connect(function(site: any)
+		if site.BuildingId == "MarketStall" then
+			-- CreateHumanoidModelFromDescription can yield; don't hold up island loading.
+			task.spawn(spawnMerchant, site)
+		end
+	end)
+	BuildService.BuildingMoved:Connect(function(_player: Player, site: any)
+		if site.BuildingId == "MarketStall" then
+			placeMerchant(site)
+		end
 	end)
 end
 

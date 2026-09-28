@@ -185,6 +185,60 @@ local function fromShape(toolDef: any): Model
 	return model
 end
 
+-- A small held item (seed sack, a carrot, a wheat bundle...) in the same
+-- Handle + Grip format as tools, so ToolService attaches it identically.
+function ToolModelFactory.BuildItem(itemId: string, category: string, color: Color3): Model
+	local model = Instance.new("Model")
+	model.Name = "EquippedTool"
+	model:SetAttribute("ItemId", itemId)
+
+	local handle = Instance.new("Part")
+	handle.Name = "Handle"
+	handle.Size = Vector3.new(0.3, 0.3, 0.3)
+	handle.Transparency = 1
+	preparePart(handle)
+	handle.CFrame = CFrame.new()
+	handle.Parent = model
+	local grip = Instance.new("Attachment")
+	grip.Name = "Grip"
+	grip.Position = Vector3.new(0, -0.1, 0)
+	grip.Parent = handle
+
+	local function piece(name: string, size: Vector3, offset: CFrame, partColor: Color3, material: Enum.Material, sphere: boolean)
+		local part = Instance.new("Part")
+		part.Name = name
+		part.Size = size
+		part.Color = partColor
+		part.Material = material
+		preparePart(part)
+		if sphere then
+			local mesh = Instance.new("SpecialMesh")
+			mesh.MeshType = Enum.MeshType.Sphere
+			mesh.Parent = part
+		end
+		part.CFrame = handle.CFrame * offset
+		local weld = Instance.new("Weld")
+		weld.Part0 = handle
+		weld.Part1 = part
+		weld.C0 = offset
+		weld.Parent = part
+		part.Parent = model
+	end
+
+	if category == "Seeds" then
+		-- Burlap sack with a coloured seed label.
+		piece("Sack", Vector3.new(0.9, 1.1, 0.9), CFrame.new(0, 0.55, 0), Color3.fromRGB(196, 160, 110), Enum.Material.Fabric, true)
+		piece("Tie", Vector3.new(0.35, 0.35, 0.35), CFrame.new(0, 1.15, 0), Color3.fromRGB(150, 110, 70), Enum.Material.Fabric, true)
+		piece("Label", Vector3.new(0.45, 0.45, 0.1), CFrame.new(0, 0.55, -0.44), color, Enum.Material.SmoothPlastic, true)
+	else
+		-- Produce: a chunky piece of the crop in its colour.
+		piece("Produce", Vector3.new(0.8, 1.1, 0.8), CFrame.new(0, 0.55, 0), color, Enum.Material.SmoothPlastic, true)
+		piece("Leaf", Vector3.new(0.5, 0.3, 0.2), CFrame.new(0, 1.15, 0), Color3.fromRGB(80, 170, 60), Enum.Material.Grass, true)
+	end
+	model.PrimaryPart = handle
+	return model
+end
+
 -- Returns a Model with PrimaryPart "Handle" containing a "Grip" Attachment.
 function ToolModelFactory.Build(toolDef: any): Model
 	local model = fromCustomArt(toolDef.Id) or fromShape(toolDef)

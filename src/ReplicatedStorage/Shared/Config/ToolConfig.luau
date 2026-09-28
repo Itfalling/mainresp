@@ -27,7 +27,7 @@
 local TableUtil = require(script.Parent.Parent.Util.TableUtil)
 
 local ToolConfig = {
-	HotbarSize = 8,
+	HotbarSize = 9,
 
 	Tiers = {
 		Wooden = { Order = 1, DisplayName = "Wooden", Power = 1, Speed = 1.0, ResourceBonus = 0, UnlockLevel = 1, Price = 0, HeadColor = Color3.fromRGB(165, 115, 65), HeadMaterial = Enum.Material.Wood },

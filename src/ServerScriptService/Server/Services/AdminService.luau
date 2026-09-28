@@ -19,7 +19,7 @@
 	  /givexp <player|me> <amount>
 	  /giveislandxp <player|me> <amount>
 	  /setislandlevel <player|me> <level>
-	  /unlockarea <player|me> <areaId>     (charges nothing; bypasses requirements)
+	  /expand <player|me> <chunks>          (buys random adjacent land, coins provided)
 	  /growcrops <player|me>              finish every planted crop
 	  /finishbuilds <player|me>           complete every construction site
 	  /spawnanimal <player|me> <Cow|Chicken>  (needs free housing, no charge)
@@ -37,7 +37,7 @@ local TextChatService = game:GetService("TextChatService")
 
 local Shared = ReplicatedStorage.Shared
 local GameConfig = require(Shared.Config.GameConfig)
-local IslandConfig = require(Shared.Config.IslandConfig)
+local IslandGen = require(Shared.Util.IslandGen)
 
 local Services = script.Parent
 local DataService = require(Services.DataService)
@@ -142,24 +142,33 @@ local COMMANDS: { [string]: Command } = {
 		ProgressionService.SetIslandLevel(target, level)
 		return "Island level set"
 	end,
-	unlockarea = function(admin, args)
-		local target, areaId = findPlayer(admin, args[1]), args[2]
-		if not target or not areaId or not IslandConfig.Areas[areaId] then
-			return "Usage: /unlockarea <player|me> <areaId>"
+	expand = function(admin, args)
+		local target, count = findPlayer(admin, args[1]), toInteger(args[2] or "1")
+		if not target or not count or count < 1 then
+			return "Usage: /expand <player|me> <chunks>"
 		end
-		local unlock = IslandConfig.Areas[areaId].Unlock
-		-- Grant exactly what the unlock needs, then go through the real unlock path.
-		if unlock then
-			ProgressionService.SetIslandLevel(target, math.max(DataService.Get(target, { "Island", "Level" }) or 1, unlock.IslandLevel or 1))
-			if unlock.RequiresArea then
-				DataService.Set(target, { "Island", "UnlockedAreas", unlock.RequiresArea }, true)
+		-- Buys random adjacent chunks through the real path (coins granted first).
+		local done = 0
+		for _ = 1, math.min(count, 50) do
+			local chunks = DataService.Get(target, { "Island", "Chunks" }) or {}
+			local candidates = IslandGen.ExpansionCandidates(chunks)
+			if #candidates == 0 then
+				break
 			end
-			if (unlock.Coins or 0) > 0 then
-				EconomyService.AddCoins(target, unlock.Coins, "Admin:unlockarea")
+			local pick = candidates[math.random(1, #candidates)]
+			local _, maxChunks, cost = IslandService.GetExpansionInfo(target)
+			if IslandService.GetChunkCount(target) >= maxChunks then
+				ProgressionService.SetIslandLevel(target, (DataService.Get(target, { "Island", "Level" }) or 1) + 1)
 			end
+			EconomyService.AddCoins(target, cost, "Admin:expand")
+			local ok = IslandService.TryExpand(target, pick.X, pick.Z)
+			if not ok then
+				break
+			end
+			done += 1
+			task.wait(0.8)
 		end
-		local ok, message = IslandService.TryUnlockArea(target, areaId)
-		return if ok then "Unlocked " .. areaId else tostring(message)
+		return ("Expanded %d chunk(s)"):format(done)
 	end,
 	growcrops = function(admin, args)
 		local target = findPlayer(admin, args[1])

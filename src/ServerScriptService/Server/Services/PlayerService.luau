@@ -8,7 +8,8 @@
 
 	Orchestrates the player lifecycle in a fixed, safe order:
 
-	JOIN:   load profile -> assign island -> leaderstats -> spawn R15 character on the island
+	JOIN:   load profile -> (new players: Island Creator) -> assign island -> leaderstats
+	        -> spawn R15 character on the island
 	SPAWN:  enforce R15 -> move to island spawn -> movement anim overrides -> re-equip tool
 	DEATH:  respawn on own island after RespawnDelay
 	LEAVE:  unequip -> final save + lock release -> island cleanup (AFTER the save)
@@ -24,8 +25,10 @@ local StarterPlayer = game:GetService("StarterPlayer")
 
 local Shared = ReplicatedStorage.Shared
 local GameConfig = require(Shared.Config.GameConfig)
+local Net = require(Shared.Net)
 local R15 = require(Shared.Util.R15)
 local Signal = require(Shared.Util.Signal)
+local Validate = require(Shared.Util.Validate)
 
 local Services = script.Parent
 local DataService = require(Services.DataService)
@@ -193,6 +196,10 @@ local function onPlayerAdded(player: Player)
 	if not data or player.Parent == nil then
 		return
 	end
+	-- New players design their island first (client shows the Island Creator).
+	if not IslandService.WaitForCreation(player) then
+		return
+	end
 
 	local built, islandOrError = pcall(IslandService.AssignIsland, player)
 	if not built then
@@ -222,8 +229,29 @@ local function onPlayerRemoving(player: Player)
 	convertingToR15[player] = nil
 end
 
+local EMOTES = { Wave = true, Cheer = true, Point = true, Dance = true }
+
 function PlayerService.Init()
 	Players.CharacterAutoLoads = false
+
+	Net.OnServerEvent("EmoteRequest", function(player: Player, name: any)
+		local character = player.Character
+		if type(name) == "string" and EMOTES[name] and character and R15.IsAlive(character) and not AnimationService.IsBusy(player) then
+			AnimationService.PlayAnimation(character, name)
+		end
+	end)
+	Net.OnServerEvent("SettingsRequest", function(player: Player, payload: any)
+		if type(payload) ~= "table" then
+			return
+		end
+		for key, value in payload do
+			if (key == "MusicVolume" or key == "SfxVolume") and Validate.Number(value, 0, 1) then
+				DataService.Set(player, { "Settings", key }, value)
+			elseif key == "CameraShake" and type(value) == "boolean" then
+				DataService.Set(player, { "Settings", key }, value)
+			end
+		end
+	end)
 end
 
 function PlayerService.Start()

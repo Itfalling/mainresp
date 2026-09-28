@@ -15,6 +15,7 @@
 	No system has to remember to send its own popup.
 ]]
 
+local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
@@ -41,6 +42,7 @@ local uiScale: UIScale
 local hud: HUD.HUDRefs
 local notifications: any
 local modalLayer: Frame
+local overlayLayer: Frame
 local openModals: { [string]: boolean } = {}
 local lastItems: { [string]: number }? = nil
 
@@ -154,6 +156,17 @@ function UIController.GetModalLayer(): Frame
 	return modalLayer
 end
 
+-- Converts a viewport point (UserInputService:GetMouseLocation) to design-space offsets.
+function UIController.ViewportToDesign(point: Vector2): Vector2
+	local inset = GuiService:GetGuiInset()
+	local scale = if uiScale then uiScale.Scale else 1
+	return (point - inset - screen.AbsolutePosition) / scale
+end
+
+function UIController.GetOverlay(): Frame
+	return overlayLayer
+end
+
 function UIController.Notify(kind: string, text: string, icon: string?)
 	notifications:Toast(kind, text, icon)
 	AudioController.Play(if kind == "Error" then "UIError" else "UINotify")
@@ -224,6 +237,7 @@ function UIController.Init()
 		ZIndex = 20,
 		Parent = designRoot,
 	})
+	overlayLayer = overlay
 	notifications = Notifications.new(overlay)
 	Components.SetClickSound(function()
 		AudioController.Play("UIClick")

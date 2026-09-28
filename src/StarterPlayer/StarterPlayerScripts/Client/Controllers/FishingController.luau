@@ -40,6 +40,7 @@ local InteractionController = require(script.Parent.InteractionController)
 local AudioController = require(script.Parent.AudioController)
 local VFXController = require(script.Parent.VFXController)
 local CameraController = require(script.Parent.CameraController)
+local AnimationController = require(script.Parent.AnimationController)
 local Components = require(Client.UI.Components)
 local Theme = require(Client.UI.Theme)
 
@@ -80,7 +81,6 @@ local lineBeam: Beam? = nil
 local rodAttachment: Attachment? = nil
 local biteMark: BillboardGui? = nil
 local renderConnection: RBXScriptConnection? = nil
-local resumePrompts: (() -> ())? = nil
 local minigame: Minigame? = nil
 
 type Refs = {
@@ -261,7 +261,7 @@ local function renderWorld()
 	end
 end
 
-local function startBobber()
+local function startBobber(spot: Vector3?)
 	clearWorld()
 	local root = R15.GetRootPart(player.Character)
 	if not root then
@@ -271,7 +271,7 @@ local function startBobber()
 	if look.Magnitude < 0.1 then
 		look = Vector3.new(0, 0, -1)
 	end
-	local target = root.Position + look.Unit * CAST_DISTANCE
+	local target = spot or (root.Position + look.Unit * CAST_DISTANCE)
 	bobberBase = Vector3.new(target.X, waterHeightAt(target) + 0.15, target.Z)
 	local tip = rodTip()
 	castFrom = if tip then tip.WorldPosition else root.Position + Vector3.new(0, 2, 0)
@@ -304,10 +304,6 @@ local function resetAll()
 	refs.Reel.Visible = false
 	setStatus(nil)
 	clearWorld()
-	if resumePrompts then
-		resumePrompts()
-		resumePrompts = nil
-	end
 end
 
 local function cancelFishing()
@@ -599,12 +595,10 @@ local function onFishingEvent(payload: any)
 	local op = payload.Op
 	if op == "Cast" then
 		state = "Waiting"
-		if not resumePrompts then
-			resumePrompts = InteractionController.PausePrompts()
-		end
-		startBobber()
+		startBobber(if typeof(payload.Spot) == "Vector3" then payload.Spot else nil)
 		AudioController.Play("FishingCast")
-		setStatus("🎣 Waiting for a bite...  (X to stop)", Theme.Colors.Outline)
+		local zone = if type(payload.ZoneName) == "string" then payload.ZoneName .. " · " else ""
+		setStatus(("🎣 %sWaiting for a bite...  (X to stop)"):format(zone), Theme.Colors.Outline)
 	elseif op == "Bite" then
 		if state ~= "Waiting" then
 			return
@@ -643,16 +637,33 @@ local function expireCast(requestedAt: number)
 	end
 end
 
--- USE while holding a rod. Returns true = handled (no tool swing).
-local function onUse(_def: any): boolean
+local function holdingRod(): boolean
+	local held = ToolController.GetHeld()
+	return held ~= nil and held.Kind == "Tool" and held.Def.Type == "FishingRod"
+end
+
+-- A click while holding a rod: cast at the water you clicked, hook a bite,
+-- or (while reeling) nothing. Returns true = click consumed.
+local function onClick(target: any): boolean
+	if state == "Idle" and not holdingRod() then
+		return false
+	end
 	local now = os.clock()
 	if state == "Idle" then
+		if target and target.Object then
+			return false -- the rod can still open the market, pet animals...
+		end
+		if not target or not target.Water then
+			UIController.Notify("Error", "Click on the water to cast your line.", "🎣")
+			return true
+		end
 		if now - castRequestedAt < FishConfig.CastCooldown then
 			return true
 		end
 		castRequestedAt = now
 		state = "Casting"
-		Net.FireServer("FishingRequest", { Op = "Cast" })
+		AnimationController.PlayLocal("FishingCast", 1)
+		Net.FireServer("FishingRequest", { Op = "Cast", Target = target.Position })
 		task.delay(CAST_TIMEOUT, expireCast, now)
 	elseif state == "Waiting" then
 		-- Too early: the server scares the fish off and tells us why.
@@ -675,13 +686,14 @@ function FishingController.Init()
 end
 
 function FishingController.Start()
-	ToolController.SetUseOverride("FishingRod", onUse)
+	InteractionController.SetClickHandler(onClick)
 	Net.OnClientEvent("FishingEvent", onFishingEvent)
 	RunService.RenderStepped:Connect(stepMinigame)
 
 	InputController.On("Cancel", cancelFishing)
-	ToolController.EquippedChanged:Connect(function(def: any)
-		if (not def or def.Type ~= "FishingRod") and state ~= "Idle" and state ~= "Casting" then
+	ToolController.EquippedChanged:Connect(function(held: any)
+		local isRod = held ~= nil and held.Kind == "Tool" and held.Def.Type == "FishingRod"
+		if not isRod and state ~= "Idle" and state ~= "Casting" then
 			resetAll()
 		end
 	end)

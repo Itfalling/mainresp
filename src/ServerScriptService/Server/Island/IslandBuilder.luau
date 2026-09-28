@@ -2,17 +2,17 @@
 	SCRIPT NAME:  IslandBuilder
 	SCRIPT TYPE:  ModuleScript (server)
 	WHERE:        ServerScriptService/Server/Island/IslandBuilder
-	DEPENDENCIES: Shared.Config.IslandConfig, Shared.Util.IslandLayout, Server.Island.IslandProps
+	DEPENDENCIES: Shared.Config.IslandConfig, Shared.Util.IslandGen,
+	              Server.Island.{IslandProps, IslandTerrain}
 
-	Builds and tears down the physical island for one slot:
-	  * smooth-terrain land lobes (starter + each UNLOCKED area),
-	  * underwater sandbars previewing LOCKED areas,
+	Builds the physical island for one slot from its saved data:
 	  * the island Model and its standard folder layout,
-	  * starter props (spawn pad, sign, chest, dock, plots, palms, flowers).
+	  * smooth terrain for every owned chunk (IslandTerrain),
+	  * landmarks at the plaza (spawn pad, island sign, starter chest),
+	  * cosmetic decoration scatter per chunk (flowers, tufts, shells...).
 
-	All positions come from IslandConfig in island-local space and are
-	converted with the slot origin, so the same island builds identically in
-	any slot on any server.
+	Positions are island-local and converted with the slot origin, so the same
+	island builds identically in any slot on any server.
 ]]
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -20,34 +20,24 @@ local ServerStorage = game:GetService("ServerStorage")
 
 local Shared = ReplicatedStorage.Shared
 local IslandConfig = require(Shared.Config.IslandConfig)
-local IslandLayout = require(Shared.Util.IslandLayout)
+local IslandGen = require(Shared.Util.IslandGen)
 local IslandProps = require(script.Parent.IslandProps)
+local IslandTerrain = require(script.Parent.IslandTerrain)
 
 local IslandBuilder = {}
 
--- Folders every island model contains (later phases fill them).
+-- Folders every island model contains.
 IslandBuilder.FolderNames = {
 	"Terrain",
-	"Props", -- non-blocking scenery (the house plot is meant to be built on)
-	"Landmarks", -- spawn pad, dock, market stall, farm plots: never built over
-	"Interactables",
-	"AreaMarkers",
+	"Props", -- non-blocking scenery
+	"Landmarks", -- spawn pad: never built over
+	"Interactables", -- sign, chest
 	"Buildings",
-	"Decorations",
+	"Decorations", -- cosmetic scatter (never blocks anything)
 	"Resources",
 	"Crops",
 	"Animals",
 	"Production",
-	"FishingSpots",
-}
-
-local BIOME_SURFACE: { [string]: Enum.Material } = {
-	Meadow = Enum.Material.Grass,
-	Forest = Enum.Material.LeafyGrass,
-	River = Enum.Material.Grass,
-	Beach = Enum.Material.Sand,
-	Mountain = Enum.Material.Rock,
-	Cave = Enum.Material.Ground,
 }
 
 local terrainParams = RaycastParams.new()
@@ -58,52 +48,12 @@ local function toWorld(origin: CFrame, localXZ: Vector2, y: number?): Vector3
 	return (origin * CFrame.new(localXZ.X, y or 0, localXZ.Y)).Position
 end
 
-local function fillColumn(terrain: Terrain, center: Vector3, radius: number, bottom: number, top: number, material: Enum.Material)
-	local height = top - bottom
-	if height <= 0 or radius <= 0 then
-		return
-	end
-	terrain:FillCylinder(CFrame.new(center.X, (top + bottom) / 2, center.Z), height, radius, material)
-end
-
--- Raises one land lobe. `scale` (0..1] lets unlock animations grow the land.
-function IslandBuilder.FillAreaLand(origin: CFrame, areaId: string, scale: number?)
-	local area = IslandConfig.Areas[areaId]
-	local terrain = workspace.Terrain :: Terrain
-	local center = toWorld(origin, IslandLayout.GetAreaCenter(areaId))
-	local sea = origin.Position.Y
-	local bottom = sea - IslandConfig.LandDepth
-	local s = scale or 1
-	local radius = area.Radius * s
-	local surface = BIOME_SURFACE[area.Biome] or Enum.Material.Grass
-
-	fillColumn(terrain, center, radius + IslandConfig.ShallowsWidth * s, bottom, sea + IslandConfig.ShallowsHeight, Enum.Material.Sand)
-	fillColumn(terrain, center, radius + IslandConfig.BeachWidth * s, bottom, sea + IslandConfig.BeachHeight, Enum.Material.Sand)
-	fillColumn(terrain, center, radius, bottom, sea + IslandConfig.SurfaceHeight, surface)
-end
-
-function IslandBuilder.FillAreaSandbar(origin: CFrame, areaId: string)
-	local area = IslandConfig.Areas[areaId]
-	local center = toWorld(origin, IslandLayout.GetAreaCenter(areaId))
-	local sea = origin.Position.Y
-	fillColumn(workspace.Terrain :: Terrain, center, area.Radius, sea - IslandConfig.LandDepth, sea - IslandConfig.SandbarDepth, Enum.Material.Sand)
-end
-
-local function fillHills(origin: CFrame)
-	for _, hill in IslandConfig.StarterLayout.Hills do
-		-- Sink the ball so only a gentle `Height`-stud dome shows above the surface.
-		local center = toWorld(origin, hill.Center, IslandConfig.SurfaceHeight + hill.Height - hill.Radius)
-		local terrain = workspace.Terrain :: Terrain
-		terrain:FillBall(center, hill.Radius, Enum.Material.Grass)
-	end
-end
-
--- Terrain height at an island-local XZ point (falls back to surface height).
+-- World CFrame on the terrain surface at an island-local XZ point.
 function IslandBuilder.GroundCFrame(origin: CFrame, localXZ: Vector2, yawDegrees: number?): CFrame
 	terrainParams.FilterDescendantsInstances = { workspace.Terrain }
 	local top = toWorld(origin, localXZ, 80)
 	local result = workspace:Raycast(top, Vector3.new(0, -160, 0), terrainParams)
-	local y = if result then result.Position.Y else origin.Position.Y + IslandConfig.SurfaceHeight
+	local y = if result then result.Position.Y else origin.Position.Y + IslandConfig.LandHeight
 	return CFrame.new(top.X, y, top.Z) * CFrame.Angles(0, math.rad(yawDegrees or 0), 0)
 end
 
@@ -130,18 +80,18 @@ local function place(model: Model, parent: Instance, cframe: CFrame): Model
 end
 
 export type BuiltIsland = {
-	Model: Model,
-	Folders: { [string]: Folder },
 	Sign: Model,
 	Chest: Model,
-	MarketStall: Model,
 	SpawnCFrame: CFrame,
 }
 
-function IslandBuilder.CreateModel(name: string, parent: Instance): (Model, { [string]: Folder })
+function IslandBuilder.CreateModel(name: string, parent: Instance, origin: CFrame): (Model, { [string]: Folder })
 	local model = Instance.new("Model")
 	model.Name = name
 	model.ModelStreamingMode = Enum.ModelStreamingMode.Default
+	-- No PrimaryPart: pin the pivot to the island origin so clients can use
+	-- island:GetPivot() as the origin of island-local coordinates.
+	model.WorldPivot = origin
 	local folders = {}
 	for _, folderName in IslandBuilder.FolderNames do
 		local folder = Instance.new("Folder")
@@ -153,93 +103,56 @@ function IslandBuilder.CreateModel(name: string, parent: Instance): (Model, { [s
 	return model, folders
 end
 
--- Builds terrain + starter props. `unlocked` = profile Island.UnlockedAreas.
-function IslandBuilder.Build(origin: CFrame, model: Model, folders: { [string]: Folder }, unlocked: { [string]: boolean }): BuiltIsland
-	-- The island model has no PrimaryPart, so pin its pivot to the island
-	-- origin: clients use island:GetPivot() as the origin of island-local
-	-- coordinates (build preview), exactly like the server's island.Origin.
-	model.WorldPivot = origin
-	-- Terrain: locked sandbars first, then land (starter first so lobes merge onto it).
-	for _, areaId in IslandConfig.AreaOrder do
-		if not unlocked[areaId] then
-			IslandBuilder.FillAreaSandbar(origin, areaId)
+-- Decoration scatter for one chunk. Existing scatter for that chunk is replaced.
+function IslandBuilder.DecorateChunk(origin: CFrame, folders: { [string]: Folder }, sampler: any, cx: number, cz: number)
+	local key = IslandGen.Key(cx, cz)
+	IslandBuilder.ClearChunkDeco(folders, key)
+	for index, deco in IslandGen.ChunkDeco(sampler, cx, cz) do
+		local model = IslandProps.Deco(deco.Kind, sampler.Data.Seed + cx * 131 + cz * 17 + index, deco.Scale)
+		if model then
+			model:SetAttribute("Chunk", key)
+			place(model, folders.Decorations, IslandBuilder.GroundCFrame(origin, deco.Position, deco.Yaw))
 		end
 	end
-	for _, areaId in IslandConfig.AreaOrder do
-		if unlocked[areaId] then
-			IslandBuilder.FillAreaLand(origin, areaId)
+end
+
+function IslandBuilder.ClearChunkDeco(folders: { [string]: Folder }, key: string)
+	for _, child in folders.Decorations:GetChildren() do
+		if child:GetAttribute("Chunk") == key then
+			child:Destroy()
 		end
 	end
-	fillHills(origin)
+end
+
+-- Terrain + landmarks + decoration. Yields between decoration batches.
+function IslandBuilder.Build(origin: CFrame, folders: { [string]: Folder }, sampler: any): BuiltIsland
+	IslandTerrain.WriteAll(origin, sampler)
 
 	local layout = IslandConfig.StarterLayout
-	local props = folders.Props
-	local landmarks = folders.Landmarks
-	local interactables = folders.Interactables
-
-	-- Spawn
 	local spawnYaw = facing(layout.Spawn, layout.Spawn + layout.SpawnFacing)
 	local spawnGround = IslandBuilder.GroundCFrame(origin, layout.Spawn, spawnYaw)
-	place(customProp("SpawnPad") or IslandProps.SpawnPad(), landmarks, spawnGround)
+	place(customProp("SpawnPad") or IslandProps.SpawnPad(), folders.Landmarks, spawnGround)
 	local spawnCFrame = spawnGround + Vector3.new(0, 4, 0)
 
-	-- Island sign faces the spawn point.
 	local sign = customProp("IslandSign") or IslandProps.Sign("My Island", "Island Level 1")
-	place(sign, interactables, IslandBuilder.GroundCFrame(origin, layout.IslandSign, facing(layout.IslandSign, layout.Spawn)))
+	place(sign, folders.Interactables, IslandBuilder.GroundCFrame(origin, layout.IslandSign, facing(layout.IslandSign, layout.Spawn)))
 
-	-- Starter chest faces the spawn point.
 	local chest = customProp("StarterChest") or IslandProps.StarterChest()
-	place(chest, interactables, IslandBuilder.GroundCFrame(origin, layout.StarterChest, facing(layout.StarterChest, layout.Spawn)))
+	place(chest, folders.Interactables, IslandBuilder.GroundCFrame(origin, layout.StarterChest, facing(layout.StarterChest, layout.Spawn)))
 
-	-- Dock runs out to sea along +Z (local).
-	local dockStart = layout.Dock.Start
-	local dockCFrame = toWorld(origin, dockStart, 2.2)
-	place(customProp("Dock") or IslandProps.Dock(layout.Dock.Length, layout.Dock.Width), landmarks, CFrame.new(dockCFrame) * CFrame.Angles(0, math.pi, 0))
-
-	-- Market stall (sell + shop) faces the spawn point.
-	local marketStall = customProp("MarketStall") or IslandProps.MarketStall()
-	place(marketStall, landmarks, IslandBuilder.GroundCFrame(origin, layout.MarketStall, facing(layout.MarketStall, layout.Spawn)))
-
-	-- House plot: a suggested building spot (non-blocking). Farm plots are
-	-- built by FarmService (tiles) and are landmarks.
-	local housePlot = place(customProp("HousePlot") or IslandProps.Plot("HousePlot", layout.HousePlot.Size), props, IslandBuilder.GroundCFrame(origin, layout.HousePlot.Center))
-	housePlot:SetAttribute("Zone", "House")
-
-	-- Decoration (non-harvestable palms and flowers).
-	for index, position in layout.Palms do
-		place(IslandProps.Palm(14 + (index % 3) * 2, index), folders.Decorations, IslandBuilder.GroundCFrame(origin, position, index * 47))
-	end
-	for index, position in layout.FlowerPatches do
-		place(IslandProps.Flowers(index * 13), folders.Decorations, IslandBuilder.GroundCFrame(origin, position))
+	local count = 0
+	for key, owned in sampler.Data.Chunks do
+		local cx, cz = IslandGen.ParseKey(key)
+		if owned and cx and cz then
+			IslandBuilder.DecorateChunk(origin, folders, sampler, cx, cz)
+			count += 1
+			if count % 40 == 0 then
+				task.wait()
+			end
+		end
 	end
 
-	return {
-		Model = model,
-		Folders = folders,
-		Sign = sign,
-		Chest = chest,
-		MarketStall = marketStall,
-		SpawnCFrame = spawnCFrame,
-	}
-end
-
--- Places the 🔒 marker for a locked area. Returns the marker model.
-function IslandBuilder.CreateAreaMarker(origin: CFrame, parent: Instance, areaId: string, requirementText: string): Model
-	local area = IslandConfig.Areas[areaId]
-	local position = IslandLayout.GetAreaMarkerPosition(areaId)
-	-- The rope + stake side faces out towards the locked land; the post faces home.
-	local marker = IslandProps.LockMarker(area.DisplayName, requirementText)
-	marker:SetAttribute("AreaId", areaId)
-	return place(marker, parent, IslandBuilder.GroundCFrame(origin, position, facing(position, Vector2.zero)))
-end
-
--- Clears all island terrain back to open ocean. Used when a player leaves.
-function IslandBuilder.ClearTerrain(origin: CFrame, restoreOcean: (center: Vector3, radius: number) -> ())
-	for _, areaId in IslandConfig.AreaOrder do
-		local area = IslandConfig.Areas[areaId]
-		local center = toWorld(origin, IslandLayout.GetAreaCenter(areaId))
-		restoreOcean(center, area.Radius + IslandConfig.ShallowsWidth + 4)
-	end
+	return { Sign = sign, Chest = chest, SpawnCFrame = spawnCFrame }
 end
 
 return IslandBuilder

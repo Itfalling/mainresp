@@ -2,123 +2,78 @@
 	SCRIPT NAME:  AnimationService
 	SCRIPT TYPE:  ModuleScript (server service)
 	WHERE:        ServerScriptService/Server/Services/AnimationService
-	DEPENDENCIES: Shared.Net, Shared.Animation.AnimationPlayer, Shared.Config.AnimationConfig,
-	              Shared.Util.AssetId
+	DEPENDENCIES: Shared.Config.AnimationConfig, Shared.Util.{AssetId, R15}
 
-	Server half of the centralized animation system (spec §71).
-	  * Player characters: the OWNING CLIENT plays animations (responsive, and
-	    Animator replication shows them to everyone). The server sends an
-	    AnimationCommand to that client.
-	  * NPCs / animals (server-owned rigs): played directly here through the
-	    same shared AnimationPlayer.
-	  * Movement animation overrides: real ids placed in
-	    AnimationConfig.Movement are written into each character's default
-	    Animate script on spawn.
+	Server half of the animation system. Animations are REPLICATED STATE,
+	not remote calls: the server stamps attributes on the rig and every
+	client renders them (Client/Controllers/AnimationController), so all
+	players see each other chop, hammer, fish, milk and celebrate.
 
-	API (spec §71):
-		PlayAnimation(rig, name, options?) -> handle | nil (nil for player rigs)
-		StopAnimation(rig, name, fade?)
-		StopAllAnimations(rig, fade?)
-		GetAnimation(rig, name) -> handle
-		SetAnimationSpeed(rig, name, speed)
-		IsPlaying(rig, name) -> boolean   (server rigs only)
+		ActionAnim = "Name;ServerStartTime;Speed;Seq"   one-shot or looped action
+		HoldPose   = "Axe" | "Rod" | "Item" | ...        what the hands are holding
 
-	SERVER-DRIVEN ACTIONS (spec §173: interaction + animation + marker together):
+	The keyframes themselves live in Shared/Animation/Keyframes (real R15
+	joint keyframes, played on Motor6D.Transform). If you upload a real
+	animation and paste its id into AnimationConfig, clients play that
+	instead — nothing here changes.
+
+	SERVER-DRIVEN ACTIONS (interaction + animation + marker together):
 		PerformAction(player, animationName, markerName, onMarker, options?) -> boolean
-	The owning client plays the animation (its MarkerEffects give the sound /
-	VFX at the marker) and the server applies the gameplay result at the SAME
-	marker time taken from AnimationConfig. A per-player busy lock stops
-	actions overlapping or being spammed.
+	The gameplay result is applied at the SAME marker time the animation
+	uses (from AnimationConfig). A per-player busy lock stops actions from
+	overlapping or being spammed.
 ]]
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage.Shared
-local Net = require(Shared.Net)
-local AnimationPlayer = require(Shared.Animation.AnimationPlayer)
 local AnimationConfig = require(Shared.Config.AnimationConfig)
 local AssetId = require(Shared.Util.AssetId)
 local R15 = require(Shared.Util.R15)
 
 local AnimationService = {}
 
-local players: { [Model]: any } = {}
 local busyUntil: { [Player]: number } = {}
+local sequence = 0
 
-local function getPlayerForRig(rig: Model): Player?
-	return Players:GetPlayerFromCharacter(rig)
-end
-
-local function getPlayer(rig: Model)
-	local animationPlayer = players[rig]
-	if not animationPlayer then
-		animationPlayer = AnimationPlayer.new(rig)
-		players[rig] = animationPlayer
-		rig.Destroying:Once(function()
-			local existing = players[rig]
-			if existing then
-				existing:Destroy()
-				players[rig] = nil
-			end
-		end)
-	end
-	return animationPlayer
-end
-
-function AnimationService.PlayAnimation(rig: Model, name: string, options: { Speed: number? }?): any
-	local owner = getPlayerForRig(rig)
-	if owner then
-		Net.FireClient("AnimationCommand", owner, { Op = "Play", Name = name, Speed = options and options.Speed })
+local function currentName(rig: Instance): string?
+	local value = rig:GetAttribute("ActionAnim")
+	if type(value) ~= "string" or value == "" then
 		return nil
 	end
-	return getPlayer(rig):Play(name, options)
+	return string.match(value, "^([^;]+);")
 end
 
-function AnimationService.StopAnimation(rig: Model, name: string, fadeTime: number?)
-	local owner = getPlayerForRig(rig)
-	if owner then
-		Net.FireClient("AnimationCommand", owner, { Op = "Stop", Name = name, Fade = fadeTime })
-		return
+function AnimationService.PlayAnimation(rig: Model, name: string, options: { Speed: number? }?): boolean
+	local def = AnimationConfig.Get(name)
+	if not def then
+		warn("[AnimationService] Unknown animation " .. tostring(name))
+		return false
 	end
-	local animationPlayer = players[rig]
-	if animationPlayer then
-		animationPlayer:Stop(name, fadeTime)
-	end
+	sequence += 1
+	local speed = math.clamp((options and options.Speed) or 1, 0.1, 5)
+	rig:SetAttribute("ActionAnim", ("%s;%.3f;%.2f;%d"):format(name, workspace:GetServerTimeNow(), speed, sequence))
+	return true
 end
 
-function AnimationService.StopAllAnimations(rig: Model, fadeTime: number?)
-	local owner = getPlayerForRig(rig)
-	if owner then
-		Net.FireClient("AnimationCommand", owner, { Op = "StopAll", Fade = fadeTime })
-		return
-	end
-	local animationPlayer = players[rig]
-	if animationPlayer then
-		animationPlayer:StopAll(fadeTime)
+function AnimationService.StopAnimation(rig: Model, name: string, _fadeTime: number?)
+	if currentName(rig) == name then
+		rig:SetAttribute("ActionAnim", "")
 	end
 end
 
-function AnimationService.GetAnimation(rig: Model, name: string): any
-	local animationPlayer = players[rig]
-	return animationPlayer and animationPlayer:GetHandle(name)
-end
-
-function AnimationService.SetAnimationSpeed(rig: Model, name: string, speed: number)
-	local owner = getPlayerForRig(rig)
-	if owner then
-		Net.FireClient("AnimationCommand", owner, { Op = "Speed", Name = name, Speed = speed })
-		return
-	end
-	local animationPlayer = players[rig]
-	if animationPlayer then
-		animationPlayer:SetSpeed(name, speed)
-	end
+function AnimationService.StopAllAnimations(rig: Model, _fadeTime: number?)
+	rig:SetAttribute("ActionAnim", "")
 end
 
 function AnimationService.IsPlaying(rig: Model, name: string): boolean
-	local animationPlayer = players[rig]
-	return animationPlayer ~= nil and animationPlayer:IsPlaying(name)
+	return currentName(rig) == name
+end
+
+-- What the character's hands hold (drives the hold pose on every client).
+function AnimationService.SetHoldPose(rig: Model, pose: string?)
+	rig:SetAttribute("HoldPose", pose)
 end
 
 function AnimationService.IsBusy(player: Player): boolean
@@ -130,7 +85,7 @@ export type ActionOptions = {
 	LockFraction: number?, -- share of the animation length the player stays busy (default 0.85)
 }
 
--- Plays an action animation on the player's client and runs onMarker on the
+-- Plays an action animation (seen by everyone) and runs onMarker on the
 -- server at the configured marker time. Returns false if the player is busy.
 function AnimationService.PerformAction(player: Player, animationName: string, markerName: string?, onMarker: () -> (), options: ActionOptions?): boolean
 	if AnimationService.IsBusy(player) then

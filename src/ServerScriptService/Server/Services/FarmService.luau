@@ -2,368 +2,298 @@
 	SCRIPT NAME:  FarmService
 	SCRIPT TYPE:  ModuleScript (server service)
 	WHERE:        ServerScriptService/Server/Services/FarmService
-	DEPENDENCIES: DataService, IslandService, CropService, InventoryService, ProgressionService,
-	              InteractionService, ToolService, AnimationService, AntiExploitService,
-	              SoundService, VFXService, Server.Island.IslandProps,
-	              Shared.Config.{CropConfig, IslandConfig}, Shared.Util.{IslandContent, Serializer}
+	DEPENDENCIES: DataService, IslandService, BuildService, CropService, InventoryService, ProgressionService,
+	              InteractionService, ToolService, AnimationService, SoundService, VFXService,
+	              Shared.Config.CropConfig, Shared.Util.CropGrowth
 
-	Farm plots and tiles (spec §20-§23, §142). One prompt per tile whose text
-	follows the tile's state:
+	Farming on SOIL TILES — buildings the player places anywhere (six come
+	free). Hold something and CLICK a tile:
 
-		Untilled  -> "Till Soil"     (equips your hoe, TillGround @ Till marker)
-		Tilled    -> "Plant Seeds"   (one seed type: plants it; several: opens the
-		                              seed picker, which sends PlantCropRequest)
-		Growing   -> "Water"         (equips watering can, WaterPlant @ Water marker)
-		Watered   -> "Check Crop"    (shows time left)
-		Ready     -> "Harvest Wheat" (HarvestCrop @ Pick marker -> produce + XP)
+		Untilled + 🌱 Hoe           -> till       (HoeTill @ Till marker)
+		Tilled   + 🌾 seed sack     -> plant it   (PlantSeed @ Plant marker)
+		Growing  + 🚿 watering can  -> water      (WaterPlant @ Water marker, 50% faster)
+		Ready    + anything         -> harvest    (HarvestCrop @ Pick marker)
 
-	Every change is validated here and saved to Island.Crops[tileId].
-	Tiles unlocked: the starter plot uses Island.FarmTiles (shop upgrade);
-	area plots (Sunny Fields) come fully unlocked.
+	The tile's InteractHint attribute tells the client what the tile needs so
+	the hover tooltip can say "Hold your Hoe" before you even click.
+	Saved in the OWNER's Island.Crops[tileUniqueId]; helpers can farm too.
 ]]
 
-local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage.Shared
-local Net = require(Shared.Net)
 local CropConfig = require(Shared.Config.CropConfig)
-local IslandContent = require(Shared.Util.IslandContent)
 local CropGrowth = require(Shared.Util.CropGrowth)
-local Serializer = require(Shared.Util.Serializer)
-local Validate = require(Shared.Util.Validate)
 local Format = require(Shared.Util.Format)
 local Signal = require(Shared.Util.Signal)
-local R15 = require(Shared.Util.R15)
 
 local Services = script.Parent
 local DataService = require(Services.DataService)
 local IslandService = require(Services.IslandService)
+local BuildService = require(Services.BuildService)
 local CropService = require(Services.CropService)
 local InventoryService = require(Services.InventoryService)
 local ProgressionService = require(Services.ProgressionService)
 local InteractionService = require(Services.InteractionService)
 local ToolService = require(Services.ToolService)
 local AnimationService = require(Services.AnimationService)
-local AntiExploitService = require(Services.AntiExploitService)
 local GameSoundService = require(Services.SoundService)
 local VFXService = require(Services.VFXService)
-local IslandProps = require(script.Parent.Parent.Island.IslandProps)
 local Notify = require(script.Parent.Parent.Util.Notify)
-
-local TILE_TAG = "FarmTile"
-local TILE_RANGE = 14
-local PLOT_SIZE = Vector2.new(20, 16)
 
 local FarmService = {}
 
 FarmService.CropPlanted = Signal.new() -- (player, cropId)
 FarmService.CropHarvested = Signal.new() -- (player, cropId, amount)
 
-type IslandFarm = { Island: any, Owner: Player, Tiles: { [string]: any }, Plots: { [string]: boolean } }
+type Tile = {
+	Id: string,
+	Part: BasePart,
+	Entry: any?,
+	Stage: number,
+	CropModel: Model?,
+	IslandId: string,
+	Island: any,
+}
 
-local farms: { [string]: IslandFarm } = {} -- islandId -> farm
+local tilesById: { [string]: Tile } = {}
 local random = Random.new()
 
-local function tileAction(tile: any): (string, string)
+local function hintFor(tile: Tile): string
 	local entry = tile.Entry
 	if not entry then
-		return "Till Soil", "Farm Tile"
+		return "Till"
 	end
 	if entry.State == "Tilled" then
-		return "Plant Seeds", "Tilled Soil"
+		return "Plant"
 	end
-	local crop = CropConfig.Crops[entry.CropId]
-	local name = if crop then crop.DisplayName else "Crop"
 	if CropService.IsReady(tile) then
-		return "Harvest " .. name, name
+		return "Harvest"
 	end
 	if not CropGrowth.IsWatered(entry) then
-		return "Water", name
+		return "Water"
 	end
-	return "Check Crop", name
+	return "Growing"
 end
 
-local function refreshPrompt(tile: any)
-	local actionText, objectText = tileAction(tile)
-	InteractionService.SetText(tile.Part, actionText, objectText)
+local function refreshHint(tile: Tile)
+	local crop = tile.Entry and tile.Entry.CropId and CropConfig.Crops[tile.Entry.CropId]
+	InteractionService.SetText(tile.Part, hintFor(tile), if crop then crop.DisplayName else (if tile.Entry then "Tilled Soil" else "Soil Tile"))
 end
 
-local function setEntry(farm: IslandFarm, tile: any, entry: any)
+local function setEntry(tile: Tile, entry: any)
 	tile.Entry = entry
-	DataService.Set(farm.Owner, { "Island", "Crops", tile.Id }, entry)
+	local owner = tile.Island.Owner
+	if owner and owner.Parent then
+		DataService.Set(owner, { "Island", "Crops", tile.Id }, entry)
+	end
 	CropService.Refresh(tile)
-	refreshPrompt(tile)
+	refreshHint(tile)
 end
 
-local function createTile(farm: IslandFarm, tileId: string, localXZ: Vector2)
-	if farm.Tiles[tileId] then
+local function soilPart(model: Model): BasePart?
+	local soil = model:FindFirstChild("Soil")
+	return if soil and soil:IsA("BasePart") then soil else nil
+end
+
+local function addTile(site: any)
+	local part = soilPart(site.Model)
+	if not part or tilesById[site.UniqueId] then
 		return
 	end
-	local island = farm.Island
-	local ground = IslandService.GetGroundCFrame(island, localXZ)
-	local size = CropConfig.Farm.TileSize
-	local part = Instance.new("Part")
-	part.Name = "Tile_" .. tileId
-	part.Anchored = true
-	part.CanCollide = true
-	part.Size = Vector3.new(size, 0.5, size)
-	part.CFrame = ground * CFrame.new(0, 0.15, 0)
-	part.TopSurface = Enum.SurfaceType.Smooth
-	part:SetAttribute("TileId", tileId)
-	part:SetAttribute("OwnerUserId", island.OwnerUserId)
-	part.Parent = island.Folders.Crops
-	CollectionService:AddTag(part, TILE_TAG)
-
-	local saved = DataService.Get(farm.Owner, { "Island", "Crops", tileId })
-	local tile = {
-		Id = tileId,
+	local island = site.Island
+	local tile: Tile = {
+		Id = site.UniqueId,
 		Part = part,
-		Entry = saved,
+		Entry = DataService.Get(island.Owner, { "Island", "Crops", site.UniqueId }),
 		Stage = 0,
 		CropModel = nil,
 		IslandId = island.Id,
-		LocalPosition = localXZ,
+		Island = island,
 	}
-	farm.Tiles[tileId] = tile
-	InteractionService.Attach(part, "FarmTile", { OwnerUserId = island.OwnerUserId, MaxDistance = 8 })
+	tilesById[site.UniqueId] = tile
+	part:SetAttribute("TileId", site.UniqueId)
+	InteractionService.Attach(part, "FarmTile", { OwnerUserId = island.OwnerUserId, Label = "Soil Tile", MaxDistance = 7 })
 	CropService.Register(tile)
-	refreshPrompt(tile)
+	refreshHint(tile)
 end
 
--- Creates plot outlines + all unlocked tiles for the island.
-function FarmService.RefreshFarm(player: Player)
-	local island = IslandService.GetIsland(player)
-	local farm = island and farms[island.Id]
-	if not island or not farm then
+local function removeTile(site: any)
+	local tile = tilesById[site.UniqueId]
+	if not tile then
 		return
 	end
-	local unlocked = IslandService.GetUnlockedAreas(player)
-	local starterTiles = DataService.Get(player, { "Island", "FarmTiles" }) or CropConfig.Farm.StarterTiles
-	for _, plot in IslandContent.FarmPlots() do
-		if unlocked[plot.AreaId] then
-			if not farm.Plots[plot.Id] then
-				farm.Plots[plot.Id] = true
-				local outline = IslandProps.Plot("FarmPlot", PLOT_SIZE)
-				outline.Name = "FarmPlot_" .. plot.Id
-				outline:PivotTo(IslandService.GetGroundCFrame(island, plot.Center))
-				outline.Parent = island.Folders.Landmarks
-			end
-			local positions = IslandContent.FarmTilePositions(plot.Center)
-			local count = if plot.Id == "S" then math.min(starterTiles, #positions) else #positions
-			for index = 1, count do
-				createTile(farm, plot.Id .. index, positions[index])
-			end
+	tilesById[site.UniqueId] = nil
+	CropService.Unregister(tile)
+	local owner = tile.Island.Owner
+	if owner and owner.Parent then
+		DataService.Set(owner, { "Island", "Crops", tile.Id }, nil)
+	end
+end
+
+local function till(player: Player, tile: Tile, hoe: any)
+	AnimationService.PerformAction(player, hoe.Animations.Use or "HoeTill", "Till", function()
+		if tile.Entry == nil and tilesById[tile.Id] == tile then
+			setEntry(tile, { TileId = tile.Id, State = "Tilled" })
+			VFXService.PlayAt("DirtPuff", tile.Part.Position + Vector3.new(0, 0.5, 0))
 		end
-	end
+	end, { Speed = hoe.Speed })
 end
 
-local function getTile(player: Player, tileId: any): (any?, IslandFarm?)
-	if type(tileId) ~= "string" then
-		return nil, nil
-	end
-	local island = IslandService.GetIsland(player)
-	local farm = island and farms[island.Id]
-	if not farm then
-		return nil, nil
-	end
-	return farm.Tiles[tileId], farm
-end
-
-local function nearTile(player: Player, tile: any): boolean
-	local root = R15.GetRootPart(player.Character)
-	return root ~= nil and (root.Position - tile.Part.Position).Magnitude <= TILE_RANGE
-end
-
-local function ownedSeeds(player: Player): { string }
-	local seeds = {}
-	for _, cropId in CropConfig.Order do
-		local seedId = CropConfig.Crops[cropId].Seed
-		if InventoryService.GetCount(player, seedId) > 0 then
-			table.insert(seeds, seedId)
-		end
-	end
-	return seeds
-end
-
-local function plant(player: Player, farm: IslandFarm, tile: any, seedId: string)
+local function plant(player: Player, tile: Tile, seedId: string)
 	local cropId = CropConfig.SeedToCrop[seedId]
 	if not cropId then
 		return
 	end
 	AnimationService.PerformAction(player, "PlantSeed", "Plant", function()
-		if not tile.Entry or tile.Entry.State ~= "Tilled" then
+		if tilesById[tile.Id] ~= tile or not tile.Entry or tile.Entry.State ~= "Tilled" then
 			return
 		end
 		if not InventoryService.RemoveItem(player, seedId, 1, "Plant") then
 			Notify.Error(player, "You're out of those seeds.")
 			return
 		end
-		setEntry(farm, tile, {
-			TileId = tile.Id,
-			State = "Planted",
-			CropId = cropId,
-			Position = Serializer.Vector3(Vector3.new(tile.LocalPosition.X, 0, tile.LocalPosition.Y)),
-			PlantedAt = os.time(),
-			WateredAt = 0,
-		})
+		setEntry(tile, { TileId = tile.Id, State = "Planted", CropId = cropId, PlantedAt = os.time(), WateredAt = 0 })
 		VFXService.PlayAt("DirtPuff", tile.Part.Position + Vector3.new(0, 0.5, 0))
 		ProgressionService.Award(player, "PlantCrop")
 		FarmService.CropPlanted:Fire(player, cropId)
 	end)
 end
 
-local function onTileUsed(player: Player, farm: IslandFarm, tile: any)
+local function water(player: Player, tile: Tile, can: any)
+	local crop = CropConfig.Crops[tile.Entry.CropId]
+	AnimationService.PerformAction(player, "WaterPlant", "Water", function()
+		local entry = tile.Entry
+		if tilesById[tile.Id] == tile and entry and entry.State == "Planted" and not CropGrowth.IsWatered(entry) then
+			local watered = table.clone(entry)
+			watered.WateredAt = os.time()
+			setEntry(tile, watered)
+			VFXService.PlayAt("WaterSplash", tile.Part.Position + Vector3.new(0, 1, 0))
+			Notify.Toast(player, ("%s watered! It grows %d%% faster now."):format(crop.DisplayName, math.floor((CropConfig.WaterSpeedMultiplier - 1) * 100)), "💧")
+		end
+	end, { Speed = can.Speed })
+end
+
+local function harvest(player: Player, tile: Tile)
 	local entry = tile.Entry
-	if not entry then
-		-- Till
-		local hoe = ToolService.EquipBestOfType(player, "Hoe")
-		if not hoe then
-			Notify.Error(player, "You need a Hoe to till soil.")
+	local crop = CropConfig.Crops[entry.CropId]
+	AnimationService.PerformAction(player, "HarvestCrop", "Pick", function()
+		if tilesById[tile.Id] ~= tile or not CropService.IsReady(tile) then
 			return
 		end
-		AnimationService.PerformAction(player, hoe.Animations.Use or "HoeTill", "Till", function()
-			if tile.Entry == nil then
-				setEntry(farm, tile, { TileId = tile.Id, State = "Tilled", Position = Serializer.Vector3(Vector3.new(tile.LocalPosition.X, 0, tile.LocalPosition.Y)) })
-				VFXService.PlayAt("DirtPuff", tile.Part.Position + Vector3.new(0, 0.5, 0))
-			end
-		end, { Speed = hoe.Speed })
+		local amount = random:NextInteger(crop.Yield.Min, crop.Yield.Max)
+		local added = InventoryService.AddItem(player, entry.CropId, amount, "Harvest")
+		if added <= 0 then
+			return -- backpack full: keep the crop in the ground
+		end
+		setEntry(tile, { TileId = tile.Id, State = "Tilled" })
+		GameSoundService.PlayAt("Harvest", tile.Part.Position)
+		VFXService.PlayAt("LeafBurst", tile.Part.Position + Vector3.new(0, 1, 0))
+		DataService.Increment(player, { "Stats", "CropsHarvested" }, added)
+		ProgressionService.Award(player, "HarvestCrop")
+		FarmService.CropHarvested:Fire(player, entry.CropId, added)
+	end)
+end
+
+local function onTileClicked(player: Player, tile: Tile)
+	local held = ToolService.GetHeld(player)
+	local heldTool = if held and held.Kind == "Tool" then held.Def else nil
+	local entry = tile.Entry
+
+	if not entry then
+		if heldTool and heldTool.Type == "Hoe" then
+			till(player, tile, heldTool)
+		else
+			Notify.Error(player, "Hold your 🌱 Hoe and click to till this soil.")
+		end
 		return
 	end
 
 	if entry.State == "Tilled" then
-		local seeds = ownedSeeds(player)
-		if #seeds == 0 then
-			Notify.Error(player, "You have no seeds — buy some at the market stall!")
-		elseif #seeds == 1 then
-			plant(player, farm, tile, seeds[1])
+		if held and held.Kind == "Item" and CropConfig.SeedToCrop[held.Id] then
+			plant(player, tile, held.Id)
 		else
-			local options = {}
-			for _, seedId in seeds do
-				table.insert(options, { Seed = seedId, Count = InventoryService.GetCount(player, seedId) })
-			end
-			Net.FireClient("OpenUI", player, { Screen = "SeedPicker", TileId = tile.Id, Seeds = options })
+			Notify.Error(player, "Hold a seed sack (on your hotbar) and click to plant. Buy seeds at the market!")
 		end
 		return
 	end
 
-	local crop = CropConfig.Crops[entry.CropId]
 	if CropService.IsReady(tile) then
-		AnimationService.PerformAction(player, "HarvestCrop", "Pick", function()
-			if not CropService.IsReady(tile) then
-				return
-			end
-			local amount = random:NextInteger(crop.Yield.Min, crop.Yield.Max)
-			local added = InventoryService.AddItem(player, entry.CropId, amount, "Harvest")
-			if added <= 0 then
-				return -- backpack full: keep the crop in the ground
-			end
-			setEntry(farm, tile, { TileId = tile.Id, State = "Tilled", Position = entry.Position })
-			GameSoundService.PlayAt("Harvest", tile.Part.Position)
-			VFXService.PlayAt("LeafBurst", tile.Part.Position + Vector3.new(0, 1, 0))
-			DataService.Increment(player, { "Stats", "CropsHarvested" }, added)
-			ProgressionService.Award(player, "HarvestCrop")
-			FarmService.CropHarvested:Fire(player, entry.CropId, added)
-		end)
+		harvest(player, tile)
 		return
 	end
-
-	if not CropGrowth.IsWatered(entry) then
-		local can = ToolService.EquipBestOfType(player, "WateringCan")
-		if not can then
-			Notify.Error(player, "You need a Watering Can.")
-			return
-		end
-		AnimationService.PerformAction(player, "WaterPlant", "Water", function()
-			if tile.Entry and tile.Entry.State == "Planted" and not CropGrowth.IsWatered(tile.Entry) then
-				local watered = table.clone(tile.Entry)
-				watered.WateredAt = os.time()
-				setEntry(farm, tile, watered)
-				Notify.Toast(player, ("%s watered! It grows %d%% faster now."):format(crop.DisplayName, math.floor((CropConfig.WaterSpeedMultiplier - 1) * 100)), "💧")
-			end
-		end)
+	local crop = CropConfig.Crops[entry.CropId]
+	if not CropGrowth.IsWatered(entry) and heldTool and heldTool.Type == "WateringCan" then
+		water(player, tile, heldTool)
 		return
 	end
-
 	local remaining = CropGrowth.GetRemaining(entry, os.time())
 	local stageName = CropConfig.Stages[CropGrowth.GetStage(entry, os.time())]
-	Notify.Toast(player, ("%s · %s · ready in %s 💧"):format(crop.DisplayName, stageName, Format.Duration(remaining)), crop.Icon)
-end
-
--- Seed picker result.
-local function onPlantRequest(player: Player, tileId: any, seedId: any)
-	if not Validate.Id(tileId) or not Validate.Id(seedId) then
-		AntiExploitService.Flag(player, "BadPlantRequest", 2)
-		return
-	end
-	local tile, farm = getTile(player, tileId)
-	if not tile or not farm then
-		return
-	end
-	if not nearTile(player, tile) then
-		AntiExploitService.Flag(player, "PlantTooFar", 1)
-		return
-	end
-	if not tile.Entry or tile.Entry.State ~= "Tilled" then
-		return
-	end
-	if not CropConfig.SeedToCrop[seedId] or InventoryService.GetCount(player, seedId) < 1 then
-		Notify.Error(player, "You don't have those seeds.")
-		return
-	end
-	plant(player, farm, tile, seedId)
+	Notify.Toast(
+		player,
+		("%s · %s · ready in %s%s"):format(crop.DisplayName, stageName, Format.Duration(remaining), if CropGrowth.IsWatered(entry) then " 💧" else " (hold a watering can to speed it up)"),
+		crop.Icon
+	)
 end
 
 -- Admin/testing: finish every crop on the player's island.
 function FarmService.GrowAll(player: Player)
 	local island = IslandService.GetIsland(player)
-	local farm = island and farms[island.Id]
-	if not farm then
+	if not island then
 		return
 	end
-	for _, tile in farm.Tiles do
+	for _, tile in tilesById do
 		local entry = tile.Entry
-		if entry and entry.State == "Planted" then
+		if tile.IslandId == island.Id and entry and entry.State == "Planted" then
 			local crop = CropConfig.Crops[entry.CropId]
 			local grown = table.clone(entry)
 			grown.PlantedAt = os.time() - crop.GrowTime - 1
 			grown.WateredAt = 0
-			setEntry(farm, tile, grown)
+			setEntry(tile, grown)
 		end
 	end
 end
 
 function FarmService.Init()
 	InteractionService.RegisterKind("FarmTile", {
-		ActionText = "Till Soil",
-		ObjectText = "Farm Tile",
 		Permission = "Farm",
-		MaxDistance = 8,
-		Cooldown = 0.3,
+		MaxDistance = 7,
+		Cooldown = 0.25,
 		Handler = function(player: Player, part: Instance)
-			local tile, farm = getTile(player, part:GetAttribute("TileId"))
-			if tile and farm and tile.Part == part then
-				onTileUsed(player, farm, tile)
+			local tile = tilesById[tostring(part:GetAttribute("TileId"))]
+			if tile and tile.Part == part then
+				onTileClicked(player, tile)
 			end
 		end,
 	})
-	Net.OnServerEvent("PlantCropRequest", onPlantRequest)
 end
 
 function FarmService.Start()
 	CropService.StageChanged:Connect(function(tile: any)
-		refreshPrompt(tile)
+		refreshHint(tile)
 	end)
-
-	IslandService.IslandAssigned:Connect(function(player: Player, island: any)
-		farms[island.Id] = { Island = island, Owner = player, Tiles = {}, Plots = {} }
-		FarmService.RefreshFarm(player)
+	BuildService.SiteReady:Connect(function(site: any)
+		if site.BuildingId == "SoilTile" then
+			addTile(site)
+		end
 	end)
-	IslandService.AreaUnlocked:Connect(function(player: Player)
-		FarmService.RefreshFarm(player)
+	BuildService.SiteRemoved:Connect(function(site: any)
+		if site.BuildingId == "SoilTile" then
+			removeTile(site)
+		end
+	end)
+	BuildService.BuildingMoved:Connect(function(_player: Player, site: any)
+		local tile = tilesById[site.UniqueId]
+		if tile then
+			CropService.Refresh(tile)
+		end
 	end)
 	IslandService.IslandReleased:Connect(function(_player: Player, islandId: string)
-		farms[islandId] = nil
+		for id, tile in tilesById do
+			if tile.IslandId == islandId then
+				tilesById[id] = nil
+			end
+		end
 		CropService.UnregisterIsland(islandId)
 	end)
 end

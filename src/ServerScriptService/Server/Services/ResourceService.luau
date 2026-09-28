@@ -2,19 +2,23 @@
 	SCRIPT NAME:  ResourceService
 	SCRIPT TYPE:  ModuleScript (server service)
 	WHERE:        ServerScriptService/Server/Services/ResourceService
-	DEPENDENCIES: IslandService, InteractionService, VFXService, SoundService,
-	              Server.Island.NodeModels, Shared.Config.ResourceConfig, Shared.Util.IslandContent
+	DEPENDENCIES: DataService, IslandService, InteractionService, InventoryService, VFXService, SoundService,
+	              AntiExploitService, Server.Island.NodeModels, Shared.Config.ResourceConfig, Shared.Util.IslandGen
 
 	Owns resource NODES (trees, rocks, bushes, ore...) on every island.
-	  * Spawns each unlocked area's nodes at deterministic spots
-	    (Shared/Util/IslandContent) when an island loads or an area unlocks.
-	  * POOLED (spec §115): a broken node is hidden, not destroyed, and
-	    regrows after its Respawn time in the same Model.
-	  * Tracks health on the server; clients read the Health attribute for
-	    health bars. GatherService decides WHO may hit a node and what they get.
+	  * NATURAL nodes grow at deterministic spots per land chunk
+	    (IslandGen.ChunkSpots), themed by the island (palms on tropical
+	    islands, snowy pines on snowy ones, rarer ore far from home).
+	  * PLANTED nodes come from Nature buildings (Oak Tree, Boulder...) the
+	    player places anywhere (BuildService calls SpawnPlaced).
+	  * POOLED: a broken node is hidden, not destroyed, and regrows after its
+	    Respawn time in the same Model.
+	  * The owner can CLEAR a natural node for good (edit mode) — it drops its
+	    resources once and never comes back (Island.RemovedNodes).
 
-	Node attributes: NodeId, NodeType, Health, MaxHealth, Depleted, OwnerUserId.
-	CollectionService tag: "ResourceNode".
+	Node attributes: NodeId, NodeType, Health, MaxHealth, Depleted, OwnerUserId,
+	ToolType, Placed. Tag: "ResourceNode". Interaction kind: "ResourceNode"
+	(registered by GatherService).
 ]]
 
 local CollectionService = game:GetService("CollectionService")
@@ -22,19 +26,25 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 
 local Shared = ReplicatedStorage.Shared
+local Net = require(Shared.Net)
 local ResourceConfig = require(Shared.Config.ResourceConfig)
-local IslandContent = require(Shared.Util.IslandContent)
+local IslandGen = require(Shared.Util.IslandGen)
 local Signal = require(Shared.Util.Signal)
 
 local Services = script.Parent
+local DataService = require(Services.DataService)
 local IslandService = require(Services.IslandService)
 local InteractionService = require(Services.InteractionService)
+local InventoryService = require(Services.InventoryService)
 local VFXService = require(Services.VFXService)
 local GameSoundService = require(Services.SoundService)
+local AntiExploitService = require(Services.AntiExploitService)
 local NodeModels = require(script.Parent.Parent.Island.NodeModels)
+local Notify = require(script.Parent.Parent.Util.Notify)
 
 export type Node = {
 	Id: string,
+	SpotId: string,
 	Type: string,
 	Def: any,
 	IslandId: string,
@@ -43,6 +53,7 @@ export type Node = {
 	BaseCFrame: CFrame,
 	Health: number,
 	Depleted: boolean,
+	Placed: boolean,
 	RespawnThread: thread?,
 }
 
@@ -53,7 +64,7 @@ ResourceService.NodeBroken = Signal.new() -- (node)
 local TAG = "ResourceNode"
 
 local nodesById: { [string]: Node } = {}
-local nodesByIsland: { [string]: { Node } } = {}
+local nodesByIsland: { [string]: { [string]: Node } } = {}
 
 local function seedFor(text: string): number
 	local seed = 17
@@ -63,36 +74,27 @@ local function seedFor(text: string): number
 	return seed
 end
 
-local function spawnNode(island: any, spotId: string, nodeType: string, localXZ: Vector2)
+local function register(island: any, spotId: string, nodeType: string, model: Model, baseCFrame: CFrame, placed: boolean): Node?
 	local def = ResourceConfig.Nodes[nodeType]
 	if not def then
 		warn("[ResourceService] Unknown node type " .. tostring(nodeType))
-		return
+		return nil
 	end
 	local nodeId = island.Id .. "/" .. spotId
-	if nodesById[nodeId] then
-		return
-	end
-	local seed = seedFor(nodeId)
-	local model = NodeModels.Build(def.Model, seed)
 	model.Name = nodeType
-	local yaw = seed % 360
-	local baseCFrame = IslandService.GetGroundCFrame(island, localXZ, yaw) * CFrame.new(0, -0.2, 0)
-	model:PivotTo(baseCFrame)
 	model:SetAttribute("NodeId", nodeId)
 	model:SetAttribute("NodeType", nodeType)
 	model:SetAttribute("Health", def.Health)
 	model:SetAttribute("MaxHealth", def.Health)
 	model:SetAttribute("Depleted", false)
 	model:SetAttribute("OwnerUserId", island.OwnerUserId)
-	if def.ToolType then
-		model:SetAttribute("ToolType", def.ToolType)
-	end
-	model.Parent = island.Folders.Resources
+	model:SetAttribute("Placed", placed)
+	model:SetAttribute("ToolType", def.ToolType)
 	CollectionService:AddTag(model, TAG)
 
 	local node: Node = {
 		Id = nodeId,
+		SpotId = spotId,
 		Type = nodeType,
 		Def = def,
 		IslandId = island.Id,
@@ -101,6 +103,7 @@ local function spawnNode(island: any, spotId: string, nodeType: string, localXZ:
 		BaseCFrame = baseCFrame,
 		Health = def.Health,
 		Depleted = false,
+		Placed = placed,
 		RespawnThread = nil,
 	}
 	nodesById[nodeId] = node
@@ -109,20 +112,84 @@ local function spawnNode(island: any, spotId: string, nodeType: string, localXZ:
 		list = {}
 		nodesByIsland[island.Id] = list
 	end
-	table.insert(list, node)
+	list[nodeId] = node
 
 	InteractionService.Attach(model, "ResourceNode", {
-		ActionText = def.Action,
-		ObjectText = def.DisplayName,
+		Label = def.DisplayName,
 		OwnerUserId = island.OwnerUserId,
-		MaxDistance = 11,
+		MaxDistance = 9,
 	})
+	return node
 end
 
-function ResourceService.SpawnArea(island: any, areaId: string)
-	for _, spot in IslandContent.AreaNodes(areaId) do
-		spawnNode(island, spot.Id, spot.Type, spot.Position)
+local function spawnNatural(island: any, spotId: string, nodeType: string, localXZ: Vector2, yaw: number)
+	local def = ResourceConfig.Nodes[nodeType]
+	if not def or nodesById[island.Id .. "/" .. spotId] then
+		return
 	end
+	local model = NodeModels.Build(def.Model, seedFor(island.Id .. spotId))
+	local baseCFrame = IslandService.GetGroundCFrame(island, localXZ, yaw) * CFrame.new(0, -0.25, 0)
+	model:PivotTo(baseCFrame)
+	model.Parent = island.Folders.Resources
+	register(island, spotId, nodeType, model, baseCFrame, false)
+end
+
+-- Spawns every natural spot of these chunks that is valid land right now.
+local function spawnChunks(island: any, chunkList: { { X: number, Z: number } })
+	local removed = DataService.Get(island.Owner, { "Island", "RemovedNodes" }) or {}
+	local sampler = IslandService.GetSampler(island)
+	for _, chunk in chunkList do
+		if sampler:IsOwnedChunk(chunk.X, chunk.Z) then
+			for _, spot in IslandGen.ChunkSpots(sampler, chunk.X, chunk.Z) do
+				if not removed[spot.Id] then
+					spawnNatural(island, spot.Id, spot.Type, spot.Position, spot.Yaw)
+				end
+			end
+		end
+	end
+end
+
+-- A Nature building (sapling / boulder) becomes a harvestable node. Returns its model.
+function ResourceService.SpawnPlaced(island: any, uniqueId: string, nodeType: string, worldCFrame: CFrame): Model?
+	local def = ResourceConfig.Nodes[nodeType]
+	if not def then
+		return nil
+	end
+	local model = NodeModels.Build(def.Model, seedFor(uniqueId))
+	model:PivotTo(worldCFrame)
+	model.Parent = island.Folders.Resources
+	local node = register(island, "b:" .. uniqueId, nodeType, model, worldCFrame, true)
+	return node and model
+end
+
+function ResourceService.RemovePlaced(island: any, uniqueId: string)
+	local node = nodesById[island.Id .. "/b:" .. uniqueId]
+	if node then
+		ResourceService.Despawn(node)
+	end
+end
+
+-- Moves a planted node (edit mode MOVE).
+function ResourceService.MovePlaced(island: any, uniqueId: string, worldCFrame: CFrame)
+	local node = nodesById[island.Id .. "/b:" .. uniqueId]
+	if node then
+		node.BaseCFrame = worldCFrame
+		if not node.Depleted then
+			node.Model:PivotTo(worldCFrame)
+		end
+	end
+end
+
+function ResourceService.Despawn(node: Node)
+	if node.RespawnThread then
+		pcall(task.cancel, node.RespawnThread)
+	end
+	nodesById[node.Id] = nil
+	local list = nodesByIsland[node.IslandId]
+	if list then
+		list[node.Id] = nil
+	end
+	node.Model:Destroy()
 end
 
 function ResourceService.GetNode(nodeId: any): Node?
@@ -133,8 +200,7 @@ function ResourceService.GetNode(nodeId: any): Node?
 end
 
 function ResourceService.GetNodeFromModel(model: Instance): Node?
-	local nodeId = model:GetAttribute("NodeId")
-	return ResourceService.GetNode(nodeId)
+	return ResourceService.GetNode(model:GetAttribute("NodeId"))
 end
 
 function ResourceService.GetPosition(node: Node): Vector3
@@ -153,6 +219,24 @@ local function respawn(node: Node)
 	node.Model:SetAttribute("Health", node.Health)
 	node.Model:SetAttribute("Depleted", false)
 	InteractionService.SetEnabled(node.Model, true)
+	-- Grow back in: start small and pop to full size.
+	local scale = Instance.new("NumberValue")
+	scale.Value = 0.3
+	scale.Changed:Connect(function(value)
+		if node.Model.Parent then
+			node.Model:ScaleTo(math.max(value, 0.05))
+		end
+	end)
+	node.Model:ScaleTo(0.3)
+	local tween = TweenService:Create(scale, TweenInfo.new(0.6, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Value = 1 })
+	tween.Completed:Once(function()
+		scale:Destroy()
+		if node.Model.Parent then
+			node.Model:ScaleTo(1)
+			node.Model:PivotTo(node.BaseCFrame)
+		end
+	end)
+	tween:Play()
 	VFXService.PlayAt("Sparkle", node.BaseCFrame.Position + Vector3.new(0, 2, 0))
 end
 
@@ -169,15 +253,20 @@ local function fallOver(node: Node, fromPosition: Vector3?)
 	driver.Value = 0
 	driver.Changed:Connect(function(alpha)
 		if node.Model.Parent then
-			node.Model:PivotTo(CFrame.fromAxisAngle(axis, math.rad(82) * alpha) * (base - base.Position) + base.Position)
+			node.Model:PivotTo(CFrame.fromAxisAngle(axis, math.rad(84) * alpha) * (base - base.Position) + base.Position)
 		end
 	end)
-	local tween = TweenService:Create(driver, TweenInfo.new(0.9, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Value = 1 })
+	local tween = TweenService:Create(driver, TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.In), { Value = 1 })
 	tween.Completed:Once(function()
 		driver:Destroy()
 		if node.Depleted and node.Model.Parent then
-			NodeModels.SetVisible(node.Model, false)
-			VFXService.PlayAt(node.Def.BreakVFX or "LeafBurst", base.Position + away * 5 + Vector3.new(0, 1, 0))
+			GameSoundService.PlayAt("RockHit", base.Position + away * 6)
+			VFXService.PlayAt("BuildDust", base.Position + away * 6)
+			task.wait(0.35)
+			if node.Depleted and node.Model.Parent then
+				NodeModels.SetVisible(node.Model, false)
+				VFXService.PlayAt(node.Def.BreakVFX or "LeafBurst", base.Position + away * 5 + Vector3.new(0, 1, 0))
+			end
 		end
 	end)
 	tween:Play()
@@ -190,6 +279,12 @@ function ResourceService.Damage(node: Node, amount: number, fromPosition: Vector
 	end
 	node.Health = math.max(0, node.Health - amount)
 	node.Model:SetAttribute("Health", node.Health)
+	if node.Def.HitSound then
+		GameSoundService.PlayAt(node.Def.HitSound, node.BaseCFrame.Position + Vector3.new(0, 2, 0))
+	end
+	if node.Def.HitVFX then
+		VFXService.PlayAt(node.Def.HitVFX, node.BaseCFrame.Position + Vector3.new(0, 2.5, 0))
+	end
 	if node.Health > 0 then
 		return false
 	end
@@ -211,17 +306,43 @@ function ResourceService.Damage(node: Node, amount: number, fromPosition: Vector
 	return true
 end
 
--- Nodes near a world position (used by build validation & debugging).
 function ResourceService.GetIslandNodes(islandId: string): { Node }
-	return nodesByIsland[islandId] or {}
+	local list = {}
+	local nodes = nodesByIsland[islandId]
+	if nodes then
+		for _, node in nodes do
+			table.insert(list, node)
+		end
+	end
+	return list
+end
+
+-- Owner clears a natural node for good (it drops its minimum yield once).
+local function onRemoveRequest(player: Player, nodeId: any)
+	local node = ResourceService.GetNode(nodeId)
+	if not node then
+		return
+	end
+	local island = IslandService.GetIsland(player)
+	if not island or node.IslandId ~= island.Id then
+		AntiExploitService.Flag(player, "RemoveForeignNode", 2)
+		return
+	end
+	if node.Placed then
+		Notify.Error(player, "Use MOVE / DELETE in edit mode for things you planted.")
+		return
+	end
+	DataService.Set(player, { "Island", "RemovedNodes", node.SpotId }, true)
+	if not node.Depleted then
+		InventoryService.AddItem(player, node.Def.Resource, node.Def.Drops.Min, "ClearNode", { IgnoreCapacity = true })
+	end
+	VFXService.PlayAt("BuildDust", node.BaseCFrame.Position + Vector3.new(0, 1, 0))
+	GameSoundService.PlayAt("RockBreak", node.BaseCFrame.Position)
+	ResourceService.Despawn(node)
 end
 
 local function clearIsland(islandId: string)
-	local list = nodesByIsland[islandId]
-	if not list then
-		return
-	end
-	for _, node in list do
+	for _, node in nodesByIsland[islandId] or {} :: { [string]: Node } do
 		if node.RespawnThread then
 			pcall(task.cancel, node.RespawnThread)
 		end
@@ -230,18 +351,30 @@ local function clearIsland(islandId: string)
 	nodesByIsland[islandId] = nil
 end
 
+function ResourceService.Init()
+	Net.OnServerEvent("RemoveNodeRequest", onRemoveRequest)
+end
+
 function ResourceService.Start()
-	IslandService.IslandAssigned:Connect(function(player: Player, island: any)
-		local unlocked = IslandService.GetUnlockedAreas(player)
-		for areaId in unlocked do
-			ResourceService.SpawnArea(island, areaId)
+	IslandService.IslandAssigned:Connect(function(_player: Player, island: any)
+		local chunks = {}
+		for key, owned in IslandService.GetSampler(island).Data.Chunks do
+			local cx, cz = IslandGen.ParseKey(key)
+			if owned and cx and cz then
+				table.insert(chunks, { X = cx, Z = cz })
+			end
 		end
+		spawnChunks(island, chunks)
 	end)
-	IslandService.AreaUnlocked:Connect(function(player: Player, areaId: string)
-		local island = IslandService.GetIsland(player)
-		if island then
-			ResourceService.SpawnArea(island, areaId)
+	IslandService.ChunkAdded:Connect(function(_player: Player, island: any, cx: number, cz: number)
+		-- The new chunk plus neighbours whose coast just moved inland.
+		local around = {}
+		for dx = -1, 1 do
+			for dz = -1, 1 do
+				table.insert(around, { X = cx + dx, Z = cz + dz })
+			end
 		end
+		spawnChunks(island, around)
 	end)
 	IslandService.IslandReleased:Connect(function(_player: Player, islandId: string)
 		clearIsland(islandId)

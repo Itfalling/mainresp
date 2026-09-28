@@ -17,6 +17,10 @@
 		Capacity    housing: animals it holds, e.g. { Cow = 2 }
 		CapacityBonus  backpack capacity added when complete
 		Pen         housing: island-local offset of the animal pen centre + radius
+		Steps = 0   instant (soil tiles, saplings, rocks): appears finished right away
+		Node        places a harvestable resource node of this type instead of a model
+		Hidden      not listed in the build menu (e.g. the market stall)
+		Unique / NoDelete   one per island / can be moved but never removed
 ]]
 
 local TableUtil = require(script.Parent.Parent.Util.TableUtil)
@@ -28,6 +32,7 @@ local BuildingConfig = {
 		{ Id = "Homes", DisplayName = "Homes", Icon = "🏠" },
 		{ Id = "Farm", DisplayName = "Farm", Icon = "🐄" },
 		{ Id = "Utility", DisplayName = "Utility", Icon = "🧰" },
+		{ Id = "Nature", DisplayName = "Nature", Icon = "🌳" },
 		{ Id = "Decoration", DisplayName = "Decor", Icon = "🌸" },
 	},
 
@@ -60,6 +65,12 @@ local BuildingConfig = {
 			Footprint = Vector2.new(14, 22), Height = 13, Steps = 7, UnlockLevel = 1,
 			Capacity = { Cow = 2 }, Pen = { Offset = Vector2.new(0, 5.5), Radius = 4.5 },
 		},
+		SoilTile = {
+			Category = "Farm", DisplayName = "Soil Tile", Icon = "🟫", Order = 0,
+			Description = "A 4x4 farm tile. Till it with a hoe, then plant seeds. Place as many as you like!",
+			Cost = { Coins = 15, Items = {} },
+			Footprint = Vector2.new(4, 4), Height = 1, Steps = 0, UnlockLevel = 1,
+		},
 		ChickenCoop = {
 			Category = "Farm", DisplayName = "Chicken Coop", Icon = "🐔", Order = 2,
 			Description = "Houses 4 chickens. Required before you can buy chickens.",
@@ -80,6 +91,52 @@ local BuildingConfig = {
 			Description = "A charming stone well for your village square.",
 			Cost = { Coins = 40, Items = { Stone = 20, Wood = 5 } },
 			Footprint = Vector2.new(6, 6), Height = 8, Steps = 3, UnlockLevel = 1,
+		},
+
+		MarketStall = {
+			Category = "Utility", DisplayName = "Market Stall", Icon = "🛒", Order = 99,
+			Description = "Sell your goods and shop here. Move it anywhere you like.",
+			Cost = { Coins = 0, Items = {} },
+			Footprint = Vector2.new(10, 7), Height = 10, Steps = 0, UnlockLevel = 1,
+			Hidden = true, Unique = true, NoDelete = true,
+		},
+
+		-- NATURE (harvestable: they grow back after you chop / mine them)
+		OakSapling = {
+			Category = "Nature", DisplayName = "Oak Tree", Icon = "🌳", Order = 1,
+			Description = "Plant your own oak tree. Chop it for wood — it grows back!",
+			Cost = { Coins = 20, Items = { Wood = 2 } },
+			Footprint = Vector2.new(6, 6), Height = 14, Steps = 0, UnlockLevel = 1, Node = "Tree",
+		},
+		PalmSapling = {
+			Category = "Nature", DisplayName = "Palm Tree", Icon = "🌴", Order = 2,
+			Description = "A breezy palm for your beach.",
+			Cost = { Coins = 20, Items = { Wood = 2 } },
+			Footprint = Vector2.new(6, 6), Height = 14, Steps = 0, UnlockLevel = 1, Node = "PalmTree",
+		},
+		PineSapling = {
+			Category = "Nature", DisplayName = "Pine Tree", Icon = "🌲", Order = 3,
+			Description = "A tall pine that drops extra wood.",
+			Cost = { Coins = 30, Items = { Wood = 3 } },
+			Footprint = Vector2.new(6, 6), Height = 16, Steps = 0, UnlockLevel = 2, Node = "PineTree",
+		},
+		MapleSapling = {
+			Category = "Nature", DisplayName = "Maple Tree", Icon = "🍁", Order = 4,
+			Description = "Blazing orange leaves all year round.",
+			Cost = { Coins = 30, Items = { Wood = 3 } },
+			Footprint = Vector2.new(6, 6), Height = 14, Steps = 0, UnlockLevel = 2, Node = "AutumnTree",
+		},
+		Boulder = {
+			Category = "Nature", DisplayName = "Boulder", Icon = "🪨", Order = 5,
+			Description = "A rock you can mine again and again.",
+			Cost = { Coins = 25, Items = { Stone = 4 } },
+			Footprint = Vector2.new(5, 5), Height = 5, Steps = 0, UnlockLevel = 1, Node = "Rock",
+		},
+		FiberPlant = {
+			Category = "Nature", DisplayName = "Fiber Bush", Icon = "🌿", Order = 6,
+			Description = "Pick fiber by hand. Regrows quickly.",
+			Cost = { Coins = 10, Items = {} },
+			Footprint = Vector2.new(4, 4), Height = 4, Steps = 0, UnlockLevel = 1, Node = "FiberBush",
 		},
 
 		-- DECORATION

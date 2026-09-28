@@ -2,16 +2,23 @@
 	SCRIPT NAME:  DataSchema
 	SCRIPT TYPE:  ModuleScript (server)
 	WHERE:        ServerScriptService/Server/Data/DataSchema
-	DEPENDENCIES: Shared.Config.GameConfig, ItemConfig, ToolConfig, IslandConfig,
-	              ProgressionConfig, Shared.Util.TableUtil
+	DEPENDENCIES: Shared.Config.{GameConfig, ItemConfig, ToolConfig, IslandConfig, EconomyConfig,
+	              ProgressionConfig, BuildingConfig, CropConfig, AnimalConfig, QuestConfig},
+	              Shared.Util.{TableUtil, IslandGen}
 
 	Defines the saved player profile, migrates old versions and REPAIRS bad
 	data instead of wiping it (spec §146):
 	  * missing keys are filled from the template,
 	  * wrong types are reset (old value moved to Quarantine),
-	  * unknown item/tool/area ids are moved to Quarantine — NOT deleted — and
-	    are restored automatically if a later update re-adds that id,
+	  * unknown item/tool/building/crop/animal ids are moved to Quarantine —
+	    NOT deleted — and are restored automatically if a later update re-adds them,
 	  * numbers are clamped to sane, finite, integer ranges.
+
+	Version history:
+		1  Phase 1 island core
+		2  first playable loop (buildings, crops, animals, quests)
+		3  unique chunk islands (Seed/Theme/Shape/Chunks/Paint), soil tiles as
+		   buildings, holdable items on the hotbar, visiting + trading
 ]]
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -28,10 +35,11 @@ local CropConfig = require(Shared.Config.CropConfig)
 local AnimalConfig = require(Shared.Config.AnimalConfig)
 local QuestConfig = require(Shared.Config.QuestConfig)
 local TableUtil = require(Shared.Util.TableUtil)
+local IslandGen = require(Shared.Util.IslandGen)
 
 local DataSchema = {}
 
-DataSchema.CurrentVersion = 2
+DataSchema.CurrentVersion = 3
 
 -- Top-level keys never sent to the client.
 DataSchema.PrivateKeys = table.freeze({ Quarantine = true })
@@ -52,9 +60,9 @@ local TEMPLATE = {
 
 	Tools = {
 		Owned = {}, -- [toolId] = true
-		Hotbar = {}, -- array of toolIds (<= ToolConfig.HotbarSize)
-		Equipped = "", -- "" = nothing
-		Durability = {}, -- [toolId] = number (optional system)
+		Hotbar = {}, -- array of toolIds and holdable itemIds (<= ToolConfig.HotbarSize)
+		Equipped = "", -- toolId or itemId in your hands; "" = empty hands
+		Durability = {},
 	},
 
 	Island = {
@@ -62,20 +70,25 @@ local TEMPLATE = {
 		Name = "",
 		Level = GameConfig.StartingIslandLevel,
 		XP = 0,
+		Created = false, -- set by the Island Creator
+		Seed = 0,
 		Theme = IslandConfig.DefaultTheme,
-		Permission = "Private", -- Private | Friends | Public (Phase 12)
-		UnlockedAreas = { Starter = true },
+		Shape = IslandConfig.DefaultShape,
+		Chunks = {}, -- ["cx_cz"] = true (owned land)
+		Paint = {}, -- ["px_pz"] = material name (8-stud cells)
+		RemovedNodes = {}, -- [spotId] = true (natural trees/rocks cleared for good)
+		Access = { Visitors = "Everyone", Helpers = {} }, -- Helpers: [tostring(userId)] = true
+		StallPlaced = false,
+		StarterTilesPlaced = false,
 		-- [uniqueId] = { BuildingId, UniqueId, Position = {X,Y,Z} (island-local), Rotation, Variant, State, Progress }
 		Buildings = {},
-		Decorations = {},
-		-- [tileId] = { TileId, State = "Tilled"|"Planted", CropId, Position, PlantedAt, WateredAt }
+		-- [soilTileUniqueId] = { TileId, State = "Tilled"|"Planted", CropId, PlantedAt, WateredAt }
 		Crops = {},
 		-- [uniqueId] = { AnimalId, UniqueId, Variant, HousingId, Happiness, HappinessAt, FedAt, ProduceReadyAt, PettedAt }
 		Animals = {},
-		FarmTiles = CropConfig.Farm.StarterTiles,
-		Upgrades = { FarmTiles = 0, Capacity = 0 },
+		Upgrades = { Capacity = 0 },
 		Storage = {},
-		Production = {}, -- Phase 8: production queues
+		Production = {},
 		Likes = 0,
 		Visits = 0,
 	},
@@ -85,6 +98,7 @@ local TEMPLATE = {
 	Collection = { Fish = {}, Crops = {}, Animals = {}, Items = {} },
 	Recipes = {},
 	Cosmetics = { Owned = {}, Equipped = {} },
+	Social = { LikesGiven = {}, TradesCompleted = 0, IslandsVisited = 0 }, -- LikesGiven: [ownerUserId] = day number
 
 	Stats = {
 		PlayTime = 0,
@@ -121,6 +135,32 @@ function DataSchema.Template()
 	return TableUtil.DeepCopy(TEMPLATE)
 end
 
+local function hashString(text: string): number
+	local value = 5381
+	for index = 1, #text do
+		value = (value * 33 + string.byte(text, index)) % 2_000_000_000
+	end
+	return math.max(1, value)
+end
+
+-- Old (v2) starter farm plot: 4 x 3 tiles centred at (26, -2), 4.8-stud pitch.
+local function oldStarterTilePosition(index: number): Vector2
+	local column = (index - 1) % 4 + 1
+	local row = (index - 1) // 4 + 1
+	return Vector2.new(26 + (column - 2.5) * 4.8, -2 + (row - 2) * 4.8)
+end
+
+local function claimChunksAround(chunks: { [string]: boolean }, x: number, z: number)
+	local cx, cz = IslandGen.ChunkOf(x, z)
+	for dx = -1, 1 do
+		for dz = -1, 1 do
+			if IslandGen.InGrid(cx + dx, cz + dz) then
+				chunks[IslandGen.Key(cx + dx, cz + dz)] = true
+			end
+		end
+	end
+end
+
 -- version -> function(data) upgrading FROM that version to version + 1
 local MIGRATIONS: { [number]: (any) -> () } = {
 	-- v1 -> v2: first playable loop. Players who already opened the starter
@@ -138,7 +178,7 @@ local MIGRATIONS: { [number]: (any) -> () } = {
 				data.Tools.Hotbar = {}
 			end
 			for _, toolId in GameConfig.StarterKit.Tools do
-				if data.Tools.Owned[toolId] ~= true then
+				if ToolConfig.Get(toolId) and data.Tools.Owned[toolId] ~= true then
 					data.Tools.Owned[toolId] = true
 					table.insert(data.Tools.Hotbar, toolId)
 				end
@@ -157,6 +197,75 @@ local MIGRATIONS: { [number]: (any) -> () } = {
 					data.Island[key] = {}
 				end
 			end
+		end
+	end,
+
+	-- v2 -> v3: fixed "areas" become a unique chunk island. Everything the
+	-- player built stays on land, and the old farm tiles become soil tiles.
+	[2] = function(data)
+		if type(data.Island) ~= "table" then
+			return
+		end
+		local island = data.Island
+		local unlockedCount = 0
+		if type(island.UnlockedAreas) == "table" then
+			for _, value in island.UnlockedAreas do
+				if value == true then
+					unlockedCount += 1
+				end
+			end
+		end
+		local seed = hashString(if type(island.IslandId) == "string" and island.IslandId ~= "" then island.IslandId else tostring(os.clock()))
+		local chunks = IslandGen.GenerateStarter(seed, "Round", IslandConfig.StarterChunks + math.max(0, unlockedCount - 1) * 10)
+
+		local buildings = if type(island.Buildings) == "table" then island.Buildings else {}
+		for _, entry in buildings do
+			if type(entry) == "table" and type(entry.Position) == "table" and tonumber(entry.Position.X) and tonumber(entry.Position.Z) then
+				claimChunksAround(chunks, entry.Position.X, entry.Position.Z)
+			end
+		end
+
+		-- Old starter farm tiles -> SoilTile buildings (crop data moves with them).
+		local oldCrops = if type(island.Crops) == "table" then island.Crops else {}
+		local newCrops = {}
+		local tileCount = math.clamp(tonumber(island.FarmTiles) or 6, 0, 12)
+		for index = 1, tileCount do
+			local position = oldStarterTilePosition(index)
+			local uniqueId = "SoilS" .. index
+			buildings[uniqueId] = {
+				BuildingId = "SoilTile",
+				UniqueId = uniqueId,
+				Position = { X = position.X, Y = IslandConfig.LandHeight, Z = position.Y },
+				Rotation = 0,
+				Variant = "Default",
+				State = "Complete",
+				Progress = 0,
+			}
+			claimChunksAround(chunks, position.X, position.Y)
+			local crop = oldCrops["S" .. index]
+			if type(crop) == "table" then
+				crop.TileId = uniqueId
+				newCrops[uniqueId] = crop
+			end
+		end
+
+		island.Buildings = buildings
+		island.Crops = newCrops
+		island.Created = true
+		island.Seed = seed
+		island.Theme = if IslandConfig.Themes[island.Theme] then island.Theme else IslandConfig.DefaultTheme
+		island.Shape = "Round"
+		island.Chunks = chunks
+		island.Paint = {}
+		island.RemovedNodes = {}
+		island.StarterTilesPlaced = true
+		island.StallPlaced = false
+		island.UnlockedAreas = nil
+		island.FarmTiles = nil
+		island.Permission = nil
+		island.Decorations = nil
+		if type(island.Upgrades) == "table" then
+			island.Upgrades.FarmTiles = nil
 		end
 	end,
 }
@@ -199,6 +308,116 @@ function DataSchema.Migrate(data: any): any
 	return data
 end
 
+-- Is this id something that can sit on the hotbar?
+function DataSchema.IsHoldable(id: any): boolean
+	if type(id) ~= "string" then
+		return false
+	end
+	if ToolConfig.Get(id) then
+		return true
+	end
+	local item = ItemConfig.Get(id)
+	return item ~= nil and ItemConfig.IsHoldable(id)
+end
+
+local function sanitizeTools(data: any)
+	local quarantine = data.Quarantine
+	for toolId, owned in data.Tools.Owned do
+		if owned ~= true then
+			data.Tools.Owned[toolId] = nil
+		elseif not ToolConfig.Get(toolId) then
+			quarantine.Tools[tostring(toolId)] = true
+			data.Tools.Owned[toolId] = nil
+		end
+	end
+	local items = data.Inventory.Items
+	local hotbar = {}
+	local seen = {}
+	for _, id in data.Tools.Hotbar do
+		if #hotbar >= ToolConfig.HotbarSize then
+			break
+		end
+		if type(id) == "string" and not seen[id] then
+			local keep = if ToolConfig.Get(id) then data.Tools.Owned[id] == true else DataSchema.IsHoldable(id) and (items[id] or 0) > 0
+			if keep then
+				seen[id] = true
+				table.insert(hotbar, id)
+			end
+		end
+	end
+	data.Tools.Hotbar = hotbar
+	local equipped = data.Tools.Equipped
+	if equipped ~= "" then
+		local valid = if ToolConfig.Get(equipped) then data.Tools.Owned[equipped] == true else DataSchema.IsHoldable(equipped) and (items[equipped] or 0) > 0
+		if not valid then
+			data.Tools.Equipped = ""
+		end
+	end
+end
+
+local function sanitizeIslandShape(data: any)
+	local island = data.Island
+	if type(island.Name) ~= "string" or #island.Name > IslandConfig.NameMaxLength * 4 then
+		island.Name = ""
+	end
+	if not IslandConfig.Themes[island.Theme] then
+		island.Theme = IslandConfig.DefaultTheme
+	end
+	if not IslandConfig.Shapes[island.Shape] then
+		island.Shape = IslandConfig.DefaultShape
+	end
+	island.Seed = cleanInteger(island.Seed, 0, 2_000_000_000, 0)
+	if island.Created == true and island.Seed == 0 then
+		island.Seed = hashString(island.IslandId ~= "" and island.IslandId or "island")
+	end
+
+	local chunks = {}
+	local count = 0
+	for key, value in island.Chunks do
+		if value == true and type(key) == "string" then
+			local cx, cz = IslandGen.ParseKey(key)
+			if cx and cz and IslandGen.InGrid(cx, cz) and count < IslandConfig.Expansion.MaxChunks then
+				chunks[IslandGen.Key(cx, cz)] = true
+				count += 1
+			end
+		end
+	end
+	if island.Created == true and count < 4 then
+		chunks = IslandGen.GenerateStarter(island.Seed, island.Shape)
+	end
+	island.Chunks = chunks
+
+	local paint = {}
+	local painted = 0
+	for key, material in island.Paint do
+		if type(key) == "string" and string.match(key, "^%-?%d+_%-?%d+$") and IslandConfig.Paint[material] and painted < IslandConfig.MaxPaintCells then
+			paint[key] = material
+			painted += 1
+		end
+	end
+	island.Paint = paint
+
+	for key, value in island.RemovedNodes do
+		if type(key) ~= "string" or value ~= true then
+			island.RemovedNodes[key] = nil
+		end
+	end
+
+	if not table.find(IslandConfig.VisitorModes, island.Access.Visitors) then
+		island.Access.Visitors = "Everyone"
+	end
+	if type(island.Access.Helpers) ~= "table" then
+		island.Access.Helpers = {}
+	end
+	for key, value in island.Access.Helpers do
+		if type(key) ~= "string" or not tonumber(key) or value ~= true then
+			island.Access.Helpers[key] = nil
+		end
+	end
+	island.Likes = cleanInteger(island.Likes, 0, 1e12, 0)
+	island.Visits = cleanInteger(island.Visits, 0, 1e12, 0)
+end
+
 -- Returns a repaired profile table. Never returns nil for a table input.
 function DataSchema.Sanitize(raw: any): any
 	local data = if type(raw) == "table" then raw else DataSchema.Template()
@@ -220,6 +439,10 @@ function DataSchema.Sanitize(raw: any): any
 	data.Island.Level = cleanInteger(data.Island.Level, 1, ProgressionConfig.Island.MaxLevel, 1)
 	data.Island.XP = cleanInteger(data.Island.XP, 0, math.huge, 0)
 	data.Inventory.Capacity = cleanInteger(data.Inventory.Capacity, GameConfig.Inventory.StartingCapacity, 1_000_000, GameConfig.Inventory.StartingCapacity)
+	data.Island.Upgrades.Capacity = cleanInteger(data.Island.Upgrades.Capacity, 0, 100, 0)
+	data.Social.TradesCompleted = cleanInteger(data.Social.TradesCompleted, 0, 1e9, 0)
+	data.Settings.MusicVolume = math.clamp(if isFiniteNumber(data.Settings.MusicVolume) then data.Settings.MusicVolume else 0.5, 0, 1)
+	data.Settings.SfxVolume = math.clamp(if isFiniteNumber(data.Settings.SfxVolume) then data.Settings.SfxVolume else 0.8, 0, 1)
 
 	-- Restore quarantined ids that are valid again (e.g. an item re-added in an update).
 	local quarantine = data.Quarantine
@@ -233,12 +456,6 @@ function DataSchema.Sanitize(raw: any): any
 		if ToolConfig.Get(toolId) then
 			data.Tools.Owned[toolId] = true
 			quarantine.Tools[toolId] = nil
-		end
-	end
-	for areaId in quarantine.Areas do
-		if IslandConfig.Areas[areaId] then
-			data.Island.UnlockedAreas[areaId] = true
-			quarantine.Areas[areaId] = nil
 		end
 	end
 
@@ -259,50 +476,8 @@ function DataSchema.Sanitize(raw: any): any
 		end
 	end
 
-	-- Tools
-	for toolId, owned in data.Tools.Owned do
-		if owned ~= true then
-			data.Tools.Owned[toolId] = nil
-		elseif not ToolConfig.Get(toolId) then
-			quarantine.Tools[tostring(toolId)] = true
-			data.Tools.Owned[toolId] = nil
-		end
-	end
-	local hotbar = {}
-	local seen = {}
-	for _, toolId in data.Tools.Hotbar do
-		if #hotbar >= ToolConfig.HotbarSize then
-			break
-		end
-		if type(toolId) == "string" and data.Tools.Owned[toolId] and not seen[toolId] then
-			seen[toolId] = true
-			table.insert(hotbar, toolId)
-		end
-	end
-	data.Tools.Hotbar = hotbar
-	if data.Tools.Equipped ~= "" and not data.Tools.Owned[data.Tools.Equipped] then
-		data.Tools.Equipped = ""
-	end
-
-	-- Island areas
-	for areaId, unlocked in data.Island.UnlockedAreas do
-		if unlocked ~= true then
-			data.Island.UnlockedAreas[areaId] = nil
-		elseif not IslandConfig.Areas[areaId] then
-			quarantine.Areas[tostring(areaId)] = true
-			data.Island.UnlockedAreas[areaId] = nil
-		end
-	end
-	data.Island.UnlockedAreas.Starter = true
-	if type(data.Island.Name) ~= "string" or #data.Island.Name > IslandConfig.NameMaxLength * 4 then
-		data.Island.Name = ""
-	end
-
-	local maxTiles = CropConfig.Farm.Columns * CropConfig.Farm.Rows
-	data.Island.FarmTiles = cleanInteger(data.Island.FarmTiles, CropConfig.Farm.StarterTiles, maxTiles, CropConfig.Farm.StarterTiles)
-	data.Island.Upgrades.FarmTiles = cleanInteger(data.Island.Upgrades.FarmTiles, 0, 100, 0)
-	data.Island.Upgrades.Capacity = cleanInteger(data.Island.Upgrades.Capacity, 0, 100, 0)
-
+	sanitizeTools(data)
+	sanitizeIslandShape(data)
 	DataSchema.SanitizeIsland(data)
 	DataSchema.SanitizeQuests(data)
 	return data
@@ -332,8 +507,12 @@ local function validBuilding(entry: any): boolean
 	return true
 end
 
-local function validCrop(key: any, entry: any, now: number): boolean
-	if type(key) ~= "string" or not string.match(key, "^%u%d+$") or type(entry) ~= "table" then
+local function validCrop(key: any, entry: any, buildings: any, now: number): boolean
+	if type(key) ~= "string" or type(entry) ~= "table" then
+		return false
+	end
+	local tile = buildings[key]
+	if type(tile) ~= "table" or tile.BuildingId ~= "SoilTile" then
 		return false
 	end
 	if entry.State == "Tilled" then
@@ -368,7 +547,7 @@ function DataSchema.SanitizeIsland(data: any)
 			local steps = BuildingConfig.Get(entry.BuildingId).Steps
 			entry.UniqueId = key
 			entry.Variant = if type(entry.Variant) == "string" then entry.Variant else "Default"
-			entry.Progress = cleanInteger(entry.Progress, 0, steps, 0)
+			entry.Progress = cleanInteger(entry.Progress, 0, math.max(steps, 0), 0)
 			entry.State = if entry.State == "Complete" or entry.Progress >= steps then "Complete" else "Constructing"
 		else
 			quarantine.Buildings[tostring(key)] = entry
@@ -376,9 +555,16 @@ function DataSchema.SanitizeIsland(data: any)
 		end
 	end
 
+	for key, entry in quarantine.Crops do
+		if validCrop(key, entry, island.Buildings, now) and island.Crops[key] == nil then
+			island.Crops[key] = entry
+			quarantine.Crops[key] = nil
+		end
+	end
 	for key, entry in island.Crops do
-		if validCrop(key, entry, now) then
+		if validCrop(key, entry, island.Buildings, now) then
 			entry.TileId = key
+			entry.Position = nil
 			if entry.State == "Planted" then
 				entry.WateredAt = if isFiniteNumber(entry.WateredAt) then entry.WateredAt else 0
 			else
@@ -449,8 +635,11 @@ function DataSchema.IsSaveable(data: any): (boolean, string?)
 	if type(data.Inventory) ~= "table" or type(data.Inventory.Items) ~= "table" then
 		return false, "invalid Inventory"
 	end
-	if type(data.Island) ~= "table" or type(data.Island.UnlockedAreas) ~= "table" then
+	if type(data.Island) ~= "table" or type(data.Island.Chunks) ~= "table" then
 		return false, "invalid Island"
+	end
+	if data.Island.Created == true and next(data.Island.Chunks) == nil then
+		return false, "created island has no land"
 	end
 	return true, nil
 end

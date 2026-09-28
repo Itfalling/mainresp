@@ -4,17 +4,17 @@
 	WHERE:        ReplicatedStorage/Shared/Config/AnimationConfig
 	DEPENDENCIES: Shared.Util.TableUtil
 
-	!!! EVERY Id BELOW IS A PLACEHOLDER — NO REAL ANIMATIONS SHIP WITH THIS PROJECT !!!
-	Replace "rbxassetid://PLACEHOLDER" with your uploaded R15 animation ids.
-	See docs/ASSETS.md for how to author/upload them and which markers to add.
+	HOW ANIMATION WORKS IN THIS GAME
+	Every action below is FULLY ANIMATED out of the box: real R15 keyframes
+	live in Shared/Animation/Keyframes and every client plays them on every
+	character (so all players see each other chop, fish, milk, dance...).
+	The Id fields are "rbxassetid://PLACEHOLDER" because no uploaded
+	animation ships with this project (we never invent asset ids). If you
+	upload your own R15 animation, paste its id here and clients play it
+	instead of the built-in keyframes — nothing else changes.
 
-	Until an Id is real, AnimationPlayer:
-	  * still fires every marker at the `Markers` times below (so gameplay works),
-	  * still fires Ended after `Length` seconds,
-	  * optionally plays a tiny procedural arm pose (`Fallback`) on the local
-	    character so you can SEE the timing while prototyping.
-	When you paste in a real Id nothing else changes: markers come from the
-	animation itself (a watchdog still fires any marker the animation forgot).
+	Length and Markers here drive BOTH the keyframes (impact frames sit on the
+	markers) and the server's gameplay timing (AnimationService.PerformAction).
 
 	Field reference (spec §74):
 		Id            rbxassetid:// of the uploaded animation
@@ -27,7 +27,8 @@
 		BodyParts     which R15 parts the animation should key (documentation for animators)
 		Start / End   start + end conditions (documentation)
 		Interruptible can a new action cut it off
-		Fallback      procedural placeholder pose style (see ProceduralFallback)
+		Repeat        play the keyframe cycle this many times (emotes)
+		Fallback      (legacy, unused)
 		AnimateSlot   (Movement only) { childName, animationName } inside the default Animate script
 
 	Priority rules (spec §73):
@@ -60,10 +61,6 @@ local function anim(def: { [string]: any })
 end
 
 local AnimationConfig = {
-	-- Show procedural arm poses for placeholder animations (local player only).
-	-- Purely a prototyping aid — set false once real animations are in.
-	UseProceduralFallback = true,
-
 	-- If a REAL animation is missing a configured marker, fire it anyway this
 	-- many seconds after its configured time (and warn once).
 	MarkerWatchdogGrace = 0.15,
@@ -170,6 +167,8 @@ local AnimationConfig = {
 			Celebrate = anim({ Purpose = "Level up / unlock celebration", Priority = "Action3", Length = 1.6, BodyParts = FULL_BODY, Fallback = "Cheer" }),
 			Sit = anim({ Purpose = "Sit on benches", Priority = "Action3", Looped = true, Length = 2, BodyParts = FULL_BODY }),
 			Point = anim({ Purpose = "Point at something", Priority = "Action3", Length = 1.2, Fallback = "Point" }),
+			Dance = anim({ Purpose = "Happy island dance (emote)", Priority = "Action3", Length = 0.9, Repeat = 4, BodyParts = FULL_BODY }),
+			OpenChest = anim({ Purpose = "Lift a chest lid", Priority = "Action2", Length = 1.1, Markers = { Open = 0.75 }, MarkerEffects = { Open = { Sound = "ChestOpen" } }, BodyParts = FULL_BODY }),
 		},
 
 		-- Non-humanoid rigs (AnimationController). Used from Phase 6.

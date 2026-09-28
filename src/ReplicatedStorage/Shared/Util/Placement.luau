@@ -3,7 +3,7 @@
 	SCRIPT NAME:  Placement
 	SCRIPT TYPE:  ModuleScript (shared utility)
 	WHERE:        ReplicatedStorage/Shared/Util/Placement
-	DEPENDENCIES: Shared.Config.{BuildConfig, BuildingConfig}, Shared.Util.IslandLayout
+	DEPENDENCIES: Shared.Config.BuildConfig, Shared.Util.IslandGen
 
 	Build-grid math shared by the client preview and the server validator.
 	All positions are ISLAND-LOCAL.
@@ -11,7 +11,7 @@
 
 local Config = script.Parent.Parent.Config
 local BuildConfig = require(Config.BuildConfig)
-local IslandLayout = require(script.Parent.IslandLayout)
+local IslandGen = require(script.Parent.IslandGen)
 
 local Placement = {}
 
@@ -52,13 +52,14 @@ function Placement.Corners(center: Vector2, size: Vector2): { Vector2 }
 	}
 end
 
--- Every corner (and the centre) must be on land the owner has unlocked.
-function Placement.IsOnUnlockedLand(unlocked: { [string]: boolean }, center: Vector2, size: Vector2): boolean
-	if not IslandLayout.IsOnUnlockedLand(unlocked, center, BuildConfig.EdgeMargin) then
+-- Every corner (and the centre) must be buildable land the owner owns.
+-- sampler = IslandGen.NewSampler(islandData)
+function Placement.IsOnLand(sampler: any, center: Vector2, size: Vector2): boolean
+	if not IslandGen.IsBuildable(sampler, center.X, center.Y) then
 		return false
 	end
 	for _, corner in Placement.Corners(center, size) do
-		if not IslandLayout.IsOnUnlockedLand(unlocked, corner, BuildConfig.EdgeMargin) then
+		if not IslandGen.IsBuildable(sampler, corner.X, corner.Y) then
 			return false
 		end
 	end

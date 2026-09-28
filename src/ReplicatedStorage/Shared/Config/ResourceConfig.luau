@@ -55,6 +55,26 @@ local ResourceConfig = {
 			Drops = { Min = 3, Max = 5 }, Respawn = 40, Action = "Chop", XPSource = "ChopTree", Model = "Oak",
 			HitSound = "WoodHit", BreakSound = "TreeFall", HitVFX = "WoodChips", BreakVFX = "LeafBurst", FallOver = true,
 		},
+		PalmTree = {
+			DisplayName = "Palm Tree", Resource = "Wood", Health = 100, ToolType = "Axe", MinTier = 1, DamagePerPower = 25,
+			Drops = { Min = 3, Max = 5 }, Respawn = 40, Action = "Chop", XPSource = "ChopTree", Model = "Palm",
+			HitSound = "WoodHit", BreakSound = "TreeFall", HitVFX = "WoodChips", BreakVFX = "LeafBurst", FallOver = true,
+		},
+		AutumnTree = {
+			DisplayName = "Maple Tree", Resource = "Wood", Health = 100, ToolType = "Axe", MinTier = 1, DamagePerPower = 25,
+			Drops = { Min = 3, Max = 5 }, Respawn = 40, Action = "Chop", XPSource = "ChopTree", Model = "Maple",
+			HitSound = "WoodHit", BreakSound = "TreeFall", HitVFX = "WoodChips", BreakVFX = "LeafBurst", FallOver = true,
+		},
+		SnowPine = {
+			DisplayName = "Snowy Pine", Resource = "Wood", Health = 125, ToolType = "Axe", MinTier = 1, DamagePerPower = 25,
+			Drops = { Min = 4, Max = 6 }, Respawn = 50, Action = "Chop", XPSource = "ChopTree", Model = "SnowPine",
+			HitSound = "WoodHit", BreakSound = "TreeFall", HitVFX = "WoodChips", BreakVFX = "Sparkle", FallOver = true,
+		},
+		Cactus = {
+			DisplayName = "Cactus", Resource = "Fiber", Health = 50, ToolType = "Axe", MinTier = 1, DamagePerPower = 25,
+			Drops = { Min = 3, Max = 5 }, Respawn = 35, Action = "Chop", XPSource = "GatherFiber", Model = "Cactus",
+			HitSound = "WoodHit", BreakSound = "TreeFall", HitVFX = "LeafBurst", BreakVFX = "LeafBurst", FallOver = true,
+		},
 		PineTree = {
 			DisplayName = "Pine Tree", Resource = "Wood", Health = 125, ToolType = "Axe", MinTier = 1, DamagePerPower = 25,
 			Drops = { Min = 4, Max = 6 }, Respawn = 50, Action = "Chop", XPSource = "ChopTree", Model = "Pine",

@@ -5,9 +5,10 @@
 	DEPENDENCIES: Client.UI.Theme
 
 	Tiny UI kit so every screen looks consistent and nothing is rebuilt from
-	scratch: Create(), rounded panels, chunky buttons with press bounce,
-	currency pills, progress bars. Frames are created once and updated in
-	place (spec §116).
+	scratch: Create(), rounded panels with drop shadows and gradient headers,
+	chunky "3D" buttons (gradient + bevel + press bounce + click sound),
+	currency pills, progress bars, tab rows. Frames are created once and
+	updated in place (spec §116).
 ]]
 
 local TweenService = game:GetService("TweenService")
@@ -17,9 +18,14 @@ local Theme = require(script.Parent.Theme)
 local Components = {}
 
 local clickSound: (() -> ())? = nil
+local hoverSound: (() -> ())? = nil
 
 function Components.SetClickSound(callback: () -> ())
 	clickSound = callback
+end
+
+function Components.SetHoverSound(callback: () -> ())
+	hoverSound = callback
 end
 
 -- Create("Frame", { Size = ..., Parent = ... }, { children })
@@ -70,6 +76,15 @@ function Components.TextStroke(parent: Instance, color: Color3?, thickness: numb
 	})
 end
 
+-- Vertical gradient from `top` to `bottom` (multiplies the object's colour).
+function Components.Gradient(parent: Instance, top: Color3, bottom: Color3): UIGradient
+	return Create("UIGradient", {
+		Rotation = 90,
+		Color = ColorSequence.new(top, bottom),
+		Parent = parent,
+	})
+end
+
 function Components.Padding(parent: Instance, pixels: number)
 	return Create("UIPadding", {
 		PaddingTop = UDim.new(0, pixels),
@@ -104,6 +119,16 @@ function Components.Bounce(guiObject: GuiObject, amount: number?)
 	TweenService:Create(scale, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
 end
 
+-- Fade + scale a window in (and optionally out).
+function Components.PopIn(guiObject: GuiObject)
+	local scale = guiObject:FindFirstChild("BounceScale")
+	if not scale then
+		scale = Create("UIScale", { Name = "BounceScale", Parent = guiObject })
+	end
+	scale.Scale = 0.85
+	TweenService:Create(scale, TweenInfo.new(0.28, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
+end
+
 export type ButtonProps = {
 	Text: string,
 	Color: Color3?,
@@ -115,7 +140,18 @@ export type ButtonProps = {
 	Parent: Instance?,
 	Name: string?,
 	OnClick: (() -> ())?,
+	Flat: boolean?, -- no bevel / text outline (tabs, list rows)
 }
+
+-- Sets a button's base colour (keeps the gradient + bevel consistent).
+function Components.SetButtonColor(button: GuiButton, color: Color3)
+	button.BackgroundColor3 = color
+	button:SetAttribute("BaseColor", color)
+	local bevel = button:FindFirstChild("Bevel")
+	if bevel and bevel:IsA("Frame") then
+		bevel.BackgroundColor3 = Theme.Darken(color, 0.28)
+	end
+end
 
 function Components.Button(props: ButtonProps): TextButton
 	local color = props.Color or Theme.Colors.Green
@@ -132,15 +168,42 @@ function Components.Button(props: ButtonProps): TextButton
 		TextColor3 = props.TextColor or Theme.Colors.TextLight,
 		Parent = props.Parent,
 	})
+	button:SetAttribute("BaseColor", color)
 	Components.Corner(button, Theme.SmallCorner)
-	Components.Stroke(button)
-	Components.TextStroke(button, Theme.Colors.Outline, 1.5)
+	Components.Stroke(button, Theme.Colors.Outline, if props.Flat then 2 else 3)
+	Components.Gradient(button, Color3.new(1, 1, 1), Color3.fromRGB(215, 215, 215))
+	if not props.Flat then
+		Components.TextStroke(button, Theme.Colors.Outline, 1.6)
+		-- Darker bevel along the bottom edge gives the "chunky" 3D look.
+		local bevel = Create("Frame", {
+			Name = "Bevel",
+			Size = UDim2.new(1, 0, 0, 5),
+			Position = UDim2.new(0, 0, 1, -5),
+			BackgroundColor3 = Theme.Darken(color, 0.28),
+			BorderSizePixel = 0,
+			Parent = button,
+		})
+		Components.Corner(bevel, Theme.SmallCorner)
+	end
 
+	local function base(): Color3
+		local value = button:GetAttribute("BaseColor")
+		return if typeof(value) == "Color3" then value else color
+	end
 	button.MouseEnter:Connect(function()
-		button.BackgroundColor3 = color:Lerp(Color3.new(1, 1, 1), 0.15)
+		button.BackgroundColor3 = Theme.Lighten(base(), 0.14)
+		if hoverSound and button.Active then
+			hoverSound()
+		end
 	end)
 	button.MouseLeave:Connect(function()
-		button.BackgroundColor3 = color
+		button.BackgroundColor3 = base()
+	end)
+	button.MouseButton1Down:Connect(function()
+		button.BackgroundColor3 = Theme.Darken(base(), 0.08)
+	end)
+	button.MouseButton1Up:Connect(function()
+		button.BackgroundColor3 = base()
 	end)
 	button.Activated:Connect(function()
 		Components.Bounce(button, 0.08)
@@ -154,6 +217,37 @@ function Components.Button(props: ButtonProps): TextButton
 	return button
 end
 
+-- Round icon button (HUD menu): big emoji + small caption under it.
+function Components.IconButton(props: { Icon: string, Caption: string, Color: Color3, Parent: Instance, LayoutOrder: number?, OnClick: () -> () }): TextButton
+	local button = Components.Button({
+		Name = props.Caption .. "Button",
+		Text = props.Icon,
+		Color = props.Color,
+		Size = UDim2.fromOffset(70, 70),
+		TextSize = 36,
+		Parent = props.Parent,
+		OnClick = props.OnClick,
+	})
+	button.LayoutOrder = props.LayoutOrder or 0
+	Components.Corner(button, UDim.new(0, 22))
+	local bevel = button:FindFirstChild("Bevel")
+	if bevel then
+		Components.Corner(bevel, UDim.new(0, 22))
+	end
+	local caption = Components.Label({
+		Name = "Caption",
+		Text = props.Caption,
+		Size = UDim2.new(1, 12, 0, 18),
+		Position = UDim2.new(0.5, 0, 1, 2),
+		AnchorPoint = Vector2.new(0.5, 0),
+		TextSize = 14,
+		TextColor3 = Theme.Colors.TextLight,
+		Parent = button,
+	})
+	Components.TextStroke(caption, Theme.Colors.Outline, 2)
+	return button
+end
+
 -- Top-bar style pill: [icon] value. Returns (frame, valueLabel).
 function Components.Pill(props: { Icon: string, Color: Color3, Width: number?, Parent: Instance?, LayoutOrder: number? }): (Frame, TextLabel)
 	local frame = Create("Frame", {
@@ -164,6 +258,7 @@ function Components.Pill(props: { Icon: string, Color: Color3, Width: number?, P
 	})
 	Components.Corner(frame, UDim.new(1, 0))
 	Components.Stroke(frame)
+	Components.Gradient(frame, Color3.new(1, 1, 1), Color3.fromRGB(232, 226, 214))
 
 	local iconBubble = Create("Frame", {
 		Size = UDim2.fromOffset(52, 52),
@@ -174,6 +269,7 @@ function Components.Pill(props: { Icon: string, Color: Color3, Width: number?, P
 	})
 	Components.Corner(iconBubble, UDim.new(1, 0))
 	Components.Stroke(iconBubble)
+	Components.Gradient(iconBubble, Color3.new(1, 1, 1), Color3.fromRGB(205, 205, 205))
 	Components.Label({
 		Text = props.Icon,
 		Size = UDim2.fromScale(1, 1),
@@ -212,6 +308,7 @@ function Components.ProgressBar(props: { Size: UDim2, Position: UDim2?, Color: C
 		Parent = frame,
 	})
 	Components.Corner(fill, UDim.new(1, 0))
+	Components.Gradient(fill, Color3.new(1, 1, 1), Color3.fromRGB(200, 200, 200))
 
 	local function setProgress(alpha: number, animate: boolean?)
 		local target = UDim2.fromScale(math.clamp(alpha, 0, 1), 1)
@@ -224,33 +321,53 @@ function Components.ProgressBar(props: { Size: UDim2, Position: UDim2?, Color: C
 	return { Frame = frame, Fill = fill, SetProgress = setProgress }
 end
 
--- Rounded cream panel with a title and close button. Returns (panel, content, closeButton).
-function Components.Panel(props: { Title: string, Size: UDim2, Parent: Instance?, OnClose: (() -> ())? }): (Frame, Frame, TextButton)
-	local panel = Create("Frame", {
+-- Rounded cream window with a drop shadow, gradient header and close button.
+-- Returns (window, content, closeButton). `window` is a transparent container
+-- (shadow + body) so it can be shown / hidden / bounced as one piece.
+function Components.Panel(props: { Title: string, Size: UDim2, Parent: Instance?, OnClose: (() -> ())?, Color: Color3? }): (Frame, Frame, TextButton)
+	local headerColor = props.Color or Theme.Colors.Header
+	local window = Create("Frame", {
 		Size = props.Size,
 		Position = UDim2.fromScale(0.5, 0.5),
 		AnchorPoint = Vector2.new(0.5, 0.5),
-		BackgroundColor3 = Theme.Colors.Panel,
+		BackgroundTransparency = 1,
 		Parent = props.Parent,
 	})
-	Components.Corner(panel)
-	Components.Stroke(panel, Theme.Colors.Outline, 4)
+	local shadow = Create("Frame", {
+		Name = "Shadow",
+		Size = UDim2.new(1, 8, 1, 8),
+		Position = UDim2.fromOffset(-2, 6),
+		BackgroundColor3 = Theme.Colors.Shadow,
+		BackgroundTransparency = 0.72,
+		Parent = window,
+	})
+	Components.Corner(shadow, UDim.new(0, 22))
+	local body = Create("Frame", {
+		Name = "Body",
+		Size = UDim2.fromScale(1, 1),
+		BackgroundColor3 = Theme.Colors.Panel,
+		Parent = window,
+	})
+	Components.Corner(body)
+	Components.Stroke(body, Theme.Colors.Outline, 4)
 
 	local header = Create("Frame", {
 		Name = "Header",
-		Size = UDim2.new(1, 0, 0, 54),
-		BackgroundColor3 = Theme.Colors.Blue,
-		Parent = panel,
+		Size = UDim2.new(1, 0, 0, 56),
+		BackgroundColor3 = headerColor,
+		Parent = body,
 	})
 	Components.Corner(header)
+	Components.Gradient(header, Color3.new(1, 1, 1), Color3.fromRGB(190, 190, 190))
 	-- Square off the header's bottom corners.
-	Create("Frame", {
+	local squareOff = Create("Frame", {
 		Size = UDim2.new(1, 0, 0, 16),
 		Position = UDim2.new(0, 0, 1, -16),
-		BackgroundColor3 = Theme.Colors.Blue,
+		BackgroundColor3 = headerColor,
 		BorderSizePixel = 0,
 		Parent = header,
 	})
+	Components.Gradient(squareOff, Color3.fromRGB(205, 205, 205), Color3.fromRGB(190, 190, 190))
 	local title = Components.Label({
 		Name = "Title",
 		Text = props.Title,
@@ -261,14 +378,14 @@ function Components.Panel(props: { Title: string, Size: UDim2, Parent: Instance?
 		TextColor3 = Theme.Colors.TextLight,
 		Parent = header,
 	})
-	Components.TextStroke(title)
+	Components.TextStroke(title, Theme.Colors.Outline, 2.5)
 
 	local closeButton = Components.Button({
 		Name = "Close",
 		Text = "✕",
 		Color = Theme.Colors.Red,
 		Size = UDim2.fromOffset(44, 44),
-		Position = UDim2.new(1, -8, 0, 5),
+		Position = UDim2.new(1, -8, 0, 6),
 		AnchorPoint = Vector2.new(1, 0),
 		TextSize = Theme.TextSize.Large,
 		Parent = header,
@@ -277,12 +394,44 @@ function Components.Panel(props: { Title: string, Size: UDim2, Parent: Instance?
 
 	local content = Create("Frame", {
 		Name = "Content",
-		Size = UDim2.new(1, -24, 1, -70),
-		Position = UDim2.fromOffset(12, 62),
+		Size = UDim2.new(1, -24, 1, -72),
+		Position = UDim2.fromOffset(12, 64),
 		BackgroundTransparency = 1,
-		Parent = panel,
+		Parent = body,
 	})
-	return panel, content, closeButton
+	return window, content, closeButton
+end
+
+-- A row of tab buttons. onSelect(id) is called on click; returns { [id] = button } and a setter.
+function Components.Tabs(parent: Instance, tabs: { { Id: string, Text: string } }, width: number, onSelect: (string) -> ()): ({ [string]: TextButton }, (string) -> ())
+	local row = Create("Frame", { Name = "Tabs", Size = UDim2.new(1, 0, 0, 40), BackgroundTransparency = 1, Parent = parent }, {
+		Create("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder }),
+	})
+	local buttons = {}
+	for index, tab in tabs do
+		local button = Components.Button({
+			Name = tab.Id,
+			Text = tab.Text,
+			Color = Theme.Colors.PanelAlt,
+			TextColor = Theme.Colors.Text,
+			Size = UDim2.fromOffset(width, 38),
+			TextSize = Theme.TextSize.Small,
+			Parent = row,
+			Flat = true,
+			OnClick = function()
+				onSelect(tab.Id)
+			end,
+		})
+		button.LayoutOrder = index
+		buttons[tab.Id] = button
+	end
+	local function setSelected(id: string)
+		for tabId, button in buttons do
+			local selected = tabId == id
+			Components.SetButtonColor(button, if selected then Theme.Colors.Coins else Theme.Colors.PanelAlt)
+		end
+	end
+	return buttons, setSelected
 end
 
 return Components

@@ -4,10 +4,10 @@
 	WHERE:        ServerScriptService/Server/Services/ShopService
 	DEPENDENCIES: DataService, IslandService, EconomyService, InventoryService, ToolService,
 	              AnimalService, FarmService, ProgressionService, InteractionService,
-	              AntiExploitService, VFXService, Shared.Net, Shared.Config.{ShopConfig, ItemConfig, CropConfig}
+	              AntiExploitService, VFXService, Shared.Net, Shared.Config.{ShopConfig, ItemConfig}
 
-	The island MARKET (spec §33, §64, §88, §89, §145). The market stall on each
-	island has two prompts: [E] Sell and [F] Shop; both open the Market UI.
+	The island MARKET (spec §33, §64, §88, §89, §145). CLICK any market stall
+	(yours, or a friend's while visiting) to open the Market UI.
 
 	SELL  SellItemRequest(itemId, quantity) — itemId "__ALL__" sells every
 	      crop / fish / animal product. The server checks you're at your stall,
@@ -24,7 +24,6 @@ local Shared = ReplicatedStorage.Shared
 local Net = require(Shared.Net)
 local ShopConfig = require(Shared.Config.ShopConfig)
 local ItemConfig = require(Shared.Config.ItemConfig)
-local CropConfig = require(Shared.Config.CropConfig)
 local Validate = require(Shared.Util.Validate)
 local Format = require(Shared.Util.Format)
 local Signal = require(Shared.Util.Signal)
@@ -33,11 +32,11 @@ local R15 = require(Shared.Util.R15)
 local Services = script.Parent
 local DataService = require(Services.DataService)
 local IslandService = require(Services.IslandService)
+local BuildService = require(Services.BuildService)
 local EconomyService = require(Services.EconomyService)
 local InventoryService = require(Services.InventoryService)
 local ToolService = require(Services.ToolService)
 local AnimalService = require(Services.AnimalService)
-local FarmService = require(Services.FarmService)
 local ProgressionService = require(Services.ProgressionService)
 local InteractionService = require(Services.InteractionService)
 local AntiExploitService = require(Services.AntiExploitService)
@@ -52,13 +51,23 @@ local ShopService = {}
 ShopService.ItemsSold = Signal.new() -- (player, itemId, quantity, coins)
 ShopService.Purchased = Signal.new() -- (player, shopItemId, def)
 
-local function atMarket(player: Player): boolean
-	local island = IslandService.GetIsland(player)
+-- The market stall the player stands next to (any island), or nil.
+local function nearbyStall(player: Player): Model?
 	local root = R15.GetRootPart(player.Character)
-	if not island or not root or not island.MarketStall then
-		return false
+	if not root then
+		return nil
 	end
-	return (root.Position - island.MarketStall:GetPivot().Position).Magnitude <= ShopConfig.MarketRange
+	for _, island in IslandService.GetIslands() do
+		local site = BuildService.FindSite(island, "MarketStall")
+		if site and (root.Position - site.Model:GetPivot().Position).Magnitude <= ShopConfig.MarketRange then
+			return site.Model
+		end
+	end
+	return nil
+end
+
+local function atMarket(player: Player): boolean
+	return nearbyStall(player) ~= nil
 end
 
 ---------------------------------------------------------------------------
@@ -119,9 +128,9 @@ function ShopService.Sell(player: Player, itemId: any, quantity: any)
 		return
 	end
 	ProgressionService.Award(player, "SellItems")
-	local island = IslandService.GetIsland(player)
-	if island and island.MarketStall then
-		VFXService.PlayAt("CoinBurst", island.MarketStall:GetPivot().Position + Vector3.new(0, 4, 0))
+	local stall = nearbyStall(player)
+	if stall then
+		VFXService.PlayAt("CoinBurst", stall:GetPivot().Position + Vector3.new(0, 4, 0))
 	end
 	Notify.Success(player, ("Sold %d item%s for %s 🪙"):format(soldItems, if soldItems == 1 then "" else "s", Format.Commas(soldCoins)), "💰")
 end
@@ -147,12 +156,6 @@ local function canGrant(player: Player, def: any, quantity: number): (boolean, s
 		if def.MaxOwned and upgradeCount(player, grant.Upgrade) >= def.MaxOwned then
 			return false, "You already have the biggest upgrade."
 		end
-		if grant.Upgrade == "FarmTiles" then
-			local tiles = DataService.Get(player, { "Island", "FarmTiles" }) or CropConfig.Farm.StarterTiles
-			if tiles >= CropConfig.Farm.Columns * CropConfig.Farm.Rows then
-				return false, "Your starter farm is already full size."
-			end
-		end
 	elseif grant.Item then
 		if InventoryService.GetFreeSpace(player) < grant.Amount * quantity then
 			return false, "Your backpack is too full."
@@ -174,11 +177,6 @@ local function grantItem(player: Player, def: any, quantity: number)
 			ToolService.GrantTool(player, "WoodenBucket", "CowBonus")
 			Notify.Toast(player, "Free Wooden Bucket included for milking!", "🪣")
 		end
-	elseif grant.Upgrade == "FarmTiles" then
-		local tiles = DataService.Get(player, { "Island", "FarmTiles" }) or CropConfig.Farm.StarterTiles
-		DataService.Set(player, { "Island", "FarmTiles" }, math.min(tiles + grant.Amount, CropConfig.Farm.Columns * CropConfig.Farm.Rows))
-		DataService.Increment(player, { "Island", "Upgrades", "FarmTiles" }, 1)
-		FarmService.RefreshFarm(player)
 	elseif grant.Upgrade == "Capacity" then
 		InventoryService.AddCapacity(player, grant.Amount)
 		DataService.Increment(player, { "Island", "Upgrades", "Capacity" }, 1)
@@ -247,44 +245,13 @@ end
 -- Market stall prompts
 ---------------------------------------------------------------------------
 
-local function attachStall(_player: Player, island: any)
-	local stall = island.MarketStall
-	if not stall then
-		return
-	end
-	for _, descendant in stall:GetDescendants() do
-		local role = descendant:GetAttribute("PromptRole")
-		if role == "Sell" then
-			InteractionService.Attach(descendant, "MarketSell", { OwnerUserId = island.OwnerUserId })
-		elseif role == "Shop" then
-			InteractionService.Attach(descendant, "MarketShop", {
-				OwnerUserId = island.OwnerUserId,
-				KeyboardKeyCode = Enum.KeyCode.F,
-				GamepadKeyCode = Enum.KeyCode.ButtonY,
-			})
-		end
-	end
-end
-
 function ShopService.Init()
-	InteractionService.RegisterKind("MarketSell", {
-		ActionText = "Sell",
-		ObjectText = "Market",
-		Permission = "Owner",
-		MaxDistance = 12,
+	InteractionService.RegisterKind("Market", {
+		Permission = "Market",
+		MaxDistance = 10,
 		Cooldown = 0.5,
 		Handler = function(player: Player)
 			Net.FireClient("OpenUI", player, { Screen = "Market", Tab = "Sell" })
-		end,
-	})
-	InteractionService.RegisterKind("MarketShop", {
-		ActionText = "Shop",
-		ObjectText = "Market",
-		Permission = "Owner",
-		MaxDistance = 12,
-		Cooldown = 0.5,
-		Handler = function(player: Player)
-			Net.FireClient("OpenUI", player, { Screen = "Market", Tab = "Buy" })
 		end,
 	})
 	Net.OnServerEvent("SellItemRequest", ShopService.Sell)
@@ -292,7 +259,11 @@ function ShopService.Init()
 end
 
 function ShopService.Start()
-	IslandService.IslandAssigned:Connect(attachStall)
+	BuildService.SiteReady:Connect(function(site: any)
+		if site.BuildingId == "MarketStall" then
+			InteractionService.Attach(site.Model, "Market", { OwnerUserId = site.OwnerUserId, Label = "Market Stall" })
+		end
+	end)
 end
 
 return ShopService

@@ -4,16 +4,17 @@
 	WHERE:        ServerScriptService/Server/Services/FishingService
 	DEPENDENCIES: DataService, IslandService, ToolService, InventoryService, ProgressionService,
 	              AnimationService, InteractionService, AntiExploitService, SoundService, VFXService,
-	              Server.Island.IslandProps, Shared.Net, Shared.Config.{FishConfig, RarityConfig},
-	              Shared.Util.IslandContent
+	              Shared.Net, Shared.Config.{FishConfig, RarityConfig, IslandConfig}
 
 	Skill-based, server-authoritative fishing (spec §29-§32, §61, §143):
 
-	  Cast   FishingRequest{Op="Cast"} or the spot's "[E] Fish" prompt.
-	         Server checks: rod owned (auto-equips it), near a fishing spot,
-	         not already fishing, cooldown. It rolls the fish NOW (weighted by
-	         zone + rarity + rod luck) and a bite time — the client never knows
-	         which fish it is.
+	  Cast   HOLD your rod and CLICK the water: FishingRequest{Op="Cast", Target}.
+	         Server checks: rod in hand, target within CastRange, target is
+	         water, not already fishing, cooldown. The ZONE comes from where
+	         the bobber lands: near an island = that island's theme waters
+	         (Shore / River / Cave), far out = Ocean. It rolls the fish NOW
+	         (weighted by zone + rarity + rod luck) and a bite time — the
+	         client never knows which fish it is.
 	  Bite   at the bite time the server sends FishingEvent{Op="Bite"}. The
 	         player has HookWindow seconds to press USE (FishingRequest Hook).
 	  Reel   the client plays the reel minigame; the server only reveals the
@@ -28,7 +29,7 @@ local Shared = ReplicatedStorage.Shared
 local Net = require(Shared.Net)
 local FishConfig = require(Shared.Config.FishConfig)
 local RarityConfig = require(Shared.Config.RarityConfig)
-local IslandContent = require(Shared.Util.IslandContent)
+local IslandConfig = require(Shared.Config.IslandConfig)
 local Signal = require(Shared.Util.Signal)
 local R15 = require(Shared.Util.R15)
 
@@ -39,17 +40,15 @@ local ToolService = require(Services.ToolService)
 local InventoryService = require(Services.InventoryService)
 local ProgressionService = require(Services.ProgressionService)
 local AnimationService = require(Services.AnimationService)
-local InteractionService = require(Services.InteractionService)
 local AntiExploitService = require(Services.AntiExploitService)
 local GameSoundService = require(Services.SoundService)
 local VFXService = require(Services.VFXService)
-local IslandProps = require(script.Parent.Parent.Island.IslandProps)
 local Notify = require(script.Parent.Parent.Util.Notify)
 
 local HOOK_LATENCY = 0.4 -- network grace on top of the hook window
-local LEASH = 26 -- walking this far from the spot cancels fishing
+local LEASH = 44 -- walking this far from the bobber cancels fishing
 
-type Spot = { Id: string, Zone: string, Position: Vector3, Model: Model, IslandId: string }
+type Spot = { Zone: string, Position: Vector3 }
 type Session = {
 	Stage: string, -- "Waiting" | "Bite" | "Reeling"
 	FishId: string,
@@ -65,34 +64,48 @@ local FishingService = {}
 
 FishingService.FishCaught = Signal.new() -- (player, fishId, rarity, weight)
 
-local spotsByIsland: { [string]: { Spot } } = {}
 local sessions: { [Player]: Session } = {}
 local lastCast: { [Player]: number } = setmetatable({}, { __mode = "k" }) :: any
 local tokenCounter = 0
 local random = Random.new()
 
+local CAST_RANGE = 36 -- how far (horizontally) you can cast
+local OCEAN_DISTANCE = 30 -- this far from any island's coast counts as open ocean
+
 local function send(player: Player, payload: { [string]: any })
 	Net.FireClient("FishingEvent", player, payload)
 end
 
-local function nearestSpot(player: Player): Spot?
+-- Validates a clicked water point and works out its fishing zone.
+local function resolveTarget(player: Player, target: any): (Spot?, string?)
+	if typeof(target) ~= "Vector3" or target ~= target then
+		return nil, nil
+	end
 	local root = R15.GetRootPart(player.Character)
 	if not root then
-		return nil
+		return nil, nil
 	end
-	local best, bestDistance = nil, FishConfig.SpotRange
-	for _, spots in spotsByIsland do
-		for _, spot in spots do
-			local island = IslandService.GetIslandById(spot.IslandId)
-			if island and IslandService.CanAccess(player, island, "Fish") then
-				local distance = (root.Position - spot.Position).Magnitude
-				if distance <= bestDistance then
-					best, bestDistance = spot, distance
-				end
-			end
+	local flat = Vector3.new(target.X - root.Position.X, 0, target.Z - root.Position.Z)
+	if flat.Magnitude > CAST_RANGE then
+		return nil, "That's too far — walk closer to the water."
+	end
+	local island = IslandService.GetIslandAtPosition(target)
+	local zone = "Ocean"
+	if island then
+		local localPosition = IslandService.ToLocal(island, target)
+		local sample = IslandService.GetSampler(island):Sample(localPosition.X, localPosition.Z)
+		if sample.Height > -0.4 then
+			return nil, "Click on the water to cast your line."
+		end
+		if sample.Coast > -OCEAN_DISTANCE then
+			local theme = IslandConfig.Themes[island.Theme]
+			zone = if theme then theme.NearFish else "Shore"
 		end
 	end
-	return best
+	if not FishConfig.Zones[zone] then
+		zone = "Shore"
+	end
+	return { Zone = zone, Position = Vector3.new(target.X, IslandConfig.SeaLevel, target.Z) }, nil
 end
 
 local function rollFish(zone: string, rod: any): string?
@@ -156,7 +169,7 @@ local function stillValid(player: Player, session: Session): boolean
 	return true
 end
 
-function FishingService.Cast(player: Player)
+function FishingService.Cast(player: Player, target: any)
 	if sessions[player] then
 		return
 	end
@@ -164,14 +177,17 @@ function FishingService.Cast(player: Player)
 	if lastCast[player] and now - lastCast[player] < FishConfig.CastCooldown then
 		return
 	end
-	local spot = nearestSpot(player)
-	if not spot then
-		Notify.Error(player, "Find a 🎣 fishing spot first (try the end of your dock).")
+	local rod = ToolService.GetHeldTool(player, "FishingRod")
+	if not rod then
+		Notify.Error(player, "Hold your 🎣 Fishing Rod and click the water.")
 		return
 	end
-	local rod = ToolService.EquipBestOfType(player, "FishingRod")
-	if not rod then
-		Notify.Error(player, "You need a Fishing Rod.")
+	local spot, reason = resolveTarget(player, target)
+	if not spot then
+		if reason then
+			Notify.Error(player, reason)
+		end
+		send(player, { Op = "End" })
 		return
 	end
 	local fishId = rollFish(spot.Zone, rod)
@@ -201,7 +217,8 @@ function FishingService.Cast(player: Player)
 			AnimationService.PlayAnimation(character, "FishingWait")
 		end
 	end, { Speed = rod.Speed })
-	send(player, { Op = "Cast", Spot = spot.Position, Zone = spot.Zone })
+	local zoneDef = FishConfig.Zones[spot.Zone]
+	send(player, { Op = "Cast", Spot = spot.Position, Zone = spot.Zone, ZoneName = if zoneDef then zoneDef.DisplayName else spot.Zone })
 
 	task.delay(biteDelay, function()
 		if not stillValid(player, session) or session.Stage ~= "Waiting" then
@@ -316,61 +333,18 @@ local function finishReel(player: Player, success: boolean, token: any)
 	FishingService.FishCaught:Fire(player, session.FishId, fish.Rarity, weight)
 end
 
-local function spawnSpots(player: Player, island: any)
-	local unlocked = IslandService.GetUnlockedAreas(player)
-	local list = spotsByIsland[island.Id]
-	if not list then
-		list = {}
-		spotsByIsland[island.Id] = list
-	end
-	for _, spotDef in IslandContent.FishingSpots() do
-		local already = false
-		for _, existing in list do
-			if existing.Id == spotDef.Id then
-				already = true
-				break
-			end
-		end
-		if unlocked[spotDef.AreaId] and not already then
-			local worldCFrame = if spotDef.OnDock
-				then island.Origin * CFrame.new(spotDef.Position.X, 2.4, spotDef.Position.Y)
-				else IslandService.GetGroundCFrame(island, spotDef.Position)
-			local zone = FishConfig.Zones[spotDef.Zone]
-			local model = IslandProps.FishingSpot(if zone then zone.DisplayName else spotDef.Zone)
-			model:PivotTo(worldCFrame)
-			model:SetAttribute("FishingZone", spotDef.Zone)
-			model:SetAttribute("OwnerUserId", island.OwnerUserId)
-			model.Parent = island.Folders.FishingSpots
-			local spot: Spot = { Id = spotDef.Id, Zone = spotDef.Zone, Position = worldCFrame.Position, Model = model, IslandId = island.Id }
-			table.insert(list, spot)
-			InteractionService.Attach(model, "FishingSpot", { ObjectText = if zone then zone.DisplayName else "Fishing Spot", OwnerUserId = island.OwnerUserId })
-		end
-	end
-end
-
 function FishingService.IsFishing(player: Player): boolean
 	return sessions[player] ~= nil
 end
 
 function FishingService.Init()
-	InteractionService.RegisterKind("FishingSpot", {
-		ActionText = "Fish",
-		ObjectText = "Fishing Spot",
-		Permission = "Fish",
-		MaxDistance = 10,
-		Cooldown = 0.5,
-		Handler = function(player: Player)
-			FishingService.Cast(player)
-		end,
-	})
-
 	Net.OnServerEvent("FishingRequest", function(player: Player, payload: any)
 		if type(payload) ~= "table" then
 			AntiExploitService.Flag(player, "BadFishingRequest", 2)
 			return
 		end
 		if payload.Op == "Cast" then
-			FishingService.Cast(player)
+			FishingService.Cast(player, payload.Target)
 		elseif payload.Op == "Hook" then
 			hook(player)
 		elseif payload.Op == "Reel" then
@@ -382,16 +356,6 @@ function FishingService.Init()
 end
 
 function FishingService.Start()
-	IslandService.IslandAssigned:Connect(spawnSpots)
-	IslandService.AreaUnlocked:Connect(function(player: Player)
-		local island = IslandService.GetIsland(player)
-		if island then
-			spawnSpots(player, island)
-		end
-	end)
-	IslandService.IslandReleased:Connect(function(_player: Player, islandId: string)
-		spotsByIsland[islandId] = nil
-	end)
 	game:GetService("Players").PlayerRemoving:Connect(function(player)
 		sessions[player] = nil
 	end)

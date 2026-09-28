@@ -10,10 +10,12 @@
 
 	  * Every animal lives in a HOUSING building (Barn / Chicken Coop) and
 	    wanders inside its pen. Buying needs free housing capacity.
-	  * Care loop (AnimalMath, all timestamp-based):
-	        [E] Feed (1 Wheat) -> happier, production starts
-	        ... ProduceTime ... -> [E] Milk Cow / Collect Eggs (+bonus when happy)
-	        [F] Pet (cooldown) -> happiness
+	  * Care loop (AnimalMath, all timestamp-based) — hold something and CLICK:
+	        holding 🌾 Wheat + hungry  -> Feed, production starts
+	        ... ProduceTime ...        -> holding 🪣 Bucket: Milk Cow / any hand: Collect Eggs
+	        anything else              -> Pet (cooldown) -> happiness
+	  * The client animates legs / head / tail from the AnimalAnim attribute
+	    ("Idle" | "Walk" | "Eat" | "Happy") the server sets.
 	  * Server-authoritative: actions go through AnimationService.PerformAction
 	    so the reward lands on the animation's Milk/Feed/Pet marker.
 	  * Performance tiers: animals only wander while a player is within
@@ -31,7 +33,6 @@ local TweenService = game:GetService("TweenService")
 
 local Shared = ReplicatedStorage.Shared
 local AnimalConfig = require(Shared.Config.AnimalConfig)
-local AnimationConfig = require(Shared.Config.AnimationConfig)
 local AnimalMath = require(Shared.Util.AnimalMath)
 local Signal = require(Shared.Util.Signal)
 local R15 = require(Shared.Util.R15)
@@ -251,17 +252,8 @@ local function spawnAnimal(player: Player, island: any, entry: any): Animal?
 	end
 	list[entry.UniqueId] = animal
 
-	InteractionService.Attach(model, "Animal", { ObjectText = def.DisplayName, OwnerUserId = island.OwnerUserId, MaxDistance = 9 })
-	local head = model:FindFirstChild("Head")
-	if head and head:IsA("BasePart") then
-		InteractionService.Attach(head, "AnimalPet", {
-			ObjectText = def.DisplayName,
-			OwnerUserId = island.OwnerUserId,
-			KeyboardKeyCode = Enum.KeyCode.F,
-			GamepadKeyCode = Enum.KeyCode.ButtonY,
-			MaxDistance = 9,
-		})
-	end
+	InteractionService.Attach(model, "Animal", { Label = def.DisplayName, OwnerUserId = island.OwnerUserId, MaxDistance = 6 })
+	model:SetAttribute("AnimalAnim", "Idle")
 	refresh(animal)
 	return animal
 end
@@ -285,12 +277,14 @@ end
 -- Actions
 ---------------------------------------------------------------------------
 
--- Plays e.g. "CowEat" on the animal rig if that animation exists in AnimationConfig.
-local function playRig(animal: Animal, suffix: string)
-	local name = animal.AnimalId .. suffix
-	if AnimationConfig.Get(name) then
-		AnimationService.PlayAnimation(animal.Model, name)
-	end
+-- "Eat" / "Happy" play for a moment, then the animal goes back to idling.
+local function playRig(animal: Animal, state: string)
+	animal.Model:SetAttribute("AnimalAnim", state)
+	task.delay(if state == "Eat" then 3 else 1.6, function()
+		if animal.Model.Parent and animal.Model:GetAttribute("AnimalAnim") == state then
+			animal.Model:SetAttribute("AnimalAnim", if animal.Moving then "Walk" else "Idle")
+		end
+	end)
 end
 
 local function faceAnimal(animal: Animal)
@@ -328,6 +322,11 @@ end
 
 local function feed(player: Player, animal: Animal)
 	local def = animal.Def
+	local held = ToolService.GetHeld(player)
+	if not held or held.Id ~= def.Food then
+		Notify.Error(player, ("Hold %s %s (on your hotbar) and click your %s to feed it."):format(def.FoodAmount, def.Food, def.DisplayName))
+		return
+	end
 	if InventoryService.GetCount(player, def.Food) < def.FoodAmount then
 		Notify.Error(player, ("Your %s needs %d %s — grow some on your farm!"):format(def.DisplayName, def.FoodAmount, def.Food))
 		return
@@ -361,12 +360,12 @@ end
 
 local function collect(player: Player, animal: Animal)
 	local def = animal.Def
-	if def.ProduceTool then
-		local tool = ToolService.EquipBestOfType(player, def.ProduceTool)
-		if not tool then
-			Notify.Error(player, ("You need a %s — buy one at the market."):format(def.ProduceTool))
-			return
-		end
+	if def.ProduceTool and not ToolService.GetHeldTool(player, def.ProduceTool) then
+		local owned = ToolService.GetBestTool(player, def.ProduceTool)
+		Notify.Error(player, if owned
+			then ("Hold your 🪣 %s and click to collect the %s."):format(def.ProduceTool, def.Produce)
+			else ("You need a %s — buy one at the market."):format(def.ProduceTool))
+		return
 	end
 	faceAnimal(animal)
 	AnimationService.PerformAction(player, def.ProduceAnimation, def.ProduceMarker, function()
@@ -392,16 +391,20 @@ local function collect(player: Player, animal: Animal)
 	end)
 end
 
-local function onPrimary(player: Player, animal: Animal)
+local function onClicked(player: Player, animal: Animal)
 	local entry = entryOf(animal)
 	if not entry then
 		return
 	end
 	local status = AnimalMath.GetStatus(entry, os.time())
-	if status == "Ready" then
+	local held = ToolService.GetHeld(player)
+	local def = animal.Def
+	if status == "Ready" and (def.ProduceTool == nil or (held and held.Kind == "Tool" and held.Def.Type == def.ProduceTool)) then
 		collect(player, animal)
-	elseif status == "Hungry" then
+	elseif status == "Hungry" and held and held.Id == def.Food then
 		feed(player, animal)
+	elseif status == "Ready" and def.ProduceTool then
+		collect(player, animal) -- explains which tool to hold
 	else
 		pet(player, animal)
 	end
@@ -477,9 +480,13 @@ local function wander(animal: Animal)
 	end
 	local goal = CFrame.lookAt(target, target + flat.Unit) * animal.BodyOffset
 	animal.Moving = true
+	animal.Model:SetAttribute("AnimalAnim", "Walk")
 	local tween = TweenService:Create(animal.Body, TweenInfo.new(flat.Magnitude / animal.Def.WalkSpeed, Enum.EasingStyle.Sine), { CFrame = goal })
 	tween.Completed:Once(function()
 		animal.Moving = false
+		if animal.Model:GetAttribute("AnimalAnim") == "Walk" then
+			animal.Model:SetAttribute("AnimalAnim", "Idle")
+		end
 	end)
 	tween:Play()
 end
@@ -506,26 +513,13 @@ end
 
 function AnimalService.Init()
 	InteractionService.RegisterKind("Animal", {
-		ActionText = "Pet",
 		Permission = "Animals",
-		MaxDistance = 9,
+		MaxDistance = 6,
 		Cooldown = 0.4,
 		Handler = function(player: Player, model: Instance)
 			local animal = findAnimal(player, model)
 			if animal then
-				onPrimary(player, animal)
-			end
-		end,
-	})
-	InteractionService.RegisterKind("AnimalPet", {
-		ActionText = "Pet",
-		Permission = "Animals",
-		MaxDistance = 9,
-		Cooldown = 0.4,
-		Handler = function(player: Player, head: Instance)
-			local animal = findAnimal(player, head)
-			if animal then
-				pet(player, animal)
+				onClicked(player, animal)
 			end
 		end,
 	})
