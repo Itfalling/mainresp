@@ -57,8 +57,9 @@ function M.Update(t, pose, ctx)
 	-- BODY: bob + waddle, crouch, launch/hover, squash on landing
 	local hoverBob = 0.45 * wave(t, 2.2) * air
 	local bodyY = 0.45 * bob - 0.2 - 1.0 * crouch + 3.2 * hover + hoverBob - 1.3 * impact
-	local bodyPitch = -1 * crouch + 8 * air + 0.18 * toss + 1.5 * breathe
-	local bodyRoll = 4.5 * wave(t, hz) * idleW + 5 * wave(t, 1.3) * air
+	local bodyPitch = 5 * crouch + 8 * air + 0.18 * toss + 1.5 * breathe
+	local shiver = 2.2 * crouch * wave(t, 14)
+	local bodyRoll = 4.5 * wave(t, hz) * idleW + 5 * wave(t, 1.3) * air + shiver
 	local bodyYaw = 5 * wave(t, hz * 0.5) * idleW
 	pose.Body = pa(0, bodyY, 0, bodyPitch, bodyYaw, bodyRoll)
 
@@ -71,8 +72,8 @@ function M.Update(t, pose, ctx)
 	local wigChomp = wiggle * math.max(0, wave(c, 2.4, 0.85))
 	local idleJaw = 20 * chomp + 28 * wigChomp -- idle mouth opening (deg); the head lifts with it
 	pose.Head = ang(0.35 * toss + headBob + 15 * crouch + 12 * impact + 6 * wiggle + 0.75 * idleJaw, look * 0.7 - 22 * wiggle, 5 * L.noise(t, 7.7, 0.5) * idleW + wig - 14 * wiggle)
-	pose.Horn1 = ang(0.2 * tossLag + 4 * wave(t, hz * 2, 0.3) * idleW + 10 * crouch - 8 * impact, 0, -0.4 * wig)
-	pose.Horn2 = ang(0.3 * tossLag2 + 6 * wave(t, hz * 2, 0.45) * idleW + 6 * crouch - 10 * impact, 0, -0.5 * wig)
+	pose.Horn1 = ang(0.36 * tossLag + 4 * wave(t, hz * 2, 0.3) * idleW + 10 * crouch - 8 * impact, 0, -0.4 * wig)
+	pose.Horn2 = ang(0.5 * tossLag2 + 6 * wave(t, hz * 2, 0.45) * idleW + 6 * crouch - 10 * impact, 0, -0.5 * wig)
 
 	-- JAW: little chomps in idle, double chomp on the wiggle, big yell on every toss
 	local yell = L.clamp01(toss / 36)
@@ -162,6 +163,17 @@ function M.Update(t, pose, ctx)
 	if ctx.crossed(5.93) then
 		ctx.emit("LandDust", 35)
 		ctx.emit("LandBurst", 25)
+	end
+	if ctx.crossed(3.02) then -- take-off blast
+		ctx.emit("LandDust", 18)
+		ctx.emit("LandBurst", 15)
+	end
+	-- stud chunks pop out of the ground on the thud, then fade
+	local ring1 = L.env(c, 5.92, 0.03, 0.08, 0.25, "linear", "quadIn")
+	local ring2 = L.env(c, 6.02, 0.04, 0.1, 0.35, "linear", "quadIn")
+	for i = 1, 28 do
+		local k = i > 12 and ring2 or ring1
+		ctx.transparency("Shock" .. i, k > 0.02 and (1 - k) * 0.9 + 0.05 or 1)
 	end
 end
 

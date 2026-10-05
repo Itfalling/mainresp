@@ -189,8 +189,10 @@ function M.Update(t, pose, ctx)
 		{ 4.26, 1 },
 		{ 4.34, 0, "expoIn" },
 		{ 4.9, 0 },
-		{ 5.05, 0.7, "backOut" },
-		{ 5.3, 0.7 },
+		{ 5.02, 0.35, "backOut" },
+		{ 5.14, 0, "expoIn" },
+		{ 5.24, 0.6, "backOut" },
+		{ 5.3, 0.6 },
 		{ 5.38, 0, "expoIn" },
 	})
 	pose.PincerR = ang(32 * clackR + 45 * open, 0, 0)
@@ -203,7 +205,7 @@ function M.Update(t, pose, ctx)
 	local roar = math.max(erupt * (1 - preJump), 0)
 	pose.Jaw = ang(-14 * mumble - 52 * roar - 30 * air + 4 * crouch - 34 * impact + 6 * rumble * wave(t, 12), 0, 0)
 	local chew = 16 * wave(t, 2.5) * idleW
-	L.both(pose, "Mand", ang(0, chew - 30 * roar - 20 * air, 0), ang(0, -chew - 30 * roar - 20 * air, 0))
+	L.both(pose, "Mand", ang(30 * crouch, chew - 30 * roar - 20 * air, 0), ang(30 * crouch, -chew - 30 * roar - 20 * air, 0))
 
 	local wobZ = 10 * wave(t, 0.5, 0.35) * idleW
 	local wobX = 7 * wave(t, 1.3) * idleW

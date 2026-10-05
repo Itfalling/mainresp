@@ -136,7 +136,7 @@ function M.Update(t, pose, ctx)
 	local look = L.noise(t, 3.3, 0.3) * 22 * idleW
 	local tilt = 13 * wave(t, 0.3, 0.1) * idleW
 	local laughShake = cackle * wave(t, 6)
-	pose.Head = ang(-4 * bobW * idleW + 16 * windup - 5 * spinW + 22 * cackle + 5 * laughShake, look - 18 * windup, tilt + 9 * laughShake + 4 * shake * wave(t, 9))
+	pose.Head = ang(-4 * bobW * idleW + 16 * windup - 5 * spinW + 28 * cackle + 5 * laughShake, look - 18 * windup, tilt + 9 * laughShake + 4 * shake * wave(t, 9))
 
 	-- JAW: occasional teeth chatter, flung open while cackling
 	local chatterWin = L.env(t % 4.3, 1.4, 0.08, 0.5, 0.12) * idleW
@@ -147,7 +147,7 @@ function M.Update(t, pose, ctx)
 
 	-- EYES: cartoon blinks, evil squint while laughing
 	local blink = L.env(t % 3.1, 2.7, 0.06, 0.06, 0.1)
-	local lid = -1.65 * math.max(blink * (1 - cackle), 0.42 * cackle)
+	local lid = -1.65 * math.max(blink * (1 - cackle), 0.42 * cackle, 0.22 * windup)
 	L.both(pose, "Lid", CFrame.new(0, lid, 0))
 
 	-- ARMS -------------------------------------------------------------
@@ -184,7 +184,7 @@ function M.Update(t, pose, ctx)
 	pose.Lantern = chainL:Inverse() * worldL
 
 	-- BELT CHAIN: gravity + lagging swing
-	local chainSwing = ang(10 * wave(t, 0.7, 0.4) + 35 * spinW, 0, 6 * wave(t, 0.5) - 40 * spinW)
+	local chainSwing = ang(10 * wave(t, 0.7, 0.4) + 35 * spinW, 0, 6 * wave(t, 0.5) + 30 * spinW)
 	pose.ChainA = rot(pose.Body):Inverse() * ang(0, yaw, 0) * chainSwing
 	pose.ChainB = ang(14 * wave(t, 0.7, 0.2) + 15 * spinW, 0, 8 * wave(t, 0.5, -0.2))
 
@@ -228,7 +228,7 @@ function M.Update(t, pose, ctx)
 			local blade = yaw + BLADE_OFF
 			local age = (blade - a) % 360
 			if blade - age >= SPIN_FROM + BLADE_OFF then
-				tr = 0.4 + 0.55 * (age / 360)
+				tr = 0.45 + 0.5 * (age / 360)
 			end
 			tr = tr + (1 - tr) * fade
 		end

@@ -1,8 +1,10 @@
 --!nocheck
 -- Spore Lord: a squat stud-built mushroom bruiser. Huge stepped magenta cap
--- with cream spots, pale stalk body, big toothy grin under the brim, lime
--- eyes, magenta boots/gloves, little mushrooms sprouting from its back,
--- floating pink/green voxel cubes and a voxel spore cloud for its SPORE BURST.
+-- with cream spots, warm two-tone stalk body (cream + toasted tan panels,
+-- stepped belly plates, a magenta mushroom ring skirt), big black cartoon
+-- mouth full of white block teeth, framed lime eyes, magenta boots/gloves,
+-- little mushrooms sprouting from its back, floating pink/green voxel cubes,
+-- an opaque voxel spore cloud and a landing shockwave for its SPORE BURST.
 return {
 	DisplayName = "Spore Lord",
 	Rarity = "Epic",
@@ -11,9 +13,10 @@ return {
 		local v, cf = P.v, P.cf
 		local MAIN, DARK = "#d63a6a", "#a8244f"
 		local SPOT, GILL = "#fff3e2", "#f2d9c4"
-		local STALK, STALK_DK, BELLY, FACE = "#f2e6d0", "#d9c3a2", "#fffaf0", "#fbf1df"
-		local MOUTH, WHITE, TONGUE = "#1a0f17", "#ffffff", "#ff7aa2"
-		local LIME, GREEN, BLUSH, PUPIL = "#b6ff5c", "#86cf45", "#f28aa8", "#120c10"
+		local STALK, STALK_DK, BELLY, FACE = "#f7e2bf", "#c99a6a", "#fff6e6", "#fbe9cc"
+		local MOUTH, WHITE, TONGUE = "#1a0f17", "#ffffff", "#ff6f9a"
+		local LIME, GREEN, BLUSH, PUPIL = "#b6ff5c", "#86cf45", "#ff7aa2", "#120c10"
+		local PINK = "#ff8fb4"
 
 		-- voxel "round" slab: two crossed blocks give a chamfered (pixel-circle) outline.
 		-- the second block is a hair shorter so the shared top/bottom faces never z-fight.
@@ -32,29 +35,45 @@ return {
 		------------------------------------------------------------------
 		local hips = B:bone("Hips", "Root", v(0, 3.0, 0.5))
 		slab(hips, 6.4, 2.6, 5.4, 0.8, 0, 3.6, 0.5, STALK)
-		B:block(hips, v(5.0, 0.6, 4.2), cf(0, 2.15, 0.5), STALK_DK)
-		B:block(hips, v(3.4, 0.9, 0.4), cf(0, 2.95, -2.25), BELLY)
-		B:block(hips, v(4.2, 0.9, 0.4), cf(0, 3.95, -2.3), BELLY)
-		B:block(hips, v(4.4, 1.8, 0.3), cf(0, 3.6, 3.25), STALK_DK)
+		B:block(hips, v(3.0, 0.5, 3.6), cf(0, 2.15, 0.5), STALK_DK)
+		-- Leviathan-style stepped belly plates on a toasted backing panel
+		B:block(hips, v(4.2, 2.3, 0.3), cf(0, 3.35, -2.3), STALK_DK)
+		B:block(hips, v(3.6, 0.7, 0.3), cf(0, 4.05, -2.5), BELLY)
+		B:block(hips, v(2.8, 0.7, 0.3), cf(0, 3.3, -2.6), SPOT)
+		B:block(hips, v(1.8, 0.6, 0.3), cf(0, 2.6, -2.5), BELLY)
+		-- back panel + magenta freckles
+		B:block(hips, v(4.4, 1.9, 0.3), cf(0, 3.5, 3.3), STALK_DK)
+		B:block(hips, v(0.9, 0.9, 0.2), cf(-1.1, 3.75, 3.5), DARK)
+		B:block(hips, v(0.6, 0.6, 0.2), cf(1.2, 3.1, 3.5), MAIN)
 		B:sym(function()
-			B:block(hips, v(0.3, 1.8, 2.6), cf(3.25, 3.6, 0.5), STALK_DK)
+			B:block(hips, v(0.3, 1.9, 2.8), cf(3.25, 3.5, 0.5), STALK_DK)
+			B:block(hips, v(0.2, 0.8, 0.8), cf(3.45, 3.8, 1.2), DARK)
+			B:block(hips, v(0.2, 0.5, 0.5), cf(3.45, 3.0, -0.2), MAIN)
 		end)
 
 		local chest = B:bone("Chest", "Hips", v(0, 4.8, 0.5))
 		slab(chest, 5.8, 2.6, 4.8, 0.7, 0, 6.0, 0.5, STALK)
-		B:block(chest, v(3.6, 0.8, 0.4), cf(0, 5.0, -2.0), BELLY)
-		B:block(chest, v(3.8, 1.8, 0.3), cf(0, 5.9, 2.95), STALK_DK)
+		B:block(chest, v(3.8, 1.8, 0.3), cf(0, 6.1, 2.95), STALK_DK)
 		B:sym(function()
-			B:block(chest, v(0.3, 1.6, 2.4), cf(2.95, 5.9, 0.5), STALK_DK)
+			B:block(chest, v(0.3, 1.6, 2.4), cf(2.95, 6.1, 0.5), STALK_DK)
 		end)
+		-- the mushroom RING (annulus): stepped magenta skirt round the waist
+		B:block(chest, v(6.6, 0.5, 5.8), cf(0, 5.15, 0.5), DARK)
+		B:block(chest, v(7.4, 0.45, 6.6), cf(0, 4.72, 0.5), MAIN)
+		B:block(chest, v(1.0, 0.2, 0.2), cf(-1.6, 4.72, -2.85), SPOT)
+		B:block(chest, v(0.7, 0.2, 0.2), cf(1.9, 4.72, -2.85), SPOT)
+		B:block(chest, v(1.0, 0.2, 0.2), cf(0.8, 4.72, 3.85), SPOT)
 
 		------------------------------------------------------------------
-		-- Head: big face under the brim, wide toothy grin
+		-- Head: big face under the brim, wide black toothy grin
 		------------------------------------------------------------------
 		local head = B:bone("Head", "Chest", v(0, 7.0, 0.5))
 		slab(head, 7.6, 2.6, 6.2, 0.8, 0, 9.5, -0.1, FACE) -- upper face (y 8.2..10.8)
 		B:block(head, v(5.4, 1.6, 3.6), cf(0, 7.5, 1.2), FACE) -- neck / back of the jaw
-		B:block(head, v(6.0, 1.3, 2.6), cf(0, 7.55, -1.85), MOUTH) -- mouth interior (y 6.9..8.2), recessed
+		-- black mouth: deep interior + a throat wall in front of the chest so the
+		-- open jaw always shows a big black cartoon maw
+		B:block(head, v(5.6, 2.0, 2.6), cf(0, 7.2, -1.85), MOUTH)
+		B:block(head, v(5.4, 2.3, 0.3), cf(0, 7.05, -2.1), MOUTH)
 		-- upper teeth hang from the lip, big fangs at +-1.44
 		for i = 0, 5 do
 			local x = -2.4 + i * 0.96
@@ -65,29 +84,33 @@ return {
 		B:sym(function()
 			-- cheeks close the sides of the grin
 			B:block(head, v(0.9, 1.4, 2.2), cf(3.35, 7.6, -1.5), FACE)
-			-- eye: lime neon rectangle, big dark pupil toward the nose, white glint
-			B:block(head, v(2.0, 1.9, 0.3), cf(1.85, 9.45, -3.3), LIME, { mat = "Neon", name = "Eye" })
-			B:block(head, v(1.0, 1.3, 0.2), cf(1.45, 9.3, -3.5), PUPIL)
-			B:block(head, v(0.4, 0.4, 0.1), cf(1.72, 9.73, -3.62), WHITE)
+			-- eye: black frame, lime neon panel, big dark pupil, white glint
+			B:block(head, v(2.2, 2.1, 0.25), cf(1.85, 9.45, -3.25), PUPIL)
+			B:block(head, v(1.8, 1.7, 0.3), cf(1.85, 9.45, -3.3), LIME, { mat = "Neon", name = "Eye" })
+			B:block(head, v(0.9, 1.4, 0.2), cf(1.7, 9.4, -3.5), PUPIL)
+			B:block(head, v(0.4, 0.4, 0.1), cf(1.95, 9.85, -3.62), WHITE)
 			-- angry brow (inner end lower)
 			B:block(head, v(2.6, 0.7, 0.9), cf(1.85, 10.6, -3.55, 0, 0, 16), DARK)
-			-- blush
-			B:block(head, v(0.9, 0.45, 0.2), cf(3.15, 8.55, -3.3), BLUSH)
+			-- blush on the face corner step + freckles on the side of the head
+			B:block(head, v(0.8, 0.6, 0.2), cf(3.4, 8.85, -2.5), BLUSH)
+			B:block(head, v(0.2, 0.9, 0.9), cf(3.85, 9.6, -0.6), DARK)
+			B:block(head, v(0.2, 0.6, 0.6), cf(3.85, 8.9, 1.2), MAIN)
 		end)
 
-		-- eyelids (tucked behind the brow / under the cap at rest)
+		-- eyelids (hidden under the cap at rest, revealed while closing)
 		B:sym(function(side)
 			local lid = B:bone("Lid" .. side, "Head", v(1.85, 10.5, -3.4))
-			B:block(lid, v(2.3, 2.0, 0.7), cf(1.85, 11.9, -3.55), FACE)
+			B:block(lid, v(2.3, 2.2, 0.7), cf(1.85, 11.95, -3.6), FACE, { tr = 1, name = "Eyelid" .. side })
+			-- squeezed-shut lash line (reads as a cartoon > < squint)
+			B:block(lid, v(2.0, 0.3, 0.2), cf(1.85, 11.75, -4.0, 0, 0, -14), PUPIL, { tr = 1, name = "Lash" .. side })
 		end)
 
 		local jaw = B:bone("Jaw", "Head", v(0, 7.4, -0.4))
 		B:block(jaw, v(5.8, 1.2, 3.4), cf(0, 6.4, -1.9), STALK)
 		B:block(jaw, v(4.6, 0.3, 2.8), cf(0, 5.7, -1.9), STALK_DK)
-		B:block(jaw, v(5.4, 0.15, 3.0), cf(0, 7.05, -1.9), MOUTH)
-		B:block(jaw, v(2.6, 0.25, 2.0), cf(0, 7.15, -1.5), TONGUE)
-		-- spore glow deep in the throat, only shown during the blast roar
-		B:block(head, v(4.0, 0.8, 0.3), cf(0, 7.6, -0.7), LIME, { mat = "Neon", tr = 1, name = "ThroatGlow" })
+		B:block(jaw, v(5.6, 0.3, 3.2), cf(0, 7.0, -1.95), MOUTH)
+		B:block(jaw, v(2.6, 0.25, 2.0), cf(0, 7.2, -1.6), TONGUE)
+		B:block(jaw, v(1.0, 0.15, 1.2), cf(0, 7.33, -1.8), DARK)
 		for i = 0, 4 do
 			B:block(jaw, v(0.6, 0.6, 0.45), cf(-1.92 + i * 0.96, 7.25, -3.3), WHITE)
 		end
@@ -95,6 +118,8 @@ return {
 			-- underbite tusks at the corners of the grin
 			B:block(jaw, v(0.6, 1.25, 0.5), cf(2.6, 7.45, -3.4), WHITE)
 		end)
+		-- spore glow deep in the throat, only shown during the yell / blast
+		B:block(head, v(3.0, 0.6, 0.2), cf(0, 7.3, -2.3), LIME, { mat = "Neon", tr = 1, name = "ThroatGlow" })
 
 		------------------------------------------------------------------
 		-- The cap (own bone so it wobbles and pumps)
@@ -152,12 +177,12 @@ return {
 		local under = B:block(cap, v(10, 1, 9), ccf(0, Y0 - 0.3, CZ), MAIN, { tr = 1, name = "SporeUnder" })
 		B:emitter(under, "bubble", { name = "SporeDrift", color = { LIME, "#ffc2d6" }, rate = 3, size = { 0.12, 0.3, 0 }, speed = { 0.3, 0.9 }, accel = { 0, 1.2, 0 } })
 		local top = B:block(cap, v(6, 1, 6), ccf(0, Y0 + 4.7, CZ), MAIN, { tr = 1, name = "SporeVent" })
-		B:emitter(top, "burst", { name = "SporeBurst", color = { "#ffffff", LIME, "#ff8fb4" } })
+		B:emitter(top, "burst", { name = "SporeBurst", color = { "#ffffff", LIME, PINK } })
 		B:emitter(top, "smoke", { name = "SporeCloud", rate = 0, color = { "#ff9fc0", "#c9f58f" }, speed = { 3, 7 }, size = { 2, 4, 6 }, spread = 70 })
 		B:emitter(top, "spark", { name = "SporeSparks", color = LIME, enabled = false, rate = 25 })
 		B:light(top, { name = "SporeLight", color = LIME, brightness = 0, range = 14 })
 		B:sym(function()
-			B:trail(cap, ccf(6.3, Y0 + 0.5, CZ).Position, ccf(6.3, Y0 + 2.4, CZ).Position, { name = "CapTrail", color = { "#ff8fb4", "#ffffff" }, life = 0.22, trans = { 0.55, 1 }, light = 0.4 })
+			B:trail(cap, ccf(6.3, Y0 + 0.5, CZ).Position, ccf(6.3, Y0 + 2.4, CZ).Position, { name = "CapTrail", color = { PINK, "#ffffff" }, life = 0.2, trans = { 0.6, 1 }, light = 0.2 })
 		end)
 
 		------------------------------------------------------------------
@@ -170,6 +195,7 @@ return {
 			B:block(arm, v(2.2, 0.6, 2.2), cf(4.0, 7.25, 0.5), MAIN)
 			B:block(arm, v(0.8, 0.2, 0.8), cf(4.25, 7.6, 0.3), SPOT)
 			B:block(arm, v(1.7, 2.2, 1.7), cf(3.75, 5.3, 0.5), STALK)
+			B:block(arm, v(0.2, 1.0, 1.0), cf(4.65, 5.2, 0.5), STALK_DK)
 
 			local hand = B:bone("Hand" .. side, "Arm" .. side, v(3.8, 4.4, 0.5))
 			B:block(hand, v(2.2, 0.45, 2.2), cf(3.85, 4.25, 0.45), MAIN)
@@ -181,7 +207,7 @@ return {
 			for k = -1, 1 do
 				B:spike(hand, v(3.9 + k * 0.72, 1.95, -0.9), v(3.9 + k * 0.8, 1.35, -1.9), 0.45, 0.45, WHITE)
 			end
-			B:trail(hand, v(3.9, 1.7, -1.3), v(3.9, 3.1, -1.3), { name = "ClawTrail", color = { "#ff8fb4", LIME }, life = 0.25, trans = { 0.5, 1 }, light = 0.4 })
+			B:trail(hand, v(3.9, 1.7, -1.3), v(3.9, 3.1, -1.3), { name = "ClawTrail", color = { PINK, "#ffffff" }, life = 0.18, trans = { 0.65, 1 }, light = 0.2 })
 		end)
 
 		------------------------------------------------------------------
@@ -189,12 +215,14 @@ return {
 		------------------------------------------------------------------
 		B:sym(function(side)
 			local leg = B:bone("Leg" .. side, "Hips", v(1.8, 2.8, 0.5))
-			B:block(leg, v(2.0, 2.6, 2.0), cf(1.85, 1.7, 0.5), STALK)
+			B:block(leg, v(2.0, 2.4, 2.0), cf(1.85, 1.8, 0.5), STALK)
 
 			local foot = B:bone("Foot" .. side, "Root", v(1.9, 0.6, 0.3))
 			B:block(foot, v(2.9, 1.1, 3.6), cf(1.9, 0.55, 0.2), DARK)
 			B:block(foot, v(2.9, 0.7, 1.0), cf(1.9, 0.35, -1.9), DARK)
 			B:block(foot, v(2.5, 0.45, 2.5), cf(1.9, 1.3, 0.5), MAIN)
+			-- volva cup: a stepped lip round the boot cuff
+			B:block(foot, v(2.7, 0.4, 2.7), cf(1.9, 1.7, 0.5), DARK)
 			B:block(foot, v(0.2, 0.3, 0.6), cf(3.17, 1.3, 0.5), SPOT)
 			for k = -1, 1 do
 				B:wedge(foot, v(0.6, 0.55, 0.9), cf(1.9 + k * 0.9, 0.28, -2.85), WHITE)
@@ -208,21 +236,22 @@ return {
 		------------------------------------------------------------------
 		-- Little mushrooms sprouting from the back (own bones -> jiggle)
 		------------------------------------------------------------------
-		local function shroom(name, parent, base, tx, _, tz, s)
+		local function shroom(name, parent, base, tx, tz, s)
 			local b = B:bone(name, parent, base)
 			local f = CFrame.new(base) * P.ang(tx, 0, tz)
-			B:block(b, v(1.0 * s, 2.6 * s, 1.0 * s), f * CFrame.new(0, 0.9 * s, 0), STALK)
-			B:block(b, v(2.2 * s, 0.25, 2.2 * s), f * CFrame.new(0, 2.05 * s, 0), GILL)
-			B:block(b, v(2.8 * s, 0.6 * s, 2.8 * s), f * CFrame.new(0, 2.35 * s, 0), DARK)
-			B:block(b, v(2.2 * s, 0.6 * s, 2.2 * s), f * CFrame.new(0, 2.9 * s, 0), MAIN)
-			B:block(b, v(1.2 * s, 0.4 * s, 1.2 * s), f * CFrame.new(0, 3.35 * s, 0), MAIN)
-			B:block(b, v(0.6 * s, 0.15, 0.6 * s), f * CFrame.new(0.6 * s, 3.25 * s, 0.5 * s), SPOT)
-			B:block(b, v(0.5 * s, 0.2, 0.5 * s), f * CFrame.new(0, 3.55 * s + 0.1, 0), LIME, { mat = "Neon" })
+			B:block(b, v(1.0 * s, 3.4 * s, 1.0 * s), f * CFrame.new(0, 1.3 * s, 0), STALK)
+			B:block(b, v(1.3 * s, 0.3 * s, 1.3 * s), f * CFrame.new(0, 1.6 * s, 0), DARK) -- tiny ring
+			B:block(b, v(2.2 * s, 0.25, 2.2 * s), f * CFrame.new(0, 3.05 * s, 0), GILL)
+			B:block(b, v(2.8 * s, 0.6 * s, 2.8 * s), f * CFrame.new(0, 3.35 * s, 0), DARK)
+			B:block(b, v(2.2 * s, 0.6 * s, 2.2 * s), f * CFrame.new(0, 3.9 * s, 0), MAIN)
+			B:block(b, v(1.2 * s, 0.4 * s, 1.2 * s), f * CFrame.new(0, 4.35 * s, 0), MAIN)
+			B:block(b, v(0.6 * s, 0.15, 0.6 * s), f * CFrame.new(0.6 * s, 4.25 * s, 0.5 * s), SPOT)
+			B:block(b, v(0.5 * s, 0.2, 0.5 * s), f * CFrame.new(0, 4.55 * s + 0.1, 0), LIME, { mat = "Neon" })
 			return b
 		end
-		shroom("Shroom1", "Chest", v(1.3, 5.6, 2.6), 50, 0, -28, 1.05)
-		shroom("Shroom2", "Chest", v(-1.3, 4.9, 2.6), 45, 0, 32, 0.9)
-		shroom("Shroom3", "Hips", v(0.2, 3.1, 3.0), 62, 0, -6, 0.75)
+		shroom("Shroom1", "Chest", v(1.4, 6.3, 2.8), 24, -40, 1.15)
+		shroom("Shroom2", "Chest", v(-1.4, 5.7, 2.8), 20, 42, 1.0)
+		shroom("Shroom3", "Hips", v(0.4, 3.6, 3.2), 32, -10, 0.9)
 
 		------------------------------------------------------------------
 		-- Floating pink / green voxel cubes
@@ -233,7 +262,7 @@ return {
 			local ob = B:bone("Orb" .. i, "Orbit", v(p[1], p[2], p[3]))
 			local pink = i % 2 == 1
 			local s = (pink and 1.3 or 1.2) * (i > 4 and 0.75 or 1)
-			B:block(ob, v(s, s, s), cf(p[1], p[2], p[3]), pink and "#ff8fb4" or GREEN)
+			B:block(ob, v(s, s, s), cf(p[1], p[2], p[3]), pink and PINK or GREEN)
 			if pink then
 				B:block(ob, v(0.6, 0.6, 0.2), cf(p[1] + 0.25, p[2] + 0.25, p[3] - s / 2 - 0.05), SPOT)
 			else
@@ -242,7 +271,7 @@ return {
 		end
 
 		------------------------------------------------------------------
-		-- Spore cloud: hidden voxel puffs that blast out of the cap
+		-- Spore cloud: hidden OPAQUE voxel puffs that blast out of the cap
 		------------------------------------------------------------------
 		local PUFF = { MAIN, GREEN, SPOT, "#ff9fc0" }
 		for i = 1, 12 do
@@ -251,8 +280,21 @@ return {
 			B:block(pb, v(s, s, s), cf(0, Y0 + 3.7, CZ), PUFF[(i - 1) % 4 + 1], { tr = 1, name = "Puff" .. i })
 		end
 		for i = 1, 2 do
-			local cb = B:bone("Cloud" .. i, "Root", v(0, Y0 + 4.1, CZ))
-			B:block(cb, v(2.6, 2.6, 2.6), cf(0, Y0 + 4.1, CZ), "#f7bfd2", { tr = 1, name = "Cloud" .. i })
+			local cy = Y0 + 4.1
+			local cb = B:bone("Cloud" .. i, "Root", v(0, cy, CZ))
+			B:block(cb, v(3.0, 1.6, 2.4), cf(0, cy, CZ), "#ff9fc0", { tr = 1, name = "Cloud" .. i })
+			B:block(cb, v(1.8, 0.9, 1.6), cf(i == 1 and 0.3 or -0.3, cy + 1.2, CZ), GILL, { tr = 1, name = "CloudTop" .. i })
+		end
+
+		------------------------------------------------------------------
+		-- Landing shockwave: flat cream/pink slabs (one bone each) that slide
+		-- outward along the ground and sink, hidden otherwise
+		------------------------------------------------------------------
+		local SC = v(0, 0.2, 0.5)
+		for k = 1, 10 do
+			local a = (k - 1) / 10 * 360
+			local sb = B:bone("Shock" .. k, "Root", SC)
+			B:block(sb, v(2.2, 0.4, 0.9), CFrame.new(SC) * P.ang(0, a, 0) * CFrame.new(0, 0, -4.2), k % 2 == 0 and PINK or GILL, { tr = 1, name = "Wave" .. k })
 		end
 	end,
 }

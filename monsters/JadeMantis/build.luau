@@ -12,7 +12,7 @@ return {
 		local MAIN, DARK, DEEP = "#2fbf71", "#1d8a4f", "#156b3c"
 		local GOLD, JADE, JADE2 = "#f2c230", "#c8ffe6", "#9fe8c4"
 		local WING, WHITE, MOUTH, TONGUE = "#8fe8a9", "#f6fff9", "#11151a", "#ff6f91"
-		local MINT, EYE, PUPIL = "#7dffc8", "#ffd23f", "#16121f"
+		local MINT, EYE, PUPIL = "#7dffc8", "#ffd23f", "#0b0b14"
 		local NEON = { mat = "Neon" }
 
 		-- NOTE: CFrame.lookAt is unreliable in the offline builder, so beams and
@@ -53,7 +53,10 @@ return {
 		end)
 		local aura = B:block(thorax, v(8, 8, 13), cf(0, 8.5, 3), MAIN, { tr = 1, name = "AuraVolume" })
 		B:emitter(aura, "sparkle", { name = "WindSparkle", color = { "#ffffff", MINT }, rate = 5 })
-		B:emitter(aura, "leaf", { name = "WindLeaves", color = { MINT, MAIN }, rate = 2, size = { 0.45, 0.4, 0.2 } })
+		B:emitter(aura, "leaf", { name = "WindLeaves", color = { MINT, MAIN }, rate = 2, size = { 0.45, 0.4, 0.2 }, accel = { 2.5, -1.2, 1 } })
+		-- ground plate for the landing dust (stays on the ground under the body)
+		local dustAt = B:block("Root", v(10, 0.2, 14), cf(0, 0.1, 2), MAIN, { tr = 1, name = "DustFX" })
+		B:emitter(dustAt, "dust", { name = "LandDust", color = "#e6efe0" })
 
 		------------------------------------------------------------------
 		-- CHEST (prothorax): stepped voxel stalk rising up and forward
@@ -73,8 +76,8 @@ return {
 			B:block(chest, v(0.3, 1.6, 2.3), cf(1.6, 9.1, -2.3), DARK)
 			B:block(chest, v(0.3, 1.2, 2.0), cf(1.45, 10.6, -2.8), DARK)
 		end)
-		spike(chest, v(0, 9.6, -1.1), v(0, 10.9, 0.6), 0.8, 0.8, DARK)
-		B:gem(chest, v(0.45, 0.45, 0.45), cf(0, 10.95, 0.65), MINT)
+		spike(chest, v(0, 9.6, -1.1), v(0, 10.8, 0.0), 0.8, 0.8, DARK)
+		B:gem(chest, v(0.45, 0.45, 0.45), cf(0, 10.85, 0.05), MINT)
 		spike(chest, v(0, 11.5, -2.1), v(0, 12.6, -0.6), 0.7, 0.7, DARK)
 		B:gem(chest, v(0.4, 0.4, 0.4), cf(0, 12.65, -0.55), MINT)
 
@@ -116,8 +119,8 @@ return {
 			B:block(head, hs(1.6, 0.4, 1.8), hcf(3.1, 13.55, -4.4), GOLD)
 			-- glowing iris + dark pupil + highlight
 			B:block(head, hs(1.6, 1.9, 0.2), hcf(3.15, 14.95, -5.75), EYE, { mat = "Neon", name = "Eye" .. side })
-			B:block(head, hs(0.8, 1.4, 0.2), hcf(2.95, 14.8, -5.9), PUPIL)
-			B:block(head, hs(0.3, 0.3, 0.1), hcf(3.15, 15.25, -6.04), WHITE)
+			B:block(head, hs(0.85, 1.35, 0.2), hcf(2.95, 14.8, -5.9), PUPIL)
+			B:block(head, hs(0.38, 0.38, 0.1), hcf(3.12, 15.22, -6.04), WHITE)
 			-- heavy angled brow
 			B:block(head, hs(3.2, 0.75, 1.0), hcf(2.35, 16.45, -5.75, 0, 0, 20), DEEP)
 			-- cheek panel + thin mint cheek stripe
@@ -136,8 +139,8 @@ return {
 			local a1 = B:bone("AntA" .. side, "Head", hp(0.6, 15.9, -5.0))
 			beam(a1, hp(0.6, 15.8, -5.0), hp(1.2, 17.6, -5.8), 0.75, 0.75, JADE)
 			local a2 = B:bone("AntB" .. side, "AntA" .. side, hp(1.2, 17.5, -5.8))
-			beam(a2, hp(1.15, 17.4, -5.75), hp(2.5, 18.2, -5.3), 0.6, 0.6, JADE)
-			B:gem(a2, hs(0.55, 0.55, 0.55), hcf(2.55, 18.25, -5.25), MINT, { name = "AntTip" .. side })
+			beam(a2, hp(1.15, 17.4, -5.75), hp(3.1, 18.35, -4.9), 0.6, 0.6, JADE)
+			B:gem(a2, hs(0.55, 0.55, 0.55), hcf(3.18, 18.4, -4.85), MINT, { name = "AntTip" .. side })
 		end)
 
 		-- jaw with mandibles, teeth and a tongue
@@ -157,7 +160,7 @@ return {
 		-- RAPTORIAL SCYTHE ARMS: coxa -> femur -> scythe blade (3 bones)
 		------------------------------------------------------------------
 		B:sym(function(side)
-			local SH, EL, WR = v(1.7, 9.6, -2.8), v(2.7, 7.4, -5.4), v(3.4, 10.8, -7.0)
+			local SH, EL, WR = v(1.7, 9.6, -2.8), v(2.9, 7.3, -5.4), v(3.9, 10.4, -7.0)
 			local arm = B:bone("Arm" .. side, "Chest", SH)
 			B:block(arm, v(1.6, 1.6, 2.0), cf(2.05, 9.7, -2.8), DARK) -- pauldron
 			B:block(arm, v(1.0, 0.5, 1.5), cf(2.05, 10.75, -2.8), GOLD)
@@ -197,11 +200,12 @@ return {
 				end
 			end
 			spike(scy, (fr * CFrame.new(1.8, -6.7, 0)).Position, (fr * CFrame.new(0.0, -8.9, 0)).Position, 0.7, 1.4, JADE, { up = fr.XVector })
-			B:trail(scy, (fr * CFrame.new(2.6, -3.65, 0)).Position, (fr * CFrame.new(0.1, -8.4, 0)).Position, {
+			B:trail(scy, (fr * CFrame.new(2.4, -4.6, 0)).Position, (fr * CFrame.new(0.1, -8.6, 0)).Position, {
 				name = "BladeTrail" .. side,
 				color = { MINT, "#ffffff" },
-				life = 0.28,
-				trans = { 0.35, 1 },
+				life = 0.25,
+				trans = { 0.4, 1 },
+				light = 0.7,
 			})
 		end)
 
@@ -209,28 +213,24 @@ return {
 		-- WALKING LEGS: two pairs, femur + shin bones, chunky gold knees
 		------------------------------------------------------------------
 		local legs = {
-			{ "M", v(1.9, 5.4, -0.6), v(4.6, 7.6, -2.0), v(5.6, 0.0, -3.4) },
-			{ "B", v(1.9, 5.4, 2.6), v(4.8, 7.4, 4.6), v(6.0, 0.0, 7.0) },
+			{ "M", v(1.9, 5.4, -0.6), v(5.2, 7.6, -1.6), v(6.2, 0.0, -3.0) },
+			{ "B", v(1.9, 5.4, 2.6), v(5.2, 7.4, 4.8), v(6.4, 0.0, 7.2) },
 		}
 		B:sym(function(side)
 			for _, lg in legs do
 				local id, hip, knee, foot = lg[1], lg[2], lg[3], lg[4]
 				local leg = B:bone("Leg" .. id .. side, "Thorax", hip)
-				B:block(leg, v(1.6, 1.6, 1.6), CFrame.new(hip), DEEP)
-				beam(leg, hip, knee, 1.6, 1.6, DARK)
+				B:block(leg, v(1.8, 1.8, 1.8), CFrame.new(hip), DEEP)
+				beam(leg, hip, knee, 1.8, 1.7, DARK)
 				local shin = B:bone("Shin" .. id .. side, "Leg" .. id .. side, knee)
-				B:block(shin, v(1.9, 1.9, 1.9), CFrame.new(knee), DEEP)
-				B:block(shin, v(2.0, 0.4, 2.0), CFrame.new(knee + v(0, 0.75, 0)), GOLD)
-				beam(shin, knee, foot + v(0, 0.9, 0), 1.4, 1.4, DEEP)
+				B:block(shin, v(2.1, 2.0, 2.1), CFrame.new(knee), DEEP)
+				B:block(shin, v(2.2, 0.4, 2.2), CFrame.new(knee + v(0, 0.2, 0)), GOLD)
+				beam(shin, knee, foot + v(0, 0.9, 0), 1.6, 1.5, DEEP)
 				local mid = knee:Lerp(foot, 0.4)
 				spike(shin, mid + v(0.2, 0, 0.5), mid + v(0.6, -0.9, 1.6), 0.45, 0.5, JADE)
-				B:block(shin, v(2.0, 1.0, 2.2), CFrame.new(foot + v(0, 0.5, -0.1)), "#0f4d2b")
+				B:block(shin, v(2.2, 1.0, 2.4), CFrame.new(foot + v(0, 0.5, -0.1)), "#0f4d2b")
 				for k = -1, 1, 2 do
-					B:wedge(shin, v(0.6, 0.7, 1.0), CFrame.new(foot + v(k * 0.55, 0.35, -1.7)), JADE)
-				end
-				if id == "M" and side == "R" then
-					local dustAt = B:block(shin, v(3, 0.2, 3), CFrame.new(foot + v(-3, 0.1, 2)), MAIN, { tr = 1, name = "DustFX" })
-					B:emitter(dustAt, "dust", { name = "LandDust", color = "#e6efe0" })
+					B:wedge(shin, v(0.65, 0.7, 1.0), CFrame.new(foot + v(k * 0.6, 0.35, -1.8)), JADE)
 				end
 			end
 		end)
@@ -271,7 +271,7 @@ return {
 		B:sym(function(side)
 			local w = B:bone("Wing" .. side, "Thorax", v(0.4, 8.2, 0.8))
 			-- planar membrane: slight roof slope sideways, tips rising toward the back
-			local function y(x, z) return 8.4 - 0.15 * x + 0.07 * math.max(0, z - 4) end
+			local function y(x, z) return 8.4 - 0.15 * x + 0.09 * math.max(0, z - 4) end
 			local function wp(x, z, dy) return v(x, y(x, z) + (dy or 0), z) end
 			local pts = {
 				wp(0.25, 0.6),
@@ -291,8 +291,8 @@ return {
 			vein(1.1, 1.3, 1.35, 12.9, DARK)
 			vein(2.0, 1.6, 2.35, 11.8, DARK)
 			vein(3.1, 4.4, 3.0, 9.6, GOLD, 0.4)
-			B:block(w, v(0.55, 0.14, 0.55), CFrame.new(wp(1.7, 7.0, 0.2)) * P.ang(-4, 0, -8.5), MINT, NEON)
-			B:block(w, v(0.45, 0.14, 0.45), CFrame.new(wp(1.75, 10.0, 0.2)) * P.ang(-4, 0, -8.5), MINT, NEON)
+			B:block(w, v(0.55, 0.14, 0.55), CFrame.new(wp(1.7, 7.0, 0.2)) * P.ang(-5, 0, -8.5), MINT, NEON)
+			B:block(w, v(0.45, 0.14, 0.45), CFrame.new(wp(1.75, 10.0, 0.2)) * P.ang(-5, 0, -8.5), MINT, NEON)
 			B:trail(w, wp(2.0, 13.4), wp(3.0, 9.5), { name = "WingTrail" .. side, color = { "#ffffff", MINT }, life = 0.15, trans = { 0.6, 1 } })
 		end)
 

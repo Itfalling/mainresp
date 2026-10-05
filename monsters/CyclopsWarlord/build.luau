@@ -15,10 +15,10 @@ return {
 		local SKIN, SKIN_D = "#8fae6b", "#6e8a50"
 		local BELLY_A, BELLY_B = "#cfdfa6", "#b4ca88"
 		local IVORY, WHITE, MOUTH, TONGUE = "#f2e8cc", "#fbfaf4", "#1b1612", "#d9566b"
-		local LEATHER, LEATHER_D, HAIR = "#7a4a2a", "#553218", "#3a2a20"
+		local LEATHER, LEATHER_D, HAIR = "#653a20", "#462613", "#3a2a20"
 		local METAL, METAL_D, METAL_L = "#7a7f8c", "#5b606c", "#cfd3dc"
 		local GOLD = "#ebb43a"
-		local WOOD, WOOD_D = "#8f5d33", "#64401f"
+		local WOOD, WOOD_D = "#a86c38", "#7a4c26"
 		local IRIS, NEON, PUPIL = "#ec7418", "#ff9a1a", "#141414"
 		local STONE, STONE_D, DIRT = "#a89c8a", "#857a6a", "#8f7a5e"
 
@@ -66,13 +66,17 @@ return {
 			local thigh = B:bone("Thigh" .. side, "Hips", v(2.75, 5.4, 0.4))
 			B:block(thigh, v(3.4, 2.8, 3.6), cf(2.75, 4.4, 0.4), SKIN_D)
 			local shin = B:bone("Shin" .. side, "Thigh" .. side, v(2.75, 3.1, 0.4))
-			B:block(shin, v(3.0, 2.4, 3.0), cf(2.75, 2.15, 0.45), SKIN)
+			B:block(shin, v(3.0, 2.2, 3.0), cf(2.75, 2.25, 0.45), SKIN)
 			B:block(shin, v(3.2, 0.7, 3.2), cf(2.75, 2.75, 0.45), LEATHER_D)
 			local foot = B:bone("Foot" .. side, "Shin" .. side, v(2.75, 1.1, 0.5))
 			B:block(foot, v(3.6, 1.2, 4.4), cf(2.75, 0.6, 0.1), SKIN_D)
 			for k = -1, 1 do
 				B:block(foot, v(1.05, 1.0, 1.1), cf(2.75 + k * 1.2, 0.5, -2.45), SKIN)
 				B:wedge(foot, v(0.8, 0.65, 0.8), cf(2.75 + k * 1.2, 0.33, -3.3), IVORY)
+			end
+			if side == "L" then
+				local fx = B:block(foot, v(3.4, 0.2, 4.2), cf(2.75, 0.1, 0.0), SKIN, { tr = 1, name = "StompFX" })
+				B:emitter(fx, "dust", { name = "StompDust", color = { "#e3d5ba", "#c2ad8c" }, speed = { 4, 8 } })
 			end
 		end)
 
@@ -91,9 +95,14 @@ return {
 		end)
 		-- dark back panel + stepped ivory back spikes
 		B:block(chest, v(6.4, 5.6, 0.6), cf(0, 11.5, 4.0), SKIN_D)
-		for i, y in { 14.0, 12.0, 10.0 } do
-			stepSpike(chest, v(0, y, 3.9), v(0, y + 1.2, 6.4 - i * 0.25), 2, 1.6 - i * 0.12, IVORY)
+		for i, y in { 14.3, 12.7, 9.8 } do
+			local tip = v(0, y + 1.2, 6.4 - i * 0.25)
+			stepSpike(chest, v(0, y, 3.9), tip, 2, 1.6 - i * 0.12, IVORY)
+			B:gem(chest, v(0.45, 0.45, 0.45), CFrame.lookAt(tip, tip + (tip - v(0, y, 3.9))), NEON)
 		end
+		-- leather strap across the back holding the pauldron
+		B:beam(chest, v(5.4, 15.0, 4.4), v(-4.5, 8.3, 4.4), 0.4, 1.4, LEATHER_D)
+		B:block(chest, v(1.2, 1.2, 0.3), cf(3.0, 13.45, 4.65, 0, 0, 34), GOLD)
 		-- the gut: its own bone so it can breathe in and out
 		local gut = B:bone("Gut", "Chest", v(0, 9.6, -3.0))
 		local rows = { { 8.3, 5.2, -3.3 }, { 9.3, 6.6, -3.55 }, { 10.3, 7.0, -3.55 }, { 11.3, 6.2, -3.3 } }
@@ -109,7 +118,7 @@ return {
 		------------------------------------------------------------------
 		local head = B:bone("Head", "Chest", v(0, 14.0, -1.0))
 		B:block(head, v(7.6, 4.2, 6.0), cf(0, 16.4, -2.3), SKIN)
-		B:block(head, v(6.6, 0.9, 5.0), cf(0, 18.9, -2.0), SKIN)
+		B:block(head, v(6.6, 0.9, 5.0), cf(0, 18.9, -2.0), SKIN_D)
 		B:block(head, v(6.4, 3.2, 1.2), cf(0, 16.2, 1.0), SKIN_D)
 		B:block(head, v(6.2, 4.4, 0.3), cf(0, 16.8, -5.4), SKIN_D)
 		B:block(head, v(7.0, 1.2, 1.3), cf(0, 14.6, -5.5), SKIN)
@@ -118,7 +127,7 @@ return {
 			B:block(head, v(0.4, 2.8, 4.4), cf(3.85, 16.0, -2.6), SKIN_D)
 			B:block(head, v(0.5, 0.35, 0.2), cf(0.75, 14.9, -6.2), MOUTH)
 			-- upper teeth
-			B:block(head, v(0.7, 0.7, 0.6), cf(0.8, 13.7, -5.75), WHITE)
+			B:block(head, v(0.7, 0.7, 0.6), cf(0.8, 13.7, -5.75), side == "R" and GOLD or WHITE)
 			B:block(head, v(0.7, 0.7, 0.6), cf(2.15, 13.7, -5.75), WHITE)
 			-- stepped ogre ears (pointing out and up)
 			B:block(head, v(1.0, 2.0, 1.6), cf(4.1, 16.4, -2.4), SKIN)
@@ -142,6 +151,9 @@ return {
 		local hornTip = B:block(head, v(0.6, 0.6, 0.6), cf(0, 21.3, -4.1), SKIN, { tr = 1, name = "HornFX" })
 		B:emitter(hornTip, "burst", { name = "Bling", color = { "#ffffff", "#ffe2a8" }, speed = { 3, 6 }, size = { 0.7, 0.5, 0 } })
 
+		-- dark hair strip down the back of the skull (ends in the topknot)
+		B:block(head, v(1.6, 0.5, 2.6), cf(0, 19.5, -0.3), HAIR)
+		B:block(head, v(1.6, 3.4, 0.5), cf(0, 17.4, 1.7), HAIR)
 		-- topknot (secondary motion)
 		local knot = B:bone("Topknot", "Head", v(0, 19.3, 0.2))
 		B:block(knot, v(1.5, 0.6, 1.5), cf(0, 19.6, 0.2), GOLD)
@@ -187,16 +199,16 @@ return {
 		-- left hand cups the club head (idle "tap tap").
 		------------------------------------------------------------------
 		local SH = v(5.4, 13.6, 0.8)
-		local EL = v(6.8, 10.2, -1.8)
-		local FIST_R = v(4.8, 7.4, -6.2)
-		local PALM_L = v(3.6, 7.2, -6.8) -- authored on the right, mirrored to -X
+		local FIST_R = v(4.8, 6.2, -5.8)
+		local PALM_L = v(3.6, 6.1, -6.4) -- authored on the right, mirrored to -X
 		B:sym(function(side)
 			local isR = side == "R"
+			local EL = isR and v(6.9, 9.4, -1.6) or v(6.7, 9.2, -2.0)
 			local arm = B:bone("Arm" .. side, "Chest", SH)
 			B:block(arm, v(3.2, 3.2, 3.4), cf(6.3, 13.4, 0.8), SKIN)
 			B:beam(arm, v(6.4, 12.6, 0.4), EL + v(0, -0.3, -0.1), 2.6, 2.6, SKIN_D)
 			if not isR then
-				B:beam(arm, v(6.55, 11.7, -0.6), v(6.65, 11.0, -1.1), 2.9, 2.9, GOLD)
+				B:beam(arm, v(6.55, 11.4, -0.3), v(6.6, 10.7, -0.75), 2.9, 2.9, GOLD)
 			end
 			local fore = B:bone("Forearm" .. side, "Arm" .. side, EL)
 			local hand = isR and FIST_R or PALM_L
@@ -210,6 +222,7 @@ return {
 				B:block(fore, v(2.8, 1.0, 3.0), CFrame.new(hand), SKIN)
 				for k = -1, 1 do
 					B:block(fore, v(0.75, 1.3, 0.8), CFrame.new(hand + v(k * 0.85, 0.65, -1.3)), SKIN)
+					B:block(fore, v(0.55, 0.45, 0.3), CFrame.new(hand + v(k * 0.85, 1.15, -1.75)), IVORY)
 				end
 				B:block(fore, v(0.8, 1.1, 0.8), CFrame.new(hand + v(0.4, 0.55, 1.35)), SKIN_D)
 			end
@@ -225,13 +238,15 @@ return {
 		B:block(paul, v(0.5, 0.45, 4.0), cf(9.0, 11.85, 0.8), GOLD)
 		B:block(paul, v(0.4, 0.8, 0.8), cf(8.85, 14.1, 0.8), GOLD)
 		stepSpike(paul, v(6.2, 15.6, 0.8), v(6.6, 18.4, 0.8), 3, 1.3, METAL_L)
+		B:gem(paul, v(0.4, 0.4, 0.4), cf(6.62, 18.45, 0.8), NEON)
 		stepSpike(paul, v(7.6, 15.5, -0.5), v(9.3, 17.3, -1.1), 2, 1.1, METAL_L)
 		stepSpike(paul, v(7.6, 15.5, 2.1), v(9.3, 17.3, 2.7), 2, 1.1, METAL_L)
 
 		------------------------------------------------------------------
 		-- The club: wood + grey bands + light metal spikes
+		-- (club local +X = front, +Y = up, -Z runs from the grip to the head)
 		------------------------------------------------------------------
-		local CLUB_T = v(-3.6, 9.4, -6.8) -- club axis rests on the left palm here
+		local CLUB_T = v(-3.6, 8.4, -6.4) -- club axis rests on the left palm here
 		local ccf = CFrame.lookAt(FIST_R, CLUB_T)
 		local club = B:bone("Club", "ForearmR", FIST_R)
 		local function cb(size, along, color, opts)
@@ -242,24 +257,23 @@ return {
 		cb(v(1.6, 1.6, 0.8), -1.8, WOOD_D)
 		cb(v(1.1, 1.1, 0.4), -2.35, GOLD)
 		cb(v(2.1, 2.1, 0.6), 3.2, METAL)
-		cb(v(2.8, 2.8, 1.0), 3.9, WOOD)
-		cb(v(3.6, 3.6, 3.2), 5.9, WOOD, { name = "ClubHead" })
-		cb(v(3.9, 3.9, 0.7), 5.9, METAL)
-		cb(v(3.0, 3.0, 1.0), 7.95, WOOD_D)
+		cb(v(2.9, 2.9, 1.0), 3.9, WOOD)
+		cb(v(3.8, 3.8, 3.2), 5.9, WOOD, { name = "ClubHead" })
+		cb(v(4.1, 4.1, 0.7), 5.9, METAL)
+		cb(v(3.1, 3.1, 1.0), 7.95, WOOD_D)
 		cb(v(2.3, 2.3, 0.5), 8.65, METAL)
-		B:block(club, v(0.55, 0.55, 0.2), ccf * CFrame.new(1.96, 0, -5.9) * P.ang(0, 90, 0), NEON, { mat = "Neon" })
-		B:block(club, v(0.55, 0.55, 0.2), ccf * CFrame.new(-1.96, 0, -5.9) * P.ang(0, 90, 0), NEON, { mat = "Neon" })
+		B:block(club, v(0.55, 0.55, 0.2), ccf * CFrame.new(2.07, 0, -5.9) * P.ang(0, 90, 0), NEON, { mat = "Neon" })
 		local function cpt(x, y, along)
 			return (ccf * CFrame.new(x, y, -along)).Position
 		end
-		stepSpike(club, cpt(0, 1.6, 4.8), cpt(0, 3.3, 4.8), 2, 1.1, METAL_L)
-		stepSpike(club, cpt(0, 1.6, 7.0), cpt(0, 3.3, 7.0), 2, 1.1, METAL_L)
-		stepSpike(club, cpt(0, -1.6, 5.9), cpt(0, -3.3, 5.9), 2, 1.1, METAL_L)
-		stepSpike(club, cpt(1.6, 0, 4.8), cpt(3.3, 0, 4.8), 2, 1.1, METAL_L)
-		stepSpike(club, cpt(1.6, 0, 7.0), cpt(3.3, 0, 7.0), 2, 1.1, METAL_L)
-		stepSpike(club, cpt(-1.6, 0, 5.9), cpt(-3.3, 0, 5.9), 2, 1.1, METAL_L)
+		local r2 = 0.7071
+		stepSpike(club, cpt(1.7, 0, 4.7), cpt(3.4, 0, 4.7), 2, 1.1, METAL_L)
+		stepSpike(club, cpt(1.7, 0, 7.1), cpt(3.4, 0, 7.1), 2, 1.1, METAL_L)
+		stepSpike(club, cpt(0, -1.7, 4.8), cpt(0, -3.3, 4.8), 2, 1.1, METAL_L)
+		stepSpike(club, cpt(0, -1.7, 7.0), cpt(0, -3.3, 7.0), 2, 1.1, METAL_L)
+		stepSpike(club, cpt(1.5 * r2, 1.5 * r2, 5.9), cpt(3.2 * r2, 3.2 * r2, 5.9), 2, 1.1, METAL_L)
 		stepSpike(club, cpt(0, 0, 8.8), cpt(0, 0, 10.2), 2, 1.1, METAL_L)
-		B:trail(club, cpt(0, 1.8, 7.6), cpt(0, -1.8, 7.6), { name = "ClubTrail", color = { "#fff3d6", NEON }, life = 0.28, trans = { 0.35, 1 } })
+		B:trail(club, cpt(0, 1.9, 7.6), cpt(0, -1.9, 7.6), { name = "ClubTrail", color = { "#fff3d6", NEON }, life = 0.28, trans = { 0.35, 1 } })
 
 		------------------------------------------------------------------
 		-- Floating rock voxel cubes orbiting the warlord
@@ -277,7 +291,7 @@ return {
 		------------------------------------------------------------------
 		-- Earthshaker impact FX (hidden until the club hits the ground)
 		------------------------------------------------------------------
-		local IMPACT = v(-0.2, 0, -13.3)
+		local IMPACT = v(-0.8, 0, -13.9)
 		local imp = B:bone("Impact", "Root", IMPACT)
 		local ground = B:block(imp, v(4, 0.3, 4), CFrame.new(IMPACT + v(0, 0.15, 0)), STONE, { tr = 1, name = "ImpactFX" })
 		B:emitter(ground, "dust", { name = "ImpactDust", color = { "#e3d5ba", "#b39e80" } })
@@ -286,15 +300,15 @@ return {
 		-- crater rim: ring of chunky rocks that pops up out of the ground
 		local crater = B:bone("Crater", "Impact", IMPACT)
 		for i = 0, 7 do
-			local a = i / 8 * 360
-			local c = CFrame.new(IMPACT) * P.ang(0, a, 0) * CFrame.new(0, 0.35, -2.7) * P.ang(-22, 0, 0)
-			B:block(crater, v(1.5, 1.1, 1.0), c, i % 2 == 0 and STONE or STONE_D, { tr = 1, name = "Crat" .. (i + 1) })
+			local a = i / 8 * 360 + 22.5
+			local c = CFrame.new(IMPACT) * P.ang(0, a, 0) * CFrame.new(0, 0.45, -3.7) * P.ang(-26, 0, 0)
+			B:block(crater, v(2.2, 1.4, 1.2), c, i % 2 == 0 and STONE or DIRT, { tr = 1, name = "Crat" .. (i + 1) })
 		end
 		-- glowing ground cracks
 		for i = 0, 3 do
 			local a = (i / 4 + 0.12) * 360
-			local c = CFrame.new(IMPACT + v(0, 0.06, 0)) * P.ang(0, a, 0) * CFrame.new(0, 0, -2.6)
-			B:block(imp, v(0.3, 0.12, 3.2), c, NEON, { mat = "Neon", tr = 1, name = "Crack" .. (i + 1) })
+			local c = CFrame.new(IMPACT + v(0, 0.06, 0)) * P.ang(0, a, 0) * CFrame.new(0, 0, -3.4)
+			B:block(imp, v(0.3, 0.12, 4.4), c, NEON, { mat = "Neon", tr = 1, name = "Crack" .. (i + 1) })
 		end
 		-- flying debris chunks
 		for i = 1, 6 do

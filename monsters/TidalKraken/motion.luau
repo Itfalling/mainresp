@@ -1,13 +1,17 @@
 --!nocheck
 -- Tidal Kraken motion.
--- Idle: jellyfish-style swim pulses (tentacles squeeze down -> body bobs up ->
+-- Idle: jellyfish-style swim pulses (tentacles squeeze -> body bobs up ->
 -- tentacles relax and flare), a travelling wave around the tentacle skirt,
--- mantle breathing, ear flaps, pupils looking around, blinks and beak chomps.
--- Signature "MAELSTROM":
---   3.3  anticipation  sinks down, twists back, all 8 tentacles fountain up HIGH, squint
---   4.65 action        full 360 spin while rising, tentacles whip out in a trailing
---                      spiral, whirlpool + bubble burst, eyes pop wide, dizzy pupils, yell
---   6.15 splash down   tentacles + body slam down (squash), splash spray + droplets
+-- mantle breathing, ear flaps, pupils looking around, blinks, beak chomps and a
+-- friendly "hi!" wave with one tentacle (0.6-2.75s).
+-- Signature "MAELSTROM" (cycle 9s):
+--   3.3  anticipation  sinks + twists back (-40 deg), all 8 tentacles rise up and fan
+--                      out wide, brows slam down into an angry squint
+--   4.65 action        full 360 spin while rocketing up 4 studs, tentacles whip out
+--                      flat in a trailing spiral, whirlpool rings + bubble burst,
+--                      eyes pop out wide, beak yells open, dizzy cross-eyed pupils
+--   6.15 splash down   everything slams down (body squash -1.9, mantle squash),
+--                      tentacles splat flat, eyes squeeze shut, splash spray + droplets
 --   6.85 settle        elastic overshoot everywhere, crown/ears/mantle follow-through
 local L = require(script.Parent.AnimLib)
 local ang, pa, wave = L.ang, L.pa, L.wave
@@ -18,13 +22,15 @@ M.Cycle = 9
 -- per-joint curl deltas (deg) for each key pose; + = curl up/out (local +X)
 local RAISE = { 57, 4, 4, -25, -37 }
 local FLARE = { 42, -8, -9, -30, -27 }
-local SLAM = { 22, -1, 1, -37, -27 }
+local SLAM = { 26, 0, 0, -28, -20 }
 -- yaw (deg) that swings the raised tentacles back into a fan behind the head
 local RAISE_YAW = { -45, -30, -15, -5 }
 local SWIM = { 14, 8, 6, 3, -6 }
 local WAVE_AMP = { 4, 5, 7, 9, 11 }
 local SWAY_AMP = { 3, 4, 5, 6, 8 }
 local TRAIL = { 12, 16, 20, 22, 24 }
+-- friendly "hi!" wave with the right side tentacle (curl deltas)
+local HI = { 62, 14, 14, -25, -37 }
 
 local REST_DEBUG = false
 
@@ -62,13 +68,14 @@ function M.Update(t, pose, ctx)
 	local c = t % M.Cycle
 
 	local raise, flare, slam = raiseW(c), flareW(c), slamW(c)
-	local idleW = L.clamp01(1 - math.max(raise, flare, slam) * 1.3)
+	local idleW = L.clamp01(1 - math.max(raise, flare, math.abs(slam)) * 1.3)
 	local yaw = L.track(c, { { 3.3, 0 }, { 4.3, -40, "cubicOut" }, { 4.65, -45 }, { 6.2, 370, "cubicInOut" }, { 6.8, 360, "backOut" } })
 	local spinning = L.track(c, { { 4.7, 0 }, { 5.0, 1 }, { 5.95, 1 }, { 6.25, 0 } })
 	local dizzy = L.track(c, { { 4.9, 0 }, { 5.2, 1 }, { 7.0, 1 }, { 7.9, 0 } })
 	local wide = L.track(c, { { 4.55, 0 }, { 4.8, 1, "backOut" }, { 6.1, 1 }, { 6.35, 0 } })
 	local squint = L.track(c, { { 3.4, 0 }, { 3.9, 1 }, { 4.55, 1 }, { 4.7, 0 } })
 	local flinch = L.track(c, { { 6.35, 0 }, { 6.45, 1 }, { 6.6, 1 }, { 6.7, 0 } })
+	local hi = L.track(c, { { 0.6, 0 }, { 1.0, 1, "backOut" }, { 2.3, 1 }, { 2.75, 0, "cubicInOut" } })
 
 	------------------------------------------------------------------
 	-- BODY: swim bob + drift, crouch, spin with top-like wobble, slam squash
@@ -79,7 +86,7 @@ function M.Update(t, pose, ctx)
 	local dx = 0.6 * L.noise(t, 1.7, 0.25) * idleW
 	local dz = 0.5 * L.noise(t, 5.3, 0.2) * idleW
 	local pitch = idleW * (5 * sw - 2) + 10 * raise - 6 * slam
-	local roll = 5 * wave(t, 0.27) * idleW
+	local roll = 5 * wave(t, 0.27) * idleW + 4 * hi
 	local wob = 10 * spinning
 	local wph = L.TAU * t * 2.3
 	local tilt = ang(pitch + wob * math.cos(wph), 0, roll + wob * math.sin(wph))
@@ -104,22 +111,28 @@ function M.Update(t, pose, ctx)
 	-- FACE: eyes pop + go wide, dizzy pupils, blinks, brows, beak
 	------------------------------------------------------------------
 	L.both(pose, "Eye", CFrame.new(0, 0.25 * wide, -0.7 * wide))
-	local look = L.noise(t, 3.3, 0.45) * idleW
+	local look = L.noise(t, 3.3, 0.45) * idleW * (1 - hi) + 0.8 * hi
 	local lookY = L.noise(t, 7.7, 0.35) * idleW
 	local dzA = L.TAU * 2.4 * t
 	-- the idle look is shared (not mirrored) so both eyes look the same way;
 	-- dizzy circles run out of phase for a goofy cross-eyed swirl
 	local py = 0.4 * lookY + 0.35 * raise - 0.2 * slam
-	pose.PupilR = CFrame.new(0.6 * look + 0.5 * dizzy * math.cos(dzA), py + 0.5 * dizzy * math.sin(dzA), 0)
-	pose.PupilL = CFrame.new(0.6 * look + 0.5 * dizzy * math.cos(dzA + 2.2), py + 0.5 * dizzy * math.sin(dzA + 2.2), 0)
+	local function pupil(phase)
+		local x = math.clamp(0.6 * look + 0.5 * dizzy * math.cos(dzA + phase), -0.7, 0.7)
+		local y = math.clamp(py + 0.5 * dizzy * math.sin(dzA + phase), -0.7, 0.7)
+		return CFrame.new(x, y, 0)
+	end
+	pose.PupilR = pupil(0)
+	pose.PupilL = pupil(2.2)
 
 	local blink = L.env(t % 3.4, 3.0, 0.07, 0.05, 0.1) * idleW
-	local lid = math.max(blink, 0.42 * squint, 0.62 * flinch)
+	local lid = math.max(blink, flinch)
 	L.both(pose, "Lid", ang(92 * lid, 0, 0))
-	L.both(pose, "Brow", pa(0, -0.3 * squint + 0.9 * wide - 0.35 * flinch + 0.12 * sw * idleW, 0, 0, 0, 10 * squint - 16 * wide + 6 * flinch))
+	-- squint = brows drop down over the top of the eyes (angry wind-up face)
+	L.both(pose, "Brow", pa(0, -1.0 * squint + 0.9 * wide + 0.12 * sw * idleW + 0.35 * hi, -0.25 * squint, 0, 0, 14 * squint - 16 * wide))
 
 	local chomp = math.max(0, wave(t, 0.33, 0.2)) ^ 6 * idleW
-	pose.Jaw = ang(-5 - 24 * chomp + 5 * squint - 50 * wide - 12 * slam * math.abs(wave(t, 2.2)) - 6 * sw * idleW, 0, 0)
+	pose.Jaw = ang(-5 - 24 * chomp * (1 - hi) - 22 * hi + 5 * squint - 50 * wide - 12 * slam * math.abs(wave(t, 2.2)) - 6 * sw * idleW, 0, 0)
 
 	------------------------------------------------------------------
 	-- TENTACLES
@@ -141,6 +154,11 @@ function M.Update(t, pose, ctx)
 				-- spin whip: every joint trails behind the spin direction -> spiral
 				local yawSpin = -spinning * TRAIL[i] * (1 + 0.3 * wave(t, 3, -0.1 * i))
 				local y = (s == 1 and yawSym or -yawSym) + yawSpin
+				if k == 2 and s == 1 and hi > 0 then
+					-- the waving tentacle: lift up high, swing out to the side, waggle the tip
+					curl = curl * (1 - hi) + HI[i] * hi
+					y = y * (1 - hi) + hi * (i == 1 and -15 or (i >= 3 and 24 * wave(t, 2.0, -0.09 * i) or 0))
+				end
 				pose[("T%dS%d%s"):format(k, i, side)] = ang(0, y, 0) * ang(curl, 0, 0)
 			end
 		end

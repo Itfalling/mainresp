@@ -177,31 +177,35 @@ return {
 			B:block(claw, sz(3.4, 4.4, 3.6), c(0, 0.6, -2.0), LAVA) -- molten palm
 			B:block(claw, sz(3.5, 1.7, 3.7), c(0, 2.2, -2.0), OBS) -- obsidian armor top
 			B:block(claw, sz(2.6, 0.8, 2.6), c(0, 3.4, -2.0), OBS) -- stepped hump
-			B:block(claw, sz(3.5, 0.6, 3.7), c(0, -1.45, -2.0), GOLD) -- yellow underside
-			B:block(claw, sz(0.3, 1.6, 2.2), c(1.8, 0.2, -2.1), OBS) -- outer armor patch
-			B:block(claw, sz(0.3, 1.6, 2.2), c(-1.8, 0.2, -2.1), OBS) -- inner armor patch
-			B:block(claw, sz(2.2, 1.0, 0.2), c(0, 0.45, -3.85), MOUTH) -- dark gap between the fingers
+			B:block(claw, sz(3.5, 0.6, 3.7), c(0, -1.45, -2.0), DARK) -- dark underside
+			B:block(claw, sz(0.3, 0.5, 2.6), c(1.75, 1.1, -2.0), GOLD) -- hot seam under the armor
+			B:block(claw, sz(0.3, 0.5, 2.6), c(-1.75, 1.1, -2.0), GOLD)
+			B:block(claw, sz(2.2, 1.6, 0.2), c(0, 0.5, -3.85), LAVA) -- molten glow inside the pincer notch
 			B:spike(claw, pt(-0.5, 3.7, -1.3), pt(-0.6, 5.1, -0.7), 1.0 * k, 1.0 * k, CREAM)
 			B:spike(claw, pt(0.6, 3.7, -2.6), pt(0.7, 4.8, -2.2), 0.8 * k, 0.8 * k, CREAM)
-			if side == "R" then
-				-- one thin neon crack on the crusher's outer armor
-				B:block(claw, sz(0.15, 0.25, 1.6), c(1.99, 0.3, -2.1), NEON, { mat = "Neon" })
+			-- fingers are authored open (V notch) by rotating about their hinges
+			local function hinge(hy, rx)
+				local h = CL * CFrame.new(0, hy * k, -3.8 * k)
+				local rot = h * ang(rx, 0, 0) * h:Inverse()
+				return function(x, y, z) return rot * c(x, y, z) end, function(x, y, z) return (rot * c(x, y, z)).Position end
 			end
 			-- fixed (lower) finger: stepped + tapered, cream hook tip, teeth on top
-			B:block(claw, sz(2.4, 1.5, 2.0), c(0, -0.65, -4.8), OBS)
-			B:block(claw, sz(1.7, 1.1, 1.4), c(0, -0.45, -6.4), OBS)
-			B:spike(claw, pt(0, -0.45, -6.9), pt(0, 0.5, -8.7), 1.2 * k, 1.0 * k, CREAM)
-			B:block(claw, sz(0.5, 0.5, 0.5), c(-0.5, 0.3, -4.5), CREAM)
-			B:block(claw, sz(0.5, 0.5, 0.5), c(0.4, 0.2, -6.0), CREAM)
+			local lc, lp = hinge(-0.2, -8)
+			B:block(claw, sz(2.4, 1.5, 2.0), lc(0, -0.65, -4.8), OBS)
+			B:block(claw, sz(1.7, 1.1, 1.4), lc(0, -0.45, -6.4), OBS)
+			B:spike(claw, lp(0, -0.45, -6.9), lp(0, 0.5, -8.7), 1.2 * k, 1.0 * k, CREAM)
+			B:block(claw, sz(0.6, 0.6, 0.6), lc(-0.5, 0.3, -4.5), CREAM)
+			B:block(claw, sz(0.6, 0.6, 0.6), lc(0.4, 0.2, -6.0), CREAM)
 
 			-- movable (upper) pincer
+			local uc, up = hinge(1.9, 12)
 			local pin = B:bone("Pincer" .. side, "Claw" .. side, c(0, 1.9, -3.8))
-			B:block(pin, sz(2.4, 1.7, 2.2), c(0, 1.85, -4.9), OBS)
-			B:block(pin, sz(1.8, 1.3, 1.4), c(0, 1.6, -6.6), OBS)
-			B:spike(pin, pt(0, 1.6, -7.1), pt(0, 0.6, -9.0), 1.3 * k, 1.1 * k, CREAM)
-			B:block(pin, sz(0.5, 0.5, 0.5), c(0.5, 0.8, -5.0), CREAM)
-			B:block(pin, sz(0.5, 0.5, 0.5), c(-0.4, 0.85, -6.4), CREAM)
-			B:trail(pin, pt(0, 1.6, -8.4), pt(0, 0.6, -8.4), { name = "ClawTrail" .. side, color = { GOLD, LAVA }, life = 0.25, trans = { 0.35, 1 } })
+			B:block(pin, sz(2.4, 1.7, 2.2), uc(0, 1.85, -4.9), OBS)
+			B:block(pin, sz(1.8, 1.3, 1.4), uc(0, 1.6, -6.6), OBS)
+			B:spike(pin, up(0, 1.6, -7.1), up(0, 0.6, -9.0), 1.3 * k, 1.1 * k, CREAM)
+			B:block(pin, sz(0.6, 0.6, 0.6), uc(0.5, 0.8, -5.0), CREAM)
+			B:block(pin, sz(0.6, 0.6, 0.6), uc(-0.4, 0.85, -6.4), CREAM)
+			B:trail(pin, up(0, 1.6, -8.4), up(0, 0.6, -8.4), { name = "ClawTrail" .. side, color = { GOLD, LAVA }, life = 0.25, trans = { 0.35, 1 } })
 			if side == "R" then
 				local fx = B:block(pin, sz(2, 2, 2), c(0, 1.2, -6.0), OBS, { tr = 1, name = "ClapFX" })
 				B:emitter(fx, "burst", { name = "ClapBurst", color = { "#ffffff", GOLD, LAVA } })

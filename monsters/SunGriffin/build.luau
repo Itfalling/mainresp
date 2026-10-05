@@ -74,6 +74,9 @@ return {
 		B:block(head, v(5.8, 1.8, 3.6), cf(0, 14.3, -6.6), WHITE) -- chunky jowls
 		B:block(head, v(4.4, 1.2, 1.4), cf(0, 17.3, -4.3), CREAM) -- back mane
 		B:block(head, v(3.6, 1.0, 1.2), cf(0, 16.2, -3.8), GOLD)
+		-- little sun mark on the forehead
+		B:block(head, v(1.1, 1.1, 0.2), cf(0, 17.45, -9.78, 0, 0, 45), GOLD)
+		B:block(head, v(0.55, 0.55, 0.2), cf(0, 17.45, -9.84, 0, 0, 45), NEON, { mat = "Neon" })
 
 		-- hooked beak (upper)
 		B:block(head, v(2.2, 0.9, 1.2), cf(0, 15.55, -10.2), GOLD) -- cere
@@ -96,15 +99,15 @@ return {
 			B:block(head, v(0.5, 1.1, 0.1), cf(1.55, 16.0, -9.84), PUPIL)
 			B:block(head, v(0.15, 1.1, 0.5), cf(2.6, 16.0, -9.0), PUPIL)
 			B:block(head, v(2.2, 0.7, 1.7), cf(1.75, 17.2, -9.15, 0, 0, 14), BEAKDK)
-			-- cheek feathers flaring back
-			B:beam(head, v(2.6, 14.8, -6.3), v(4.1, 14.2, -3.9), 1.1, 1.1, WHITE)
-			B:beam(head, v(4.0, 14.2, -4.0), v(4.7, 13.9, -2.9), 0.8, 0.8, GOLD)
-			B:beam(head, v(2.6, 13.8, -6.0), v(3.6, 13.0, -4.2), 0.8, 0.8, CREAM)
-			-- ear-tuft "horns": stepped white -> gold, small neon tip
-			B:beam(head, v(1.5, 17.6, -6.9), v(2.4, 19.6, -5.2), 1.6, 1.6, WHITE)
-			B:beam(head, v(2.35, 19.5, -5.3), v(3.1, 20.9, -3.6), 1.3, 1.3, WHITE)
-			B:beam(head, v(3.05, 20.8, -3.7), v(3.6, 21.6, -2.3), 1.0, 1.0, GOLD)
-			B:block(head, v(0.6, 0.6, 0.6), cf(3.7, 21.75, -2.0, 40, 0, -20), NEON, { mat = "Neon" })
+			-- cheek feather spike flaring back
+			B:spike(head, v(2.5, 14.6, -6.4), v(4.6, 14.0, -3.0), 1.2, 1.2, WHITE)
+			-- ear-tuft "horns": stacked stepped blocks (white -> gold), small neon tip
+			local hb = CFrame.new(1.65, 17.7, -6.6) * P.ang(34, 0, -16)
+			B:block(head, v(1.7, 1.4, 1.8), hb * CFrame.new(0, 0.5, 0), WHITE)
+			B:block(head, v(1.4, 1.3, 1.5), hb * CFrame.new(0, 1.8, 0.15), WHITE)
+			B:block(head, v(1.1, 1.2, 1.2), hb * CFrame.new(0, 3.0, 0.3), GOLD)
+			B:block(head, v(0.8, 1.0, 0.9), hb * CFrame.new(0, 4.05, 0.45), GOLD)
+			B:block(head, v(0.5, 0.6, 0.5), hb * CFrame.new(0, 4.85, 0.55), NEON, { mat = "Neon" })
 		end)
 
 		-- crest plume (own bone for secondary motion)
@@ -151,7 +154,6 @@ return {
 			end
 
 			local w2 = B:bone("WingMid" .. side, "Wing" .. side, v(3.0, 13.4, 3.6))
-			B:spike(w2, v(3.5, 13.8, 4.0), v(3.55, 15.2, 3.3), 1.1, 1.1, WHITE) -- alula spike
 			B:block(w2, v(1.3, 1.3, 4.0), cf(3.5, 13.4, 5.3), GOLD)
 			B:block(w2, v(1.0, 1.5, 3.8), cf(3.8, 12.0, 5.3), WHITE)
 			B:block(w2, v(0.8, 1.4, 3.6), cf(3.75, 10.7, 5.3), GOLD)
@@ -164,11 +166,11 @@ return {
 			B:block(w3, v(1.0, 0.9, 1.8), cf(3.5, 13.4, 10.4), WHITE)
 			B:block(w3, v(0.3, 0.3, 2.6), cf(3.5, 14.1, 8.2), NEON, { mat = "Neon" })
 			-- primaries: stepped feathers, longest on top, orange tips
-			local prim = { { 12.4, 4.8, WHITE }, { 11.4, 4.2, WHITE }, { 10.4, 3.5, GOLD }, { 9.4, 2.8, GOLD } }
+			local prim = { { 12.4, 5.3, WHITE }, { 11.4, 4.7, WHITE }, { 10.4, 4.0, GOLD }, { 9.4, 3.3, GOLD } }
 			for k, p in prim do
 				local x = 3.8 - (k % 2) * 0.1
-				B:block(w3, v(0.8, 1.0, p[2]), cf(x, p[1], 7.3 + p[2] / 2), p[3])
-				B:block(w3, v(0.8, 1.0, 1.2), cf(x, p[1], 7.3 + p[2] + 0.6), ORANGE)
+				B:block(w3, v(0.8, 1.0, p[2]), cf(x, p[1], 6.8 + p[2] / 2), p[3])
+				B:block(w3, v(0.8, 1.0, 1.2), cf(x, p[1], 6.8 + p[2] + 0.6), ORANGE)
 			end
 			B:block(w3, v(0.5, 0.5, 0.5), cf(3.75, 12.4, 13.55), NEON, { mat = "Neon" })
 			B:trail(w3, v(3.6, 13.0, 13.2), v(3.7, 9.6, 11.6), {
@@ -184,7 +186,7 @@ return {
 			B:block(arm, v(2.4, 3.4, 2.6), cf(2.8, 8.0, -2.8), WHITE)
 			B:block(arm, v(2.6, 0.7, 2.8), cf(2.8, 6.4, -2.8), CREAM)
 			local fore = B:bone("Fore" .. side, "Arm" .. side, v(2.8, 6.2, -2.6))
-			B:block(fore, v(1.6, 4.6, 1.6), cf(2.8, 3.9, -2.8), GOLD)
+			B:block(fore, v(1.6, 5.2, 1.6), cf(2.8, 3.6, -2.8), GOLD)
 			B:block(fore, v(1.75, 0.35, 1.75), cf(2.8, 4.6, -2.8), BEAKDK)
 			B:block(fore, v(1.75, 0.35, 1.75), cf(2.8, 3.2, -2.8), BEAKDK)
 			local foot = B:bone("Foot" .. side, "Fore" .. side, v(2.8, 1.5, -3.0))
@@ -205,7 +207,7 @@ return {
 			B:block(thigh, v(0.3, 2.8, 3.2), cf(4.4, 7.6, 5.0), DARK)
 			B:block(thigh, v(2.2, 1.0, 3.4), cf(3.0, 10.2, 4.9), TAWNY) -- stepped haunch top
 			local shin = B:bone("Shin" .. side, "Thigh" .. side, v(3.0, 5.6, 5.8))
-			B:block(shin, v(1.9, 4.0, 2.0), cf(3.0, 3.5, 6.0), TAWNY)
+			B:block(shin, v(1.9, 4.8, 2.0), cf(3.0, 3.6, 6.0), TAWNY)
 			B:block(shin, v(1.5, 2.4, 0.3), cf(3.0, 3.6, 7.1), DARK)
 			local paw = B:bone("Paw" .. side, "Shin" .. side, v(3.0, 1.6, 5.8))
 			B:block(paw, v(2.6, 1.4, 3.2), cf(3.0, 0.7, 5.3), TAWNY)

@@ -144,7 +144,7 @@ function M.Update(t, pose, ctx)
 	---------------------------------------------------------------- BODY
 	local lift = tr(c, LIFT)
 	local hoverBob = -0.009 * tr((c - 0.08) % M.Cycle, FLAP) * fly
-	local bob = -0.35 * L.bounce(t, 1) * idleW
+	local bob = -0.45 * L.bounce(t, 1) * idleW
 	local by = lift + hoverBob + bob
 	local bp = tr(c, PITCH) + 1.5 * breathe * idleW
 	local br = 3 * wave(t, 5 / 9) * idleW + 4 * wave(t, 6 / 9) * fly + tr(c, BANK)

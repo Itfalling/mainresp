@@ -59,9 +59,9 @@ function M.Update(t, pose, ctx)
 	------------------------------------------------------------------
 	-- signature envelopes
 	------------------------------------------------------------------
-	local crouch = env(c, 4.4, 0.6, 0.15, 0.3, "cubicOut", "quadIn") -- wind-up crouch
-	local rise = env(c, 5.05, 0.42, 1.6, 0.38, "backOut", "cubicIn") -- rear up / slam down at 7.45
-	local impact = env(c, 7.43, 0.05, 0.05, 0.95, "quadOut", "elasticOut") -- squash + jiggle
+	local crouch = env(c, 4.4, 0.6, 0.05, 0.3, "cubicOut", "quadIn") -- wind-up crouch
+	local rise = env(c, 5.05, 0.42, 1.54, 0.38, "backOut", "cubicIn") -- rear up / slam down at 7.37
+	local impact = env(c, 7.37, 0.05, 0.05, 0.95, "quadOut", "elasticOut") -- squash + jiggle
 	local hoot1 = env(c, 5.35, 0.12, 0.2, 0.15, "backOut", "quadIn") -- "HOO-"
 	local hoot2 = env(c, 5.85, 0.14, 0.3, 0.22, "backOut", "cubicIn") -- "-HOOT!"
 	local hoot = max(0.75 * hoot1, hoot2)
@@ -109,31 +109,31 @@ function M.Update(t, pose, ctx)
 	------------------------------------------------------------------
 	-- front legs: planted (IK) on the ground, keyframed in the air
 	------------------------------------------------------------------
-	local w = L.smoothstep(clamp(rise / 0.4, 0, 1))
+	local w = L.smoothstep(clamp((rise - 0.1) / 0.5, 0, 1))
 	local tapR = env(c, 3.2, 0.14, 0.06, 0.25, "quadOut", "bounceOut") + env(c, 8.9, 0.14, 0.06, 0.25, "quadOut", "bounceOut")
 	local tapL = env(c, 3.62, 0.14, 0.06, 0.25, "quadOut", "bounceOut") + env(c, 9.32, 0.14, 0.06, 0.25, "quadOut", "bounceOut")
 	local airR = {
-		{ 5.05, { -20, 0, 0 } },
+		{ 5.05, { 0, 0, 10 } },
 		{ 5.5, { 70, 0, 60 }, "backOut" }, -- arms flung wide, claws up
 		{ 6.22, { 74, 0, 56 } },
 		{ 6.34, { 95, -10, 100 }, "quadOut" }, -- R wind-up: high and out
 		{ 6.46, { -8, 25, -38 }, "expoOut" }, -- R SLASH: diagonal down across the belly
 		{ 6.8, { 0, 20, -28 } },
 		{ 7.1, { 12, 0, 38 }, "quadInOut" },
-		{ 7.42, { 10, 0, 6 } },
+		{ 7.36, { 10, 0, 6 } },
 	}
 	local airL = {
-		{ 5.05, { -20, 0, 0 } },
+		{ 5.05, { 0, 0, 10 } },
 		{ 5.5, { 70, 0, 60 }, "backOut" },
 		{ 6.46, { 74, 0, 56 } },
 		{ 6.58, { 95, -10, 100 }, "quadOut" }, -- L wind-up
 		{ 6.7, { -8, 25, -38 }, "expoOut" }, -- L SLASH
 		{ 6.95, { 0, 20, -28 } },
 		{ 7.15, { 12, 0, 38 }, "quadInOut" },
-		{ 7.42, { 10, 0, 6 } },
+		{ 7.36, { 10, 0, 6 } },
 	}
-	local foreAir = L.track(c, { { 5.05, 30 }, { 5.5, 55, "backOut" }, { 6.22, 50 }, { 6.34, 35 }, { 6.46, 8, "expoOut" }, { 6.8, 10 }, { 7.0, 30 }, { 7.42, 0 } })
-	local pawAir = L.track(c, { { 5.05, 0 }, { 5.5, -45, "backOut" }, { 6.2, -40 }, { 6.5, -10 }, { 7.0, -20 }, { 7.42, 0 } })
+	local foreAir = L.track(c, { { 5.05, 30 }, { 5.5, 55, "backOut" }, { 6.22, 50 }, { 6.34, 35 }, { 6.46, 8, "expoOut" }, { 6.8, 10 }, { 7.0, 30 }, { 7.36, 0 } })
+	local pawAir = L.track(c, { { 5.05, -20 }, { 5.5, -45, "backOut" }, { 6.2, -40 }, { 6.5, -10 }, { 7.0, -20 }, { 7.36, 0 } })
 	for _, s in { 1, -1 } do
 		local side = s == 1 and "R" or "L"
 		local tap = s == 1 and tapR or tapL
@@ -166,7 +166,7 @@ function M.Update(t, pose, ctx)
 	})
 	local lookP = snap(c, {
 		{ 4.3, 0 }, { 4.75, -7, "cubicOut" }, { 5.1, -7 }, { 5.45, 16, "backOut" }, { 5.75, 8 }, { 5.95, 22, "backOut" },
-		{ 6.2, 18 }, { 6.34, -10, "quadOut" }, { 7.05, -8 }, { 7.36, 12, "quadIn" }, { 7.5, -12, "quadOut" },
+		{ 6.2, 18 }, { 6.34, -10, "quadOut" }, { 7.0, -8 }, { 7.3, 12, "quadIn" }, { 7.44, -12, "quadOut" },
 		{ 7.9, 4, "quadInOut" }, { 8.3, 0 },
 	})
 	local lift = env(c, 1.5, 0.22, 1.43, 0.25, "backOut", "quadInOut")
@@ -245,7 +245,7 @@ function M.Update(t, pose, ctx)
 	end
 
 	-- ground debris bursts out of the floor on the slam and tumbles away
-	local dp = (c - 7.42) / 0.75
+	local dp = (c - 7.36) / 0.75
 	local dOn = dp >= 0 and dp < 1
 	for i = 1, 6 do
 		local a = rad(-95 + (i - 1) * 38)
@@ -274,7 +274,7 @@ function M.Update(t, pose, ctx)
 	if ctx.crossed(5.92) then ctx.emit("HootBurst", 40) end
 	if ctx.crossed(6.42) then ctx.emit("SwipeR", 18) end
 	if ctx.crossed(6.66) then ctx.emit("SwipeL", 18) end
-	if ctx.crossed(7.46) then
+	if ctx.crossed(7.4) then
 		ctx.emit("FeatherBurst", 45)
 		ctx.emit("ImpactDust", 35)
 	end

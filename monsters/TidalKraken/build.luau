@@ -22,9 +22,11 @@ return {
 		B:block(body, v(8, 5.2, 1.1), cf(0, 10.8, -3.5), TEAL) -- front slab, face at Z=-4.05
 		B:block(body, v(8, 5.0, 0.8), cf(0, 10.8, 4.3), TEAL) -- back slab
 		B:block(body, v(9.4, 0.8, 7.8), cf(0, 8.2, 0.4), DARK) -- dark base band
+		B:block(body, v(8.6, 1.4, 7.4), cf(0, 14.1, 0.6), DARK) -- neck filler (hidden under the mantle)
 		B:block(body, v(8.2, 0.5, 7.0), cf(0, 7.65, 0.4), CREAM) -- underside
 		B:sym(function()
 			B:block(body, v(0.3, 1.4, 1.4), cf(4.6, 11.4, 1.0), CORAL)
+			B:block(body, v(0.2, 1.9, 1.9), cf(4.55, 11.4, 1.0), DARK) -- spot outline
 			B:block(body, v(0.3, 0.7, 0.7), cf(4.6, 10.2, 2.2), CORAL)
 		end)
 
@@ -32,7 +34,7 @@ return {
 		B:block(body, v(6.2, 1.4, 0.4), cf(0, 9.0, -4.15), BLACK)
 		B:sym(function()
 			B:block(body, v(0.55, 0.6, 0.3), cf(1.3, 9.35, -4.4), WHITE)
-			B:block(body, v(0.55, 0.85, 0.3), cf(2.05, 9.25, -4.4), WHITE) -- fang
+			B:block(body, v(0.6, 1.1, 0.3), cf(2.05, 9.15, -4.4), WHITE) -- fang
 			B:block(body, v(0.55, 0.6, 0.3), cf(2.8, 9.35, -4.4), WHITE)
 		end)
 		B:wedge(body, v(1.8, 1.3, 1.3), cf(0, 9.95, -4.7), CREAM) -- upper beak ramp
@@ -52,6 +54,7 @@ return {
 			local pupil = B:bone("Pupil" .. side, "Eye" .. side, v(2.15, EY - 0.2, -4.7))
 			B:block(pupil, v(1.7, 2.1, 0.3), cf(2.15, EY - 0.2, -4.8), BLACK)
 			B:block(pupil, v(0.6, 0.6, 0.2), cf(2.55, EY + 0.4, -4.98), WHITE)
+			B:block(pupil, v(0.3, 0.3, 0.2), cf(1.75, EY - 0.85, -4.98), WHITE)
 
 			-- lid: lies flat (pointing back into the head) at rest, swings down +X to blink
 			local lid = B:bone("Lid" .. side, "Eye" .. side, v(2.35, EY + 1.85, -5.1))
@@ -91,10 +94,13 @@ return {
 		B:block(mantle, v(9.7, 0.3, 8.3), cf(0, 15.55, 1.75), DARK) -- tier lip
 		B:block(mantle, v(7.9, 0.3, 6.9), cf(0, 17.1, 2.3), DARK) -- tier lip
 		B:block(mantle, v(1.6, 1.2, 0.3), cf(0, 14.6, -3.6), CORAL) -- forehead spot
+		B:block(mantle, v(2.1, 1.7, 0.2), cf(0, 14.6, -3.55), DARK)
 		B:sym(function()
 			B:block(mantle, v(0.3, 1.6, 1.6), cf(5.25, 14.5, 1.4), CORAL)
+			B:block(mantle, v(0.2, 2.1, 2.1), cf(5.2, 14.5, 1.4), DARK)
 			B:block(mantle, v(0.3, 0.8, 0.8), cf(5.25, 14.9, 3.6), CORAL)
 			B:block(mantle, v(1.6, 1.4, 0.3), cf(2.0, 14.5, 5.55), CORAL)
+			B:block(mantle, v(2.1, 1.9, 0.2), cf(2.0, 14.5, 5.5), DARK)
 			B:block(mantle, v(0.9, 0.9, 0.3), cf(3.2, 16.3, 5.95), CORAL)
 			B:block(mantle, v(1.2, 0.9, 0.3), cf(2.6, 16.3, -2.45), CORAL)
 			B:block(mantle, v(0.3, 0.8, 1.0), cf(3.95, 17.55, 3.4), CORAL)
@@ -138,7 +144,7 @@ return {
 		local LENS = { 1.8, 2.3, 2.4, 2.1, 1.8 }
 		local WS = { 2.1, 1.85, 1.6, 1.35, 1.1 }
 		local HS = { 1.7, 1.5, 1.3, 1.1, 0.95 }
-		local SEGCOL = { DARK, TEAL, TEAL, TEAL, TEAL }
+		local SEGCOL = { DARK, TEAL, TEAL, TEAL, CORAL }
 		local AZ = { 30, 70, 110, 150 } -- azimuth from forward (-Z) toward +X
 		B:sym(function(side)
 			for k, az in AZ do
@@ -162,9 +168,6 @@ return {
 					if i >= 2 then
 						B:block(bn, v(w + 0.1, 0.5, len - 0.25), scf * CFrame.new(0, -h / 2 + 0.2, 0), CREAM)
 					end
-					if i == 3 then
-						B:block(bn, v(0.8, 0.2, 0.9), scf * CFrame.new(0, h / 2 + 0.05, 0.1), CORAL) -- top spot
-					end
 					if i >= 3 then
 						B:block(bn, v(0.7, 0.2, 0.7), scf * CFrame.new(0, -h / 2 - 0.15, i == 5 and -0.2 or 0), CORAL)
 					end
@@ -173,13 +176,14 @@ return {
 						local hd = math.rad(150)
 						local hx, hy = r2 + 1.0 * math.cos(hd), y2 + 1.0 * math.sin(hd)
 						local hcf, hlen = P.span(W(r2, y2), W(hx, hy))
-						B:block(bn, v(0.85, 0.8, hlen + 0.3), hcf * CFrame.new(0, 0, 0.1), TEAL)
+						B:block(bn, v(0.85, 0.8, hlen + 0.3), hcf * CFrame.new(0, 0, 0.1), CORAL)
 						B:block(bn, v(0.4, 0.4, 0.4), hcf * CFrame.new(0, -0.35, -hlen / 2 + 0.05), NEON, { mat = "Neon" })
 						B:trail(bn, W(r2, y2 + 0.4), W(r2, y2 - 0.4), {
 							name = "TipTrail" .. k,
 							color = { FOAM, AQUA },
-							life = 0.22,
-							trans = { 0.45, 1 },
+							life = 0.25,
+							trans = { 0.5, 1 },
+							light = 0.35,
 						})
 					end
 					parent = name
@@ -193,11 +197,11 @@ return {
 		------------------------------------------------------------------
 		local orbit = B:bone("Orbit", "Root", v(0, 11, 0))
 		local spots = {
-			{ 10.0, 13.0, -1, TEAL, AQUA },
-			{ -9.5, 9.5, 3, CORAL, CREAM },
-			{ 7.0, 7.5, 8.5, AQUA, TEAL },
-			{ -6.5, 15.5, -6.5, TEAL, CORAL },
-			{ 2.0, 17.0, 9.0, CORAL, AQUA },
+			{ 9.5, 17.5, -2, TEAL, AQUA },
+			{ -10.0, 6.5, 3, CORAL, CREAM },
+			{ 7.5, 5.5, 8.0, AQUA, TEAL },
+			{ -7.0, 18.5, -6.0, TEAL, CORAL },
+			{ 2.0, 20.0, 8.5, CORAL, AQUA },
 		}
 		for i, s in spots do
 			local ob = B:bone("Orb" .. i, "Orbit", v(s[1], s[2], s[3]))
@@ -224,7 +228,7 @@ return {
 		------------------------------------------------------------------
 		-- Effects
 		------------------------------------------------------------------
-		local aura = B:block(body, v(9, 7, 8), cf(0, 13, 0.5), TEAL, { tr = 1, name = "AuraVol" })
+		local aura = B:block(body, v(15, 11, 14), cf(0, 12.5, 0.5), TEAL, { tr = 1, name = "AuraVol" })
 		B:emitter(aura, "bubble", { name = "Bubbles", color = { FOAM, AQUA }, rate = 3 })
 		B:emitter(aura, "sparkle", { name = "Twinkles", color = { "#ffffff", NEON }, rate = 2 })
 		local core = B:block(body, v(6, 4, 6), cf(0, 10, 0), TEAL, { tr = 1, name = "BurstVol" })
@@ -233,6 +237,8 @@ return {
 		B:light(core, { name = "SwirlLight", color = AQUA, brightness = 0, range = 16 })
 		local mouthFx = B:block(jaw, v(2, 0.6, 0.6), cf(0, 8.6, -4.8), TEAL, { tr = 1, name = "MouthFX" })
 		B:emitter(mouthFx, "bubble", { name = "MouthBubbles", color = { FOAM, AQUA }, rate = 0, speed = { 1, 2.5 } })
+		local under = B:block(body, v(7, 0.4, 6), cf(0, 7.3, 0.4), TEAL, { tr = 1, name = "UnderVol" })
+		B:emitter(under, "drip", { name = "Drips", color = { FOAM, AQUA }, rate = 2.5 })
 		local splash = B:block("Root", v(16, 0.4, 16), cf(0, 0.4, 0), TEAL, { tr = 1, name = "SplashVol" })
 		B:emitter(splash, "dust", { name = "SplashSpray", color = { FOAM, AQUA } })
 		B:emitter(splash, "burst", { name = "SplashDrops", color = { FOAM, AQUA }, speed = { 10, 18 }, spread = 40, accel = { 0, -35, 0 } })

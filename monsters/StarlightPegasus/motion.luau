@@ -190,14 +190,11 @@ function M.Update(t, pose, ctx)
 	local sw = L.remap(c, 5.85, 6.45)
 	local swOn = c >= 5.85 and c < 6.45
 	local out = 6 * L.ease.cubicOut(sw)
-	pose.ShockN = CFrame.new(0, 0, -out)
-	pose.ShockS = CFrame.new(0, 0, out)
-	pose.ShockE = CFrame.new(out, 0, 0)
-	pose.ShockW = CFrame.new(-out, 0, 0)
-	pose.Shock = CFrame.new()
 	local waveTr = swOn and (0.25 + 0.75 * sw) or 1
-	for _, n in { "N", "S", "E", "W" } do
-		ctx.transparency("Wave" .. n, waveTr)
+	for k = 1, 12 do
+		local a = math.rad((k - 1) / 12 * 360)
+		pose["Shock" .. k] = CFrame.new(-math.sin(a) * out, 0, -math.cos(a) * out)
+		ctx.transparency("Wave" .. k, waveTr)
 	end
 	if ctx.crossed(5.86) then
 		ctx.emit("StompDust", 36)

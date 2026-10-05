@@ -544,7 +544,7 @@ local function buildPacks(built)
 	for i, b in built do
 		table.insert(rows[i <= half and 1 or 2], b)
 	end
-	local GAP = 6
+	local GAP = 9
 	local aisle = 26
 	local maxDepth = { 0, 0 }
 	for r = 1, 2 do

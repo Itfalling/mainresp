@@ -127,10 +127,11 @@ return {
 			local lid = B:bone("Lid" .. side, "Head", v(2.1, 8.0, -11.55))
 			B:block(lid, v(2.0, 0.3, 2.2), cf(2.1, 8.0, -10.45), BLUE)
 			local ant = B:bone("Ant" .. side, "Head", v(3.6, 8.4, -10.4))
-			B:beam(ant, v(3.4, 8.2, -10.2), v(4.6, 10.0, -11.0), 0.5, 0.5, DARK)
-			B:beam(ant, v(4.6, 10.0, -11.0), v(5.8, 10.6, -12.0), 0.45, 0.45, DARK)
-			B:block(ant, v(1.1, 0.3, 1.0), cf(6.0, 10.5, -12.2), GOLD)
-			B:block(ant, v(1.1, 0.3, 1.0), cf(6.0, 10.95, -12.2), GOLD)
+			B:beam(ant, v(3.4, 8.2, -10.2), v(4.6, 10.0, -11.0), 0.6, 0.6, DARK)
+			B:beam(ant, v(4.6, 10.0, -11.0), v(5.8, 10.6, -12.0), 0.55, 0.55, DARK)
+			B:block(ant, v(1.3, 0.35, 1.2), cf(6.0, 10.45, -12.2), GOLD)
+			B:block(ant, v(1.3, 0.35, 1.2), cf(6.0, 10.95, -12.2), GOLD)
+			B:block(ant, v(1.0, 0.35, 1.0), cf(6.0, 11.45, -12.2), GOLD)
 		end)
 
 		------------------------------------------------------------------
@@ -159,7 +160,7 @@ return {
 			B:block(ely, v(2.25, 0.9, 4.6), cf(1.275, 10.05, 1.5), VIOLET_HI)
 			B:block(ely, v(4.05, 1.2, 1.0), cf(2.175, 6.2, 7.5), VIOLET)
 			B:block(ely, v(2.65, 0.8, 0.7), cf(1.475, 6.2, 8.35), VIOLET)
-			B:block(ely, v(0.35, 0.4, 8.7), cf(5.2, 5.6, 2.7), GOLD)
+			B:block(ely, v(0.35, 0.4, 8.7), cf(5.2, 5.65, 2.7), GOLD)
 			B:block(ely, v(4.1, 0.35, 0.35), cf(2.2, 5.75, 8.0), GOLD)
 			B:block(ely, v(0.3, 0.3, 4.7), cf(0.3, 10.55, 1.5), GOLD)
 			for k = 0, 2 do
@@ -206,6 +207,7 @@ return {
 				B:spike(tibia, mid + outward * 0.5, mid + outward * 1.5 + v(0, -0.5, 0), 0.55, 0.55, LAV)
 				local foot = B:bone("Leg" .. n .. "3" .. side, "Leg" .. n .. "2" .. side, ankle)
 				local fc = v(ankle.X, 0.5, ankle.Z) + dir * 0.6
+				B:block(foot, v(1.3, 1.3, 1.3), CFrame.lookAt(ankle, ankle + dir), DARK)
 				B:block(foot, v(1.8, 1.0, 2.6), CFrame.lookAt(fc, fc + dir), BLUE)
 				B:block(foot, v(1.6, 0.3, 1.0), CFrame.lookAt(fc + v(0, 0.55, 0) - dir * 0.5, fc + v(0, 0.55, 0)), GOLD)
 				local side2 = v(-dir.Z, 0, dir.X)
@@ -222,6 +224,18 @@ return {
 		local ground = B:block("Root", v(10, 0.2, 12), cf(0, 0.1, 1.5), DARK, { tr = 1, name = "GroundFX" })
 		B:emitter(ground, "dust", { name = "LandDust", color = "#e4dccb" })
 		B:emitter(ground, "burst", { name = "LandBurst", color = { "#ffffff", NEON } })
+		-- flat shockwave rings slapped onto the ground by the landing thud: the inner
+		-- ring shows first, then the outer one, so it reads as expanding
+		local n = 0
+		for ring = 1, 2 do
+			local r, count = ring == 1 and 9.5 or 13.0, ring == 1 and 12 or 16
+			local seg = 2 * math.pi * r / count * 0.82
+			for i = 0, count - 1 do
+				n += 1
+				local a = (i + 0.5 * (ring - 1)) / count * math.pi * 2
+				B:block("Root", v(seg, 0.3, ring == 1 and 1.2 or 0.9), cf(math.sin(a) * r, 0.15, 1.0 + math.cos(a) * r, 0, math.deg(a), 0), ring == 1 and WHITE or LAV, { tr = 1, name = "Shock" .. n })
+			end
+		end
 
 		------------------------------------------------------------------
 		-- Floating voxel cubes (blue + gold) orbiting the beetle

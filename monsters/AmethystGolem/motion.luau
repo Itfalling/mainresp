@@ -22,11 +22,17 @@ local C0 = Vector3.new(0, 7.8, 1.2)
 local S0 = Vector3.new(5.6, 13.8, 0.8)
 local E0 = Vector3.new(7.7, 9.3, 1.2)
 local W0 = Vector3.new(8.5, 4.7, -1.4)
-local T_IDLE = Vector3.new(8.8, 4.3, -1.8) -- wrist target: knuckles planted at idle
-local T_SLAM = Vector3.new(9.2, 4.4, -6.3) -- wrist target: fists smashed into the floor
+local T_IDLE = Vector3.new(8.7, 4.45, -1.7) -- wrist target: knuckles planted at idle
+local T_SLAM = Vector3.new(9.2, 4.55, -6.3) -- wrist target: fists smashed into the floor
 
 -- orbiting cube rest offsets relative to the Orbit pivot (0, 10, 1)
-local ORBS = { { 12.5, -2.0 }, { -12.0, 1.5 }, { 7.0, 9.0 }, { -8.0, -8.0 }, { 3.0, 8.0 } }
+local ORBS = { { 12.5, -2.0 }, { -12.0, 1.5 }, { 7.0, 9.0 }, { -8.0, -8.0 } }
+
+-- debris cube launch velocities (right side; left is mirrored)
+local DEBRIS = { { 6, 15, -4 }, { 3, 12, 5 } }
+-- idle knuckle-thump landing times inside the loop (left / right fist)
+local THUMPS_L = { 0.42, 2.42, 6.42 }
+local THUMPS_R = { 1.42, 7.42 }
 
 local SPIKE_NAMES = {}
 for _, side in { "R", "L" } do
@@ -56,24 +62,30 @@ local function bend(drop)
 	return deg(math.acos(math.clamp(1 - math.max(0, drop) / LEG, -1, 1)))
 end
 
--- Planar 2-bone arm IK. Arm pose = Rz(roll) * Rx(a), forearm pose = Rx(b).
--- Returns a, b (degrees) so the wrist pivot reaches `target` (world).
-local function armIK(chestW, s, roll, target)
+-- 2-bone arm IK. Arm pose = Rz(roll) * Rx(a), forearm pose = Rx(b) (right-side
+-- frame; the left side is mirrored). Returns a, b, roll (degrees) so the wrist
+-- pivot lands on `target` (world, given for the right side).
+local function armIK(chestW, s, target)
 	local S = Vector3.new(S0.X * s, S0.Y, S0.Z)
 	local e, f = E0 - S0, W0 - E0
-	local frame = chestW * CFrame.new(S - C0) * CFrame.Angles(0, 0, rad(roll))
-	local tl = frame:PointToObjectSpace(Vector3.new(target.X * s, target.Y, target.Z))
+	local tl = (chestW * CFrame.new(S - C0)):PointToObjectSpace(Vector3.new(target.X * s, target.Y, target.Z))
+	local tx, ty, tz = tl.X * s, tl.Y, tl.Z
+	local ox = e.X + f.X -- sideways offset of the wrist (constant under pitch)
 	local le = math.sqrt(e.Y * e.Y + e.Z * e.Z)
 	local lf = math.sqrt(f.Y * f.Y + f.Z * f.Z)
-	local D = math.sqrt(tl.Y * tl.Y + tl.Z * tl.Z)
+	local D = math.sqrt(math.max(0, tx * tx + ty * ty + tz * tz - ox * ox))
+	D = math.clamp(D, math.abs(le - lf) + 0.01, le + lf - 0.01)
 	local k = math.clamp((D * D - le * le - lf * lf) / (2 * le * lf), -1, 1)
 	local ae, af = math.atan2(e.Z, e.Y), math.atan2(f.Z, f.Y)
 	local b = wrap(math.acos(k) - wrap(af - ae))
 	local cb, sb = math.cos(b), math.sin(b)
-	local wy = e.Y + f.Y * cb - f.Z * sb
-	local wz = e.Z + f.Y * sb + f.Z * cb
-	local a = wrap(math.atan2(tl.Z, tl.Y) - math.atan2(wz, wy))
-	return deg(a), deg(b)
+	local wy0 = e.Y + f.Y * cb - f.Z * sb
+	local wz0 = e.Z + f.Y * sb + f.Z * cb
+	local wz = math.clamp(tz, -D, D)
+	local wy = -math.sqrt(math.max(0, D * D - wz * wz))
+	local a = wrap(math.atan2(wz, wy) - math.atan2(wz0, wy0))
+	local r = wrap(math.atan2(ty, tx) - math.atan2(wy, ox))
+	return deg(a), deg(b), deg(r)
 end
 
 function M.Update(t, pose, ctx)
@@ -108,7 +120,7 @@ function M.Update(t, pose, ctx)
 	------------------------------------------------------------------
 	-- HIPS + LEGS (simple IK keeps planted feet flat on the floor)
 	------------------------------------------------------------------
-	local hipY = -0.3 + 0.3 * math.abs(sway) - 0.45 * thump + 1.1 * raise - 1.55 * slam - 0.65 * squash - 0.9 * crouch
+	local hipY = -0.5 + 0.3 * math.abs(sway) - 0.45 * thump + 1.1 * raise - 1.55 * slam - 0.65 * squash - 0.9 * crouch
 	local hipX = -8 * slam - 4 * squash + 4 * raise
 	local hipYaw = 4 * sway
 	local hipZ = -7 * sway
@@ -132,7 +144,7 @@ function M.Update(t, pose, ctx)
 	-- CHEST: breathing + rumble, lean back on the raise, slam forward
 	------------------------------------------------------------------
 	local chestX = 2.5 * breathe + rumble + 3 * thump + 22 * raise - 16 * slam - 7 * squash + 8 * roar - 8 * crouch
-	local chestPose = ang(chestX, -12 * sway + 3 * rumble * shake, 4 * sway)
+	local chestPose = ang(chestX, -12 * sway + 1.2 * rumble * shake, 4 * sway)
 	pose.Chest = chestPose
 
 	-- crystal mane wobbles (follow-through after every impact)
@@ -167,12 +179,12 @@ function M.Update(t, pose, ctx)
 	local function arm(side, s, lift, open)
 		-- IK target: planted knuckles (lifted for the thumps) -> slam point (arc on recovery)
 		local target = T_IDLE:Lerp(T_SLAM, slam) + Vector3.new(0.4 * lift, 3.4 * lift + 3.2 * rec, -1.0 * lift)
-		local roll = 3 + 4 * sway * s + 10 * raise + 4 * slam
-		local aI, bI = armIK(chestW, s, roll * s, target)
-		-- raise = forward kinematics, fists high overhead
-		local shiver = 3 * rw * wave(t, 13, s * 0.25) -- fists tremble while charging overhead
+		local aI, bI, rI = armIK(chestW, s, target)
+		-- raise = forward kinematics, fists high overhead (trembling while charging)
+		local shiver = 3 * rw * wave(t, 13, s * 0.25)
 		local a = L.lerp(aI, 152, rw) + 40 * (raise - rw) + shiver
 		local b = L.lerp(bI, 8, rw)
+		local roll = L.lerp(rI, 10, rw)
 		local fistIK = -(hipX + chestX + aI + bI) - 4 + 10 * lift
 		local fistX = L.lerp(fistIK, 30, rw)
 		pose["Arm" .. side] = CFrame.Angles(0, 0, rad(roll * s)) * CFrame.Angles(rad(a), 0, 0)
@@ -212,8 +224,7 @@ function M.Update(t, pose, ctx)
 		ctx.transparency(n, crackTr)
 	end
 
-	local DEB = { { 6, 15, -4 }, { 3, 12, 5 } }
-	for i, d in DEB do
+	for i, d in DEBRIS do
 		local cfR = CFrame.new()
 		local tr = 1
 		if dt >= 0 and dt < 0.72 then
@@ -238,10 +249,10 @@ function M.Update(t, pose, ctx)
 		ctx.emit("ThumpDustL", 14)
 	end
 	-- little dust puffs on the idle knuckle thumps
-	for _, at in { 0.42, 2.42, 6.42 } do
+	for _, at in THUMPS_L do
 		if ctx.crossed(at) then ctx.emit("ThumpDustL", 6) end
 	end
-	for _, at in { 1.42, 7.42 } do
+	for _, at in THUMPS_R do
 		if ctx.crossed(at) then ctx.emit("ThumpDustR", 6) end
 	end
 end

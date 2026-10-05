@@ -57,11 +57,11 @@ local SIG_Y = {
 	{ 4.43, 0.3, "quadIn" },
 	{ 4.58, -0.9, "quadOut" }, -- slam landing (squash)
 	{ 4.66, -0.15, "quadOut" },
-	{ 4.8, -0.7, "quadIn" }, -- chomp 1 impact
+	{ 4.8, -0.45, "quadIn" }, -- chomp 1 impact
 	{ 5.0, 0.15, "quadOut" },
-	{ 5.2, -0.7, "quadIn" }, -- chomp 2
+	{ 5.2, -0.45, "quadIn" }, -- chomp 2
 	{ 5.4, 0.2, "quadOut" },
-	{ 5.6, -0.8, "quadIn" }, -- chomp 3
+	{ 5.6, -0.5, "quadIn" }, -- chomp 3
 	{ 5.9, 0.35, "backOut" },
 	{ 6.35, 0.1, "sineInOut" },
 	{ 6.95, 0, "sineInOut" },
@@ -73,11 +73,11 @@ local SIG_PITCH = { -- + = lean back (mouth to the sky)
 	{ 3.5, 12, "backOut" },
 	{ 4.2, 6, "sineInOut" },
 	{ 4.5, -5, "quadIn" },
-	{ 4.8, -14, "quadOut" },
+	{ 4.8, -10, "quadOut" },
 	{ 5.0, 2, "quadOut" },
-	{ 5.2, -14, "quadIn" },
+	{ 5.2, -10, "quadIn" },
 	{ 5.4, 2, "quadOut" },
-	{ 5.6, -16, "quadIn" },
+	{ 5.6, -11, "quadIn" },
 	{ 5.9, 7, "backOut" },
 	{ 6.4, 3, "sineInOut" },
 	{ 6.95, 0, "sineInOut" },
@@ -175,7 +175,7 @@ local function bodyAt(t)
 	local hopAmp = 0.8 + 0.6 * L.wave01(t, HOPF / 4) -- every 4th hop is a big one
 	local by = L.lerp(hopAmp * up - 0.5 * squash, track(c, SIG_Y), sigW)
 	local pitch = L.lerp(4 * up - 6 * squash, track(c, SIG_PITCH), sigW)
-	local roll = 7 * wave(t, HOPF / 2) * idleW + 6 * chomping * wave(c, 1.25, 0.1) + 8 * kick(c, 4.5, 2.2, 4)
+	local roll = 7 * wave(t, HOPF / 2) * idleW + 6 * chomping * wave(c, 1.25, 0.1) + 5 * kick(c, 4.5, 2.2, 4)
 	local yaw = 10 * L.noise(t, 2.3, 0.25) * idleW + track(c, SIG_YAW) * sigW
 	local bz = track(c, SIG_Z) * sigW
 	return pa(0, by, bz, pitch, yaw, roll), by, pitch, roll
@@ -271,7 +271,7 @@ function M.Update(t, pose, ctx)
 	pose.Tongue2 = ang(3 * idleW + 25 * fling + 14 * whip + 10 * chomping * wave(t, 5), 0.45 * whipLag * whip + 12 * fling * flail, 0)
 	-- hanging segments: +X swings forward
 	pose.Tongue3 = ang(
-		6 + 8 * hopLag * idleW + 30 * crouch + 62 * fling + 72 * whip + 12 * chomping * math.abs(jolt),
+		6 + 8 * hopLag * idleW + 30 * crouch + 62 * fling + 72 * whip + 30 * chomping + 15 * chomping * math.abs(jolt),
 		0,
 		(10 * sway) * idleW + 22 * fling * wave(t, 3.2, -0.1) - 0.6 * whipLag * whip
 	)
@@ -303,7 +303,7 @@ function M.Update(t, pose, ctx)
 				th = math.max(th, (1.2 - 0.2 * k) * math.acos(math.clamp(hk / LEG_L, -1, 1)))
 			end
 		end
-		local airK = clamp01((h - LEG_L) / 1.2)
+		local airK = clamp01((h - LEG_L - 0.25) / 1.0)
 		local kickF = 0.45 * airK * wave(t, 2.6, lg.ph)
 		local sx, cx = math.sin(th), math.cos(th)
 		local dirW = Vector3.new(sx * lg.dx + 0.35 * airK * lg.dx, -cx, sx * lg.dz + 0.3 * airK * lg.dz - kickF).Unit

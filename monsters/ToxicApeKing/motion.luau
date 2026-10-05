@@ -197,10 +197,10 @@ function M.Update(t, pose, ctx)
 	-- TURF CHUNKS: blasted up and out by the fists, tumble, bounce, vanish
 	local u = c - 5.6
 	local rockOn = u > 0 and u < 0.95
-	local vel = { { 4.5, 13, -3.5 }, { 1.5, 15, -5.5 }, { 6.5, 11, 1.0 } }
+	local vel = { { 5.5, 17, -4.0 }, { 2.0, 19, -6.0 }, { 7.0, 15, 1.5 } }
 	for i, vv in vel do
 		local tt = math.clamp(u, 0, 0.95)
-		local y = math.max(vv[2] * tt - 16 * tt * tt, 0)
+		local y = math.max(vv[2] * tt - 22 * tt * tt, 0)
 		for _, sd in { { "R", 1 }, { "L", -1 } } do
 			local k = sd[2]
 			pose["Rock" .. sd[1] .. i] = pa(k * vv[1] * tt, y, vv[3] * tt, 520 * tt * k, 300 * tt, 410 * tt * k)

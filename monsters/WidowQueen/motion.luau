@@ -14,6 +14,11 @@ local M = {}
 M.Cycle = 9
 
 local IMPACT = 5.0
+-- strike debris: x / z offset from the strike point, pop height (build.luau)
+local DEBRIS = {
+	{ 1.6, -1.2, 3.2 }, { -1.8, -0.6, 2.6 }, { 0.6, 1.9, 3.6 },
+	{ -0.9, 1.6, 2.4 }, { 2.3, 0.9, 3.0 }, { -2.4, -1.9, 3.4 },
+}
 local FLOOR = 0.1
 
 ------------------------------------------------------------------
@@ -53,7 +58,7 @@ local HEAD_REST = CFrame.new(0, 6.6, -3.6)
 local HEAD_C = BODY_REST:Inverse() * HEAD_REST
 local FANG_REST = CFrame.new(3.3, 5.3, -8.6)
 local FANG_C = HEAD_REST:Inverse() * FANG_REST
-local FANG_TIP = FANG_REST:Inverse() * Vector3.new(2.3, 0.6, -9.6)
+local FANG_TIP = FANG_REST:Inverse() * Vector3.new(1.7, 0.8, -10.1)
 local JAW_REST = CFrame.new(0, 5.9, -5.0)
 local JAW_C = HEAD_REST:Inverse() * JAW_REST
 local JAW_PTS = {}
@@ -110,11 +115,18 @@ function M.Update(t, pose, ctx)
 	-- Signature move envelopes
 	------------------------------------------------------------------
 	local crouch = env(c, 3.0, 0.45, 0.05, 0.3, "cubicOut", "cubicIn")
-	local rear = env(c, 3.5, 0.5, 0.75, 0.22, "backOut", "expoIn")
+	local rear = env(c, 3.5, 0.5, 0.6, 0.4, "backOut", "cubicIn")
+	local coil = env(c, 4.5, 0.12, 0.05, 0.13, "quadOut", "quadIn") -- anticipation before the lunge
 	local lunge = env(c, 4.75, 0.25, 0.95, 0.9, "cubicIn", "backOut")
 	local impact = env(c, IMPACT, 0.06, 0.65, 0.9, "quadOut", "elasticOut")
 	local shiver = env(c, 3.9, 0.15, 0.7, 0.1)
 	local move = math.max(crouch, rear, lunge, impact)
+	-- idle gag 2: "tap-tap" - front right foot taps the ground twice
+	local tap = env(c, 6.95, 0.2, 0.85, 0.3, "backOut", "quadIn")
+	local tapH = tap
+	if c >= 7.15 and c <= 7.85 then
+		tapH = tap * (0.5 + 0.5 * math.cos(2 * math.pi * (c - 7.15) / 0.35))
+	end
 	local idleW = 1 - move
 
 	------------------------------------------------------------------
@@ -130,21 +142,26 @@ function M.Update(t, pose, ctx)
 	local rippleW = idleW * (1 - gag)
 	local bounce = L.bounce(t, 0.8) -- one bounce per leg-ripple half cycle
 	local bob = (0.55 * bounce - 0.2) * rippleW - 0.7 * hopSquash + 2.8 * air - 0.9 * land
-	local roll = 2 * wave(t, 0.8) * rippleW + 4 * wig * wave(t, 3.2, 0.25)
+	local roll = 2 * wave(t, 0.8) * rippleW + 4 * wig * wave(t, 3.2, 0.25) - 4 * tap
 	local yaw = 6 * L.noise(t, 2.3, 0.3) * idleW
 	local tremble = shiver * wave(t, 13)
-	local bodyY = bob - 1.0 * crouch + 2.8 * rear - 1.3 * impact
-	local bodyZ = -3.6 * lunge + 0.8 * crouch
-	local bodyP = -3 * crouch + 32 * rear - 9 * lunge + 1.5 * tremble + 2 * wave(t, 1.6, 0.1) * rippleW + 8 * air * (1 - hx) - 6 * air * hx + 3 * land
+	local bodyY = bob - 1.0 * crouch + 3.5 * rear - 0.8 * coil - 1.4 * impact
+	local bodyZ = -3.8 * lunge + 0.8 * crouch + 0.7 * coil
+	local bodyP = -3 * crouch + 42 * rear + 8 * coil - 10 * lunge + 1.5 * tremble + 2 * wave(t, 1.6, 0.1) * rippleW + 8 * air * (1 - hx) - 6 * air * hx + 3 * land
 	local bodyCF = pa(0.15 * tremble, bodyY, bodyZ, bodyP, yaw, roll + 1.5 * tremble)
 	pose.Body = bodyCF
 
 	------------------------------------------------------------------
 	-- Head, jaw, brows, crown
 	------------------------------------------------------------------
-	local look = 14 * L.noise(t, 4.1, 0.35) * idleW
-	local tilt = 9 * L.noise(t, 7.7, 0.3) * idleW + 14 * wig * wave(t, 1.6)
-	pose.Head = ang(3 * wave(t, 1.6, 0.35) * rippleW + 10 * air - 8 * land - 10 * rear + 9 * crouch + 10 * lunge + 8 * impact, look + 5 * tremble, tilt)
+	-- cartoon head tilts on the blink beats (alternating sides)
+	local cock = 0
+	for i, k in { 0.3, 2.35, 8.1 } do
+		cock += (i % 2 == 0 and -1 or 1) * env(c, k - 0.1, 0.15, 0.35, 0.3, "backOut", "sineInOut")
+	end
+	local look = 14 * L.noise(t, 4.1, 0.35) * idleW - 18 * tap
+	local tilt = 9 * L.noise(t, 7.7, 0.3) * idleW + 14 * wig * wave(t, 1.6) + 12 * cock - 15 * tap
+	pose.Head = ang(6 * wave(t, 1.6, 0.35) * rippleW + 10 * air - 8 * land - 12 * rear - 6 * coil + 9 * crouch + 12 * lunge + 8 * impact - 10 * tap, look + 5 * tremble, tilt)
 
 	local chomp = math.max(0, wave(t, 0.37, 0.1)) ^ 10 * rippleW + 0.9 * air
 	local jawOpen = L.track(c, {
@@ -199,7 +216,7 @@ function M.Update(t, pose, ctx)
 	local pulse = math.max(0, wave(t, 1.0)) ^ 6
 	local abWob = impact * wave(c - IMPACT, 2.4) + land * wave(c - 1.4, 2.6) - 0.8 * air
 	pose.Abdomen = pa(0, 0.35 * pulse * idleW + 0.4 * rear, 0,
-		-6 * pulse * idleW + 3 * wave(t, 0.8, 0.6) * idleW - 38 * rear + 9 * lunge - 14 * abWob + 3 * crouch,
+		-6 * pulse * idleW + 3 * wave(t, 0.8, 0.6) * idleW - 45 * rear + 6 * coil + 9 * lunge - 14 * abWob + 3 * crouch,
 		10 * wave(t, 0.45) * rippleW + 24 * wig * wave(t, 3.2),
 		4 * wave(t, 0.8, 0.25) * rippleW + 6 * abWob + 8 * wig * wave(t, 3.2, 0.2))
 
@@ -215,23 +232,31 @@ function M.Update(t, pose, ctx)
 		local function legPose(k, bw)
 			local ph = k / 8
 			local lift = math.max(0, wave(t, 0.8, -ph)) ^ 2 * rippleW
-			local ay = 8 * wave(t, 0.8, -ph + 0.25) * rippleW
-			local az, bz, cz = 0, -12 * lift - 22 * air, -10 * lift - 18 * air
-			local target = FLOOR + 2.4 * lift + 1.4 * air
+			local ay = 12 * wave(t, 0.8, -ph + 0.25) * rippleW
+			local az, bz, cz = 0, -18 * lift - 22 * air, -14 * lift - 18 * air
+			local target = FLOOR + 3.2 * lift + 1.4 * air
 			local free = 0
+			local tapK = (k == 0) and tapH or 0
+			if k == 0 then
+				ay += 10 * tap
+				bz += 18 * tapH
+				cz -= 12 * tapH
+			end
 			if front then
-				free = rear
-				local menace = 10 * shiver * wave(t, 2.6, k * 0.3)
+				-- strike: legs stab down in front of the face as the body lunges
+				local strike = lunge * (1 - rear)
+				free = math.max(rear, strike * (1 - impact))
+				local menace = 12 * shiver * wave(t, 2.6, k * 0.3)
 				if i == 1 then
-					az = 50 * rear + menace
-					ay += -6 * rear + 14 * lunge
-					bz += 64 * rear + 10 * lunge
-					cz += 30 * rear
+					az = 54 * rear + menace - 8 * strike
+					ay += -6 * rear + 20 * strike
+					bz += 66 * rear - 12 * strike
+					cz += 30 * rear - 16 * strike
 				else
-					az = 38 * rear + menace
-					ay += -16 * rear + 6 * lunge
-					bz += 48 * rear + 8 * lunge
-					cz += 22 * rear
+					az = 42 * rear + menace - 6 * strike
+					ay += -16 * rear + 10 * strike
+					bz += 50 * rear - 8 * strike
+					cz += 22 * rear - 12 * strike
 				end
 			else
 				bz += 10 * rear + 6 * lunge
@@ -241,7 +266,7 @@ function M.Update(t, pose, ctx)
 			bz += 24 * impact
 			cz += 10 * impact - 6 * crouch
 			bz += 6 * crouch
-			local solved = solveRaise(bw, d, ay, az, bz, cz, target)
+			local solved = solveRaise(bw, d, ay, az, bz, cz, target) + 30 * tapK
 			az = L.lerp(solved, az, free)
 			az = liftTo(function(x)
 				return lowY(bw, d, ay, x, bz, cz)
@@ -259,15 +284,14 @@ function M.Update(t, pose, ctx)
 	-- Orbiting voxel cubes
 	------------------------------------------------------------------
 	pose.Orbit = ang(0, 28 * t, 0)
-	local spots = { { 10.5, 1 }, { -9.5, 6 }, { 6.5, 11 }, { -8.0, -6 }, { 4.0, -9 } }
+	local spots = { { 10.5, 1 }, { -9.5, 6 }, { 6.5, 11 }, { -8.0, -6 }, { 4.0, -9 }, { -6.0, 13 }, { 11.0, 7 } }
 	for i, p in spots do
 		local dx, dz = p[1], p[2] - 3
 		local m = math.sqrt(dx * dx + dz * dz)
 		local push = 2.6 * impact + 0.8 * rear
 		local dir = i % 2 == 0 and -1 or 1
-		pose["Orb" .. i] = pa(dx / m * push, 0.7 * wave(t, 0.5, i * 0.21) + 1.2 * rear, dz / m * push, 70 * t * dir, 95 * t, 35)
+		pose["Orb" .. i] = pa(dx / m * push, 1.0 * wave(t, 0.42 + 0.06 * i, i * 0.21) + 1.2 * rear + 1.5 * impact, dz / m * push, 70 * t * dir, 95 * t, 35)
 	end
-	pose.Shock = ang(0, 40 * c, 0)
 
 	------------------------------------------------------------------
 	-- Eyes: ripple blink (lateral -> main -> medium -> small)
@@ -298,22 +322,43 @@ function M.Update(t, pose, ctx)
 	------------------------------------------------------------------
 	-- Effects
 	------------------------------------------------------------------
-	local r1 = L.remap(c, IMPACT, IMPACT + 0.4)
-	local r2 = L.remap(c, IMPACT + 0.08, IMPACT + 0.6)
-	local on1 = c >= IMPACT and c < IMPACT + 0.4
-	local on2 = c >= IMPACT + 0.08 and c < IMPACT + 0.6
-	for k = 1, 8 do
-		ctx.transparency("Shock1_" .. k, on1 and (0.15 + 0.85 * r1) or 1)
-	end
+	-- voxel shock rings: each segment bone slides outward from the strike point
+	local rx = L.remap(c, IMPACT, IMPACT + 0.5)
+	local dist = 4.8 * L.ease.quadOut(rx)
+	local ringOn = c >= IMPACT and c < IMPACT + 0.5
+	local ringBOn = c >= IMPACT + 0.04 and c < IMPACT + 0.55
+	local trA = ringOn and (0.05 + 0.9 * rx * rx) or 1
+	local trB = ringBOn and (0.1 + 0.9 * L.remap(c, IMPACT + 0.04, IMPACT + 0.55) ^ 2) or 1
 	for k = 1, 10 do
-		ctx.transparency("Shock2_" .. k, on2 and (0.2 + 0.8 * r2) or 1)
+		local a = math.rad((k - 1) * 36)
+		pose["Wave" .. k] = CFrame.new(-math.sin(a) * dist, 0.5 * math.sin(math.pi * rx), -math.cos(a) * dist)
+		ctx.transparency("RingA_" .. k, trA)
+		ctx.transparency("RingN_" .. k, trA)
+		ctx.transparency("RingB_" .. k, trB)
+	end
+	-- ground flash
+	local fl = L.remap(c, IMPACT, IMPACT + 0.25)
+	ctx.transparency("FlashCore", (c >= IMPACT and c < IMPACT + 0.25) and (0.15 + 0.85 * fl) or 1)
+	local fl2 = L.remap(c, IMPACT, IMPACT + 0.4)
+	ctx.transparency("Flash", (c >= IMPACT and c < IMPACT + 0.4) and (0.3 + 0.7 * fl2) or 1)
+	-- debris blocks pop up, fly outward and tumble, then land and vanish
+	for i, d in DEBRIS do
+		local t0 = IMPACT + 0.015 * i
+		local x = L.remap(c, t0, t0 + 0.8)
+		local on = c >= t0 and c < t0 + 0.8
+		local m = math.sqrt(d[1] * d[1] + d[2] * d[2])
+		local out = 3.2 * L.ease.quadOut(x)
+		local up = d[3] * 4 * x * (1 - x)
+		local sg = i % 2 == 0 and -1 or 1
+		pose["Debris" .. i] = CFrame.new(d[1] / m * out, up, d[2] / m * out) * ang(420 * x * sg, 300 * x, 240 * x * sg)
+		ctx.transparency("Debris" .. i, on and 0 or 1)
 	end
 	local flash = env(c, IMPACT - 0.02, 0.04, 0.08, 0.45)
 	ctx.light("StrikeLight", 1.5 * flash)
 	ctx.light("FaceLight", 1.0 * rear)
 	ctx.enable("RageEmbers", rear > 0.5)
 	if ctx.crossed(IMPACT) then
-		ctx.emit("AmbushBurst", 45)
+		ctx.emit("AmbushBurst", 65)
 		ctx.emit("AmbushDust", 30)
 	end
 	if ctx.crossed(1.4) then

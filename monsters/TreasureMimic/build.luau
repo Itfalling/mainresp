@@ -125,6 +125,7 @@ return {
 		local lid = B:bone("Lid", "Body", v(0, RIM, HD))
 		B:block(lid, v(W + 0.2, 0.5, D + 0.2), cf(0, RIM + 0.25, 0), GOLD) -- gold upper lip
 		B:block(lid, v(W, L2T - L2B, D), cf(0, (L2B + L2T) / 2, 0), MAIN)
+		B:block(lid, v(W + 0.1, 1.0, D - 1.45), cf(0, (L2B + L2T) / 2, 0.775), DARK) -- plank stripe (sides + back)
 		B:block(lid, v(W, 1.0, 5.0), cf(0, L2T + 0.5, 0), DARK)
 		B:block(lid, v(W, 0.5, 2.6), cf(0, L2T + 1.25, 0), MAIN)
 		B:block(lid, v(W - 1.6, 0.3, D - 1.6), cf(0, RIM - 0.05, 0), MOUTH) -- roof of the mouth

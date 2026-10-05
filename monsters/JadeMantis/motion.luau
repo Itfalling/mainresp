@@ -1,7 +1,8 @@
 --!nocheck
 -- Jade Mantis motion.
 -- IDLE: swaying mantis rock, curious cartoon head tilts, twitchy antennae,
--- blinks, tippy-tap feet, blade sharpening and little mandible chatters.
+-- blinks, tippy-tap feet, boxer-style scythe pumps and a cute grooming beat
+-- (the right scythe is lifted to the mouth and nibbled clean).
 -- SIGNATURE "TWIN CRESCENT": crouch + wings flare and buzz, scythes rise high
 -- with a battle cry -> crossing X double-slash (wind crescents fly forward) ->
 -- scissor slash outward -> hop + 360 spinning flourish inside a whirlwind ring
@@ -31,17 +32,17 @@ local K = {
 	thRX = { { 3.3, 0 }, { 4.0, 6, "cubicOut" }, { 4.6, 6 }, { 4.85, -3, "expoOut" }, { 5.35, 0 }, { 6.0, -6 }, { 6.45, 0 } },
 	spin = { { 5.55, 0 }, { 6.45, 360, "sineInOut" } },
 	chest = {
-		{ 3.3, { 0, 0, 0 } }, { 4.0, { 20, 0, 0 }, "cubicOut" }, { 4.6, { 24, 0, 0 } }, { 4.85, { -14, 0, 0 }, "expoOut" },
+		{ 3.3, { 0, 0, 0 } }, { 4.0, { 15, 0, 0 }, "cubicOut" }, { 4.6, { 18, 0, 0 } }, { 4.85, { -14, 0, 0 }, "expoOut" },
 		{ 5.15, { -10, 0, 0 } }, { 5.35, { -4, 0, 0 }, "backOut" }, { 5.55, { -10, 0, 0 } }, { 6.0, { 6, 0, 0 } },
 		{ 6.45, { 0, 0, 0 } }, { 6.58, { -16, 0, 0 }, "quadOut" }, { 7.2, { 4, 0, 0 }, "backOut" }, { 7.5, { 0, 0, 0 } },
 	},
 	head = {
-		{ 3.3, { 0, 0, 0 } }, { 4.0, { 24, 0, 0 }, "backOut" }, { 4.6, { 26, 0, 0 } }, { 4.85, { 4, 0, 0 }, "expoOut" },
-		{ 5.15, { 2, 0, 10 } }, { 5.35, { 0, 0, 0 } }, { 6.0, { 12, 0, 0 } }, { 6.45, { 0, 0, 0 } },
+		{ 3.3, { 0, 0, 0 } }, { 4.0, { 18, 0, 0 }, "backOut" }, { 4.6, { 20, 0, 0 } }, { 4.85, { 14, 0, 0 }, "expoOut" },
+		{ 5.15, { 12, 0, 10 } }, { 5.35, { 0, 0, 0 } }, { 6.0, { 12, 0, 0 } }, { 6.45, { 0, 0, 0 } },
 		{ 6.58, { -14, 0, 0 } }, { 7.0, { 6, 0, -20 }, "backOut" }, { 7.5, { 0, 0, 0 } },
 	},
 	jaw = {
-		{ 3.3, 0 }, { 3.9, -48, "backOut" }, { 4.6, -52 }, { 4.85, -30 }, { 5.15, -24 }, { 5.35, -8 },
+		{ 3.3, 0 }, { 3.9, -48, "backOut" }, { 4.6, -52 }, { 4.8, -12 }, { 5.15, -10 }, { 5.35, -8 },
 		{ 5.8, -40 }, { 6.3, -40 }, { 6.45, 0, "quadIn" },
 	},
 	wing = {
@@ -56,9 +57,9 @@ local K = {
 local function armKeys(xArm, xFore, xScy)
 	return {
 		arm = {
-			{ 3.3, { 0, 0, 0 } }, { 4.05, { 80, 0, 25 }, "backOut" }, { 4.6, { 84, 0, 28 } },
-			{ 4.85, xArm, "expoOut" }, { 5.15, { xArm[1] - 3, xArm[2], xArm[3] + 3 } }, { 5.35, { 10, -10, 60 }, "expoOut" },
-			{ 6.45, { 8, -10, 62 } }, { 6.6, { -10, 0, 40 } }, { 7.5, { 0, 0, 0 }, "elasticOut" },
+			{ 3.3, { 0, 0, 0 } }, { 4.05, { 80, 0, 42 }, "backOut" }, { 4.6, { 84, 0, 45 } },
+			{ 4.85, xArm, "expoOut" }, { 5.15, { xArm[1] - 3, xArm[2], xArm[3] + 3 } }, { 5.35, { 10, -10, 66 }, "expoOut" },
+			{ 6.45, { 8, -10, 68 } }, { 6.6, { -10, 0, 44 } }, { 7.5, { 0, 0, 0 }, "elasticOut" },
 		},
 		fore = {
 			{ 3.3, { 0, 0, 0 } }, { 4.05, { -50, 0, 0 }, "backOut" }, { 4.6, { -52, 0, 0 } },
@@ -72,13 +73,13 @@ local function armKeys(xArm, xFore, xScy)
 		},
 	}
 end
-local KR = armKeys({ 33, 12, -29 }, -7, { 28, 10, -22 })
-local KL = armKeys({ 29, 15, -22 }, 8, { 20, 6, -28 })
+local KR = armKeys({ 28, 2, -32 }, -29, { 49, 20, -23 })
+local KL = armKeys({ 20, 10, -34 }, 0, { 30, 19, -21 })
 
 -- Walking legs (right side, XY projection): hip, knee, foot, foot z.
 local LEGS = {
-	M = { 1.9, 5.4, 4.6, 7.6, 5.6, 0.0, -3.4 },
-	B = { 1.9, 5.4, 4.8, 7.4, 6.0, 0.0, 7.0 },
+	M = { 1.9, 5.4, 5.2, 7.6, 6.2, 0.0, -3.0 },
+	B = { 1.9, 5.4, 5.2, 7.4, 6.4, 0.0, 7.2 },
 }
 -- 2-bone IK: femur/shin roll (degrees) that raise the foot by d studs relative
 -- to the hip while keeping it at the same sideways spot (planted feet).
@@ -114,10 +115,10 @@ function M.Update(t, pose, ctx)
 	local bob = (0.55 * hop - 0.3) * idleW
 	local pump = wave(t, 0.625) -- alternating scythe pumps in time with the bounce
 	local tilt = track(c, {
-		{ 0, 0 }, { 0.45, 20, "backOut" }, { 1.35, 20 }, { 1.7, -20, "backOut" }, { 2.6, -20 }, { 2.95, 0, "backOut" },
-		{ 7.6, 0 }, { 7.85, 12, "backOut" }, { 8, 0 },
+		{ 0, 0 }, { 0.4, 16, "backOut" }, { 1.1, 16 }, { 1.45, 8, "backOut" }, { 2.7, 8 }, { 3.0, 0, "backOut" },
+		{ 7.6, 0 }, { 7.85, 10, "backOut" }, { 8, 0 },
 	}) * idleW
-	local sharpen = L.env(c, 1.5, 0.2, 0.9, 0.25) * idleW
+	local groom = L.env(c, 1.2, 0.35, 1.0, 0.3, "backOut", "cubicInOut") * idleW
 	local tapA = math.max(0, wave(t, 0.9)) ^ 3 * idleW
 	local tapB = math.max(0, wave(t, 0.9, 0.5)) ^ 3 * idleW
 
@@ -142,16 +143,17 @@ function M.Update(t, pose, ctx)
 
 	-- CHEST: mantis sway + breathing; lean back / lunge on the move
 	local cx, cy, cz = A(c, K.chest)
-	pose.Chest = ang(cx + 3 * breathe + (5 * rock - 4 * hop) * idleW, cy + 9 * sway * idleW, cz + 12 * sway * idleW + 3 * wave(t, 9) * raise)
+	pose.Chest = ang(cx + 3 * breathe + (5 * rock - 4 * hop) * idleW, cy + 6 * sway * idleW, cz + 8 * sway * idleW + 3 * wave(t, 9) * raise)
 
 	-- HEAD: curious tilts in idle, battle cry on the move
 	local hx, hy, hz = A(c, K.head)
 	local look = L.noise(t, 3.7, 0.3) * 14 * idleW
-	pose.Head = ang(hx + 3 * breathe + (6 * hop - 4 - 2 * rock) * idleW, hy + look - 8 * sway * idleW, hz + tilt - 9 * sway * idleW + 5 * raise * wave(t, 7))
+	pose.Head = ang(hx + 3 * breathe + (6 * hop - 4 - 2 * rock) * idleW - 6 * groom, hy + look - 8 * sway * idleW - 6 * groom,
+		hz + tilt - 5 * sway * idleW + 5 * raise * wave(t, 7))
 
 	-- JAW: idle chatter, wide-open battle cry
-	local chatter = L.env(c, 0.25, 0.08, 0.25, 0.1) + L.env(c, 2.3, 0.08, 0.2, 0.1)
-	pose.Jaw = ang(-7 * idleW + track(c, K.jaw) - 14 * chatter * L.bounce(t, 7) * idleW + 6 * raise * wave(t, 12), 0, 0)
+	local chatter = L.env(c, 0.25, 0.08, 0.25, 0.1) + 1.4 * L.env(c, 1.45, 0.1, 0.95, 0.15)
+	pose.Jaw = ang(-7 * idleW + track(c, K.jaw) - 16 * chatter * L.bounce(t, 6) * idleW + 6 * raise * wave(t, 12), 0, 0)
 
 	-- BLINKS
 	local blink = L.env(c, 1.0, 0.05, 0.06, 0.08) + L.env(c, 2.4, 0.05, 0.05, 0.08) + L.env(c, 2.65, 0.05, 0.05, 0.08)
@@ -178,17 +180,21 @@ function M.Update(t, pose, ctx)
 	-- SCYTHE ARMS
 	------------------------------------------------------------------
 	local tremble = 4 * raise * wave(t, 10)
-	local idleArm = 6 * rock * idleW + 3 * breathe
-	local sharp = 14 * sharpen * wave(t, 4.5)
+	local idleArm = (7 + 6 * rock) * idleW + 3 * breathe
+	-- grooming pose for the right scythe (solved so the blade passes the mouth)
+	local GA, GF, GS = { 49, -7, -23 }, -51, { 35, -26, -40 }
+	local scrub = 7 * wave(t, 4.2) * groom
 	for _, sd in { { "R", KR, 1 }, { "L", KL, -1 } } do
 		local s, KK, k = sd[1], sd[2], sd[3]
 		local arx, ary, arz = A(c, KK.arm)
 		local frx, fry, frz = A(c, KK.fore)
 		local srx, sry, srz = A(c, KK.scythe)
-		local jab = pump * k * (1 - sharpen) * idleW
-		local armCF = ang(arx + idleArm + k * tremble + 16 * jab, ary, arz + k * 5 * sway * idleW + 5 * hop * idleW)
-		local foreCF = ang(frx - 4 * breathe + 10 * sharpen - 12 * jab, fry, frz)
-		local scyCF = ang(srx + 6 * sharpen, sry + k * sharp, srz)
+		local g = s == "R" and groom or 0
+		local jab = math.max(0, pump * k) * (1 - groom) * idleW
+		local armCF = ang(arx + idleArm + k * tremble + 16 * jab + GA[1] * g, ary + GA[2] * g,
+			arz + (k * 5 * sway + 5 * hop) * idleW * (1 - g) + GA[3] * g)
+		local foreCF = ang(frx - 4 * breathe - 16 * jab + GF * g, fry, frz)
+		local scyCF = ang(srx + (GS[1] + scrub) * g, sry + GS[2] * g, srz + GS[3] * g)
 		if s == "R" then
 			pose.ArmR, pose.ForeR, pose.ScytheR = armCF, foreCF, scyCF
 		else
@@ -227,8 +233,8 @@ function M.Update(t, pose, ctx)
 	------------------------------------------------------------------
 	for i = 1, 4 do
 		local lift = -5 * raise - 3 * flare + 5 * land * wave(t, 3, -0.1 * i)
-		local yaw = 8 * wave(t, 0.5, -0.12 * i) * idleW - 9 * spinV
-		pose["Abd" .. i] = ang(lift + 2.5 * wave(t, 0.5, -0.1 * i), yaw, 0)
+		local yaw = 5 * wave(t, 0.5, -0.12 * i) * idleW - 9 * spinV
+		pose["Abd" .. i] = ang(lift + 1.5 * wave(t, 0.5, -0.1 * i), yaw, 0)
 	end
 
 	------------------------------------------------------------------
@@ -244,9 +250,9 @@ function M.Update(t, pose, ctx)
 	pose.Orbit = ang(0, 28 * wave(t, 0.125), 0)
 	for i = 1, 4 do
 		local dir = i % 2 == 0 and -1 or 1
-		local out = 2.2 * slashHit + 1.5 * air
+		local out = 2.2 * slashHit + 5 * air -- flung clear while the body spins
 		local bobO = 0.7 * wave(t, 0.55, i * 0.27)
-		pose["Orb" .. i] = pa(out * dir * 0.5, bobO + out * 0.3, 0, 80 * t * dir, 110 * t, 45)
+		pose["Orb" .. i] = pa(out * dir * 0.5, bobO + out * 0.5, out * 0.4, 80 * t * dir, 110 * t, 45)
 	end
 
 	------------------------------------------------------------------

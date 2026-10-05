@@ -120,14 +120,14 @@ function M.Update(t, pose, ctx)
 	------------------------------------------------------------------
 	-- HIPS + LEGS (IK keeps the feet planted; left foot lunges on the slam)
 	------------------------------------------------------------------
-	local hipY = -0.3 - 0.3 * hit + 0.15 * lift + 0.12 * breath * idle
+	local hipY = -0.3 - 0.45 * hit + 0.2 * lift + 0.12 * breath * idle
 		+ L.track(c, {
-			{ T0, 0 }, { T1, -0.5, "cubicOut" }, { T2, -0.6 }, { T3, -0.7, "cubicIn" },
+			{ T0, 0 }, { T1, -0.5, "cubicOut" }, { T2, -0.6 }, { T3, -0.6, "cubicIn" },
 			{ T5, -0.6 }, { T6, 0.3, "backOut" }, { T7, 0.3 }, { T8, 0, "sineInOut" },
 		})
-		- 0.65 * imp + 0.15 * laugh
+		- 0.5 * imp + 0.15 * laugh
 	local hipYaw = L.track(c, { { T0, 0 }, { T1, -10, "cubicOut" }, { T3, 10, "cubicIn" }, { T5, 8 }, { T6, 0 } })
-	local hipsCF = pa(0.35 * sway * idle, hipY, 0, 0, hipYaw + 3 * sway * idle, -3 * sway * idle)
+	local hipsCF = pa(0.45 * sway * idle, hipY, 0, 0, hipYaw + 3 * sway * idle, -4 * sway * idle)
 	pose.Hips = hipsCF
 
 	local stepL = L.track(c, {
@@ -135,9 +135,12 @@ function M.Update(t, pose, ctx)
 		{ T5 + 0.22, 1.3, "quadOut" }, { T6, 0, "quadIn" },
 	})
 	local fwdL = L.track(c, { { T0, 0 }, { T1, 0.5 }, { T3, 1.7, "cubicIn" }, { T5, 1.7 }, { T6, 0, "sineInOut" } })
-	local tR, sR, fR = legIK(hipsCF, HIP_R, ANKLE_R)
+	-- idle waddle: the unloaded foot lifts as the weight shifts side to side
+	local waddleL = 0.75 * math.max(0, sway) ^ 2 * idle
+	local waddleR = 0.75 * math.max(0, -sway) ^ 2 * idle
+	local tR, sR, fR = legIK(hipsCF, HIP_R, ANKLE_R + V(0, waddleR, 0))
 	pose.ThighR, pose.ShinR, pose.FootR = tR, sR, fR
-	local tL, sL, fL = legIK(hipsCF, HIP_L, ANKLE_L + V(0, stepL, -fwdL))
+	local tL, sL, fL = legIK(hipsCF, HIP_L, ANKLE_L + V(0, stepL + waddleL, -fwdL))
 	pose.ThighL, pose.ShinL, pose.FootL = tL, sL, fL * ang(-12 * stepL, 0, 0)
 
 	-- loincloth flaps: lag behind the bounce, fly up on the slam
@@ -148,7 +151,7 @@ function M.Update(t, pose, ctx)
 	------------------------------------------------------------------
 	-- CHEST + GUT
 	------------------------------------------------------------------
-	local chestX = 2.5 * breath + 3 * hit
+	local chestX = 3 * breath + 5 * hit - 3 * lift
 		+ L.track(c, {
 			{ T0, 0 }, { T1, 20, "cubicOut" }, { T2, 24 }, { T3, -12, "cubicIn" }, { T4, -17, "quadOut" },
 			{ T5, -10 }, { T6, 14, "backOut" }, { T7, 12 }, { T8, 0, "sineInOut" },
@@ -160,11 +163,11 @@ function M.Update(t, pose, ctx)
 	------------------------------------------------------------------
 	-- HEAD, EYE, BROWS, JAW, TOPKNOT
 	------------------------------------------------------------------
-	local eyeX = saccade(t, 1.3, 1) * idle
+	local eyeX = (0.1 + 0.9 * saccade(t, 1.3, 5)) * idle
 	local eyeY = saccade(t, 1.3, 7) * idle
 	local hx = headPitch(c)
 	local faceCam = L.env(c, T3 - 0.08, 0.12, T5 - T3, 0.4)
-	pose.Head = ang(hx + 3 * breath * idle - 4 * hit + 4 * laugh, -9 * eyeX - 24 * faceCam + 10 * shake * wave(t, 6), -4 * sway * idle + 4 * proud * wave(t, 2.2))
+	pose.Head = ang(hx + 3 * breath * idle - 7 * hit + 4 * lift + 4 * laugh, -7 * eyeX - 40 * faceCam + 10 * shake * wave(t, 6), -4 * sway * idle + 4 * proud * wave(t, 2.2))
 	pose.Topknot = ang(1.2 * (headPitch(c - 0.15) - hx) + 6 * wave(t, 0.8, -0.3) - 28 * imp, 6 * sway * idle, 8 * shake * wave(t, 6, -0.2))
 
 	pose.Eye = pa(0, 0.15 * pop, -0.85 * pop)
@@ -191,8 +194,8 @@ function M.Update(t, pose, ctx)
 	-- the arm so the whole thing swings like one huge hammer.
 	------------------------------------------------------------------
 	local aX = L.track(c, {
-		{ T0, 0 }, { T1, 116, "cubicOut" }, { T2, 122 }, { T3, 14, "cubicIn" }, { T4, 19, "quadOut" },
-		{ T5, 15 }, { T6, 21, "backOut" }, { T7, 19 }, { T8, 0, "cubicInOut" },
+		{ T0, 0 }, { T1, 124, "cubicOut" }, { T2, 130 }, { T3, 24, "cubicIn" }, { T4, 29, "quadOut" },
+		{ T5, 25 }, { T6, 29, "backOut" }, { T7, 27 }, { T8, 0, "cubicInOut" },
 	})
 	local aZ = L.track(c, { { T0, 0 }, { T1, 12 }, { T3, -14 }, { T5, -14 }, { T6, 25, "backOut" }, { T7, 25 }, { T8, 0 } })
 	local bend = L.track(c, {
@@ -202,8 +205,8 @@ function M.Update(t, pose, ctx)
 	local snap = L.track(c, { { T0, 0 }, { T1, 0 }, { T2, 0 }, { T3, -26, "cubicIn" }, { T4, -22 }, { T5, -25 }, { T6, 70, "backOut" }, { T7, 66 }, { T8, 0, "sineInOut" } })
 
 	pose.ArmR = ang(aX + 4 * imp - 5 * lift + 2 * breath * idle + 3 * tremble, 0, aZ)
-	pose.ForearmR = ang(bend + 16 * lift, 0, 0) * ang(-13.2 * lever, -31.8 * lever, 24.0 * lever)
-	pose.Club = ang(snap, 0, -18 * lift) * ang(11.6 * lever, -56.7 * lever, 54.0 * lever)
+	pose.ForearmR = ang(bend + 16 * lift, 0, 0) * ang(-15.8 * lever, -29.3 * lever, 26.8 * lever)
+	pose.Club = ang(snap, 0, -18 * lift) * ang(11.6 * lever, -53.3 * lever, 59.3 * lever)
 	pose.Pauldron = ang(0.45 * aX, 0, 0.5 * aZ)
 
 	-- left arm: palm catches the taps; swings up with the club; hand on hip when proud
@@ -213,7 +216,7 @@ function M.Update(t, pose, ctx)
 	local aZL = L.track(c, { { T0, 0 }, { T1, 24, "cubicOut" }, { T3, 12 }, { T5, 12 }, { T6, 38, "backOut" }, { T7, 38 }, { T8, 0 } })
 	local bendL = L.track(c, { { T0, 0 }, { T1, 50 }, { T3, 30 }, { T5, 30 }, { T6, 0 } })
 	local armL = ang(aXL + 3 * lift - 4 * hit + 2 * breath * idle, 0, aZL)
-	local foreL = ang(bendL + 6 * lift - 7 * hit, 0, 0) * ang(-10.8 * leverL, -37.3 * leverL, 30.8 * leverL) * ang(0, 90 * hipHand, 0)
+	local foreL = ang(bendL + 6 * lift - 7 * hit, 0, 0) * ang(-12.4 * leverL, -32.2 * leverL, 31.8 * leverL) * ang(0, 90 * hipHand, 0)
 	pose.ArmL = L.mirror(armL)
 	pose.ForearmL = L.mirror(foreL)
 
@@ -223,10 +226,10 @@ function M.Update(t, pose, ctx)
 	local fling = L.env(c, T3, 0.15, 0.25, 1.3, "backOut", "sineInOut")
 	pose.Orbit = ang(0, 28 * t, 0)
 	for i = 1, 4 do
-		local d = ROCK_DIR[i] * (3 * fling)
+		local d = ROCK_DIR[i] * (3.2 * fling - 1.3 * windup)
 		local bob = 0.7 * wave(t, 0.55, i * 0.27)
 		local dir = i % 2 == 0 and -1 or 1
-		pose["Rock" .. i] = pa(d.X, bob + 2.2 * fling, d.Z, 70 * t * dir, 110 * t, 30 * i)
+		pose["Rock" .. i] = pa(d.X, bob + 2.2 * fling + 1.2 * windup, d.Z, 70 * t * dir, 110 * t, 30 * i)
 	end
 
 	------------------------------------------------------------------
@@ -260,6 +263,9 @@ function M.Update(t, pose, ctx)
 	if ctx.crossed(T3) then
 		ctx.emit("ImpactDust", 40)
 		ctx.emit("ImpactSpark", 30)
+	end
+	if ctx.crossed(T3 + 0.02) or ctx.crossed(T6) then
+		ctx.emit("StompDust", 18)
 	end
 	if ctx.crossed(T5 + 0.1) then
 		ctx.emit("Snort", 12)
