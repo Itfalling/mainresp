@@ -401,7 +401,7 @@ local function makeTag(parent, displayName, rarity, height)
 		t.Position = roblox.UDim2.new(0, 0, y, 0)
 		t.Text = text
 		t.TextScaled = true
-		t.Font = Enum.Font.FredokaOne
+		t.FontFace = roblox.Font.fromEnum(Enum.Font.FredokaOne)
 		t.TextColor3 = Builder.toColor(color)
 		local s = Instance.new("UIStroke")
 		s.Thickness = 3
