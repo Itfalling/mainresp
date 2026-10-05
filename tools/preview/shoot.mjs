@@ -38,7 +38,10 @@ const browser = await chromium.launch({
   args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'],
 });
 
-const SHEETS = opt.views || opt.times || opt.nt
+const SHOWCASE = ids[0] === '_showcase';
+const SHEETS = SHOWCASE
+  ? (opt.view || 'aisle,overview').split(',').map((v) => ({ name: v, q: { mode: 'showcase', view: v, t: opt.t || '1.5', cw: opt.cw || '1600', ch: opt.ch || '900' } }))
+  : opt.views || opt.times || opt.nt
   ? [{ name: opt.name || 'custom', q: { views: opt.views || '34', times: opt.times || '', nt: opt.nt || '', cols: opt.cols || '', zoom: opt.zoom || '1', focus: opt.focus || '', cw: opt.cw || '', ch: opt.ch || '' } }]
   : [
       { name: 'views', q: { views: '34,front,side,back', times: '0', cols: '2', cw: '640', ch: '520' } },
@@ -49,6 +52,7 @@ let failed = 0;
 for (const id of ids) {
   for (const sh of SHEETS) {
     const q = new URLSearchParams({ m: id, mode: 'sheet', ...Object.fromEntries(Object.entries(sh.q).filter(([, v]) => v)) });
+    if (SHOWCASE) q.delete('m');
     const page = await browser.newPage({ viewport: { width: 2600, height: 2000 } });
     const errors = [];
     page.on('pageerror', (e) => errors.push(String(e)));

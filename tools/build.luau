@@ -463,7 +463,9 @@ end
 
 -- Blue X-braced pen fence (like the pet pens in the reference game).
 local POST, RAIL, BRACE = "#1f5fe0", "#2f8cff", "#36b9ff"
+local sceneParts = {}
 local function block(parent, size, cf, color, name)
+	table.insert(sceneParts, { size = { r4(size.X), r4(size.Y), r4(size.Z) }, cf = cfArr(cf), color = color })
 	local p = Instance.new("Part")
 	p.Name = name or "Fence"
 	p.Anchored = true
@@ -514,12 +516,13 @@ local function makePen(parent, cx, cz, w, d)
 	fenceRun(pen, Vector3.new(x1, y, z1), Vector3.new(x0, y, z1))
 	fenceRun(pen, Vector3.new(x0, y, z1), Vector3.new(x0, y, z0))
 	-- slightly darker grass pad inside the pen
-	local pad = block(pen, Vector3.new(w - 1.2, 0.2, d - 1.2), CFrame.new(cx, 0.1, cz), "#4fc23d", "PenFloor")
+	local pad = block(pen, Vector3.new(w - 1.2, 0.2, d - 1.2), CFrame.new(cx, -0.05, cz), "#4fc23d", "PenFloor")
 	pad.CanCollide = false
 	return pen
 end
 
 local function buildPacks(built)
+	local sceneMonsters = {}
 	local folder = Instance.new("Folder")
 	folder.Name = "Monsters"
 
@@ -581,11 +584,13 @@ local function buildPacks(built)
 			placeCopy.Parent = showcase
 
 			makePen(pens, cx, rowZ[r], w, maxDepth[r])
+			table.insert(sceneMonsters, { id = b.id, cf = cfArr(offset), name = b.info.spec.DisplayName or b.id, rarity = b.info.spec.Rarity or "Legendary", tag = { cx, b.info.mx.Y + 2.5, rowZ[r] } })
 			makeTag(tags, b.info.spec.DisplayName or b.id, b.info.spec.Rarity or "Legendary", Vector3.new(cx, b.info.mx.Y + 1.5, rowZ[r]))
 		end
 	end
 
 	fs.writeFile("out/Monsters.rbxm", roblox.serializeModel({ folder }))
+	fs.writeFile("out/preview/_showcase.json", serde.encode("json", { monsters = sceneMonsters, parts = sceneParts, length = totalLen }))
 
 	-- Showcase place: studded green baseplate, spawn in the aisle, tuned lighting
 	local base = Instance.new("Part")
@@ -603,7 +608,7 @@ local function buildPacks(built)
 	spawn.Name = "SpawnLocation"
 	spawn.Anchored = true
 	spawn.Size = Vector3.new(8, 1, 8)
-	spawn.CFrame = CFrame.new(-totalLen / 2 - 14, 0.5, 0)
+	spawn.CFrame = CFrame.new(-totalLen / 2 - 14, 0.5, 0) * CFrame.Angles(0, -math.pi / 2, 0)
 	spawn.Color = Builder.toColor("#f2f2f2")
 	spawn.Material = Enum.Material.Plastic
 	spawn.TopSurface = Enum.SurfaceType.Studs

@@ -450,7 +450,75 @@ async function live(data) {
   window.__done = true;
 }
 
-load().then((data) => (mode === 'sheet' ? sheet(data) : live(data))).catch((e) => {
+function tagSprite(name, rarity) {
+  const cv = document.createElement('canvas');
+  cv.width = 512; cv.height = 160;
+  const g = cv.getContext('2d');
+  g.textAlign = 'center';
+  g.lineJoin = 'round';
+  const grads = { Divine: ['#ff8fd8', '#ffe36b', '#8dff8a', '#7fd4ff'], Cosmic: ['#7b5cff', '#ff5ce1', '#5ce1ff'], Secret: ['#ffffff', '#9aa0b4'], Mythic: ['#ff6b9a', '#ff2a4d'], Legendary: ['#ffe35c', '#ff9a1a'], Epic: ['#d07bff', '#8a3dff'] };
+  const stops = grads[rarity] || ['#ffffff', '#ffffff'];
+  g.font = 'bold 56px system-ui';
+  const lg = g.createLinearGradient(100, 0, 412, 0);
+  stops.forEach((c, i) => lg.addColorStop(i / Math.max(1, stops.length - 1), c));
+  g.lineWidth = 8; g.strokeStyle = '#141414'; g.strokeText(rarity, 256, 60); g.fillStyle = lg; g.fillText(rarity, 256, 60);
+  g.font = 'bold 64px system-ui';
+  g.strokeText(name, 256, 135); g.fillStyle = '#fff'; g.fillText(name, 256, 135);
+  const t = new THREE.CanvasTexture(cv);
+  t.colorSpace = THREE.SRGBColorSpace;
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, depthWrite: false, toneMapped: false }));
+  sp.scale.set(12, 3.75, 1);
+  return sp;
+}
+
+async function showcase() {
+  const scene0 = await (await fetch('../../out/preview/_showcase.json')).json();
+  const datas = await Promise.all(scene0.monsters.map(async (m) => (await fetch(`../../out/preview/${m.id}.json`)).json()));
+  const L = scene0.length || 200;
+  const fake = { bounds: { min: [-L / 2, 0, -40], max: [L / 2, 30, 40] } };
+  const cw = Number(params.get('cw') || 1600), ch = Number(params.get('ch') || 900);
+  const renderer = makeRenderer(cw, ch);
+  document.body.appendChild(renderer.domElement);
+  renderer.domElement.id = 'sheet';
+  const scene = makeScene(fake);
+  const rigs = [];
+  scene0.monsters.forEach((m, i) => {
+    const holder = new THREE.Group();
+    holder.matrixAutoUpdate = false;
+    holder.matrix.copy(cfToMatrix(m.cf));
+    scene.add(holder);
+    rigs.push({ rig: buildRig(datas[i], holder), data: datas[i] });
+    const tag = tagSprite(m.name, m.rarity);
+    tag.position.set(...m.tag);
+    scene.add(tag);
+  });
+  for (const p of scene0.parts) {
+    const mesh = new THREE.Mesh(boxGeometry(...p.size), materialFor({ mat: 'Plastic', color: p.color, tr: 0, studs: true }));
+    mesh.matrixAutoUpdate = false;
+    mesh.matrix.copy(cfToMatrix(p.cf));
+    mesh.castShadow = true; mesh.receiveShadow = true;
+    scene.add(mesh);
+  }
+  const t = Number(params.get('t') || 1.5);
+  rigs.forEach(({ rig, data }, i) => applyPose(rig, data, t + i * 0.37));
+  scene.updateMatrixWorld(true);
+  const camera = new THREE.PerspectiveCamera(Number(params.get('fov') || 50), cw / ch, 0.5, 5000);
+  const view = params.get('view') || 'aisle';
+  if (view === 'aisle') { camera.position.set(-L / 2 - 10, 16, 0); camera.lookAt(-L / 6, 6, 0); }
+  else if (view === 'overview') { camera.position.set(0, L * 0.45, L * 0.45); camera.lookAt(0, 0, 0); }
+  else if (view.startsWith('pen')) {
+    const idx = Number(view.slice(3));
+    const m = scene0.monsters[idx];
+    const side = m.tag[2] < 0 ? 1 : -1;
+    camera.position.set(m.tag[0] + 10, 12, m.tag[2] + side * 34);
+    camera.lookAt(m.tag[0], 7, m.tag[2]);
+  }
+  const composer = makeComposer(renderer, scene, camera, cw, ch);
+  composer.render();
+  window.__done = true;
+}
+
+(mode === 'showcase' ? showcase() : load().then((data) => (mode === 'sheet' ? sheet(data) : live(data)))).catch((e) => {
   document.body.innerHTML = `<pre style="color:#f66">${e.stack || e}</pre>`;
   window.__error = String(e);
   window.__done = true;
