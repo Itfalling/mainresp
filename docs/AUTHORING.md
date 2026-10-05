@@ -1,7 +1,7 @@
 # Monster Authoring Guide
 
-Every monster is built from **real Roblox parts** (Part / WedgePart / Ball /
-Cylinder / sphere-mesh ellipsoids), rigged with **Motor6D bones**, and animated
+Every monster is built from **real studded Roblox parts** (Part blocks + WedgeParts,
+studs on every face), rigged with **Motor6D bones**, and animated
 procedurally by a tiny client-side script. One build produces a `.rbxm` you can
 drag into Roblox Studio, plus a web preview so we can *see* the result.
 
@@ -68,30 +68,21 @@ Animation rotates the bone **about its pivot in the pivot's orientation** (ident
 by default = model axes). Put pivots where the real joint is (shoulder, hip, neck
 base, jaw hinge, each tail segment). Chain them: `Tail1 → Tail2 → Tail3 …`.
 
-### Parts (all return the Part)
+### Parts (all return the Part) — STUD STYLE: blocks + wedges only
 | call | notes |
 |---|---|
-| `B:block(bone, size, cf, color, opts)` | studded box |
-| `B:wedge(bone, size, cf, color, opts)` | Roblox wedge: tall face at local +Z, slope descends toward −Z |
-| `B:ball(bone, diameter, cf, color, opts)` | true sphere (uniform) |
-| `B:cyl(bone, v(len, d, d), cf, color, opts)` | cylinder along local **X** |
-| `B:ellipsoid(bone, size, cf, color, opts)` | smooth stretched sphere – organic bodies, heads, eyes, muscles |
-| `B:beam(bone, a, b, w, h, color, opts)` | box spanning point a → point b (limbs, tusks, bars, tubes) |
-| `B:spike(bone, base, tip, width, depth, color, opts)` | tapered blade/horn/claw/tooth |
-| `B:tri(bone, a, b, c, thickness, color, opts)` | **any flat triangle** (2 wedges) – wings, fins, membranes, flames, ears, teeth, leaves |
-| `B:poly(bone, {p1, p2, ...}, thickness, color, opts)` | convex flat polygon (triangle fan) |
-| `B:ring(bone, centerCF, radius, count, segSize, color, opts)` | ring of blocks around centerCF's local Y axis (halos, crowns, collars) |
-| `B:gem(bone, size, cf, color, opts)` | Neon part + PointLight (`opts.light=false` to skip light, `opts.kind="ball"`) |
+| `B:block(bone, size, cf, color, opts)` | studded box — 90% of every monster |
+| `B:wedge(bone, size, cf, color, opts)` | Roblox wedge: tall face at local +Z, slope descends toward −Z (snouts, beaks, claws, tail tips) |
+| `B:beam(bone, a, b, w, h, color, opts)` | box spanning point a → point b (horns, limbs, tusks, bars) |
+| `B:spike(bone, base, tip, width, depth, color, opts)` | tapered blade/horn/claw/tooth (2 wedges) |
+| `B:tri(bone, a, b, c, thickness, color, opts)` | flat triangle (2 wedges) — ONLY for big flat membranes: wings, fins |
+| `B:poly(bone, {p1, p2, ...}, thickness, color, opts)` | flat convex polygon (wings/fins) |
+| `B:ring(bone, centerCF, radius, count, segSize, color, opts)` | ring of blocks (halos, crowns, collars) |
+| `B:gem(bone, size, cf, color, opts)` | small Neon accent block (`opts.light=true` adds a soft PointLight) |
 
-`opts`: `mat` (`Plastic` default, `Neon`, `SmoothPlastic`, `Glass`, `Metal`, `Foil`,
-`ForceField`, `Ice`, `Slate`, `Rock`, `Basalt`, `CrackedLava`, `Marble`, `Wood`,
-`WoodPlanks`, `Grass`, `LeafyGrass`, `Fabric`, `Sand`, `Pebble`, `Concrete`, `Glacier`, ...),
-`tr` transparency, `refl`, `name`, `studs` (bool, default on for Plastic block/wedge).
+`B:ball`, `B:cyl`, `B:ellipsoid`, `B:cwedge` **error** — round/smooth shapes don't belong in this game.
+`opts`: `mat` — only `"Plastic"` (default, studded on all 6 faces) or `"Neon"`; `tr` transparency, `name`.
 Colors: `"#rrggbb"`, `{r,g,b}` (0-255) or `Color3`.
-
-`B:sym(fn)` builds the right side exactly as written (+X) and then a mirrored
-left copy. Bones named with `side` become `ArmR` / `ArmL`. `B:cwedge` is not
-allowed inside `sym` (avoid corner wedges in general).
 
 ### Effects
 * `B:emitter(part, preset, opts)` presets: `sparkle glow ember fire smoke drip bubble spark burst leaf`.
@@ -103,7 +94,9 @@ allowed inside `sym` (avoid corner wedges in general).
   two points carried by a bone (claw tips, tail tips, wing edges, weapon blades). Trails make the
   exaggerated motion read beautifully in game.
 
-Keep it tasteful: emitters ≤ 12, lights ≤ 8, trails ≤ 16 per monster.
+Presets: `sparkle glow ember fire smoke drip bubble spark burst dust leaf` (`burst` and `dust` have Rate 0 —
+fire them with `ctx.emit` on impact beats). Keep it tasteful: emitters ≤ 8, lights ≤ 4 (brightness ≤ 1.5),
+trails ≤ 8 per monster.
 
 ## motion.luau (runs inside Roblox exactly as written)
 
@@ -151,41 +144,53 @@ expoIn expoOut backIn backOut backInOut elasticOut bounceOut`.
 
 ## The quality bar (non-negotiable)
 
-**Style (study the reference images):** chunky, bold, toy-like Roblox builds with
-studded plastic surfaces, strong 2-4 color palettes plus **one glowing Neon accent**
-(diamond gems, eyes, stripes, halos, cores), layered armor plates, big readable
-silhouettes, huge expressive features (giant teeth, glowing eyes, crowns, spikes,
-claws, fans, fins). Premium "Secret/Divine" rarity pets in a tycoon game – they must look
-expensive. Use many smaller detail parts on top of the big forms: trims, plates,
-rivets, scales, spikes, claws, teeth, gems. Use wedges/tris for tapered shapes so
-nothing looks like plain boxes. Ellipsoids for organic bulk, layered under/with
-studded blocks so the stud texture still reads.
+### Style bible — copy the "Void Leviathan" reference screenshots
+* **Stud-built voxel look**: every monster is assembled from chunky studded Plastic blocks (and a few
+  wedges), studs visible on every face. Think "3D pixel art": stepped, blocky silhouettes; no smooth or
+  round parts at all. Shapes are built by stacking/stepping blocks (stepped chest scales, stepped horns,
+  stepped spines, stepped wing membranes).
+* **"Most detail with the fewest parts"**: 120–300 parts. Detail comes from *color blocking* and a few
+  well-placed accent blocks, not from part spam: a lighter belly/chest of stepped plates, darker side
+  panels, contrasting horns/spikes/claws, rows of small white block teeth, a black mouth interior, a
+  tongue, small accent squares. Use whole or half-stud sizes (1, 1.5, 2, 0.5) so studs line up cleanly.
+* **Palette**: one strong saturated main color + a darker shade of it + a light contrast color
+  (lavender/white/cream/gold for horns, spikes, belly, claws) + white teeth/claws + black mouth +
+  **one** neon accent color (two at most).
+* **Glow is an ACCENT, not a light show**: Neon only on small things — eyes, horn tips, spike tips, thin
+  stripes, mouth glow, a small gem. The build fails if Neon covers more than 7% of the visible
+  surface. Never make whole limbs, bodies, halos or wings out of Neon. Lights: soft (≤1.5 brightness).
+* **Cartoon appeal for kids**: big head (~1.3× realistic), big expressive eyes (neon slit/rectangle
+  eyes with a dark pupil, heavy brows), big toothy mouth, chunky feet/claws, readable from far away.
+  Brain-rot tycoon pets: bold, goofy, cool, a little "spammy" with spikes/teeth/tips.
+* **VFX that reads well**: floating voxel cubes orbiting the monster (small bones), small sparkle
+  twinkles, trails on tail tips/claws/wing tips, bursts/dust on impact beats, hidden Neon beams/bolts
+  revealed with `ctx.transparency` during the signature move. Subtle at idle, big on the beat.
 
-**Size:** 12–32 studs tall depending on the creature (giants bigger). Fliers/swimmers hover
-with their lowest point 1.5–5 studs above the ground. Walkers stand with feet at Y≈0.
+**Size (pet-pen scale, a player is 5 studs tall):** 10–20 studs tall (24 max), long creatures up to
+~40 studs long. Fliers/swimmers hover 1.5–4 studs above the ground. Walkers stand with feet at Y≈0.
 
-**Budget:** 250–750 parts, 15–60 bones. Performance matters (20 of these on screen).
+**Animation – VERY exaggerated, bouncy, cartoonish:**
+* Never static. Bouncy idle (marching in place, hops, waddles, head bobs), breathing, tail wags,
+  ear/fin/tentacle secondary motion with phase lag down chains, cartoon blinks (eyelid blocks on bones),
+  little chomps/twitches. Floating cubes orbit and tumble.
+* At least one big **signature move** per loop (roar, slam, chomp, wing burst, spin, fan display,
+  scythe sweep…) with real animation principles: **anticipation** (wind-up the opposite way),
+  fast **action**, **overshoot** (`backOut`, `elasticOut`), **follow-through** (tails/ears keep moving),
+  **settle**. Cartoon squash: body drops 1–2 studs on landings/impacts, then springs back.
+* Big amplitudes: 30–90° on limbs during actions, 20–45° head throws, jaws open 50–80°.
+  The build log prints each joint's motion range — if the signature joints are under ~25°, push harder.
+* Fire effects at the right beat (`ctx.emit` bursts/dust on impact frames).
+* Seamless: always-on waves use absolute `t`; special moves use `c = t % M.Cycle` with envelopes
+  that return to 0 before the loop ends.
 
-**Animation – VERY exaggerated and alive:**
-* Never static. Breathing, bobbing, tail/tentacle/ear/fin secondary motion with
-  phase lag down chains, blinking or eye glow pulses, little twitches.
-* At least one big **signature move** per loop (roar, slam, chomp, wing burst, spin,
-  fan display, scythe sweep…) with real animation principles: **anticipation**
-  (wind-up opposite direction), fast **action**, **overshoot** (`backOut`, `elasticOut`),
-  **follow-through** (tails/ears/crests keep moving), **settle**.
-* Big amplitudes: 30–90° on limbs during actions, 1–3 stud body drops/jumps,
-  20–45° head throws. The build log prints each joint's motion range – if the
-  signature joints are under ~25°, push harder.
-* Squash/stretch feel via body dips + rises and limb compression.
-* Fire effects at the right beat (`ctx.emit` bursts on impact frames).
-* Seamless: always-on waves should use the absolute time `t` (continuous forever in
-  game). Special moves use `c = t % M.Cycle` with envelopes that return to 0 before
-  the loop ends, so the wrap at `M.Cycle` is invisible.
+**Solid construction:** blocks on a bone should overlap their neighbors at joints so nothing gaps or
+detaches at extreme poses. Avoid coplanar same-size faces (z-fighting): offset by ≥0.05. Every part
+must be attached to the bone that should carry it (head parts on Head, jaw parts on Jaw, etc.).
 
-**Solid construction:** parts on a bone should overlap their neighbors at joints
-(use balls/ellipsoids at elbows, knees, neck bases) so nothing gaps or detaches at
-extreme poses. Avoid coplanar same-size faces (z-fighting): offset by ≥0.05.
-Every part must be attached to the bone that should carry it (head parts on Head,
-jaw parts on Jaw, etc.).
+### More rotation tips
+* A limb **hanging down** from its pivot: **+X swings it forward**, +Z swings a right limb outward.
+* A part extending **backward** (+Z) like a tail: **−X lifts it**, +Y swings it toward the monster's left.
+
+Study `monsters/AtomicKaiju/` — it is the reference implementation of this style.
 
 Do not edit anything in `lib/` or `tools/`. Keep all code inside your monster's folder.

@@ -159,7 +159,7 @@ function materialFor(p) {
   let m;
   const transparent = p.tr > 0;
   if (p.mat === 'Neon') {
-    const c = color.clone().multiplyScalar(2.4);
+    const c = color.clone().multiplyScalar(1.7);
     m = new THREE.MeshBasicMaterial({ color: c, transparent, opacity: 1 - p.tr });
   } else if (p.mat === 'ForceField') {
     m = new THREE.MeshBasicMaterial({ color: color.clone().multiplyScalar(1.6), transparent: true, opacity: 0.35 * (1 - p.tr), blending: THREE.AdditiveBlending, depthWrite: false });
@@ -205,8 +205,13 @@ function buildRig(data, scene) {
       e.c0 = p.rest.clone().invert().multiply(e.rest);
     }
   }
+  const trans = (data.anim && data.anim.trans) || {};
+  const animated = [];
   for (const p of data.parts) {
-    const mesh = new THREE.Mesh(geometryFor(p), materialFor(p));
+    let mat = materialFor(p);
+    if (trans[p.name]) { mat = mat.clone(); mat.transparent = true; }
+    const mesh = new THREE.Mesh(geometryFor(p), mat);
+    if (trans[p.name]) animated.push({ mesh, track: trans[p.name] });
     mesh.matrixAutoUpdate = false;
     mesh.matrix.copy(cfToMatrix(p.cf));
     mesh.castShadow = p.mat !== 'Neon' && p.tr < 0.5;
@@ -221,7 +226,7 @@ function buildRig(data, scene) {
     if (!bone) continue;
     if (fx.kind === 'light' && lights < 8) {
       lights++;
-      const l = new THREE.PointLight(fx.color, Math.min(6, (fx.brightness || 2)) * 6, (fx.range || 12) * 1.2, 1.4);
+      const l = new THREE.PointLight(fx.color, Math.min(1.5, (fx.brightness || 0.8)) * 5, (fx.range || 10), 1.6);
       l.matrixAutoUpdate = false;
       l.matrix.copy(cfToMatrix(fx.cf));
       bone.group.add(l);
@@ -240,15 +245,15 @@ function buildRig(data, scene) {
       }
       const geo = new THREE.BufferGeometry();
       geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-      const size = { glow: 3, smoke: 3.5, fire: 1.6, burst: 0.01, spark: 0.6, sparkle: 0.8 }[fx.preset] ?? 0.7;
-      const mat = new THREE.PointsMaterial({ color: new THREE.Color(fx.color).multiplyScalar(fx.preset === 'smoke' ? 1 : 1.8), size, sizeAttenuation: true, transparent: true, opacity: fx.preset === 'smoke' ? 0.25 : 0.85, blending: fx.preset === 'smoke' ? THREE.NormalBlending : THREE.AdditiveBlending, depthWrite: false, map: SPRITE });
+      const size = { glow: 1.5, smoke: 3, fire: 1.2, burst: 0.01, dust: 0.01, spark: 0.4, sparkle: 0.45 }[fx.preset] ?? 0.5;
+      const mat = new THREE.PointsMaterial({ color: new THREE.Color(fx.color).multiplyScalar(fx.preset === 'smoke' ? 1 : 1.2), size, sizeAttenuation: true, transparent: true, opacity: fx.preset === 'smoke' ? 0.2 : fx.preset === 'glow' ? 0.25 : 0.8, blending: fx.preset === 'smoke' ? THREE.NormalBlending : THREE.AdditiveBlending, depthWrite: false, map: SPRITE });
       const pts = new THREE.Points(geo, mat);
       pts.matrixAutoUpdate = false;
       pts.matrix.copy(cfToMatrix(fx.cf));
       bone.group.add(pts);
     }
   }
-  return { bones, order };
+  return { bones, order, animated };
 }
 
 const SPRITE = (() => {
@@ -273,6 +278,11 @@ function applyPose(rig, data, t) {
   const row = a.frames[f];
   const tf = new Map();
   a.joints.forEach((name, j) => tf.set(name, row.slice(j * 12, j * 12 + 12)));
+  for (const a of rig.animated || []) {
+    const v = (Array.isArray(a.track) ? a.track[f] : a.track[String(f + 1)]) ?? 0;
+    a.mesh.visible = v < 0.98;
+    a.mesh.material.opacity = 1 - v;
+  }
   for (const e of rig.order) {
     if (!e.parent) {
       e.world.copy(e.rest);
@@ -290,9 +300,9 @@ function applyPose(rig, data, t) {
 function makeScene(data) {
   const scene = new THREE.Scene();
   scene.background = new THREE.Color('#9fd6ff');
-  const hemi = new THREE.HemisphereLight('#dff1ff', '#5f8f4a', 1.1);
+  const hemi = new THREE.HemisphereLight('#e3f2ff', '#6f9a5a', 1.25);
   scene.add(hemi);
-  const sun = new THREE.DirectionalLight('#fff6e6', 2.4);
+  const sun = new THREE.DirectionalLight('#fff6e6', 2.0);
   const b = data.bounds;
   const size = Math.max(b.max[0] - b.min[0], b.max[1] - b.min[1], b.max[2] - b.min[2]);
   sun.position.set(size * 0.8, size * 1.6, -size * 1.1);
@@ -325,7 +335,7 @@ function makeRenderer(w, h) {
   r.shadowMap.enabled = true;
   r.shadowMap.type = THREE.PCFSoftShadowMap;
   r.toneMapping = THREE.NeutralToneMapping;
-  r.toneMappingExposure = 1.05;
+  r.toneMappingExposure = 1.12;
   r.outputColorSpace = THREE.SRGBColorSpace;
   return r;
 }
@@ -334,7 +344,7 @@ function makeComposer(renderer, scene, camera, w, h) {
   const c = new EffectComposer(renderer);
   c.setSize(w, h);
   c.addPass(new RenderPass(scene, camera));
-  c.addPass(new UnrealBloomPass(new THREE.Vector2(w, h), 0.55, 0.5, 0.92));
+  c.addPass(new UnrealBloomPass(new THREE.Vector2(w, h), 0.32, 0.35, 1.05));
   c.addPass(new OutputPass());
   return c;
 }

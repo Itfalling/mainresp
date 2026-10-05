@@ -171,10 +171,10 @@ local function buildMonster(id, L)
 		if d:IsA("Light") then named.Light[d.Name] = true end
 		if d:IsA("BasePart") then named.BasePart[d.Name] = true end
 	end
-	local problems = {}
+	local problems, seenProblem = {}, {}
 	local function problem(msg)
-		if not problems[msg] then
-			problems[msg] = true
+		if not seenProblem[msg] then
+			seenProblem[msg] = true
 			table.insert(problems, msg)
 		end
 	end
@@ -197,11 +197,16 @@ local function buildMonster(id, L)
 	function ctx.enable(name, on)
 		if not named.ParticleEmitter[name] then problem("ctx.enable: no ParticleEmitter named '" .. tostring(name) .. "'") end
 	end
+	local maxCtxLight = 0
 	function ctx.light(name, b)
 		if not named.Light[name] then problem("ctx.light: no Light named '" .. tostring(name) .. "'") end
+		if type(b) == "number" then maxCtxLight = math.max(maxCtxLight, b) end
 	end
+	local transTracks = {}
 	function ctx.transparency(name, v)
 		if not named.BasePart[name] then problem("ctx.transparency: no part named '" .. tostring(name) .. "'") end
+		transTracks[name] = transTracks[name] or {}
+		transTracks[name][frameIdx + 1] = r4(v)
 	end
 
 	local nFrames = math.max(1, math.floor(cycle * FPS + 0.5))
@@ -299,7 +304,13 @@ local function buildMonster(id, L)
 		table.insert(effects, entry)
 	end
 
-	local mn, mx = aabb(B.parts)
+	local visible = {}
+	for _, p in B.parts do
+		if p.Transparency < 0.95 then
+			table.insert(visible, p)
+		end
+	end
+	local mn, mx = aabb(visible)
 	local preview = {
 		id = id,
 		displayName = spec.DisplayName or id,
@@ -309,13 +320,31 @@ local function buildMonster(id, L)
 		bones = bones,
 		parts = parts,
 		effects = effects,
-		anim = { fps = FPS, cycle = cycle, joints = jointNames, frames = frames, events = events },
+		anim = { fps = FPS, cycle = cycle, joints = jointNames, frames = frames, events = events, trans = transTracks },
 	}
 	fs.writeDir("out/preview")
 	fs.writeFile("out/preview/" .. id .. ".json", serde.encode("json", preview))
 
 	fs.writeDir("out/models")
 	fs.writeFile("out/models/" .. id .. ".rbxm", roblox.serializeModel({ model }))
+
+	-- Style / glow budget checks (stud style, "calm glow")
+	local nLights, maxBright = 0, 0
+	for _, e in B.effects do
+		if e.kind == "light" then
+			nLights += 1
+			maxBright = math.max(maxBright, e.inst.Brightness)
+		end
+	end
+	local neonPct = B.totalArea > 0 and (B.neonArea / B.totalArea * 100) or 0
+	if neonPct > 7 then
+		problem(("too much glow: Neon is %.1f%% of the visible surface (max 7%%) - keep neon to small tips, eyes, thin strips"):format(neonPct))
+	end
+	if nLights > 4 then problem(("too many PointLights: %d (max 4)"):format(nLights)) end
+	if maxBright > 1.5 then problem(("PointLight brightness %.1f too high (max 1.5)"):format(maxBright)) end
+	if maxCtxLight > 2 then problem(("ctx.light brightness %.1f too high (max 2)"):format(maxCtxLight)) end
+	if B.partCount > 360 then problem(("too many parts: %d (max 360) - get detail from color blocking, not part spam"):format(B.partCount)) end
+	if mx.Y - mn.Y > 24 then problem(("too tall: %.1f studs (max 24 - pet pen scale, a player is 5 studs)"):format(mx.Y - mn.Y)) end
 
 	-- Report
 	local unused = {}
@@ -333,6 +362,7 @@ local function buildMonster(id, L)
 		if p.Material == Enum.Material.Neon then neon += 1 end
 	end
 	print(("== %s (%s, %s) =="):format(id, spec.DisplayName or id, spec.Rarity or "?"))
+	print(("   neon %.1f%% of surface | lights %d (max brightness %.1f)"):format(neonPct, nLights, maxBright))
 	print(("   parts %d (neon %d) | joints %d | emitters %d lights %d trails %d | cycle %.1fs"):format(B.partCount, neon, #jointNames, nEmit, nLight, nTrail, cycle))
 	print(("   size W %.1f x H %.1f x L %.1f  (y %.1f..%.1f)"):format(mx.X - mn.X, mx.Y - mn.Y, mx.Z - mn.Z, mn.Y, mx.Y))
 	local motionLines = {}
@@ -362,18 +392,30 @@ local function moveModel(model, offset)
 	model.WorldPivot = offset * model.WorldPivot
 end
 
-local RARITY_COLORS = {
-	Common = "#b8b8b8",
-	Rare = "#3d8bff",
-	Epic = "#a64dff",
-	Legendary = "#ffb21e",
-	Mythic = "#ff3d6e",
-	Secret = "#ffffff",
-	Cosmic = "#8a2be2",
-	Divine = "#ffe66b",
+-- Rarity name colors (gradient stops), styled like the tycoon tags in the references.
+local RARITY_GRADIENTS = {
+	Common = { "#d9d9d9", "#a6a6a6" },
+	Rare = { "#5fb4ff", "#2f6bff" },
+	Epic = { "#d07bff", "#8a3dff" },
+	Legendary = { "#ffe35c", "#ff9a1a" },
+	Mythic = { "#ff6b9a", "#ff2a4d" },
+	Secret = { "#ffffff", "#9aa0b4" },
+	Cosmic = { "#7b5cff", "#ff5ce1", "#5ce1ff" },
+	Divine = { "#ff8fd8", "#ffe36b", "#8dff8a", "#7fd4ff" },
 }
 
-local function makeTag(parent, displayName, rarity, height)
+local function colorSeq(list)
+	local kps = {}
+	for i, c in list do
+		table.insert(kps, roblox.ColorSequenceKeypoint.new((i - 1) / math.max(1, #list - 1), Builder.toColor(c)))
+	end
+	if #kps == 1 then
+		table.insert(kps, roblox.ColorSequenceKeypoint.new(1, Builder.toColor(list[1])))
+	end
+	return roblox.ColorSequence.new(kps)
+end
+
+local function makeTag(parent, displayName, rarity, pos)
 	local anchor = Instance.new("Part")
 	anchor.Name = "NameTag"
 	anchor.Anchored = true
@@ -382,19 +424,18 @@ local function makeTag(parent, displayName, rarity, height)
 	anchor.CanTouch = false
 	anchor.Transparency = 1
 	anchor.Size = Vector3.new(1, 1, 1)
-	anchor.CFrame = CFrame.new(0, height, 0)
+	anchor.CFrame = CFrame.new(pos)
 	anchor.Parent = parent
 
 	local gui = Instance.new("BillboardGui")
 	gui.Name = "Tag"
-	gui.Size = roblox.UDim2.new(16, 0, 5, 0)
-	gui.StudsOffset = Vector3.new(0, 2.5, 0)
-	gui.AlwaysOnTop = false
+	gui.Size = roblox.UDim2.new(0, 360, 0, 96)
+	gui.StudsOffset = Vector3.new(0, 2, 0)
 	gui.LightInfluence = 0
-	gui.MaxDistance = 250
+	gui.MaxDistance = 160
 	gui.Parent = anchor
 
-	local function label(text, y, h, color, strokeColor)
+	local function label(text, y, h, white)
 		local t = Instance.new("TextLabel")
 		t.BackgroundTransparency = 1
 		t.Size = roblox.UDim2.new(1, 0, h, 0)
@@ -402,22 +443,83 @@ local function makeTag(parent, displayName, rarity, height)
 		t.Text = text
 		t.TextScaled = true
 		t.FontFace = roblox.Font.fromEnum(Enum.Font.FredokaOne)
-		t.TextColor3 = Builder.toColor(color)
+		t.TextColor3 = Color3.new(1, 1, 1)
 		local s = Instance.new("UIStroke")
-		s.Thickness = 3
-		s.Color = Builder.toColor(strokeColor or "#000000")
+		s.Thickness = 2.5
+		s.Color = Builder.toColor("#141414")
 		s.Parent = t
+		if not white then
+			local g = Instance.new("UIGradient")
+			g.Color = colorSeq(RARITY_GRADIENTS[rarity] or { "#ffffff" })
+			g.Parent = t
+		end
 		t.Parent = gui
 		return t
 	end
-	local rc = RARITY_COLORS[rarity] or "#ffffff"
-	label(rarity, 0, 0.42, rc, rarity == "Secret" and "#000000" or "#1a1a1a")
-	label(displayName, 0.42, 0.58, "#ffffff")
+	label(rarity, 0, 0.42, false)
+	label(displayName, 0.42, 0.58, true)
 	return anchor
 end
 
+-- Blue X-braced pen fence (like the pet pens in the reference game).
+local POST, RAIL, BRACE = "#1f5fe0", "#2f8cff", "#36b9ff"
+local function block(parent, size, cf, color, name)
+	local p = Instance.new("Part")
+	p.Name = name or "Fence"
+	p.Anchored = true
+	p.Size = size
+	p.CFrame = cf
+	p.Color = Builder.toColor(color)
+	p.Material = Enum.Material.Plastic
+	for _, f in { "TopSurface", "BottomSurface", "FrontSurface", "BackSurface", "LeftSurface", "RightSurface" } do
+		p[f] = Enum.SurfaceType.Studs
+	end
+	p.Parent = parent
+	return p
+end
+
+local function fenceRun(parent, a, b)
+	-- a, b: Vector3 corners on the ground; posts + top/bottom rails + X braces
+	local dir = b - a
+	local len = dir.Magnitude
+	local n = math.max(1, math.floor(len / 6 + 0.5))
+	local seg = len / n
+	local yaw = CFrame.lookAt(a, b)
+	local H = 3.6
+	for i = 0, n do
+		local p = a + dir.Unit * (seg * i)
+		block(parent, Vector3.new(1.2, H + 0.6, 1.2), CFrame.new(p + Vector3.new(0, (H + 0.6) / 2, 0)) * yaw.Rotation, POST, "FencePost")
+	end
+	local mid = (a + b) / 2
+	block(parent, Vector3.new(0.6, 0.6, len), CFrame.new(mid + Vector3.new(0, H - 0.3, 0)) * yaw.Rotation, RAIL, "FenceRail")
+	block(parent, Vector3.new(0.6, 0.6, len), CFrame.new(mid + Vector3.new(0, 0.6, 0)) * yaw.Rotation, RAIL, "FenceRail")
+	for i = 0, n - 1 do
+		local c = a + dir.Unit * (seg * (i + 0.5)) + Vector3.new(0, H / 2 + 0.15, 0)
+		local diag = math.sqrt(seg * seg + (H - 1.2) ^ 2)
+		local ang = math.atan2(H - 1.2, seg)
+		for _, sgn in { 1, -1 } do
+			block(parent, Vector3.new(0.45, 0.6, diag - 0.4), CFrame.new(c) * yaw.Rotation * CFrame.Angles(sgn * ang, 0, 0), BRACE, "FenceBrace")
+		end
+	end
+end
+
+local function makePen(parent, cx, cz, w, d)
+	local pen = Instance.new("Model")
+	pen.Name = "Pen"
+	pen.Parent = parent
+	local x0, x1, z0, z1 = cx - w / 2, cx + w / 2, cz - d / 2, cz + d / 2
+	local y = 0
+	fenceRun(pen, Vector3.new(x0, y, z0), Vector3.new(x1, y, z0))
+	fenceRun(pen, Vector3.new(x1, y, z0), Vector3.new(x1, y, z1))
+	fenceRun(pen, Vector3.new(x1, y, z1), Vector3.new(x0, y, z1))
+	fenceRun(pen, Vector3.new(x0, y, z1), Vector3.new(x0, y, z0))
+	-- slightly darker grass pad inside the pen
+	local pad = block(pen, Vector3.new(w - 1.2, 0.2, d - 1.2), CFrame.new(cx, 0.1, cz), "#4fc23d", "PenFloor")
+	pad.CanCollide = false
+	return pen
+end
+
 local function buildPacks(built)
-	-- Pack: lay monsters out in two facing rows
 	local folder = Instance.new("Folder")
 	folder.Name = "Monsters"
 
@@ -427,41 +529,46 @@ local function buildPacks(built)
 
 	local showcase = Instance.new("Folder")
 	showcase.Name = "MonsterShowcase"
+	local pens = Instance.new("Folder")
+	pens.Name = "Pens"
+	pens.Parent = showcase
+	local tags = Instance.new("Folder")
+	tags.Name = "NameTags"
+	tags.Parent = showcase
 
 	local half = math.ceil(#built / 2)
 	local rows = { {}, {} }
 	for i, b in built do
 		table.insert(rows[i <= half and 1 or 2], b)
 	end
-	local rowZ = {}
+	local GAP = 6
+	local aisle = 26
 	local maxDepth = { 0, 0 }
 	for r = 1, 2 do
 		for _, b in rows[r] do
-			local d = b.info.mx.Z - b.info.mn.Z
-			maxDepth[r] = math.max(maxDepth[r], d)
+			maxDepth[r] = math.max(maxDepth[r], b.info.mx.Z - b.info.mn.Z + 8)
 		end
 	end
-	local aisle = 34
-	rowZ[1] = -(aisle / 2 + maxDepth[1] / 2 + 6) -- row 1 sits at -Z, faces +Z (toward the aisle)
-	rowZ[2] = aisle / 2 + maxDepth[2] / 2 + 6 -- row 2 sits at +Z, faces -Z
+	local rowZ = { -(aisle / 2 + maxDepth[1] / 2), aisle / 2 + maxDepth[2] / 2 }
 
 	local totalLen = 0
 	for r = 1, 2 do
-		local x = 0
 		local widths = {}
+		local x = 0
 		for _, b in rows[r] do
-			local w = b.info.mx.X - b.info.mn.X
+			local w = math.max(b.info.mx.X - b.info.mn.X, b.info.mx.Z - b.info.mn.Z) + 8
 			table.insert(widths, w)
-			x += w + 14
+			x += w + GAP
 		end
-		local rowLen = x - 14
+		local rowLen = x - GAP
 		totalLen = math.max(totalLen, rowLen)
 		local cursor = -rowLen / 2
 		for i, b in rows[r] do
 			local w = widths[i]
 			local cx = cursor + w / 2
-			cursor += w + 14
+			cursor += w + GAP
 			local center = (b.info.mn + b.info.mx) / 2
+			-- row 1 (at -Z) turns around to face +Z, the aisle; row 2 faces -Z (default)
 			local rot = r == 1 and CFrame.Angles(0, math.pi, 0) or CFrame.new()
 			local offset = CFrame.new(cx, 0, rowZ[r]) * rot * CFrame.new(-center.X, 0, -center.Z)
 
@@ -473,41 +580,21 @@ local function buildPacks(built)
 			moveModel(placeCopy, offset)
 			placeCopy.Parent = showcase
 
-			-- pedestal
-			local ped = Instance.new("Part")
-			ped.Name = "Pedestal"
-			ped.Anchored = true
-			ped.Size = Vector3.new(w + 6, 1, (b.info.mx.Z - b.info.mn.Z) + 6)
-			ped.CFrame = CFrame.new(cx, -0.5, rowZ[r])
-			ped.Color = Builder.toColor("#2b2f3a")
-			ped.Material = Enum.Material.Plastic
-			ped.TopSurface = Enum.SurfaceType.Studs
-			ped.Parent = showcase
-			local trim = Instance.new("Part")
-			trim.Name = "PedestalTrim"
-			trim.Anchored = true
-			trim.CanCollide = false
-			trim.Size = Vector3.new(w + 6.6, 0.4, (b.info.mx.Z - b.info.mn.Z) + 6.6)
-			trim.CFrame = CFrame.new(cx, -0.85, rowZ[r])
-			trim.Color = Builder.toColor(RARITY_COLORS[b.info.spec.Rarity or "Legendary"] or "#ffffff")
-			trim.Material = Enum.Material.Neon
-			trim.Parent = showcase
-
-			local tag = makeTag(showcase, b.info.spec.DisplayName or b.id, b.info.spec.Rarity or "Legendary", b.info.mx.Y + 1)
-			tag.CFrame = CFrame.new(cx, b.info.mx.Y + 1, rowZ[r])
+			makePen(pens, cx, rowZ[r], w, maxDepth[r])
+			makeTag(tags, b.info.spec.DisplayName or b.id, b.info.spec.Rarity or "Legendary", Vector3.new(cx, b.info.mx.Y + 1.5, rowZ[r]))
 		end
 	end
 
 	fs.writeFile("out/Monsters.rbxm", roblox.serializeModel({ folder }))
 
-	-- Showcase place
+	-- Showcase place: studded green baseplate, spawn in the aisle, tuned lighting
 	local base = Instance.new("Part")
 	base.Name = "Baseplate"
 	base.Anchored = true
 	base.Locked = true
-	base.Size = Vector3.new(math.max(512, totalLen + 120), 16, 512)
-	base.CFrame = CFrame.new(0, -9, 0)
-	base.Color = Builder.toColor("#5bd34a")
+	base.Size = Vector3.new(math.max(512, totalLen + 160), 16, 512)
+	base.CFrame = CFrame.new(0, -8, 0)
+	base.Color = Builder.toColor("#5ad13f")
 	base.Material = Enum.Material.Plastic
 	base.TopSurface = Enum.SurfaceType.Studs
 	base.Parent = workspace
@@ -515,42 +602,57 @@ local function buildPacks(built)
 	local spawn = Instance.new("SpawnLocation")
 	spawn.Name = "SpawnLocation"
 	spawn.Anchored = true
-	spawn.Size = Vector3.new(12, 1, 12)
-	spawn.CFrame = CFrame.new(-totalLen / 2 - 20, -0.5, 0)
-	spawn.Color = Builder.toColor("#ffd34d")
-	spawn.Material = Enum.Material.Neon
-	spawn.TopSurface = Enum.SurfaceType.Smooth
+	spawn.Size = Vector3.new(8, 1, 8)
+	spawn.CFrame = CFrame.new(-totalLen / 2 - 14, 0.5, 0)
+	spawn.Color = Builder.toColor("#f2f2f2")
+	spawn.Material = Enum.Material.Plastic
+	spawn.TopSurface = Enum.SurfaceType.Studs
 	spawn.Duration = 0
 	spawn.Parent = workspace
 
 	showcase.Parent = workspace
 
-	lighting.ClockTime = 14.5
-	lighting.Brightness = 2.5
-	lighting.Ambient = Builder.toColor("#5a5a6e")
-	lighting.OutdoorAmbient = Builder.toColor("#8c8ca0")
-	lighting.EnvironmentDiffuseScale = 0.6
-	lighting.EnvironmentSpecularScale = 0.6
+	-- Bright, clean daylight. Bloom threshold is high so ONLY neon accents glow
+	-- (low thresholds make white plastic bloom and wash the pets out).
+	lighting.ClockTime = 14
+	lighting.GeographicLatitude = 35
+	lighting.Brightness = 3
+	lighting.Ambient = Builder.toColor("#4a4a55")
+	lighting.OutdoorAmbient = Builder.toColor("#8f93a3")
+	lighting.EnvironmentDiffuseScale = 0.5
+	lighting.EnvironmentSpecularScale = 0.25
+	lighting.ShadowSoftness = 0.25
 	lighting.GlobalShadows = true
+	lighting.ExposureCompensation = 0
 	pcall(function()
 		lighting.Technology = Enum.Technology.Future
 	end)
 	local bloom = Instance.new("BloomEffect")
-	bloom.Intensity = 1.2
-	bloom.Size = 30
-	bloom.Threshold = 0.92
+	bloom.Intensity = 0.55
+	bloom.Size = 18
+	bloom.Threshold = 1.8
 	bloom.Parent = lighting
 	local cc = Instance.new("ColorCorrectionEffect")
-	cc.Saturation = 0.18
-	cc.Contrast = 0.08
+	cc.Saturation = 0.12
+	cc.Contrast = 0.06
+	cc.Brightness = 0.01
 	cc.Parent = lighting
+	local rays = Instance.new("SunRaysEffect")
+	rays.Intensity = 0.04
+	rays.Spread = 0.6
+	rays.Parent = lighting
 	local atmo = Instance.new("Atmosphere")
-	atmo.Density = 0.25
-	atmo.Haze = 0.6
-	atmo.Glare = 0.2
-	atmo.Color = Builder.toColor("#c7e6ff")
-	atmo.Decay = Builder.toColor("#6a8fbf")
+	atmo.Density = 0.22
+	atmo.Offset = 0.1
+	atmo.Haze = 0.3
+	atmo.Glare = 0
+	atmo.Color = Builder.toColor("#cfe9ff")
+	atmo.Decay = Builder.toColor("#8fb7e0")
 	atmo.Parent = lighting
+	local sky = Instance.new("Sky")
+	sky.Name = "Sky"
+	sky.SunAngularSize = 14
+	sky.Parent = lighting
 
 	fs.writeFile("out/MonsterShowcase.rbxl", roblox.serializePlace(game))
 	print(("Wrote out/Monsters.rbxm and out/MonsterShowcase.rbxl (%d monsters)"):format(#built))

@@ -16,7 +16,7 @@
 --     B:block(body, P.v(6, 5, 8), P.cf(0, 8, 0), "#ffffff")
 --     B:sym(function(side)
 --       local arm = B:bone("Arm" .. side, "Body", P.v(3, 9, 0))
---       B:ball(arm, 2, P.cf(3.5, 9, 0), "#ffcc33", { mat = "Neon" })
+--       B:block(arm, P.v(2, 2, 2), P.cf(3.5, 9, 0), "#ffcc33")
 --     end)
 --   end
 
@@ -169,6 +169,9 @@ function Builder.new(id, displayName, meta)
 	self.partInfo = {}
 	self.effects = {}
 	self.partCount = 0
+	self.totalArea = 0
+	self.neonArea = 0
+	self.neonCount = 0
 	self.names = {}
 	self.defaultStuds = true
 
@@ -255,31 +258,35 @@ end
 
 local SHAPES = {
 	block = { class = "Part", shape = Enum.PartType.Block, studs = true },
-	ball = { class = "Part", shape = Enum.PartType.Ball, studs = false },
-	cyl = { class = "Part", shape = Enum.PartType.Cylinder, studs = false },
 	wedge = { class = "WedgePart", studs = true },
-	cwedge = { class = "CornerWedgePart", studs = true },
-	ellipsoid = { class = "Part", shape = Enum.PartType.Block, mesh = "Sphere", studs = false },
 }
+
+-- Stud style: these game monsters are built ONLY from studded blocks and
+-- wedges (+ small Neon accents). Round shapes look out of place, so they error.
+local BANNED = {
+	ball = "B:ball",
+	cyl = "B:cyl",
+	ellipsoid = "B:ellipsoid",
+	cwedge = "B:cwedge",
+}
+
+-- Only these materials fit the stud style.
+local ALLOWED_MATS = { Plastic = true, Neon = true }
 
 -- Core part factory. opts: mat, tr (transparency), refl, name, studs (bool),
 -- glow (alias for mat="Neon").
 function Builder:make(kind, bone, size, cf, color, opts)
 	opts = opts or {}
+	if BANNED[kind] then
+		error(("[%s] %s is not allowed: stud style uses only blocks and wedges (B:block, B:wedge, B:beam, B:spike, B:tri, B:poly, B:ring)"):format(self.id, BANNED[kind]), 0)
+	end
 	local spec = SHAPES[kind]
 	assert(spec, "unknown part kind " .. tostring(kind))
 	local bonePart = resolveBone(self, bone)
-	if self.mirror and kind == "cwedge" then
-		error(("[%s] cwedge cannot be used inside B:sym() (corner wedges are not mirror-symmetric); use wedge/block instead"):format(self.id))
-	end
 
 	local p = Instance.new(spec.class)
 		p.Name = opts.name or "P"
 	local sz = toVec(size)
-	if kind == "ball" then
-		local d = sz.X
-		sz = Vector3.new(d, d, d)
-	end
 	assert(sz.X > 0 and sz.Y > 0 and sz.Z > 0, ("[%s] part sizes must be positive"):format(self.id))
 	if spec.shape then
 		p.Shape = spec.shape
@@ -290,6 +297,9 @@ function Builder:make(kind, bone, size, cf, color, opts)
 	local matName = opts.glow and "Neon" or (opts.mat or "Plastic")
 	local mat = MATERIALS[matName]
 	assert(mat, ("[%s] unknown material '%s'"):format(self.id, tostring(matName)))
+	if not ALLOWED_MATS[matName] then
+		error(("[%s] material '%s' is not allowed: stud style uses Plastic (studded) and small Neon accents only"):format(self.id, matName), 0)
+	end
 	p.Material = mat
 	p.Transparency = opts.tr or 0
 	p.Reflectance = opts.refl or 0
@@ -299,13 +309,11 @@ function Builder:make(kind, bone, size, cf, color, opts)
 	p.Massless = true
 	p.CastShadow = opts.shadow ~= false and matName ~= "Neon"
 
-	local studs = opts.studs
-	if studs == nil then
-		studs = self.defaultStuds and spec.studs and matName == "Plastic"
-	end
+	-- Studs on EVERY face of every plastic part ("stud texture all around").
+	local studs = matName == "Plastic"
 	local st = studs and Enum.SurfaceType.Studs or Enum.SurfaceType.Smooth
 	p.TopSurface = st
-	p.BottomSurface = studs and Enum.SurfaceType.Inlet or Enum.SurfaceType.Smooth
+	p.BottomSurface = st
 	p.FrontSurface = st
 	p.BackSurface = st
 	p.LeftSurface = st
@@ -328,6 +336,17 @@ function Builder:make(kind, bone, size, cf, color, opts)
 	w.Parent = p
 
 	self.partCount += 1
+	local area = 2 * (sz.X * sz.Y + sz.Y * sz.Z + sz.X * sz.Z)
+	if kind == "wedge" then
+		area *= 0.75
+	end
+	if p.Transparency < 0.95 then
+		self.totalArea += area
+		if matName == "Neon" then
+			self.neonArea += area
+			self.neonCount += 1
+		end
+	end
 	table.insert(self.parts, p)
 	self.partInfo[p] = { kind = kind, bone = bonePart.Name, studs = studs }
 	return p
@@ -470,26 +489,28 @@ local function cseq(c)
 end
 
 local PRESETS = {
-	-- twinkling star sparkles around a glowing part
-	sparkle = { tex = "sparkle", rate = 10, life = { 0.6, 1.4 }, speed = { 0.5, 2 }, size = { 0.2, 1.2, 0 }, trans = { 0.1, 0, 1 }, light = 1, spread = 180, rot = { -180, 180 } },
-	-- soft glow orb, few big particles
-	glow = { tex = "sparkle", rate = 3, life = { 1, 2 }, speed = { 0, 0.3 }, size = { 2, 4, 1 }, trans = { 0.7, 0.5, 1 }, light = 1, spread = 180, rot = { -45, 45 } },
+	-- small twinkling star sparkles (the floating white/gold dots in the references)
+	sparkle = { tex = "sparkle", rate = 6, life = { 0.8, 1.6 }, speed = { 0.3, 1.2 }, size = { 0.1, 0.45, 0 }, trans = { 0.2, 0, 1 }, light = 0.6, spread = 180, rot = { -180, 180 } },
+	-- soft aura puff (use sparingly, low rate)
+	glow = { tex = "sparkle", rate = 1.5, life = { 1, 2 }, speed = { 0, 0.2 }, size = { 1, 2, 0.5 }, trans = { 0.85, 0.75, 1 }, light = 0.4, spread = 180, rot = { -45, 45 } },
 	-- rising embers / magic motes
-	ember = { tex = "fire", rate = 14, life = { 1, 2 }, speed = { 1, 3 }, size = { 0.4, 0.25, 0 }, trans = { 0, 0.2, 1 }, light = 1, spread = 35, accel = { 0, 3, 0 }, rot = { -90, 90 } },
+	ember = { tex = "fire", rate = 8, life = { 1, 1.8 }, speed = { 1, 2.5 }, size = { 0.3, 0.2, 0 }, trans = { 0.1, 0.2, 1 }, light = 0.6, spread = 30, accel = { 0, 2.5, 0 }, rot = { -90, 90 } },
 	-- licking flames
-	fire = { tex = "fire", rate = 30, life = { 0.4, 0.9 }, speed = { 2, 5 }, size = { 1.6, 1.2, 0 }, trans = { 0.2, 0.3, 1 }, light = 1, spread = 15, accel = { 0, 4, 0 }, rot = { -60, 60 } },
-	-- drifting smoke / mist
-	smoke = { tex = "smoke", rate = 6, life = { 2, 4 }, speed = { 0.5, 1.5 }, size = { 1.5, 4, 6 }, trans = { 0.6, 0.7, 1 }, light = 0, spread = 40, accel = { 0, 0.6, 0 }, rot = { -30, 30 } },
+	fire = { tex = "fire", rate = 18, life = { 0.4, 0.8 }, speed = { 1.5, 3.5 }, size = { 1.1, 0.8, 0 }, trans = { 0.3, 0.4, 1 }, light = 0.6, spread = 15, accel = { 0, 3, 0 }, rot = { -60, 60 } },
+	-- drifting smoke / mist / dust
+	smoke = { tex = "smoke", rate = 4, life = { 1.5, 3 }, speed = { 0.5, 1.5 }, size = { 1.2, 3, 4.5 }, trans = { 0.65, 0.75, 1 }, light = 0, spread = 40, accel = { 0, 0.5, 0 }, rot = { -30, 30 } },
 	-- dripping goo / slime / water drops
-	drip = { tex = "sparkle", rate = 6, life = { 0.8, 1.4 }, speed = { 0, 0.5 }, size = { 0.5, 0.45, 0.2 }, trans = { 0, 0, 0.6 }, light = 0.4, spread = 10, accel = { 0, -25, 0 }, rot = { 0, 0 }, emitDir = "Bottom" },
+	drip = { tex = "sparkle", rate = 4, life = { 0.8, 1.3 }, speed = { 0, 0.4 }, size = { 0.35, 0.3, 0.15 }, trans = { 0, 0, 0.6 }, light = 0.2, spread = 10, accel = { 0, -22, 0 }, rot = { 0, 0 }, emitDir = "Bottom" },
 	-- floating bubbles
-	bubble = { tex = "sparkle", rate = 5, life = { 1.5, 3 }, speed = { 0.5, 1.5 }, size = { 0.3, 0.6, 0.8 }, trans = { 0.3, 0.4, 1 }, light = 0.6, spread = 60, accel = { 0, 2, 0 }, rot = { 0, 0 } },
+	bubble = { tex = "sparkle", rate = 4, life = { 1.5, 3 }, speed = { 0.4, 1.2 }, size = { 0.25, 0.45, 0.6 }, trans = { 0.35, 0.45, 1 }, light = 0.3, spread = 60, accel = { 0, 2, 0 }, rot = { 0, 0 } },
 	-- crackling electricity sparks
-	spark = { tex = "sparkle", rate = 20, life = { 0.15, 0.4 }, speed = { 6, 14 }, size = { 0.5, 0.2, 0 }, trans = { 0, 0, 1 }, light = 1, spread = 180, rot = { -360, 360 }, drag = 4 },
-	-- burst used with ctx.emit (Rate 0): big radial explosion of light
-	burst = { tex = "sparkle", rate = 0, life = { 0.5, 1.1 }, speed = { 10, 22 }, size = { 1.5, 1, 0 }, trans = { 0, 0, 1 }, light = 1, spread = 180, rot = { -360, 360 }, drag = 3 },
+	spark = { tex = "sparkle", rate = 10, life = { 0.12, 0.3 }, speed = { 5, 11 }, size = { 0.35, 0.15, 0 }, trans = { 0, 0, 1 }, light = 0.7, spread = 180, rot = { -360, 360 }, drag = 4 },
+	-- burst used with ctx.emit (Rate 0): radial pop of sparkles on impact beats
+	burst = { tex = "sparkle", rate = 0, life = { 0.4, 0.9 }, speed = { 8, 16 }, size = { 0.9, 0.6, 0 }, trans = { 0, 0, 1 }, light = 0.6, spread = 180, rot = { -360, 360 }, drag = 3 },
+	-- dust kicked up on stomps/slams (ctx.emit)
+	dust = { tex = "smoke", rate = 0, life = { 0.6, 1.2 }, speed = { 6, 12 }, size = { 1.5, 3, 4 }, trans = { 0.4, 0.6, 1 }, light = 0, spread = 80, rot = { -60, 60 }, drag = 5, emitDir = "Top" },
 	-- leaves / petals / feathers fluttering down
-	leaf = { tex = "sparkle", rate = 4, life = { 2, 4 }, speed = { 1, 2 }, size = { 0.5, 0.5, 0.3 }, trans = { 0, 0, 1 }, light = 0.2, spread = 70, accel = { 0, -2, 0 }, rot = { -120, 120 }, rotSpeed = { -180, 180 } },
+	leaf = { tex = "sparkle", rate = 3, life = { 2, 4 }, speed = { 1, 2 }, size = { 0.4, 0.4, 0.25 }, trans = { 0, 0, 1 }, light = 0.15, spread = 70, accel = { 0, -2, 0 }, rot = { -120, 120 }, rotSpeed = { -180, 180 } },
 }
 Builder.PRESETS = PRESETS
 
@@ -544,8 +565,8 @@ function Builder:light(part, opts)
 	local l = Instance.new("PointLight")
 	l.Name = opts.name or "Light"
 	l.Color = toColor(opts.color or "#ffffff")
-	l.Brightness = opts.brightness or 2
-	l.Range = opts.range or 14
+	l.Brightness = opts.brightness or 0.8
+	l.Range = opts.range or 10
 	l.Shadows = opts.shadows or false
 	l.Parent = part
 	table.insert(self.effects, { kind = "light", part = part, inst = l, color = opts.color or "#ffffff" })
@@ -584,13 +605,13 @@ function Builder:trail(bone, a, b, opts)
 	return tr
 end
 
--- Shorthand: neon glow part + point light inside it.
+-- Shorthand: small neon accent part (pass opts.light = true for a soft PointLight).
 function Builder:gem(bone, size, cf, color, opts)
 	opts = opts or {}
 	local kind = opts.kind or "block"
 	local p = self:make(kind, bone, size, cf, color, { mat = "Neon", name = opts.name or "Gem", tr = opts.tr })
-	if opts.light ~= false then
-		self:light(p, { color = color, brightness = opts.brightness or 1.5, range = opts.range or 10 })
+	if opts.light == true then
+		self:light(p, { color = color, brightness = opts.brightness or 0.8, range = opts.range or 8 })
 	end
 	return p
 end
