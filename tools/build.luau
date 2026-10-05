@@ -684,11 +684,14 @@ if full then
 			table.insert(ids, name)
 		end
 	end
+	local order = {}
+	for _, id in ids do
+		local o = readIfExists("monsters/" .. id .. "/order.txt")
+		order[id] = o and tonumber((o:gsub("%s", ""))) or 999
+	end
 	table.sort(ids, function(a, b)
-		local ma = readIfExists("monsters/" .. a .. "/order.txt")
-		local mb = readIfExists("monsters/" .. b .. "/order.txt")
-		if ma and mb then
-			return tonumber(ma) < tonumber(mb)
+		if order[a] ~= order[b] then
+			return order[a] < order[b]
 		end
 		return a < b
 	end)
