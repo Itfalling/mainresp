@@ -621,6 +621,10 @@ function Builder:finish(motionSource, animLibSource, animatorSource)
 	anim.Source = animatorSource
 	anim.Parent = folder
 
+	-- Stream the whole monster at once so a client never animates a half-loaded rig.
+	pcall(function()
+		model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
+	end)
 	model:SetAttribute("AnimSpeed", 1)
 	model:SetAttribute("PartCount", self.partCount)
 	model.WorldPivot = CFrame.new(0, 0, 0)

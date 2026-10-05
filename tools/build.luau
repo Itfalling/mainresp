@@ -23,6 +23,14 @@ local ANIMATOR_SRC = fs.readFile("lib/Animator.luau")
 
 local FPS = 30
 
+-- Fail fast if the runtime scripts shipped in every model don't compile.
+do
+	local ok, err = pcall(luau.compile, ANIMATOR_SRC)
+	assert(ok, "lib/Animator.luau does not compile: " .. tostring(err))
+	ok, err = pcall(luau.compile, ANIMLIB_SRC)
+	assert(ok, "lib/AnimLib.luau does not compile: " .. tostring(err))
+end
+
 local function readIfExists(p)
 	if fs.isFile(p) then
 		return fs.readFile(p)
