@@ -123,7 +123,7 @@ function M.Update(t, pose, ctx)
 	local bob = (1.0 * wave(t, SW) + 0.7 * hop) * (1 - 0.8 * max(busyBreach, busyJoy))
 	local sp = sin(math.rad(bodyPitch))
 	local clear = LIFT + TAIL_LIFT * max(0, sp) + HEAD_LIFT * max(0, -sp)
-		+ ROLL_LIFT * min(1, 3 * abs(sin(math.rad(hopSpin) / 2)))
+		+ ROLL_LIFT * min(1, 3 * abs(sin(math.rad(hopSpin) / 2))) + 1.6 * wagIdle -- perks up for the excited wag
 	local by = bob + jumpY + clear
 	local roll = 9 * wave(t, SW, 0.15) * swimW * (1 - 0.5 * wagIdle) + 12 * wagAmt * sin(TAU * (33 * F * t + 0.25))
 		+ 12 * wig * sin(TAU * (wigPhase + 0.3))
@@ -156,7 +156,7 @@ function M.Update(t, pose, ctx)
 		+ joy * (8 + 26 * clap) + wagIdle * (6 + 12 * wave(t, 33 * F, 0.3))
 	local finY = 18 * wave(t, 8 * F, 0.25) * swimW - 55 * max(launch, dive) * (1 - curl) + 20 * fall
 	L.both(pose, "Flipper", ang(0, finY, finZ))
-	L.both(pose, "FlipperTip", ang(0, 0, 22 * wave(t, 8 * F, -0.15) * swimW + 28 * slam - 18 * dive + 20 * joy * clap))
+	L.both(pose, "FlipperTip", ang(0, 0, 10 + 22 * wave(t, 8 * F, -0.15) * swimW + 28 * slam - 18 * dive + 20 * joy * clap))
 
 	------------------------------------------------------------------
 	-- smile: giggles in idle, wide laugh on the breach and joy
