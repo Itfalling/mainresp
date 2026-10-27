@@ -16,7 +16,7 @@ return {
 		local ang = P.ang
 		-- the whole shark hovers LIFT studs higher than it was authored so the
 		-- prowl, head-butts and fin strokes never scrape the floor
-		local LIFT = 2
+		local LIFT = 1
 		local v = P.v -- sizes
 		local function pv(x, y, z) -- positions (lifted)
 			return P.v(x, y + LIFT, z)

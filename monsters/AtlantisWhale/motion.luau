@@ -25,7 +25,8 @@ local TAU = 2 * pi
 local SW = 2 / 7 -- swim frequency (4 strokes per loop)
 
 local CHAIN = { "Head", "Body", "Tail1", "Tail2", "Tail3", "Fluke" }
-local AMP = { 3, 2.5, 5, 9, 13, 20 } -- swim pitch (absolute), head -> fluke
+local AMP = { 4, 3, 7, 12, 17, 26 } -- swim pitch (absolute), head -> fluke
+local REST = { 3, 0, -3, -6, -10, -14 } -- elegant resting curve: nose up a touch, tail sweeps up
 local ARC = { 24, 16, 26, 36, 46, 58 } -- rising arc: nose up, tail curls under
 local LIFT = { -4, -10, -30, -56, -84, -116 } -- dive wind-up: tail lifts high
 local SLAPA = { 4, 8, 22, 40, 62, 96 } -- slap: tail whips down
@@ -71,7 +72,7 @@ function M.Update(t, pose, ctx)
 	local pitch = {}
 	for i = 1, #CHAIN do
 		local swim = AMP[i] * sin(TAU * (SW * t - 0.11 * (i - 1)))
-		pitch[i] = swim * swimW + ARC[i] * rise + LIFT[i] * liftS[i] + SLAPA[i] * slapS[i]
+		pitch[i] = REST[i] + swim * swimW + ARC[i] * rise + LIFT[i] * liftS[i] + SLAPA[i] * slapS[i]
 	end
 	-- deep breath: nose dips, tail tucks a bit
 	pitch[1] += -4 * breath
@@ -87,7 +88,7 @@ function M.Update(t, pose, ctx)
 	------------------------------------------------------------------
 	-- body: calm bob, deep-breath sink, majestic rise, squash on the slap
 	------------------------------------------------------------------
-	local bob = 0.8 * sin(TAU * (SW * t + 0.15)) * (1 - 0.6 * special)
+	local bob = 1.0 * sin(TAU * (SW * t + 0.15)) * (1 - 0.6 * special)
 	local by = bob - 2.0 * breath + 3.4 * rise - 1.6 * squash + 0.5 * lift
 	local bz = -1.5 * rise + 0.8 * lift
 	local roll = 3 * wave(t, 1 / 7) * swimW - 5 * look + 4 * look2
@@ -104,7 +105,7 @@ function M.Update(t, pose, ctx)
 	------------------------------------------------------------------
 	local humMouth = hum * (0.5 + 0.5 * sin(TAU * 2 * c))
 	local sing = beam * (0.8 + 0.2 * sin(TAU * 1.6 * (c - FIRE)))
-	local jaw = -2 - 6 * humMouth - 13 * sing - 4 * charge + 2 * breath - 6 * squash
+	local jaw = -2 - 6 * humMouth - 8 * sing - 4 * charge + 2 * breath - 6 * squash
 	pose.Jaw = ang(jaw, 0, 0)
 
 	local blink = 0
@@ -135,7 +136,7 @@ function M.Update(t, pose, ctx)
 	-- flippers: slow glide, tuck on the breath, open wide on the rise
 	------------------------------------------------------------------
 	local glide = sin(TAU * (SW * t + 0.05))
-	local flap = 12 * glide * swimW - 14 * breath + 42 * rise + 6 * lift + 30 * squash
+	local flap = 18 * glide * swimW - 14 * breath + 42 * rise + 6 * lift + 30 * squash
 	local sweep = 8 * sin(TAU * (SW * t + 0.3)) * swimW + 18 * breath - 22 * rise + 10 * lift
 	local tipFlap = 10 * sin(TAU * (SW * t - 0.05)) * swimW + 22 * rise * (1 + 0.25 * sin(TAU * 1.5 * c)) - 10 * breath + 25 * squash
 	L.both(pose, "Fin", ang(0, sweep, flap))

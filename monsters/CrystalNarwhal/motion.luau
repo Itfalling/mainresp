@@ -41,7 +41,7 @@ local BLINKS = { 1.35, 2.72, 10.35, 10.55 }
 local APEX = 4.75
 local SPLASH = 5.9
 
-local DROP_A = { 0, 18, 72, 90, 144, 162, 216, 234, 288, 306 }
+local DROP_A = { 0, 15, 60, 75, 120, 135, 180, 195, 240, 255, 300, 315 }
 
 function M.Update(t, pose, ctx)
 	local c = t % M.Cycle
@@ -79,7 +79,7 @@ function M.Update(t, pose, ctx)
 		{ 10.6, 0, "elasticOut" },
 	})
 	local bodyPitch = L.track(c, {
-		{ 3.0, 0 }, { 3.75, -22, "cubicOut" }, { 3.85, -22 }, { 4.2, 50, "backOut" }, { 4.95, 44 },
+		{ 3.0, 0 }, { 3.75, -24, "cubicOut" }, { 3.85, -24 }, { 4.2, 50, "backOut" }, { 4.65, 36, "quadOut" }, { 4.95, 26 },
 		{ 5.35, 8, "quadInOut" }, { 5.75, -32, "quadIn" }, { SPLASH + 0.05, 6, "quadOut" },
 		{ 6.8, 0, "elasticOut" },
 		{ 7.35, 0 }, { 7.6, 14, "backOut" }, { 7.9, -6, "quadIn" }, { 8.15, 12, "backOut" },
@@ -110,7 +110,7 @@ function M.Update(t, pose, ctx)
 	end
 	-- idle look-around + happy head bops
 	yaw[1] += (8 * L.noise(t, 2.1, 0.35) + 4 * wave(t, 2 * F, 0.3)) * idleW
-	pitch[1] += 4 * wave(t, 12 * F, 0.1) * idleW + 8 * burst + 6 * joy * wave(t, 22 * F)
+	pitch[1] += 7 * wave(t, 12 * F, 0.1) * idleW + 16 * burst + 12 * joy * wave(t, 22 * F) - 10 * dive + 12 * launch * (1 - curl)
 
 	------------------------------------------------------------------
 	-- root: bouncy hover + breach / splash / hops / spins
@@ -156,7 +156,7 @@ function M.Update(t, pose, ctx)
 	local gp = (t / 2.75) % 1
 	local giggle = (sin(pi * L.remap(gp, 0, 0.3)) ^ 2) * idleW
 	local laugh = max(0.6 * giggle, launch, glow, 0.8 * wig, joy * (0.6 + 0.4 * L.wave01(t, 33 * F)), 0.3 * dive)
-	pose.Jaw = pa(0, -0.7 * laugh, -0.04 * laugh, 0, 0, 0)
+	pose.Jaw = ang(-(6 + 26 * laugh), 0, 0)
 
 	------------------------------------------------------------------
 	-- eyes: blinks, "^ ^" happy squint at the top + during joy, squeeze on the splash
@@ -239,7 +239,7 @@ function M.Update(t, pose, ctx)
 	local pu = L.remap(c, SPLASH, SPLASH + 1.0)
 	local pOn = c > SPLASH and c < SPLASH + 1.0
 	local pe = L.ease.cubicOut(pu)
-	for k = 1, 10 do
+	for k = 1, 12 do
 		local deg = DROP_A[k]
 		local a = math.rad(deg)
 		local cfr
