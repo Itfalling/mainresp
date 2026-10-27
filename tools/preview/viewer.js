@@ -212,6 +212,7 @@ function buildRig(data, scene) {
     if (trans[p.name]) { mat = mat.clone(); mat.transparent = true; }
     const mesh = new THREE.Mesh(geometryFor(p), mat);
     if (trans[p.name]) animated.push({ mesh, track: trans[p.name] });
+    else if (p.tr >= 0.95) mesh.visible = false; // fully transparent FX volumes: invisible in Roblox too
     mesh.matrixAutoUpdate = false;
     mesh.matrix.copy(cfToMatrix(p.cf));
     mesh.castShadow = p.mat !== 'Neon' && p.tr < 0.5;
