@@ -178,7 +178,7 @@ function M.Update(t, pose, ctx)
 	--------------------------------------------------------------------
 	local rumble = 2.5 * shake * wave(t, 9)
 	pose.Chest = ang(
-		3 * breathe + 24 * windup - 20 * roar + 12 * stompUp - 8 * impact + rumble,
+		3 * breathe + 24 * windup - 14 * roar + 12 * stompUp - 8 * impact + rumble,
 		-4 * step * idleW + 6 * stompUp,
 		-5 * waddle * idleW - 8 * stompUp
 	)

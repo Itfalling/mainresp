@@ -100,8 +100,8 @@ function M.Update(t, pose, ctx)
 		{ 4.95, 4, "backOut" }, { 5.5, 3 }, { 5.85, -4, "quadInOut" }, { 6.15, 4 }, { 6.45, -2 }, { 6.7, 0 },
 	})
 	local armZ = track(c, {
-		{ 2.4, 0 }, { 3.0, 15 }, { 3.3, 18 }, { T_LAUNCH, 105, "cubicOut" }, { 4.0, 115 }, { T_LAND, 25, "quadIn" },
-		{ 4.5, 15 }, { 4.78, -5, "quadIn" }, { 4.92, 100, "backOut" }, { 5.5, 92 }, { 6.0, 10, "quadInOut" }, { 6.4, 0 },
+		{ 2.4, 0 }, { 3.0, 15 }, { 3.3, 18 }, { T_LAUNCH, 105, "cubicOut" }, { 4.0, 115 }, { T_LAND, 36, "quadIn" },
+		{ 4.5, 22 }, { 4.78, -5, "quadIn" }, { 4.92, 100, "backOut" }, { 5.5, 92 }, { 6.0, 10, "quadInOut" }, { 6.4, 0 },
 	})
 	local armX = track(c, {
 		{ 2.4, 0 }, { 3.0, -50, "cubicOut" }, { 3.3, -55 }, { T_LAUNCH, 20, "cubicOut" }, { 4.0, 10 },
@@ -136,7 +136,9 @@ function M.Update(t, pose, ctx)
 	pose.Hips = pa(0, hy, 0, hipPitch, 6 * wad * idleW, 10 * wad * idleW)
 
 	-- LEGS stay upright (counter the hip roll), splay on squats
-	L.both(pose, "Leg", ang(-hipPitch * 0.6, 0, -10 * wad * idleW + 10 * squat), ang(-hipPitch * 0.6, 0, 10 * wad * idleW + 10 * squat))
+	-- on deep squats the stubby legs telescope up into the body instead of poking through the floor
+	local legUp = 0.75 * squat
+	L.both(pose, "Leg", pa(0, legUp, 0, -hipPitch * 0.6, 0, -10 * wad * idleW + 10 * squat), pa(0, legUp, 0, -hipPitch * 0.6, 0, 10 * wad * idleW + 10 * squat))
 
 	-- FEET (on Root): march in place, follow the body into the air
 	local liftR = max(0, wad) ^ 1.3 * idleW

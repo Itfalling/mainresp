@@ -22,7 +22,7 @@ M.Cycle = 12
 
 local sin, pi, max, min, abs = math.sin, math.pi, math.max, math.min, math.abs
 local TAU = 2 * pi
-local HOVER = 1.5 -- extra hover height so flippers/beard clear the floor in the big beats
+local HOVER = 1.7 -- extra hover height so flippers/beard clear the floor in the big beats
 
 local FLASH = 5.0
 local LAND = 6.85
@@ -101,8 +101,8 @@ function M.Update(t, pose, ctx)
 	pose.Jaw = ang(min(0, jaw), 0, 0)
 	-- beard swings with follow-through
 	local bsw = 8 * wave(t, 0.5, 0.35) + 20 * air * sin(TAU * 1.6 * (c - 5.3)) + 14 * jaw / -62 * 0.5
-	pose.Beard1 = ang(bsw * 0.6 - 10 * jolt + 20 * land + 14 * nod, 0, 6 * wave(t, 0.25, 0.2) + 8 * happyBob)
-	pose.Beard2 = ang(bsw - 14 * jolt + 28 * land + 18 * nod, 0, 10 * wave(t, 0.25, 0.45) - 10 * happyBob)
+	pose.Beard1 = ang(bsw * 0.6 - 10 * jolt - 14 * land - 16 * nod, 0, 6 * wave(t, 0.25, 0.2) + 8 * happyBob)
+	pose.Beard2 = ang(bsw - 14 * jolt - 20 * land - 26 * nod, 0, 10 * wave(t, 0.25, 0.45) - 10 * happyBob)
 
 	------------------------------------------------------------------
 	-- FACE: droopy lids, blinks, squeeze in the yawn, wide eyes on surprise

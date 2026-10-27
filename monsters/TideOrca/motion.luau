@@ -43,7 +43,7 @@ local BLINKS = { 0.2, 4.0, 11.55 }
 local LAUNCH, APEX, SPLASH = 4.4, 5.1, 6.2
 -- floor clearance: base hover lift + extra lift while the big pitches swing
 -- the long tail / big head toward the floor
-local LIFT, TAIL_LIFT, HEAD_LIFT, LUNGE_LIFT = 1.0, 8, 8, 1.2
+local LIFT, TAIL_LIFT, HEAD_LIFT, LUNGE_LIFT = 1.2, 8, 10, 1.2
 
 local OD = { { 1, 1 }, { -1, 1 }, { 1, -1 }, { -1, -1 }, { -1, 1 } }
 
@@ -161,7 +161,8 @@ function M.Update(t, pose, ctx)
 	------------------------------------------------------------------
 	local paddle = wave(t, 8 * F)
 	local slick = max(dive, launch * (1 - fall), L.env(c, 1.8, 0.1, 0.2, 0.3))
-	local flapZ = 26 * paddle * swimW + 36 * fall + 20 * flop - 15 * slick + 22 * grin * sin(TAU * 4 * (c - 8.55))
+	-- (+8 bias: the big paddles sweep a little higher so the downstroke clears the floor)
+	local flapZ = 8 + 26 * paddle * swimW + 36 * fall + 20 * flop - 15 * slick + grin * (8 + 20 * sin(TAU * 4 * (c - 8.55)))
 		+ 18 * tease * sin(TAU * 3 * (c - 2.6))
 	local sweep = 18 * wave(t, 8 * F, 0.25) * swimW - 55 * slick + 20 * fall
 	L.both(pose, "Fin", ang(0, sweep, flapZ))

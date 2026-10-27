@@ -40,6 +40,10 @@ local BLINKS = { 1.35, 2.72, 10.35, 10.55 }
 
 local APEX = 4.75
 local SPLASH = 5.9
+-- floor clearance: base hover lift, extra lift while big pitches swing the
+-- long tail / tusked head down, and while the little spin-hops roll the broad
+-- flippers / crystal back toward the floor
+local LIFT, TAIL_LIFT, HEAD_LIFT, ROLL_LIFT = 1.5, 8, 8, 6
 
 local DROP_A = { 0, 15, 60, 75, 120, 135, 180, 195, 240, 255, 300, 315 }
 
@@ -89,9 +93,9 @@ function M.Update(t, pose, ctx)
 		{ 3.0, 0 }, { 3.75, 1.2, "cubicOut" }, { 4.6, -3.0, "quadOut" }, { SPLASH, -0.8, "quadIn" },
 		{ 6.9, 0, "cubicInOut" },
 	})
-	local spin = L.track(c, { { 4.2, 0 }, { 5.1, 745, "cubicOut" }, { 5.4, 720, "quadInOut" } })
-		+ L.track(c, { { 9.2, 0 }, { 9.95, 360, "backOut" } })
+	local hopSpin = L.track(c, { { 9.2, 0 }, { 9.95, 360, "backOut" } })
 		- L.track(c, { { 1.9, 0 }, { 2.5, 360, "backOut" } })
+	local spin = L.track(c, { { 4.2, 0 }, { 5.1, 745, "cubicOut" }, { 5.4, 720, "quadInOut" } }) + hopSpin
 
 	------------------------------------------------------------------
 	-- swim chain: dolphin kick (pitch) + sway / puppy wag (yaw)
@@ -117,7 +121,10 @@ function M.Update(t, pose, ctx)
 	------------------------------------------------------------------
 	local hop = abs(sin(TAU * 3 * F * t)) -- bouncy idle hops
 	local bob = (1.0 * wave(t, SW) + 0.7 * hop) * (1 - 0.8 * max(busyBreach, busyJoy))
-	local by = bob + jumpY
+	local sp = sin(math.rad(bodyPitch))
+	local clear = LIFT + TAIL_LIFT * max(0, sp) + HEAD_LIFT * max(0, -sp)
+		+ ROLL_LIFT * min(1, 3 * abs(sin(math.rad(hopSpin) / 2)))
+	local by = bob + jumpY + clear
 	local roll = 9 * wave(t, SW, 0.15) * swimW + 12 * wagAmt * sin(TAU * (33 * F * t + 0.25))
 		+ 12 * wig * sin(TAU * (wigPhase + 0.3))
 	pose.Body1 = pa(0, by, bz, pitch[CENTER] + bodyPitch, yaw[CENTER], roll + spin)
@@ -144,8 +151,9 @@ function M.Update(t, pose, ctx)
 	------------------------------------------------------------------
 	local paddle = wave(t, 8 * F)
 	local clap = sin(TAU * 4 * (c - 7.1))
-	local finZ = 24 * paddle * swimW + 45 * slam - 25 * dive + 40 * curl * (0.6 + 0.4 * sin(TAU * 4 * (c - 4.2)))
-		+ 30 * joy * clap + 12 * wagIdle * wave(t, 33 * F, 0.3)
+	-- (+10 bias: the droopy paddles ride a little higher so downstrokes clear the floor)
+	local finZ = 10 + 24 * paddle * swimW + 45 * slam - 25 * dive + 40 * curl * (0.6 + 0.4 * sin(TAU * 4 * (c - 4.2)))
+		+ joy * (8 + 26 * clap) + 12 * wagIdle * wave(t, 33 * F, 0.3)
 	local finY = 18 * wave(t, 8 * F, 0.25) * swimW - 55 * max(launch, dive) * (1 - curl) + 20 * fall
 	L.both(pose, "Flipper", ang(0, finY, finZ))
 	L.both(pose, "FlipperTip", ang(0, 0, 22 * wave(t, 8 * F, -0.15) * swimW + 28 * slam - 18 * dive + 20 * joy * clap))

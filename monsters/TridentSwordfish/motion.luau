@@ -47,7 +47,8 @@ local BZ = {
 }
 local BY = {
 	{ 3.0, 0 }, { 3.85, 0.7, "cubicOut" }, { SN, -0.2, "expoOut" }, { 5.05, 0.4 },
-	{ 5.55, 0.2 }, { 6.05, 1.3, "backOut" }, { 7.5, 1.4 }, { 8.3, 0, "cubicInOut" },
+	-- rears UP into the victory pose (lifted so the tail clears the floor as the nose tips up)
+	{ 5.35, 0.3 }, { 5.9, 3.5, "backOut" }, { 7.5, 3.1 }, { 8.3, 0, "cubicInOut" },
 }
 local PITCH = {
 	{ 3.0, 0 }, { 3.85, -6, "cubicOut" }, { SN, 3, "expoOut" }, { 4.35, 0 }, { 5.05, 0 },
