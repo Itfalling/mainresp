@@ -220,15 +220,6 @@ function M.Update(t, pose, ctx)
 		end, fx, 0.2, fx + 80)
 	end
 	pose.FangR = ang(fangFix(headW, fz + twitch), 0, fz + twitch)
-	if c > 7.0 and c < 7.06 then
-		local x = fangFix(headW, fz + twitch)
-		local fw = headW * FANG_C * ang(x, 0, fz + twitch)
-		local ys = {}
-		for _, p in FANG_PTS do table.insert(ys, string.format("%.2f", (fw * p).Y)) end
-		local function mn(xx) local f2 = headW * FANG_C * ang(xx, 0, fz + twitch) local m = 99 for _, p in FANG_PTS do m = math.min(m, (f2 * p).Y) end return m end
-		print("DBG2", mn(x), mn(x + 2), mn(x + 20), mn(x - 20))
-		print("DBG", c, fx, x, fz + twitch, table.concat(ys, " "), headW.Position, BODY_REST * pose.Body)
-	end
 	pose.FangL = L.mirror(ang(fangFix(headWM, fz - twitch), 0, fz - twitch))
 
 	------------------------------------------------------------------
