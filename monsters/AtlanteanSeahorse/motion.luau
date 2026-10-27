@@ -25,12 +25,17 @@ M.Cycle = 9
 local sin, cos, rad, max, min, exp, pi = math.sin, math.cos, math.rad, math.max, math.min, math.exp, math.pi
 local TAU = 2 * pi
 
-local BP = Vector3.new(0, 6.8, 0.4)
-local CP = Vector3.new(0, 7.6, 0.3)
-local HP = Vector3.new(0, 10.0, 0.8)
-local SP = Vector3.new(0, 10.6, -1.3)
-local TIP = Vector3.new(0, 10.55, -5.7)
-local BC = Vector3.new(0, 10.6, -6.0)
+-- the build is authored at 1x and scaled by S (same constants as build.luau)
+local S, OY = 0.82, 1.8 * (1 - 0.82)
+local function P(x, y, z)
+	return Vector3.new(x * S, y * S + OY, z * S)
+end
+local BP = P(0, 6.8, 0.4)
+local CP = P(0, 7.6, 0.3)
+local HP = P(0, 10.0, 0.8)
+local SP = P(0, 10.6, -1.3)
+local TIP = P(0, 10.55, -5.7)
+local BC = P(0, 10.6, -6.0)
 
 local LAND = 6.05
 local REL = 5.28 -- bubble ring release
@@ -73,7 +78,7 @@ local function rig(c, t)
 	local roll = 10 * side * pr * idleW + 8 * wob * cos(TAU * 1.3 * (c - LAND))
 	local tilt = 15 * spinW
 	local sa = rad(spin)
-	local body = CFrame.new(0, by, bz) * ang(tilt * cos(sa), 0, tilt * sin(sa)) * ang(pitch, yaw, roll)
+	local body = CFrame.new(0, by * S, bz * S) * ang(tilt * cos(sa), 0, tilt * sin(sa)) * ang(pitch, yaw, roll)
 
 	local chest = ang(
 		3 * wave(t, 1 / 3) * idleW - 8 * antic + 6 * spinW + 18 * proud - 10 * wob + 5 * inhale,
@@ -89,7 +94,7 @@ local function rig(c, t)
 	)
 
 	local puff = max(L.env(c, 0.8, 0.12, 0.12, 0.35), L.env(c, 2.3, 0.12, 0.12, 0.35))
-	local snout = pa(0, 0, -0.5 * blow - 0.25 * puff, 6 * puff + 10 * inhale - 4 * blow, 0, 0)
+	local snout = pa(0, 0, (-0.5 * blow - 0.25 * puff) * S, 6 * puff + 10 * inhale - 4 * blow, 0, 0)
 
 	return {
 		Body = body, Chest = chest, Head = head, Snout = snout,
@@ -150,8 +155,8 @@ function M.Update(t, pose, ctx)
 	local wide = L.env(c, 4.15, 0.15, 1.2, 0.3)
 	local clR = max(blink, 0.55 * antic, r.wink) - 0.38 * wide - 0.1 * proud
 	local clL = max(blink, 0.55 * antic) - 0.38 * wide + 0.1 * proud
-	pose.LidR = CFrame.new(0, -1.1 * clR, 0)
-	pose.LidL = CFrame.new(0, -1.1 * clL, 0)
+	pose.LidR = CFrame.new(0, -1.1 * S * clR, 0)
+	pose.LidL = CFrame.new(0, -1.1 * S * clL, 0)
 	ctx.transparency("LidFillR", clR > 0.15 and 0 or 1)
 	ctx.transparency("LidFillL", clL > 0.15 and 0 or 1)
 	-- brows: right flat + low, left arched up (smug); right squeezes on the wink
@@ -173,7 +178,7 @@ function M.Update(t, pose, ctx)
 	-- jolt on the landing
 	------------------------------------------------------------------
 	local jolt = L.env(c, LAND, 0.05, 0.05, 0.9, "quadOut", "elasticOut")
-	pose.Orbit = pa(0, 0.5 * r.jumpY, 0, 0, 40 * t + 0.5 * r.spin, 0)
+	pose.Orbit = pa(0, 0.5 * S * r.jumpY, 0, 0, 40 * t + 0.5 * r.spin, 0)
 	for i = 1, 4 do
 		local s = i % 2 == 0 and -1 or 1
 		pose["Orb" .. i] = pa(0, 0.9 * wave(t, 1 / 3, i * 0.27) - 1.2 * jolt + 0.8 * spinW, 0,
@@ -183,7 +188,7 @@ function M.Update(t, pose, ctx)
 	------------------------------------------------------------------
 	-- WATER RIBBON: whirls round the body during the pirouette
 	------------------------------------------------------------------
-	pose.Swirl = pa(0, r.jumpY - 1.0 + 2.0 * L.remap(c, 4.1, 5.4), 0, 0, -1.4 * r.spin, 0)
+	pose.Swirl = pa(0, S * (r.jumpY - 1.0 + 2.0 * L.remap(c, 4.1, 5.4)), 0, 0, -1.4 * r.spin, 0)
 	for k = 1, 10 do
 		local on = c > 4.12 + 0.03 * k and c < 5.25 + 0.03 * k
 		local fade = L.remap(c, 4.9 + 0.03 * k, 5.25 + 0.03 * k)
@@ -201,8 +206,8 @@ function M.Update(t, pose, ctx)
 		local fwd, right, up = tipCF.LookVector, tipCF.RightVector, tipCF.UpVector
 		for k = 1, 8 do
 			local a = (k - 1) / 8 * TAU + 0.6 * u
-			local rr = 0.5 + 2.4 * e + 0.15 * sin(TAU * (3 * u + k * 0.25))
-			local pos = tipCF.Position + fwd * (0.4 + 7.5 * e) + (right * cos(a) + up * sin(a)) * rr + Vector3.new(0, 1.2 * u, 0)
+			local rr = S * (0.5 + 2.4 * e) + 0.15 * sin(TAU * (3 * u + k * 0.25))
+			local pos = tipCF.Position + fwd * (S * (0.4 + 7.5 * e)) + (right * cos(a) + up * sin(a)) * rr + Vector3.new(0, 1.2 * u, 0)
 			pose["Bub" .. k] = CFrame.new(pos - BC) * ang(90 * u * k, 60 * u, 0)
 			ctx.transparency("BubP" .. k, u > 0.7 and (0.3 + 0.7 * (u - 0.7) / 0.3) or 0.3)
 		end

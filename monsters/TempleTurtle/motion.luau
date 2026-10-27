@@ -78,15 +78,17 @@ function M.Update(t, pose, ctx)
 	------------------------------------------------------------------
 	-- NECK + HEAD: nodding off, snap awake, yawn, tuck in, SHOOT out
 	------------------------------------------------------------------
-	local nod = drowsy * (0.75 + 0.25 * wave(t, 0.5, 0.1))
+	local ns = L.saw(t, 0.42)
+	local sink = ns < 0.82 and (ns / 0.82) ^ 1.6 or (1 - (ns - 0.82) / 0.18)
+	local nod = drowsy * (0.5 + 0.5 * sink)
 	local headBob = 3 * wave(t, 0.5, 0.15) * idleW
 	local nz = 4.3 * tuck - 1.3 * shoot
 	local ny = -0.5 * nod - 0.9 * tuck + 0.3 * shoot
-	pose.Neck = pa(0, ny, nz, -8 * nod + 10 * yawn + 8 * jolt - 6 * tuck + 8 * surprise,
+	pose.Neck = pa(0, ny, nz, -11 * nod + 10 * yawn + 8 * jolt - 6 * tuck + 8 * surprise,
 		2 * wave(t, 1 / 6), 0)
 	local happyBob = happy * sin(TAU * 2.5 * (c - 7.0))
 	pose.Head = ang(
-		-16 * nod + headBob + 18 * jolt + 26 * yawn + 4 * tuck + 14 * surprise - 8 * land + 8 * abs(happyBob) - 10 * sigh,
+		-24 * nod + headBob + 18 * jolt + 26 * yawn + 4 * tuck + 14 * surprise - 8 * land + 8 * abs(happyBob) - 10 * sigh,
 		6 * wave(t, 1 / 6, 0.4) * idleW - 10 * happyBob,
 		7 * drowsy * wave(t, 0.25, 0.3) + 12 * happyBob - 6 * yawn
 	)
@@ -123,28 +125,42 @@ function M.Update(t, pose, ctx)
 	local browUp = 0.45 * surprise + 0.45 * jolt - 0.15 * drowsy + 0.25 * happy
 	L.both(pose, "Brow", pa(0, browUp, -0.1 * surprise, 0, 0, -8 * drowsy + 14 * surprise + 10 * jolt - 8 * yawn + 4 * happyBob))
 
-	-- snot bubble swells while dozing, POPS on the snap awake
+	-- snot bubble: swells and shrinks with each snore, POPS on the snap awake
+	local br = L.wave01(c, 0.6, 0.75)
 	local lvl = 0
 	if c < 2.32 then
-		lvl = c < 0.7 and 1 or (c < 1.5 and 2 or 3)
-	elseif c > 11.0 then
+		local grow = L.remap(c, 0, 2.1)
+		lvl = 1 + math.floor(L.clamp01((grow * 1.7 + br * 0.9) / 3) * 2.99)
+		if c > 1.95 then lvl = 3 end
+	elseif c > 9.9 and c < 10.62 then
+		lvl = 1 + math.floor(L.clamp01(L.remap(c, 9.9, 10.45) * 0.8 + 0.4 * br) * 1.99)
+	elseif c > 11.1 then
 		lvl = 1
 	end
+	ctx.transparency("SnoreDrip", lvl > 0 and 0.3 or 1)
 	for i = 1, 3 do
-		ctx.transparency("Snore" .. i, i == lvl and 0.45 or 1)
+		local on = i == lvl
+		ctx.transparency("Snore" .. i .. "a", on and 0.25 or 1)
+		ctx.transparency("Snore" .. i .. "b", on and 0.25 or 1)
+		ctx.transparency("Snore" .. i .. "c", on and 0.25 or 1)
+		ctx.transparency("Snore" .. i .. "g", on and 0.05 or 1)
 	end
 
-	-- Zzz: float up and fade while dozing
-	local zzW = drowsy > 0.45 and c > 0.0 and not (c > 2.25 and c < 9.6)
-	for k, n in { "ZzzA", "ZzzB" } do
-		local p = (t * 0.5 + (k - 1) * 0.5) % 1
-		pose[n] = pa(0.8 * p + 0.25 * wave(t, 1, k * 0.3), 2.6 * p, 0.6 * p, 0, 0, 10 * wave(t, 0.5, k * 0.2))
+	-- Zzz: small -> medium -> big letters pop in one after another, drift up and fade
+	local zzW = drowsy > 0.45 and not (c > 2.25 and c < 9.6)
+	for k = 1, 3 do
+		local n = "Zzz" .. k
+		local p = (t * 0.45 - (k - 1) / 3) % 1
+		local pop = L.ease.backOut(L.remap(p, 0, 0.15))
+		pose[n] = pa(0.5 * p + 0.2 * wave(t, 0.8, k * 0.3), 1.0 * p - 0.4 * (1 - pop), 0.3 * p,
+			0, 15 * wave(t, 0.4, k * 0.25), 12 * wave(t, 0.6, k * 0.2))
 		local tr = 1
 		if zzW then
-			tr = p < 0.12 and (1 - p / 0.12) or (p > 0.7 and (p - 0.7) / 0.3 or 0)
+			tr = p < 0.1 and (1 - p / 0.1) or (p > 0.72 and (p - 0.72) / 0.28 or 0)
 		end
-		for j = 1, 3 do
-			ctx.transparency(n .. j, tr)
+		for j = 1, 5 do
+			ctx.transparency(n .. "f" .. j, tr)
+			ctx.transparency(n .. "b" .. j, tr)
 		end
 	end
 
@@ -180,7 +196,7 @@ function M.Update(t, pose, ctx)
 	local shiverZ = rattle * (4 * sin(TAU * 11 * c + 0.5))
 	pose.Shrine = pa(0, 0.25 * rattle * abs(sin(TAU * 6 * c)), 0, shiverR, 0, shiverZ)
 	local roofPop = L.env(c, LAND, 0.08, 0.05, 0.6, "quadOut", "bounceOut")
-	local roofY = 0.8 * rattle * abs(sin(TAU * 4.5 * c + 0.4)) + 1.6 * roofPop + 0.6 * flash
+	local roofY = 0.8 * rattle * abs(sin(TAU * 4.5 * c + 0.4)) + 1.2 * roofPop + 0.5 * flash
 	pose.Roof = pa(0, roofY, 0, 8 * rattle * sin(TAU * 5 * c + 0.2) + 10 * roofPop, 25 * roofPop, 7 * rattle * sin(TAU * 6 * c + 1.3) - 8 * roofPop)
 	local fallenPop = L.env(c, LAND + 0.04, 0.1, 0.05, 0.55, "quadOut", "bounceOut")
 	pose.Fallen = pa(0, 0.5 * rattle * abs(sin(TAU * 5.5 * c + 1.0)) + 1.0 * fallenPop, 0, 10 * rattle * sin(TAU * 7 * c), 15 * fallenPop, -15 * fallenPop)

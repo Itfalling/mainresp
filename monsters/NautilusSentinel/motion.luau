@@ -109,7 +109,7 @@ function M.Update(t, pose, ctx)
 	local headPitch = 0.6 * lookUp + 4 * wave(t, 0.4, 0.1) + 10 * surprise - 6 * giddy
 	local headRoll = tiltRoll + 8 * giddy * wave(t, 4) + 14 * dizzy * sin(prec * 0.35 + 1.2) + 6 * happy * wave(t, 1.2)
 	pose.Head = pa(0, 0.2 * surprise - 0.2 * retract, retract - 0.4 * flare, headPitch, headYaw, headRoll)
-	pose.Hood = ang(5 * wave(t, 0.4, 0.3) + 20 * surprise + 10 * peekOh + 6 * happy + 4 * abs(tiltRoll) / 17, 0, 0)
+	pose.Hood = ang(-62 * tuck + 5 * wave(t, 0.4, 0.3) + 20 * surprise + 10 * peekOh + 6 * happy + 4 * abs(tiltRoll) / 17, 0, 0)
 
 	-- eyes: darting pupils that follow the look, swirl when dizzy
 	local dz = dizzy * (c > 6.8 and 1 or 0)
@@ -173,16 +173,17 @@ function M.Update(t, pose, ctx)
 		if k == 6 then poke, tap = pokeR, tapR end
 		if k == 7 then poke, tap = pokeL, tapL end
 		local sideSign = k <= 6 and 1 or -1
+		local outer = math.abs(-110 + 20 * (k - 1)) / 110
 		for j = 1, 3 do
 			local ph = -0.13 * j - 0.083 * k
 			local rx = 10 * wave(t, 0.8, ph) * wigA * (0.7 + 0.25 * j)
 			local rz = 7 * wave(t, 0.6, ph * 0.8 + 0.3) * wigA * (0.6 + 0.3 * j)
 			-- tuck in (curl under), flare out wide, dizzy dangle, happy wave
 			rx += (j == 1 and -38 or (j == 2 and -30 or -45)) * tuck - 12 * peekTuck
-			local outer = math.abs(-110 + 20 * (k - 1)) / 110
 			rx += (j == 1 and (25 + 50 * outer) or (j == 2 and 20 or 35)) * flare
 			rz += sideSign * (j == 1 and 45 or 10) * (1 - outer) * flare
-			rx += 22 * happy * wave(t, 1.6, -0.08 * k - 0.1 * j) * (j == 1 and 0.6 or 1)
+			rx += 22 * happy * wave(t, 1.6, -0.08 * k - 0.1 * j) * (j == 1 and 0.6 or 1) * (0.25 + 0.75 * outer)
+			rz += sideSign * 18 * happy * (1 - outer) * (j == 1 and 1 or 0.3)
 			rx += 20 * dizzy * wave(t, 1.4, -0.15 * j) * (j == 1 and 0.4 or 1)
 			rz += 14 * dizzy * wave(t, 1.4, -0.15 * j + 0.25) * (j == 1 and 0.4 or 1)
 			-- the curious pokes: reach out, straighten, tap tap

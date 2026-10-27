@@ -15,8 +15,28 @@ return {
 	DisplayName = "Column Seahorse",
 	Rarity = "Uncommon",
 	Element = "Atlantis",
-	Build = function(B, P)
+	Build = function(B0, P)
 		local v, cf, ang = P.v, P.cf, P.ang
+		-- everything is authored at 1x and scaled down by S (Uncommon pet
+		-- size, ~12 studs incl. the crown), lifted so it still hovers at 1.8.
+		-- motion.luau uses the same S / OY (keep in sync).
+		local S, OY = 0.82, 1.8 * (1 - 0.82)
+		local function sp(p) return Vector3.new(p.X * S, p.Y * S + OY, p.Z * S) end
+		local function scf(c)
+			if typeof(c) == "Vector3" then
+				return CFrame.new(sp(c))
+			end
+			return CFrame.new(sp(c.Position)) * c.Rotation
+		end
+		local B = {}
+		function B:bone(n, parent, piv) return B0:bone(n, parent, scf(piv)) end
+		function B:block(bone, size, c, col, opts) return B0:block(bone, size * S, scf(c), col, opts) end
+		function B:beam(bone, a, b, w, h, col, opts) return B0:beam(bone, sp(a), sp(b), w * S, (h or w) * S, col, opts) end
+		function B:spike(bone, a, b, w, d, col, opts) return B0:spike(bone, sp(a), sp(b), w * S, (d or w) * S, col, opts) end
+		function B:trail(bone, a, b, o) return B0:trail(bone, sp(a), sp(b), o) end
+		function B:emitter(...) return B0:emitter(...) end
+		function B:light(...) return B0:light(...) end
+		function B:sym(fn) return B0:sym(fn) end
 		local rad, cos, sin = math.rad, math.cos, math.sin
 
 		-- palette

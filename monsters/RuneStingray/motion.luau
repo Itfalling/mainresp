@@ -131,24 +131,40 @@ function M.Update(t, pose, ctx)
 		{ 0.6, 0 }, { 1.4, 1, "sineInOut" }, { 2.7, 1 }, { 3.2, 0, "sineInOut" },
 		{ 10.2, 0 }, { 10.9, -1, "sineInOut" }, { 11.6, -1 }, { 12.0, 0, "sineInOut" },
 	})
+	-- eyes lead, head follows: a slow side-eye, then the aloof head turn
+	local glance = L.track(c, {
+		{ 0.3, 0 }, { 0.7, 1, "sineInOut" }, { 2.8, 1 }, { 3.2, 0, "sineInOut" },
+		{ 9.9, 0 }, { 10.3, -1, "sineInOut" }, { 11.6, -1 }, { 11.95, 0, "sineInOut" },
+	})
 	pose.Head = ang(
-		2 * wave(t, stroke, 0.3) + 5 * math.abs(tilt) - 8 * curl + 10 * launch + 4 * awake,
-		9 * tilt + 3 * L.noise(t, 3.3, 0.25) * idleW,
-		13 * tilt + 2 * wave(t, 2 * F, 0.4) * idleW)
+		2 * wave(t, stroke, 0.3) + 6 * math.abs(tilt) - 10 * curl + 12 * launch + 5 * awake,
+		14 * tilt + 3 * L.noise(t, 3.3, 0.25) * idleW,
+		17 * tilt + 2 * wave(t, 2 * F, 0.4) * idleW)
 
-	-- sleepy half-lids: slow blinks, closed while casting, wide awake in the surge
+	-- sleepy half-lids: slow blinks, closed while meditating, wide awake in the surge
 	local blink = curl
 	for _, b in BLINKS do
 		blink = max(blink, L.env(c, b, 0.2, 0.18, 0.3, "sineInOut", "sineInOut"))
 	end
-	-- one lid droops a touch lower: lopsided, unimpressed
-	local lidY = -1.15 * blink + 0.45 * awake * (1 - curl)
-	pose.LidR = CFrame.new(0, lidY - 0.12 * idleW * math.abs(tilt), 0)
-	pose.LidL = CFrame.new(0, lidY, 0)
+	local wide = awake * (1 - curl)
+	local lidY = -0.88 * blink + 0.62 * wide
+	-- one lid droops a touch lower during the look-away: lopsided, unimpressed
+	pose.LidR = CFrame.new(0, lidY - 0.18 * idleW * math.abs(tilt), 0)
+	pose.LidL = CFrame.new(0, lidY + 0.05 * idleW * math.abs(tilt), 0)
+	-- brows: rise when it wakes up; one brow cocks up while it judges you
+	local cock = idleW * math.abs(tilt)
+	pose.BrowR = pa(0, 0.55 * wide - 0.12 * blink - 0.05 * cock, 0, 0, 0, -4 * cock + 6 * wide)
+	pose.BrowL = pa(0, 0.55 * wide - 0.12 * blink + 0.4 * cock, 0, 0, 0, -12 * cock + 6 * wide)
+	-- pupils: lazy drift, side-eye glance, look up when wide awake
+	local gx = -0.55 * glance + 0.12 * L.noise(t, 7.1, 0.3) * idleW
+	local gy = 0.3 * wide - 0.1 * blink
+	pose.PupilR = CFrame.new(gx, gy, 0)
+	pose.PupilL = CFrame.new(gx, gy, 0)
 
 	-- cephalic lobes: slow curling, unfurl outward on the surge
 	local cw = wave(t, 2 * F, 0.2)
-	L.both(pose, "Ceph", ang(4 * cw + 18 * awake - 10 * curl, -10 * awake + 6 * curl, 0))
+	-- (base pose splays them outboard + down so they frame the face, not hide it)
+	L.both(pose, "Ceph", ang(-10 + 4 * cw + 18 * awake - 10 * curl, -20 - 10 * awake + 6 * curl, 0))
 	L.both(pose, "CephTip", ang(6 * wave(t, 2 * F, 0.05), 12 * wave(t, 2 * F, 0.0) - 30 * awake + 20 * curl, 0))
 
 	-- lower lip: calm breathing, soft "oh" while casting

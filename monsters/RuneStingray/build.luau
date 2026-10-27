@@ -46,7 +46,10 @@ return {
 			B:block(body, v(1.4, 0.5, 4.0), C(3.0, 1.55, -0.6), DARK)
 			B:block(body, v(1.0, 0.4, 1.0), C(2.4, 2.0, -1.6), MARBLE2)
 			B:block(body, v(1.0, 0.4, 1.0), C(2.4, 2.0, 1.2), MARBLE2)
-			-- gill slits on the pale belly
+			-- dark belly spots + gill slits on the pale belly
+			B:block(body, v(0.8, 0.12, 0.8), C(1.3, -1.78, 2.6), MID)
+			B:block(body, v(0.6, 0.12, 0.6), C(2.6, -1.52, 3.6), MID)
+			-- gill slits
 			for k = 0, 2 do
 				B:block(body, v(1.6, 0.12, 0.25), C(2.3, -1.72, -1.6 + k * 0.9), DARK)
 			end
@@ -98,8 +101,8 @@ return {
 			B:block(head, v(2.3, 1.7, 0.1), C(1.95, 1.15, -7.37), TURQ, { mat = "Neon", name = "Eye" .. side })
 			-- pupil on its own bone so the eyes can side-eye (aloof glance)
 			local pup = B:bone("Pupil" .. side, "Head", V(1.95, 1.0, -7.46))
-			B:block(pup, v(1.0, 1.1, 0.08), C(1.95, 1.0, -7.46), PUPIL)
-			B:block(pup, v(0.32, 0.32, 0.06), C(2.25, 1.3, -7.51), "#ffffff", NEON) -- glint
+			B:block(pup, v(1.25, 1.25, 0.1), C(1.95, 1.0, -7.47), "#04080c")
+			B:block(pup, v(0.36, 0.36, 0.06), C(2.3, 0.75, -7.54), "#ffffff", NEON) -- glint
 			-- side cheek plate with a marble scale
 			B:block(head, v(0.3, 1.6, 2.4), C(3.68, -0.1, -5.6), DARK)
 			B:block(head, v(0.12, 0.8, 0.8), C(3.85, 0.0, -5.4), MARBLE)
@@ -132,7 +135,7 @@ return {
 		-- lower lip on its own bone (calm breathing / soft "oh")
 		local jaw = B:bone("Jaw", "Head", V(0, -0.9, -5.6))
 		B:block(jaw, v(5.6, 0.5, 1.0), C(0, -1.15, -6.95), PALE)
-		B:block(jaw, v(4.8, 0.2, 0.8), C(0, -0.86, -6.85), "#2a5a6a")
+		B:block(jaw, v(4.8, 0.2, 0.8), C(0, -0.86, -6.85), MOUTH)
 
 		-- voxel bubbles that drift up out of the mouth (hidden)
 		local BC = V(0, -0.4, -8.0)
@@ -150,12 +153,18 @@ return {
 		------------------------------------------------------------------
 		B:sym(function(side)
 			local n = 0
-			local function strip(bone, x0, x1, zf, zb, th, yc, tiles)
+			local function strip(bone, x0, x1, zf, zb, th, yc, tiles, spots)
 				local w, xc, len, zc = x1 - x0, (x0 + x1) / 2, zb - zf, (zf + zb) / 2
 				B:block(bone, v(w, th, len), C(xc, yc, zc), NAVY)
 				B:block(bone, v(w - 0.2, 0.3, len - 0.7), C(xc, yc + th / 2 + 0.15, zc + 0.2), DARK)
 				B:block(bone, v(w - 0.2, 0.3, len - 0.7), C(xc, yc - th / 2 - 0.15, zc + 0.1), PALE)
 				B:block(bone, v(w + 0.06, th * 0.8, 0.7), C(xc, yc + 0.05, zf - 0.2), GOLD)
+				-- manta belly spots (so the underside reads during the roll)
+				if spots then
+					for _, z in spots do
+						B:block(bone, v(math.min(0.9, w - 0.5), 0.12, 0.9), C(xc, yc - th / 2 - 0.35, z), MID)
+					end
+				end
 				for _, z in tiles do
 					n += 1
 					local ty = yc + th / 2 + 0.4
@@ -166,11 +175,11 @@ return {
 				end
 			end
 			local w1 = B:bone("Wing1" .. side, "Body", V(3.8, 0, 0.2))
-			strip(w1, 3.4, 5.2, -3.6, 4.7, 1.6, 0, { -2.0, 0.0, 2.0 })
-			strip(w1, 5.2, 6.65, -2.6, 4.3, 1.35, 0, { -1.0, 1.0, 3.0 })
+			strip(w1, 3.4, 5.2, -3.6, 4.7, 1.6, 0, { -2.0, 0.0, 2.0 }, { -1.0, 2.6 })
+			strip(w1, 5.2, 6.65, -2.6, 4.3, 1.35, 0, { -1.0, 1.0, 3.0 }, { 0.6 })
 			local w2 = B:bone("Wing2" .. side, "Wing1" .. side, V(6.5, 0, 0.9))
-			strip(w2, 6.45, 7.65, -1.6, 3.9, 1.1, 0.05, { 0.0, 2.0 })
-			strip(w2, 7.65, 8.75, -0.6, 3.5, 0.9, 0.08, { 0.8, 2.6 })
+			strip(w2, 6.45, 7.65, -1.6, 3.9, 1.1, 0.05, { 0.0, 2.0 }, { 1.2 })
+			strip(w2, 7.65, 8.75, -0.6, 3.5, 0.9, 0.08, { 0.8, 2.6 }, { 2.0 })
 			local w3 = B:bone("Wing3" .. side, "Wing2" .. side, V(8.6, 0.1, 1.6))
 			strip(w3, 8.55, 9.65, 0.4, 3.2, 0.75, 0.12, { 1.8 })
 			strip(w3, 9.65, 10.65, 1.3, 3.0, 0.6, 0.16, {})

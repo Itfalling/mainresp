@@ -25,7 +25,7 @@ return {
 		local TEAL, TURQ, GOLDN = "#2fb8ae", "#3ff0e0", "#ffe27a"
 		local BEAK, WHITE, DARK = "#e8cf86", "#f7f6f0", "#1d1420"
 		local PINK, TONGUE, EYE = "#f29a9a", "#e2707f", "#a8fff4"
-		local BUB = "#c4f4ff"
+		local BUB = "#9eeaff"
 		local NEON = { mat = "Neon" }
 		local CZ = 0.5 -- shell center (z)
 
@@ -226,24 +226,51 @@ return {
 			-- side whisker tufts
 			B:block(head, v(0.6, 0.6, 0.8), cf(3.0, 5.6, -8.5), WHITE)
 		end)
-		-- snot bubble (3 nested sizes, revealed one after another while dozing)
-		for i, s in { 0.5, 1.0, 1.6 } do
-			B:block(head, v(s, s, s), cf(0.7, 6.6 + s * 0.3, -12.8 - s * 0.45), BUB, { tr = 1, name = "Snore" .. i })
+		-- grandpa mustache: two droopy white lobes over the beak
+		B:sym(function()
+			B:block(head, v(1.5, 0.65, 0.55), cf(0.85, 5.95, -12.85, 0, 0, -14), WHITE)
+			B:block(head, v(0.7, 0.75, 0.5), cf(1.7, 5.45, -12.75), WHITE)
+			B:block(head, v(0.45, 0.4, 0.4), cf(1.85, 4.95, -12.7), MARBLE_S)
+		end)
+		B:block(head, v(0.8, 0.45, 0.5), cf(0, 6.05, -12.9), MARBLE_S)
+
+		-- SNOT BUBBLE: voxel bubble (3 crossed slabs + a glint) in 3 sizes,
+		-- hanging from the right nostril on a little drip
+		B:block(head, v(0.35, 0.35, 0.7), cf(0.62, 6.25, -12.85), BUB, { tr = 1, name = "SnoreDrip" })
+		for i, s in { 1.0, 1.7, 2.4 } do
+			local c0 = CFrame.new(0.8 + s * 0.1, 6.0 + s * 0.05, -13.05 - s * 0.5)
+			local k = "Snore" .. i
+			B:block(head, v(s, s * 0.7, s * 0.7), c0, BUB, { tr = 1, name = k .. "a" })
+			B:block(head, v(s * 0.7, s, s * 0.7 - 0.02), c0, BUB, { tr = 1, name = k .. "b" })
+			B:block(head, v(s * 0.7 - 0.02, s * 0.7 - 0.04, s), c0, BUB, { tr = 1, name = k .. "c" })
+			B:block(head, v(s * 0.22, s * 0.22, 0.1), c0 * CFrame.new(-s * 0.18, s * 0.18, -s * 0.5 - 0.04), WHITE, { mat = "Neon", tr = 1, name = k .. "g" })
 		end
 		local mouthFX = B:block(head, v(1.5, 1.0, 1.0), cf(0, 5.6, -13.2), SKIN, { tr = 1, name = "MouthFX" })
 		B:emitter(mouthFX, "bubble", { name = "YawnBubbles", color = { "#ffffff", BUB }, rate = 18, enabled = false, size = { 0.3, 0.6, 0.7 }, speed = { 2, 4 }, spread = 35 })
 		B:emitter(mouthFX, "burst", { name = "SnorePop", color = { "#ffffff", BUB }, size = { 0.4, 0.3, 0 }, speed = { 4, 8 }, life = { 0.3, 0.6 } })
 
-		-- Zzz glyphs (hidden blocky letters that float up while dozing)
-		for _, zz in { { "ZzzA", 1.6 }, { "ZzzB", 1.2 } } do
-			local s = zz[2]
-			local o = v(3.2, 11.4, -10.6)
-			local zb = B:bone(zz[1], "Head", o)
-			local R = CFrame.new(o) * ang(0, -30, 0)
-			local id = zz[1]
-			B:block(zb, v(1.3 * s, 0.32 * s, 0.32 * s), R * CFrame.new(0, 0.55 * s, 0), "#ffffff", { tr = 1, name = id .. "1" })
-			B:block(zb, v(1.3 * s, 0.32 * s, 0.32 * s), R * CFrame.new(0, -0.55 * s, 0), "#ffffff", { tr = 1, name = id .. "2" })
-			B:block(zb, v(0.32 * s, 1.45 * s, 0.32 * s), R * ang(0, 0, -42), "#9fe2ff", { tr = 1, name = id .. "3" })
+		-- Zzz: chunky pixel-art "Z" letters (glowing sky face + navy outline
+		-- backing), small -> big stacked up and to the right of the head
+		local ZNAVY = "#1f4f8f"
+		for k, zz in { { 1.0, 3.4, 10.8, -11.6 }, { 1.3, 4.6, 12.4, -11.2 }, { 1.65, 6.0, 14.4, -10.8 } } do
+			local s = zz[1]
+			local o = v(zz[2], zz[3], zz[4])
+			local zb = B:bone("Zzz" .. k, "Body", o)
+			local R = CFrame.new(o) * ang(0, -45, 6)
+			local u = 0.3 * s
+			local id = "Zzz" .. k
+			local cells = {
+				{ 0, 2 * u, 5 * u, u }, -- top bar
+				-- diagonal steps (local -X shows on the viewer's right: Z reads correctly from the front)
+				{ -1.1 * u, 1.0 * u, 1.6 * u, 1.1 * u },
+				{ 0, 0, 1.6 * u, 1.1 * u },
+				{ 1.1 * u, -1.0 * u, 1.6 * u, 1.1 * u },
+				{ 0, -2 * u, 5 * u, u }, -- bottom bar
+			}
+			for j, c in cells do
+				B:block(zb, v(c[3], c[4], u * 0.7), R * CFrame.new(c[1], c[2], 0), "#bff6ff", { mat = "Neon", tr = 1, name = id .. "f" .. j })
+				B:block(zb, v(c[3] + 0.28, c[4] + 0.28, u * 0.8), R * CFrame.new(c[1], c[2], u * 0.5), ZNAVY, { tr = 1, name = id .. "b" .. j })
+			end
 		end
 
 		-- EYES (own bones so they can pop on the surprised wake-up)
@@ -287,34 +314,43 @@ return {
 		------------------------------------------------------------------
 		-- FLIPPERS: 2 bones each (shoulder + blade)
 		------------------------------------------------------------------
-		local function flipper(prefix, pivot, yaw, droop, sc, band)
+		local function flipper(prefix, pivot, yaw, droop, sc, band, tilt)
 			B:sym(function(side)
-				local F = CFrame.new(pivot) * ang(0, yaw, droop)
+				local F = CFrame.new(pivot) * ang(0, yaw, droop) * ang(-tilt, 0, 0)
 				local function at(x, y, z)
 					return F * CFrame.new(x * sc, y * sc, z * sc)
 				end
 				local arm = B:bone(prefix .. side, "Body", F)
-				B:block(arm, v(2.8, 1.3, 2.4) * sc, at(1.0, 0, 0), SKIN)
-				B:block(arm, v(1.2, 1.35, 1.0) * sc, at(1.2, 0, 0.6), SKIN_D)
+				B:block(arm, v(2.8, 1.8, 2.6) * sc, at(1.0, 0, 0), SKIN)
+				B:block(arm, v(1.3, 1.9, 1.1) * sc, at(1.1, 0, 0.6), SKIN_D)
+				B:block(arm, v(1.6, 0.4, 1.6) * sc, at(0.9, 1.0, -0.2), SKIN_L)
 				if band then
-					B:block(arm, v(0.5, 1.45, 2.55) * sc, at(2.1, 0, 0), GOLD)
-					B:block(arm, v(0.52, 0.4, 0.4) * sc, at(2.1, 0.55, -0.6), TURQ, NEON)
+					B:block(arm, v(0.6, 2.0, 2.75) * sc, at(2.1, 0, 0), GOLD)
+					B:block(arm, v(0.62, 0.5, 0.5) * sc, at(2.1, 0.55, -0.85), TURQ, NEON)
 				end
 				local tip = B:bone(prefix .. "Tip" .. side, prefix .. side, at(2.4, 0, 0))
-				B:block(tip, v(3.0, 1.0, 2.8) * sc, at(3.8, 0, 0.2), SKIN)
-				B:block(tip, v(2.6, 0.9, 2.2) * sc, at(6.4, 0, 0.5), SKIN)
-				B:block(tip, v(1.6, 0.8, 1.4) * sc, at(8.3, 0, 0.9), SKIN_D)
-				B:block(tip, v(3.0, 1.05, 0.6) * sc, at(3.8, 0, -1.4), CREAM)
-				B:block(tip, v(2.6, 0.95, 0.6) * sc, at(6.4, 0, -0.85), CREAM)
-				B:block(tip, v(1.0, 1.1, 0.9) * sc, at(4.4, 0, 0.7), SKIN_D)
-				B:block(tip, v(0.9, 1.0, 0.8) * sc, at(6.6, 0, 1.0), SKIN_D)
-				B:block(tip, v(0.5, 0.5, 0.6) * sc, at(4.8, 0.2, -1.95), WHITE) -- claw
+				B:block(tip, v(3.0, 1.5, 3.0) * sc, at(3.8, 0, 0.2), SKIN)
+				B:block(tip, v(2.6, 1.2, 2.4) * sc, at(6.4, 0, 0.5), SKIN)
+				B:block(tip, v(1.6, 1.0, 1.6) * sc, at(8.3, 0, 0.9), SKIN_D)
+				B:block(tip, v(3.0, 1.55, 0.7) * sc, at(3.8, 0, -1.45), CREAM)
+				B:block(tip, v(2.6, 1.25, 0.7) * sc, at(6.4, 0, -0.9), CREAM)
+				B:block(tip, v(1.6, 1.05, 0.5) * sc, at(8.2, 0, -0.1), CREAM)
+				-- stepped scale plates on top
+				B:block(tip, v(1.6, 0.35, 1.6) * sc, at(4.0, 0.88, 0.5), SKIN_D)
+				B:block(tip, v(1.2, 0.35, 1.2) * sc, at(6.5, 0.72, 0.7), SKIN_D)
+				B:block(tip, v(0.7, 0.3, 0.7) * sc, at(4.0, 1.15, 0.5), SKIN_L)
+				if band then
+					B:block(tip, v(0.45, 1.6, 2.8) * sc, at(5.15, 0, 0.3), GOLD)
+				end
+				-- two chunky white claws on the leading edge
+				B:block(tip, v(0.6, 0.6, 0.7) * sc, at(4.6, 0.15, -2.05), WHITE)
+				B:block(tip, v(0.55, 0.55, 0.6) * sc, at(6.3, 0.1, -1.5), WHITE)
 				local a, b = at(8.9, 0, 1.2), at(7.6, 0, 1.4)
 				B:trail(tip, a.Position, b.Position, { name = prefix .. "Trail" .. side, color = { "#ffffff", TURQ }, life = 0.25, trans = { 0.55, 1 } })
 			end)
 		end
-		flipper("Flip", v(4.4, 4.7, -3.0), -18, -8, 0.85, true)
-		flipper("Rear", v(3.8, 4.1, 4.6), -42, -10, 0.55, false)
+		flipper("Flip", v(4.4, 4.7, -3.0), -18, -8, 0.9, true, 22)
+		flipper("Rear", v(3.8, 4.1, 4.6), -42, -10, 0.6, false, 12)
 
 		-- stubby tail
 		local tail1 = B:bone("Tail1", "Body", v(0, 4.3, 6.6))
