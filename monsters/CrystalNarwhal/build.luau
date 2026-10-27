@@ -451,10 +451,10 @@ return {
 		-- Crystal Breach VFX: firework shards (apex) + splash water cubes
 		------------------------------------------------------------------
 		local SH = v(0, 21, -3)
-		for i = 1, 10 do
+		for i = 1, 14 do
 			local sb = B:bone("Shard" .. i, "Root", SH)
 			local col = (i % 3 == 0) and NGOLD or ((i % 3 == 1) and NTURQ or LTURQ)
-			B:block(sb, v(0.9, 2.0, 0.9), CFrame.new(SH) * ang(0, 45, 0), col, { mat = col ~= LTURQ and "Neon" or nil, tr = 1, name = "ShardP" .. i })
+			B:block(sb, v(1.2, 2.6, 1.2), CFrame.new(SH) * ang(0, 45, 0), col, { mat = col ~= LTURQ and "Neon" or nil, tr = 1, name = "ShardP" .. i })
 		end
 		local fw = B:block("Shard1", v(1, 1, 1), CFrame.new(SH), TURQ, { tr = 1, name = "FireworkFX" })
 		B:emitter(fw, "burst", { name = "Firework", color = { "#ffffff", NTURQ, NGOLD }, speed = { 14, 26 }, size = { 1.3, 0.8, 0 }, life = { 0.6, 1.2 } })

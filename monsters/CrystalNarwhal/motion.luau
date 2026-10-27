@@ -37,9 +37,9 @@ local BLINKS = { 1.55, 4.15, 9.75, 12.6 }
 
 -- firework shard directions (spread on a sphere)
 local SHARD = {}
-for i = 1, 10 do
+for i = 1, 14 do
 	local a = (i - 1) * 2.39996 -- golden angle
-	local yy = 1 - 2 * (i - 0.5) / 10
+	local yy = 1 - 2 * (i - 0.5) / 14
 	local r = math.sqrt(1 - yy * yy)
 	SHARD[i] = Vector3.new(r * cos(a), yy * 0.8 + 0.25, r * sin(a))
 end
@@ -304,7 +304,7 @@ function M.Update(t, pose, ctx)
 	-- FIREWORK shards: burst from the body at the apex, arc, fade
 	------------------------------------------------------------------
 	local origin = BODY0 + Vector3.new(0, liftB + 5, zB) -- around the shrine at the apex
-	for i = 1, 10 do
+	for i = 1, 14 do
 		local u = (c - FW) / 1.15
 		if u > 0 and u < 1 then
 			local e = L.ease.expoOut(min(1, u * 1.2))
