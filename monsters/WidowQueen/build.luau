@@ -156,7 +156,7 @@ return {
 		B:block(crown, v(0.9, 1.0, 0.8), cf(0, 14.45, -8.4), LIGHT)
 		B:block(crown, v(0.6, 0.9, 0.6), cf(0, 15.35, -8.4), LIGHT)
 		neon(crown, v(0.4, 0.4, 0.4), cf(0, 15.95, -8.4))
-		neon(crown, v(0.9, 0.5, 0.2), cf(0, 12.4, -8.8))
+		B:block(crown, v(0.9, 0.5, 0.2), cf(0, 12.4, -8.8), CRIM) -- crown jewel (plastic: a neon dot here read as a 9th eye)
 
 		------------------------------------------------------------------
 		-- Abdomen: big stepped voxel egg, crimson dome + side panels,

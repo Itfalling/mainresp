@@ -72,10 +72,6 @@ return {
 			-- FRONT EYE: dark socket, big glowing rectangle
 			B:block(body, v(3.0, 2.9, 0.3), cf(2.7, 10.5, -7.05), DARK)
 			B:block(body, v(2.0, 2.2, 0.2), cf(2.7, 10.5, -7.25), CYAN, NEON)
-			-- SIDE EYE: wraps round the face so it reads from the side too
-			B:block(body, v(0.25, 2.6, 2.2), cf(5.6, 10.6, -4.9), DARK)
-			B:block(body, v(0.2, 1.8, 1.5), cf(5.75, 10.6, -5.05), CYAN, NEON)
-			B:block(body, v(0.12, 1.0, 0.55), cf(5.88, 10.5, -5.45), PUPIL)
 			-- nostril
 			B:block(body, v(0.6, 0.4, 0.2), cf(0.9, 8.75, -7.0), THROAT)
 			-- head horns swept back (light, neon tip)
@@ -92,7 +88,6 @@ return {
 			-- eyelids are hidden until a blink / squint slides them down over the eye
 			local lid = B:bone("Lid" .. side, "Body", v(2.7, 12.9, -7.5))
 			B:block(lid, v(2.3, 2.5, 0.2), cf(2.7, 12.9, -7.52), MAIN, { tr = 1, name = "Eyelid" .. side })
-			B:block(lid, v(0.2, 2.0, 1.7), cf(5.9, 12.6, -5.05), MAIN, { tr = 1, name = "EyelidS" .. side })
 		end)
 
 		-- dorsal plates (own bone so they ripple): stepped voxel plates down the back

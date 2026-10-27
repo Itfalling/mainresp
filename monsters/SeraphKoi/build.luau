@@ -198,14 +198,13 @@ return {
 		hb(head, 0.8, 0.8, 0.3, 0, 11.4, -10.8, SKY, { mat = "Neon", name = "Gem" }, 0, 0, 45)
 
 		B:sym(function(side)
-			-- BIG bulgy eye on the front corner: white block, glowing sky iris
-			-- wrapping the corner, big black pupils (front + side) and glints
+			-- BIG bulgy eye on the front corner: white block, glowing sky iris on
+			-- the FRONT face only (one eye per side from every angle), big black
+			-- pupil and a glint
 			hb(head, 2.6, 3.4, 2.4, 3.5, 9.6, -9.85, PURE)
-			hb(head, 2.0, 2.6, 2.0, 3.85, 9.45, -10.2, SKY, { mat = "Neon", name = "Eye" .. side })
-			hb(head, 1.1, 1.8, 0.12, 3.55, 9.25, -11.25, PUPIL)
-			hb(head, 0.12, 1.8, 1.1, 4.9, 9.25, -10.35, PUPIL)
-			hb(head, 0.55, 0.55, 0.1, 4.25, 10.25, -11.27, "#ffffff", NEON)
-			hb(head, 0.1, 0.55, 0.55, 4.92, 10.25, -10.85, "#ffffff", NEON)
+			hb(head, 2.0, 2.6, 2.0, 3.5, 9.45, -10.2, SKY, { mat = "Neon", name = "Eye" .. side })
+			hb(head, 1.1, 1.8, 0.12, 3.2, 9.25, -11.25, PUPIL)
+			hb(head, 0.55, 0.55, 0.1, 3.9, 10.25, -11.27, "#ffffff", NEON)
 			-- chunky dark brow, inner end raised (kind / happy), stepped cap
 			hb(head, 2.9, 0.7, 1.0, 3.45, 11.75, -10.75, BROW, nil, 0, 0, -10)
 			hb(head, 1.4, 0.45, 0.9, 3.0, 12.25, -10.7, BROW, nil, 0, 0, -10)

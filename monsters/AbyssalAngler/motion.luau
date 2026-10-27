@@ -82,7 +82,6 @@ function M.Update(t, pose, ctx)
 	local lidTr = lidDown > 0.04 and 0 or 1
 	for _, s in { "R", "L" } do
 		ctx.transparency("Eyelid" .. s, lidTr)
-		ctx.transparency("EyelidS" .. s, lidTr)
 	end
 	-- brows: sneaky raise while luring, angry slam on the wind-up, wide-eyed on the gape
 	local browUp = 0.35 * lure * (1 - windup) - 0.35 * windup + 0.9 * gape + 0.3 * wob

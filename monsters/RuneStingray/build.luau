@@ -139,7 +139,11 @@ return {
 		-- lower lip on its own bone (calm breathing / soft "oh")
 		local jaw = B:bone("Jaw", "Head", V(0, -0.9, -5.6))
 		B:block(jaw, v(5.6, 0.5, 1.0), C(0, -1.15, -6.95), PALE)
-		B:block(jaw, v(4.8, 0.2, 0.8), C(0, -0.86, -6.85), MOUTH)
+		-- chin skin (pale, NOT a second dark mouth line when the lip drops)
+		B:block(jaw, v(4.8, 0.2, 0.8), C(0, -0.86, -6.85), PALE2)
+		-- pale filler on the head behind the lip: hidden at rest, fills the
+		-- gap when the lip drops so it never reads as a second mouth
+		B:block(head, v(5.4, 0.8, 0.7), C(0, -1.45, -6.95), PALE)
 
 		-- voxel bubbles that drift up out of the mouth (hidden)
 		local BC = V(0, -0.4, -8.0)

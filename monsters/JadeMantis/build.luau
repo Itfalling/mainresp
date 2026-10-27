@@ -97,11 +97,6 @@ return {
 		B:block(head, hs(3.6, 0.5, 2.4), hcf(0, 15.95, -4.0), DARK) -- forehead cap
 		B:block(head, hs(2.7, 0.4, 2.1), hcf(0, 11.3, -4.85), MOUTH) -- mouth roof
 		B:block(head, hs(2.0, 0.7, 0.2), hcf(0, 12.25, -5.85), JADE) -- pale clypeus plate
-		-- ocelli (three little mint gems on the forehead)
-		B:gem(head, hs(0.4, 0.4, 0.2), hcf(0, 15.3, -5.75), MINT)
-		B:sym(function()
-			B:gem(head, hs(0.4, 0.4, 0.2), hcf(0.6, 14.8, -5.75), MINT)
-		end)
 		-- gold crest
 		B:block(head, hs(1.6, 0.6, 1.6), hcf(0, 16.45, -3.9), GOLD)
 		B:block(head, hs(1.0, 0.6, 1.0), hcf(0, 17.0, -3.7), GOLD)
@@ -123,9 +118,8 @@ return {
 			B:block(head, hs(0.38, 0.38, 0.1), hcf(3.12, 15.22, -6.04), WHITE)
 			-- heavy angled brow
 			B:block(head, hs(3.2, 0.75, 1.0), hcf(2.35, 16.45, -5.75, 0, 0, 20), DEEP)
-			-- cheek panel + thin mint cheek stripe
+			-- cheek panel (no glowing stripe: from the side it read as a 2nd mouth)
 			B:block(head, hs(0.3, 1.2, 2.0), hcf(1.95, 13.4, -4.3), DARK)
-			B:block(head, hs(0.2, 0.25, 1.6), hcf(2.12, 12.85, -4.3), MINT, NEON)
 		end)
 
 		-- eyelids: flat plates resting on top of the eyes, hinge down to blink

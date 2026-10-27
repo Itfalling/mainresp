@@ -105,7 +105,9 @@ function M.Update(t, pose, ctx)
 	-- JAW: slightly open at idle (teeth + black mouth read), munches, HUGE roar
 	local munch = math.max(0, wave(t, 0.6, 0.2)) ^ 6 * idleW
 	local jawX = -12 * (1 - roar) - 14 * munch - 66 * roar + 6 * crouch
-	pose.Jaw = ang(jawX + 5 * shake * wave(t, 11), 0, 0)
+	-- on the roar the hinge slides forward to the face front so the dropped jaw
+	-- stays in FRONT of the mossy collar (one gaping mouth, not two)
+	pose.Jaw = CFrame.new(0, -0.2 * roar, -2.5 * roar) * ang(jawX + 5 * shake * wave(t, 11), 0, 0)
 	-- beard hangs and swings (counter the jaw so it keeps dangling) and is
 	-- pushed forward (in jaw space) so it stays in front of the chest
 	local jr = math.rad(-jawX)

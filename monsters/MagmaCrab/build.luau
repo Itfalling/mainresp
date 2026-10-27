@@ -83,7 +83,6 @@ return {
 		local jaw = B:bone("Jaw", "Body", v(0, 4.6, -3.6))
 		blk(jaw, 8.4, 1.2, 1.8, 0, 3.8, -4.3, OBS)
 		blk(jaw, 7.6, 0.4, 1.4, 0, 3.05, -4.2, DARK)
-		blk(jaw, 6.4, 0.3, 0.2, 0, 3.7, -5.25, LAVA)
 		blk(jaw, 3.2, 0.3, 1.2, 0, 4.5, -3.9, LAVA) -- lava tongue
 		blk(jaw, 1.2, 0.3, 0.6, 0, 4.55, -4.5, GOLD)
 		blk(jaw, 0.6, 0.6, 0.5, 0, 4.7, -4.85, WHITE)

@@ -199,22 +199,22 @@ return {
 		B:block(head, S(4.4, 0.6, 0.8), H(0, 10.95, -6.9), GOLD) -- helm brim
 		B:sym(function(side)
 			-- BIG eye on the front corner: white block, glowing turquoise iris,
-			-- black pupils (front + side) and a glint
+			-- ONE black pupil + glint on the front face only (no side pupil,
+			-- so it never reads as two eyes from a 3/4 view)
 			B:block(head, S(1.6, 2.2, 1.8), H(2.05, 8.6, -6.6), WHITE)
-			B:block(head, S(1.1, 1.5, 1.3), H(2.35, 8.45, -6.95), TURQ, { mat = "Neon", name = "Eye" .. side })
+			B:block(head, S(1.1, 1.5, 1.3), H(2.05, 8.45, -6.95), TURQ, { mat = "Neon", name = "Eye" .. side })
 			B:block(head, S(0.6, 1.1, 0.1), H(2.05, 8.3, -7.65), PUPIL)
-			B:block(head, S(0.1, 1.1, 0.6), H(2.95, 8.3, -7.1), PUPIL)
-			B:block(head, S(0.3, 0.3, 0.1), H(2.6, 8.75, -7.68), WHITE, NEON)
+			B:block(head, S(0.3, 0.3, 0.1), H(2.3, 8.75, -7.68), WHITE, NEON)
 			-- wide gritted grin wrapping round the cheeks (reads past the trident)
 			B:block(head, S(1.1, 0.7, 0.3), H(2.0, 6.1, -7.3, 0, 0, 14), MOUTH)
 			B:block(head, S(0.45, 0.42, 0.2), H(1.75, 6.15, -7.42, 0, 0, 14), WHITE)
 			B:block(head, S(0.2, 0.62, 2.4), H(2.62, 6.1, -6.0), MOUTH)
 			B:block(head, S(0.16, 0.4, 0.45), H(2.71, 6.18, -6.75), WHITE)
 			B:block(head, S(0.16, 0.4, 0.45), H(2.71, 6.18, -5.95), WHITE)
-			-- gold cheek guard with a rune dot + dark gill slit
+			-- gold cheek guard + dark gill slit (no glowing dot here: it sat
+			-- right behind the eye and read as a second eye)
 			B:block(head, S(0.26, 2.4, 2.2), H(2.55, 7.3, -4.6), BRONZE)
 			B:block(head, S(0.3, 1.8, 1.6), H(2.6, 7.3, -4.6), GOLD)
-			B:block(head, S(0.34, 0.4, 0.4), H(2.65, 7.5, -4.6), TURQ, NEON)
 			B:block(head, S(0.2, 3.4, 0.4), H(2.55, 8.0, -3.35), DARK)
 			-- heavy angry-heroic brow on its own bone (inner end low)
 			-- (sits right on the eye: its lower edge slants down to the nose and

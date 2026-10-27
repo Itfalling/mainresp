@@ -212,13 +212,12 @@ return {
 
 		B:sym(function(side)
 			-- BIG eye on the front corner: white block, glowing turquoise iris
-			-- wrapping the corner, black pupils (front + side) and glints
+			-- on the FRONT face only (one pupil + glint, so it never reads as
+			-- two eyes from a 3/4 view)
 			B:block(head, v(2.0, 2.1, 2.0), cf(1.75, 11.98, -1.2), WHITE)
-			B:block(head, v(1.38, 1.4, 1.3), cf(2.09, 11.9, -1.58), TURQ, { mat = "Neon", name = "Eye" .. side })
+			B:block(head, v(1.38, 1.4, 1.3), cf(1.9, 11.9, -1.58), TURQ, { mat = "Neon", name = "Eye" .. side })
 			B:block(head, v(0.7, 0.95, 0.1), cf(1.88, 11.8, -2.28), PUPIL)
-			B:block(head, v(0.1, 0.95, 0.7), cf(2.83, 11.8, -1.65), PUPIL)
 			B:block(head, v(0.3, 0.3, 0.08), cf(2.2, 11.75, -2.3), WHITE, NEON)
-			B:block(head, v(0.08, 0.3, 0.3), cf(2.85, 11.75, -1.2), WHITE, NEON)
 			-- blush + gill plate
 			B:block(head, v(0.9, 0.42, 0.12), cf(1.95, 10.65, -1.42), BLUSH)
 			B:block(head, v(0.2, 1.4, 1.5), cf(1.95, 10.9, 0.9), DARK)

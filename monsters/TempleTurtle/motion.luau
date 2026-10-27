@@ -119,7 +119,6 @@ function M.Update(t, pose, ctx)
 	local lidTr = lidY > 0.55 and 1 or 0
 	for _, s in { "R", "L" } do
 		ctx.transparency("LidF" .. s, lidTr)
-		ctx.transparency("LidS" .. s, lidTr)
 		ctx.transparency("Lash" .. s, lidTr)
 	end
 	L.both(pose, "Eye", CFrame.new(0, 0.12 * surprise, -0.7 * surprise))

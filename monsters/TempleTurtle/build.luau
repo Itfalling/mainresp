@@ -108,7 +108,6 @@ return {
 		local barn = { { 4.2, 6.1, CZ - 4.4 }, { -4.6, 6.1, CZ + 3.4 }, { -3.0, 7.5, CZ - 3.3 }, { 3.1, 4.75, CZ + 6.1 } }
 		for _, b in barn do
 			B:block(body, v(0.8, 0.5, 0.8), cf(b[1], b[2] + 0.2, b[3]), CREAM_D)
-			B:block(body, v(0.4, 0.3, 0.4), cf(b[1], b[2] + 0.55, b[3]), STONE_D)
 		end
 
 		-- invisible FX volumes
@@ -130,7 +129,6 @@ return {
 			B:block(shrine, v(0.95, 0.3, 0.95), cf(x, 9.75, z), MARBLE_S)
 			if c[3] then
 				B:block(shrine, v(0.7, 2.4, 0.7), cf(x, 11.1, z), MARBLE)
-				B:block(shrine, v(0.76, 0.3, 0.76), cf(x, 10.4, z), MARBLE_S) -- fluting ring
 				B:block(shrine, v(1.0, 0.35, 1.0), cf(x, 12.45, z), GOLD)
 			else
 				-- broken column: short shaft with a jagged top
@@ -196,7 +194,6 @@ return {
 			local b1 = B:bone(w[1] .. "1", "Body", v(x, y, z))
 			B:block(b1, v(0.55, 1.4 * s, 0.55), cf(x, y + 0.6 * s, z), SEA)
 			B:block(b1, v(0.4, 0.9 * s, 0.4), cf(x + 0.45, y + 0.35 * s, z + 0.2), SEA_L)
-			B:block(b1, v(0.4, 0.7 * s, 0.4), cf(x - 0.35, y + 0.3 * s, z - 0.3), SEA)
 			local b2 = B:bone(w[1] .. "2", w[1] .. "1", v(x, y + 1.25 * s, z))
 			B:block(b2, v(0.45, 1.3 * s, 0.45), cf(x, y + 1.85 * s, z), SEA_L)
 			B:block(b2, v(0.35, 0.6 * s, 0.35), cf(x + 0.15, y + 2.7 * s, z), SEA)
@@ -288,12 +285,11 @@ return {
 			B:block(eye, v(0.95, 1.25, 0.12), cf(1.28, 7.3, -12.13), DARK)
 			B:block(eye, v(0.4, 0.4, 0.1), cf(1.45, 7.65, -12.2), WHITE, NEON)
 			B:block(eye, v(0.2, 0.2, 0.1), cf(1.0, 6.9, -12.2), WHITE, NEON)
-			B:block(eye, v(0.3, 2.1, 1.1), cf(2.92, 7.55, -11.2), EYE, NEON)
-			B:block(eye, v(0.12, 1.25, 0.55), cf(3.1, 7.3, -11.4), DARK)
+			-- (iris + pupil on the FRONT face only: no wrap-around side eye,
+			-- so it never reads as two eyes from a 3/4 view)
 			-- heavy droopy eyelid (a third closed at rest)
 			local lid = B:bone("Lid" .. side, "Eye" .. side, v(1.5, 8.85, -12.0))
 			B:block(lid, v(2.25, 1.7, 0.35), cf(1.5, 8.85, -12.25), SKIN_D, { name = "LidF" .. side })
-			B:block(lid, v(0.4, 1.7, 1.4), cf(3.12, 8.85, -11.25), SKIN_D, { name = "LidS" .. side })
 			B:block(lid, v(2.35, 0.25, 0.45), cf(1.5, 8.05, -12.27), DARK, { name = "Lash" .. side })
 			-- bushy white grandpa brows (droop at the outer end)
 			local brow = B:bone("Brow" .. side, "Head", v(0.6, 9.6, -12.0))

@@ -116,12 +116,11 @@ return {
 			B:block(head, hs(0.3, 1.2, 1.6), hcf(1.15, -1.8, -3.75), MOUTH)
 			B:block(head, hs(0.2, 0.7, 1.2), hcf(2.35, 0.9, -2.2), PINK) -- blush
 			-- big cartoon eye on the front corner: sclera, neon iris, pupil, shine
+			-- (iris/pupil on the FRONT face only, so each eye never reads as two)
 			B:block(head, hs(1.9, 2.2, 1.4), hcf(1.5, 2.2, -3.3), TOOTH)
 			B:block(head, hs(1.0, 1.5, 0.2), hcf(1.6, 2.1, -4.05), NEONC, { mat = "Neon", name = "Eye" })
 			B:block(head, hs(0.5, 1.0, 0.12), hcf(1.38, 2.0, -4.18), PUPIL)
 			B:block(head, hs(0.3, 0.3, 0.1), hcf(1.88, 2.55, -4.19), TOOTH)
-			B:block(head, hs(0.12, 1.4, 0.8), hcf(2.5, 2.1, -3.35), NEONC, { mat = "Neon" })
-			B:block(head, hs(0.1, 0.9, 0.4), hcf(2.57, 2.0, -3.55), PUPIL)
 		end)
 		-- hidden 4-point star flash revealed on the neigh
 		B:block(head, hs(3.6, 0.3, 0.12), hcf(0, 3.55, -3.85), "#fff4fd", { mat = "Neon", tr = 1, name = "Flash1" })
