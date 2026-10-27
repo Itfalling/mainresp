@@ -78,7 +78,7 @@ function M.Update(t, pose, ctx)
 	local tuck = L.env(c, DIVE, 0.2, FALL - DIVE - 0.1, 0.25)
 	local flash = L.env(c, APEX, 0.06, 0.3, 0.3, "backOut", "quadIn")
 	local splay = L.env(c, FALL, 0.25, 0.45, 0.6, "backOut", "quadInOut")
-	local squash = L.env(c, SPLAT, 0.05, 0.12, 0.6, "quadOut", "elasticOut")
+	local squash = L.env(c, SPLAT, 0.05, 0.12, 0.6, "quadOut", "quadInOut")
 	local slapLift = max(L.env(c, LIFT1, 0.4, 0.0, 0.0, "cubicOut"), L.env(c, LIFT2, 0.22, 0, 0, "cubicOut"))
 	local slapHit = max(L.env(c, SLAP1, 0.03, 0.06, 0.2, "quadIn", "quadOut"), L.env(c, SLAP2, 0.03, 0.08, 0.3, "quadIn", "quadOut"))
 	local bow = L.env(c, BOW, 0.4, BOWEND - BOW - 0.4, 0.45, "backOut", "backInOut")
@@ -96,7 +96,7 @@ function M.Update(t, pose, ctx)
 	local roll = 4 * wave(t, 5 * F, 0.1) * idleW
 
 	-- sly glance: lean into the side-eye
-	yaw += 10 * sly * (c < 0.7 and 1 or -1)
+	yaw += 5 * sly * (c < 0.7 and 1 or -1)
 	roll += 4 * sly * (c < 0.7 and -1 or 1)
 	-- fake-out lunge
 	bz += 2.6 * windL - 5.0 * lunge
@@ -121,8 +121,8 @@ function M.Update(t, pose, ctx)
 	-- signature translation + rotation tracks
 	local sy = track(c, {
 		{ WIND, 0 }, { WIND + 0.35, 4.5, "cubicOut" }, { DIVE, 4.5 }, { DIVE + 0.4, 3.6, "quadIn" },
-		{ BREACH, 3.6 }, { BREACH + 0.4, 14, "cubicOut" }, { APEX, 15, "quadOut" }, { FALL, 15, "sineInOut" },
-		{ SPLAT, -1.7, "quadIn" }, { SPLAT + 0.15, -1.3, "quadOut" }, { SPLAT + 0.45, 1.2, "quadOut" }, { SPLAT + 0.75, 0.2, "quadInOut" },
+		{ BREACH, 3.6 }, { BREACH + 0.4, 12.5, "cubicOut" }, { APEX, 13.5, "quadOut" }, { FALL, 13.5, "sineInOut" },
+		{ SPLAT, -1.4, "quadIn" }, { SPLAT + 0.15, -1.1, "quadOut" }, { SPLAT + 0.45, 1.2, "quadOut" }, { SPLAT + 0.75, 0.2, "quadInOut" },
 		{ LIFT1, 0.2 }, { LIFT1 + 0.3, 0.8, "quadOut" }, { SLAP1, -0.4, "quadIn" }, { SLAP1 + 0.2, 0.4, "quadOut" },
 		{ SLAP2, -0.6, "quadIn" }, { SLAP2 + 0.25, 0.4, "quadOut" }, { BOW, 0, "quadInOut" }, { BOW + 0.4, 1.4, "backOut" },
 		{ BOWEND, 1.4 }, { BOWEND + 0.4, 1.2, "backOut" }, { 13.6, 0, "quadInOut" },
@@ -148,7 +148,7 @@ function M.Update(t, pose, ctx)
 	local jOpen = 5 + 3 * L.wave01(t, 8 * F) * idleW
 		+ 4 * sly
 		- 4 * windL + 48 * lunge + 18 * kid
-		- 4 * inhale + 14 * squirt + (14 + 16 * chat) * cackle
+		- 4 * inhale + 14 * squirt + (12 + 13 * chat) * cackle
 		+ 24 * tease
 		+ (8 + 22 * chat) * giggle
 		+ 8 * tip
@@ -162,10 +162,10 @@ function M.Update(t, pose, ctx)
 		- 6 * cackle * abs(sin(TAU * 4 * c)) - 4 * tease - 10 * tip
 		+ 10 * wind * (1 - tuck) - 6 * tuck + 14 * squash - 10 * splay * (1 - squash) - 14 * bow
 		- 6 * slapLift + 5 * slapHit + 4 * giggle * sin(TAU * 7 * c + 1)
-	local hY = (5 * wave(t, 4 * F, 0.3)) * idleW + 14 * sly * (c < 0.7 and 1 or -1) - 10 * tease * sin(TAU * 1.2 * (c - 4.1))
+	local hY = (5 * wave(t, 4 * F, 0.3)) * idleW + 7 * sly * (c < 0.7 and 1 or -1) - 10 * tease * sin(TAU * 1.2 * (c - 4.1))
 		+ 6 * bow * sin(TAU * 0.8 * (c - BOW))
 	local hR = 4 * wave(t, 5 * F, 0.35) * idleW + 12 * tease + 8 * tip + 10 * bow + 6 * giggle * sin(TAU * 7 * c + 0.6)
-	hP += 0.3 * jOpen
+	hP += 0.3 * jOpen - 32 * flash
 	pose.Head = ang(hP, hY, hR)
 
 	pose.Jaw = ang(-jOpen, 0, (c < 0.7 and -smirk or smirk))
@@ -334,13 +334,13 @@ function M.Update(t, pose, ctx)
 	------------------------------------------------------------------
 	-- blowhole squirt drops (arc forward at the viewer)
 	------------------------------------------------------------------
-	for k = 1, 5 do
-		local u = (c - 3.05 - (k - 1) * 0.06) / 0.75
+	for k = 1, 7 do
+		local u = (c - 3.05 - (k - 1) * 0.05) / 0.85
 		local tr = 1
 		local cfk = CFrame.new()
 		if u > 0 and u < 1 then
 			local e = L.ease.quadOut(u)
-			cfk = pa(0.4 * sin(k * 1.7) * u, 9 * u - 9.5 * u * u, -24 * e, 0, 0, 0)
+			cfk = pa(0.8 * sin(k * 1.7) * u, 18 * u - 19 * u * u, -26 * u, 45 * k * u, 90 * u, 0)
 			tr = u > 0.85 and 0.6 or 0.15
 		end
 		pose["Squirt" .. k] = cfk
@@ -350,15 +350,22 @@ function M.Update(t, pose, ctx)
 	------------------------------------------------------------------
 	-- swirling water rings (dive + breach)
 	------------------------------------------------------------------
+	local bp = L.clamp01((sp - 15) / 45) -- how upright the body is
+	local cotp = cos(math.rad(sp)) / max(0.4, sin(math.rad(sp)))
+	local bodyY = 12.5 + sy
+	local spreadK = track(c, { { BREACH, 0 }, { APEX, 1, "cubicOut" } })
+	local BUNCH, SPREAD = { 1, -4, -9 }, { -1, 1.5, 4 }
 	for k = 1, 3 do
-		local on0, on1 = DIVE + 0.1 + (k - 1) * 0.08, FALL + 0.15 + (k - 1) * 0.05
+		local on0, on1 = DIVE + 0.05 + (k - 1) * 0.06, FALL + 0.2 + (k - 1) * 0.08
 		local vis = c > on0 and c < on1
 		local a = L.env(c, on0, 0.25, on1 - on0 - 0.55, 0.3, "backOut", "quadIn")
-		local rise = track(c, { { on0, -3 }, { BREACH, -1.5, "quadOut" }, { APEX, 1.5, "quadOut" }, { on1, 3.5, "quadIn" } })
+		local ry = L.lerp(BUNCH[k], SPREAD[k], spreadK) + 2 * (1 - a) + 0.5 * wave(t, 3, k * 0.3)
+		local ringY = 6 * k + 6 + ry
+		local rz = (-3 * spreadK - (ringY - bodyY) * cotp) * bp
 		local spinR = 540 * (c - on0) * (k % 2 == 0 and -1 or 1)
-		pose["Swirl" .. k] = pa(0, rise - 2 * (1 - a), 0, 8 * sin(TAU * (c + k * 0.3)), spinR, 8 * cos(TAU * (c + k * 0.3)))
-		local trv = vis and (a > 0.6 and 0.3 or 0.6) or 1
-		for i = 0, 9 do
+		pose["Swirl" .. k] = pa(0, ry, rz, -0.6 * (90 - sp) * bp + 8 * sin(TAU * (c + k * 0.3)), spinR, 8 * cos(TAU * (c + k * 0.3)))
+		local trv = vis and (a > 0.6 and 0.25 or 0.6) or 1
+		for i = 0, 11 do
 			ctx.transparency("Sw" .. k .. "_" .. i, trv)
 		end
 	end
@@ -366,8 +373,8 @@ function M.Update(t, pose, ctx)
 	------------------------------------------------------------------
 	-- belly-flop splash crown + wave rings
 	------------------------------------------------------------------
-	for i = 1, 10 do
-		local a = (i - 0.5) / 10 * TAU
+	for i = 1, 12 do
+		local a = (i - 0.5) / 12 * TAU
 		local delay = (i % 3) * 0.04
 		local lean = track(c, { { SPLAT + delay, 80 }, { SPLAT + delay + 0.28, 10, "backOut" }, { SPLAT + 0.75, 22, "quadInOut" }, { SPLAT + 1.35, 82, "quadIn" } })
 		local up = L.env(c, SPLAT + delay, 0.25, 0.2, 0.8, "backOut", "quadIn")
@@ -387,9 +394,9 @@ function M.Update(t, pose, ctx)
 	elseif w2 > 0 and w2 < 1 then
 		wv, ws, wl = true, 0.2 + 0.9 * L.ease.cubicOut(w2), w2
 	end
-	for i = 1, 14 do
-		local a = (i - 1) / 14 * TAU
-		pose["Wave" .. i] = pa(9 * sin(a) * ws, 0.25 * sin(TAU * (2 * wl + i / 7)), 15 * cos(a) * ws, 0, 0, 0)
+	for i = 1, 16 do
+		local a = (i - 1) / 16 * TAU
+		pose["Wave" .. i] = pa(9 * sin(a) * ws, 0.25 * sin(TAU * (2 * wl + i / 8)), 15 * cos(a) * ws, 0, 0, 0)
 		ctx.transparency("WaveP" .. i, wv and (wl < 0.6 and 0.2 or 0.6) or 1)
 	end
 	ctx.light("SplashLight", 0.01 + 1.3 * L.env(c, SPLAT, 0.05, 0.1, 0.6))

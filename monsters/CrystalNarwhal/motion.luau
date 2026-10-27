@@ -109,8 +109,8 @@ function M.Update(t, pose, ctx)
 	local shimmy = L.env(c, SPOUT + 1.0, 0.1, 0.35, 0.15) * sin(TAU * 6 * c)
 	local rollDip = L.env(c, ROLL, 0.18, 0.1, 0.3, "quadOut", "quadInOut")
 
-	local pitch = pitchB + 5 * wave(t, 6 * F, 0.25) * idleW - 8 * dive * 0
-		+ 8 * L.env(c, SPOUT, 0.25, 0.3, 0.3) - 6 * hops * sin(TAU * 2.2 * (c - HOPS)) + 6 * wink
+	local pitch = pitchB + 5 * wave(t, 6 * F, 0.25) * idleW +
+		 8 * L.env(c, SPOUT, 0.25, 0.3, 0.3) - 6 * hops * sin(TAU * 2.2 * (c - HOPS)) + 6 * wink
 	local yaw = 14 * wiggle + 6 * wave(t, 3 * F) * idleW - 16 * wink + 6 * L.noise(t, 2.2, 0.35) * idleW
 	local roll = 10 * wiggle + rollA + 5 * wave(t, 4 * F, 0.1) * idleW + 14 * shimmy + 6 * wink
 	local by = bob * (1 - 0.7 * busy) + hopY + liftB - 1.0 * rollDip + 4.2 * rollE + 0.8 * spoutE * L.env(c, SPOUT + 0.35, 0.1, 0.15, 0.4)
@@ -164,6 +164,8 @@ function M.Update(t, pose, ctx)
 	for _, b in BLINKS do blink = max(blink, L.env(c, b, 0.05, 0.06, 0.08)) end
 	blink = max(blink, L.env(c, SPOUT + 0.05, 0.08, 0.2, 0.06))
 	local blinking = blink > 0.35 and not squint
+	-- lids drop in with a tiny settle (the squint pushes the cheeks up)
+	L.both(pose, "Lid", CFrame.new(0, 0.25 * (1 - blink) * (squint and 0 or 1), 0))
 	for _, side in { "R", "L" } do
 		local winking = side == "L" and wink > 0.4
 		local sq = squint or winking
@@ -240,7 +242,7 @@ function M.Update(t, pose, ctx)
 	local twirl = L.track(c, { { WINK + 0.3, 0 }, { WINK + 0.95, 360, "backOut" } })
 	if c < WINK + 0.3 or c > WINK + 1.2 then twirl = 0 end
 	pose.Tusk = ang(0, 0, twirl + 6 * wave(t, 13 * F))
-	local ringSpin = 360 * 3 * F * t + 1080 * L.track(c, { { SPIN0, 0 }, { SPIN1, 1, "cubicInOut" } }) * 0
+	local ringSpin = 360 * 3 * F * t
 	local slide = 2.6 * wave(t, 3 * F) * idleW - 3.0 * spinOn + 2.2 * L.env(c, WINK + 0.3, 0.3, 0.3, 0.4)
 	pose.TuskRing = pa(0, 0, -slide, 0, 0, ringSpin + spin * 2 + twirl * 2)
 	local beamOn = c > SPIN0 + 0.08 and c < FW

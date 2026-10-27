@@ -404,22 +404,22 @@ return {
 		------------------------------------------------------------------
 		-- blowhole squirt drops (hidden, carried by the body)
 		------------------------------------------------------------------
-		for k = 1, 5 do
+		for k = 1, 7 do
 			local d = B:bone("Squirt" .. k, "Body", v(0, 15.6, -3.6))
-			local s = k == 1 and 0.9 or 0.7
-			blk(d, s, s, s, 0, 15.6, -3.6, WATER, { tr = 1, name = "SquirtP" .. k })
+			local s = k == 1 and 1.8 or (k % 2 == 0 and 1.4 or 1.1)
+			blk(d, s, s, s, 0, 15.6, -3.6, k % 3 == 0 and FOAM or "#45bdf2", { tr = 1, name = "SquirtP" .. k })
 		end
 
 		------------------------------------------------------------------
 		-- BREACH: three swirling water rings (hidden)
 		------------------------------------------------------------------
-		local RINGS = { { 9, 6.8 }, { 15, 7.6 }, { 21, 6.4 } }
+		local RINGS = { { 12, 7.6 }, { 18, 8.6 }, { 24, 7.4 } }
 		for k, r in RINGS do
-			local rb = B:bone("Swirl" .. k, "Root", v(0, r[1], -1))
-			for i = 0, 9 do
-				local a = i / 10 * 360
-				local c0 = cf(0, r[1], -1) * ang(0, a, 0) * CFrame.new(0, 0, -r[2])
-				B:block(rb, v(3.6, 0.7, 1.0), c0 * ang(0, 0, 0) * CFrame.new(0, (i % 2) * 0.5, 0),
+			local rb = B:bone("Swirl" .. k, "Root", v(0, r[1], 0))
+			for i = 0, 11 do
+				local a = i / 12 * 360
+				local c0 = cf(0, r[1], 0) * ang(0, a, 0) * CFrame.new(0, (i % 2) * 0.6 - 0.3, -r[2])
+				B:block(rb, v(4.4, 1.2, 1.4), c0 * ang(0, 0, (i % 2 == 0) and 12 or -12),
 					i % 3 == 0 and FOAM or WATER, { tr = 1, name = "Sw" .. k .. "_" .. i })
 			end
 		end
@@ -434,20 +434,20 @@ return {
 		B:emitter(sp, "burst", { name = "SplashBurst", color = { "#ffffff", WATER, FOAM }, speed = { 14, 24 }, size = { 1.2, 0.9, 0 }, accel = { 0, -26, 0 }, spread = 60, life = { 0.7, 1.3 } })
 		B:emitter(sp, "dust", { name = "SplashMist", color = { "#ffffff", "#c4f1ff" }, size = { 2.5, 4, 5 }, speed = { 8, 14 } })
 		B:light(sp, { name = "SplashLight", color = WATER, brightness = 0.01, range = 22 })
-		for i = 1, 10 do
-			local a = (i - 0.5) / 10 * math.pi * 2
-			local x, z = 10.5 * math.sin(a), 2 + 17 * math.cos(a)
-			local cb = B:bone("Splash" .. i, "Root", v(x, 0.9, z))
-			local h = (i % 2 == 0) and 5.5 or 4.2
-			blk(cb, 1.6, h, 1.6, x, 0.9 + h / 2, z, WATER, { tr = 1, name = "SplCol" .. i })
-			blk(cb, 2.1, 1.0, 2.1, x, 0.9 + h + 0.3, z, FOAM, { tr = 1, name = "SplCap" .. i })
+		for i = 1, 12 do
+			local a = (i - 0.5) / 12 * math.pi * 2
+			local x, z = 11 * math.sin(a), 2 + 17 * math.cos(a)
+			local cb = B:bone("Splash" .. i, "Root", v(x, 1.2, z))
+			local h = (i % 2 == 0) and 9 or 6.5
+			blk(cb, 2.2, h, 2.2, x, 1.2 + h / 2, z, WATER, { tr = 1, name = "SplCol" .. i })
+			blk(cb, 2.9, 1.3, 2.9, x, 1.2 + h + 0.4, z, FOAM, { tr = 1, name = "SplCap" .. i })
 		end
-		for i = 1, 14 do
-			local a = (i - 1) / 14 * math.pi * 2
-			local pos = v(9 * math.sin(a), 0.45, 2 + 15 * math.cos(a))
+		for i = 1, 16 do
+			local a = (i - 1) / 16 * math.pi * 2
+			local pos = v(9 * math.sin(a), 0.55, 2 + 15 * math.cos(a))
 			local tan = v(9 * math.cos(a), 0, -15 * math.sin(a)).Unit
 			local wb = B:bone("Wave" .. i, "Root", pos)
-			B:block(wb, v(4.2, 0.7, 1.2), CFrame.fromMatrix(pos, tan, v(0, 1, 0)), i % 2 == 0 and FOAM or WATER, { tr = 1, name = "WaveP" .. i })
+			B:block(wb, v(5.0, 1.0, 1.6), CFrame.fromMatrix(pos, tan, v(0, 1, 0)), i % 2 == 0 and FOAM or WATER, { tr = 1, name = "WaveP" .. i })
 		end
 	end,
 }
