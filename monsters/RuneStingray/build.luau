@@ -73,50 +73,60 @@ return {
 		-- HEAD: wide manta head with a big sleepy wise face
 		------------------------------------------------------------------
 		local head = B:bone("Head", "Body", V(0, 0, -3.9))
-		B:block(head, v(7.2, 2.6, 3.4), C(0, 0.1, -5.5), NAVY)
-		B:block(head, v(6.4, 0.4, 3.0), C(0, 1.6, -5.3), DARK)
-		B:block(head, v(3.6, 0.4, 2.2), C(0, 2.0, -5.0), MID)
+		-- taller head front = a big face panel; the top stays low and flat so
+		-- the manta silhouette is smooth from every angle
+		B:block(head, v(7.2, 3.2, 3.4), C(0, 0.4, -5.5), NAVY)
+		B:block(head, v(6.4, 0.4, 3.0), C(0, 2.2, -5.3), DARK)
+		B:block(head, v(3.6, 0.4, 2.2), C(0, 2.6, -5.0), MID)
 		B:block(head, v(6.2, 0.4, 2.6), C(0, -1.3, -5.0), PALE)
-		-- pale aqua muzzle (manta face) with a slim calm mouth and a smug
-		-- raised corner on one side (aloof smirk)
+		-- forehead step (sits behind the lids, gives the brows a base)
+		B:block(head, v(6.8, 0.9, 0.8), C(0, 2.35, -7.05), DARK)
+		-- pale aqua muzzle (manta face) with a calm mouth and a smug raised
+		-- corner on one side (aloof smirk)
 		B:block(head, v(6.6, 1.5, 0.15), C(0, -0.45, -7.26), PALE)
-		B:block(head, v(4.2, 0.35, 0.1), C(-0.2, -0.55, -7.36), MOUTH)
-		B:block(head, v(0.5, 0.35, 0.1), C(2.05, -0.3, -7.36), MOUTH)
-		B:block(head, v(0.5, 0.35, 0.1), C(-2.45, -0.45, -7.36), MOUTH)
-		B:block(head, v(0.9, 0.35, 0.1), C(1.5, -0.45, -7.36), MOUTH)
+		B:block(head, v(4.0, 0.42, 0.1), C(-0.3, -0.6, -7.36), MOUTH)
+		B:block(head, v(0.6, 0.42, 0.1), C(-2.5, -0.45, -7.36), MOUTH)
+		B:block(head, v(0.7, 0.42, 0.1), C(1.95, -0.4, -7.36), MOUTH)
+		B:block(head, v(0.5, 0.42, 0.1), C(2.45, -0.15, -7.36), MOUTH)
 		-- forehead rune: gold diamond with a turquoise glyph (the wise "third eye")
-		B:block(head, v(1.0, 1.0, 0.24), C(0, 2.3, -7.3, 0, 0, 45), GOLD)
-		B:block(head, v(0.45, 0.45, 0.12), C(0, 2.3, -7.45, 0, 0, 45), TURQ, { mat = "Neon", name = "ThirdEye" })
+		B:block(head, v(0.95, 0.95, 0.2), C(0, 2.45, -7.52, 0, 0, 45), GOLD)
+		B:block(head, v(0.42, 0.42, 0.1), C(0, 2.45, -7.65, 0, 0, 45), TURQ, { mat = "Neon", name = "ThirdEye" })
 
 		B:sym(function(side)
-			-- big eye housing bulging up on the front corners
-			B:block(head, v(2.8, 2.7, 2.0), C(2.15, 1.75, -6.3), NAVY)
-			B:block(head, v(2.4, 2.3, 0.1), C(2.15, 1.65, -7.35), DEEP) -- socket
-			B:block(head, v(2.0, 2.0, 0.1), C(2.15, 1.6, -7.41), TURQ, { mat = "Neon", name = "Eye" .. side })
-			B:block(head, v(0.9, 0.9, 0.08), C(1.85, 1.15, -7.47), PUPIL)
-			B:block(head, v(0.35, 0.35, 0.06), C(2.75, 0.95, -7.48), "#ffffff", NEON) -- glint
-			-- relaxed brow (outer end droops: sleepy & wise) + gold cap
-			B:block(head, v(2.8, 1.3, 1.1), C(2.2, 3.55, -7.15, 0, 0, -6), DARK)
-			B:block(head, v(2.1, 0.3, 0.8), C(2.1, 4.3, -7.0, 0, 0, -6), GOLD)
+			-- big glowing eye set into the face panel
+			B:block(head, v(2.7, 2.1, 0.1), C(1.95, 1.15, -7.27), DEEP) -- socket
+			B:block(head, v(2.3, 1.7, 0.1), C(1.95, 1.15, -7.37), TURQ, { mat = "Neon", name = "Eye" .. side })
+			-- pupil on its own bone so the eyes can side-eye (aloof glance)
+			local pup = B:bone("Pupil" .. side, "Head", V(1.95, 1.0, -7.46))
+			B:block(pup, v(1.0, 1.1, 0.08), C(1.95, 1.0, -7.46), PUPIL)
+			B:block(pup, v(0.32, 0.32, 0.06), C(2.25, 1.3, -7.51), "#ffffff", NEON) -- glint
 			-- side cheek plate with a marble scale
 			B:block(head, v(0.3, 1.6, 2.4), C(3.68, -0.1, -5.6), DARK)
 			B:block(head, v(0.12, 0.8, 0.8), C(3.85, 0.0, -5.4), MARBLE)
-			-- half-closed lid (rest pose covers the top half of the eye)
-			local lid = B:bone("Lid" .. side, "Head", V(2.15, 2.25, -7.5))
-			B:block(lid, v(2.35, 2.1, 0.14), C(2.15, 2.75, -7.5), MID)
-			B:block(lid, v(2.45, 0.22, 0.2), C(2.15, 1.75, -7.55), GOLD)
+			-- heavy half-closed lid (rest pose covers the top half of the eye)
+			local lid = B:bone("Lid" .. side, "Head", V(1.95, 1.3, -7.56))
+			B:block(lid, v(2.5, 1.8, 0.14), C(1.95, 2.2, -7.56, 0, 0, -5), MID)
+			B:block(lid, v(2.6, 0.24, 0.2), C(1.95, 1.33, -7.6, 0, 0, -5), GOLD) -- lash line
+			-- low heavy brow ridge in front of the lid, outer end drooping
+			-- (sleepy & wise); raises when it wakes up / when it judges you
+			local brow = B:bone("Brow" .. side, "Head", V(1.2, 2.5, -7.9))
+			B:block(brow, v(2.5, 0.8, 0.6), C(2.05, 2.45, -7.98, 0, 0, -9), DARK)
+			B:block(brow, v(2.1, 0.3, 0.5), C(2.0, 2.92, -7.9, 0, 0, -9), NAVY)
+			B:block(brow, v(0.45, 0.45, 0.2), C(3.0, 2.3, -8.32, 0, 0, -9), GOLD) -- rune stud
 
-			-- cephalic fins: horn-like lobes that scroll UP at the tip (2 bones)
-			local ceph = B:bone("Ceph" .. side, "Head", V(3.3, -0.4, -6.9))
-			B:block(ceph, v(1.1, 1.8, 2.6), C(3.4, -0.3, -8.0), NAVY)
-			B:block(ceph, v(0.14, 1.3, 2.2), C(2.8, -0.3, -8.0), PALE)
-			B:block(ceph, v(1.15, 0.3, 2.2), C(3.4, 0.68, -8.0), DARK)
-			local tip = B:bone("CephTip" .. side, "Ceph" .. side, V(3.4, -0.2, -9.1))
-			B:block(tip, v(1.0, 1.5, 1.4), C(3.4, 0.2, -9.6, 35, 0, 0), NAVY)
-			B:block(tip, v(0.12, 1.1, 1.1), C(2.84, 0.2, -9.6, 35, 0, 0), PALE)
-			B:block(tip, v(0.85, 1.3, 0.9), C(3.4, 1.3, -10.0, 70, 0, 0), NAVY)
-			B:block(tip, v(0.75, 0.9, 0.75), C(3.4, 2.15, -9.85), GOLD)
-			B:block(tip, v(0.35, 0.35, 0.35), C(3.4, 2.75, -9.85), TURQ, NEON)
+			-- cephalic fins: horn-like lobes framing the face, scrolling UP at
+			-- the tip (2 bones); pushed outboard so they never hide the eyes
+			local cx = 4.05
+			local ceph = B:bone("Ceph" .. side, "Head", V(cx - 0.1, -0.4, -6.9))
+			B:block(ceph, v(1.1, 1.8, 2.6), C(cx, -0.3, -8.0), NAVY)
+			B:block(ceph, v(0.14, 1.3, 2.2), C(cx - 0.6, -0.3, -8.0), PALE)
+			B:block(ceph, v(1.15, 0.3, 2.2), C(cx, 0.68, -8.0), DARK)
+			local tip = B:bone("CephTip" .. side, "Ceph" .. side, V(cx, -0.2, -9.1))
+			B:block(tip, v(1.0, 1.5, 1.4), C(cx, 0.2, -9.6, 35, 0, 0), NAVY)
+			B:block(tip, v(0.12, 1.1, 1.1), C(cx - 0.56, 0.2, -9.6, 35, 0, 0), PALE)
+			B:block(tip, v(0.85, 1.3, 0.9), C(cx, 1.3, -10.0, 70, 0, 0), NAVY)
+			B:block(tip, v(0.75, 0.9, 0.75), C(cx, 2.15, -9.85), GOLD)
+			B:block(tip, v(0.35, 0.35, 0.35), C(cx, 2.75, -9.85), TURQ, NEON)
 		end)
 
 		-- lower lip on its own bone (calm breathing / soft "oh")

@@ -66,11 +66,11 @@ local function rig(c, t)
 	local side = wave(t, 0.5)
 	local hover = 0.3 * wave(t, 1 / 3)
 
-	local by = hover * (1 - 0.6 * busy) + 0.55 * pr * idleW + jumpY
+	local by = hover * (1 - 0.6 * busy) + 0.95 * pr * idleW + jumpY
 	local bz = 0.4 * antic
-	local yaw = 6 * wave(t, 1 / 9) * idleW + spin + 34 * proud
-	local pitch = -10 * antic + 6 * land + 9 * wob + 2 * wave(t, 1 / 3, 0.2) * idleW
-	local roll = 7 * side * pr * idleW + 8 * wob * cos(TAU * 1.3 * (c - LAND))
+	local yaw = (6 * wave(t, 1 / 9) + 9 * side) * idleW + spin + 34 * proud
+	local pitch = -10 * antic + 6 * land + 9 * wob + (2 * wave(t, 1 / 3, 0.2) + 6 * pr - 3) * idleW
+	local roll = 10 * side * pr * idleW + 8 * wob * cos(TAU * 1.3 * (c - LAND))
 	local tilt = 15 * spinW
 	local sa = rad(spin)
 	local body = CFrame.new(0, by, bz) * ang(tilt * cos(sa), 0, tilt * sin(sa)) * ang(pitch, yaw, roll)
@@ -84,7 +84,7 @@ local function rig(c, t)
 	local look = (8 * L.noise(t, 3.3, 0.3) + 4 * wave(t, 1 / 9, 0.3)) * idleW
 	local head = ang(
 		7 * idleW - 4 * pr * idleW - 8 * antic + 16 * spinW + 10 * inhale - 16 * blow + 12 * proud - 8 * wob,
-		look - 4 * proud,
+		look - 6 * side * idleW - 4 * proud,
 		6 * wave(t, 2 / 9, 0.1) * idleW + 3 * side * idleW - 10 * spinW - 12 * wink - 5 * proud
 	)
 
@@ -121,7 +121,7 @@ function M.Update(t, pose, ctx)
 		local ripple = 14 * whip * sin(TAU * (2.4 * (c - 4.1) - 0.13 * i))
 		local curl = 3 + 6 * wave(t, 1 / 3, -0.07 * i) * (1 - r.busy * 0.7)
 			+ 12 * antic - 36 * whip + ripple
-			+ 7 * wob * (i / 7) + 6 * proud - 3 * r.pr * idleW
+			+ 7 * wob * (i / 7) + 6 * proud - 8 * r.pr * idleW
 		local yw = 6 * wave(t, 1 / 3, -0.1 * i) * idleW - 9 * spinW * (i / 4)
 		pose["Tail" .. i] = ang(curl, yw, 0)
 	end
@@ -163,7 +163,7 @@ function M.Update(t, pose, ctx)
 	-- CROWN: jaunty wobble lagging the hops, flung out by the spin
 	------------------------------------------------------------------
 	pose.Crown = ang(
-		-4 * r.pr * idleW + 6 * r.land + 14 * wob,
+		-8 * r.pr * idleW + 6 * r.land + 14 * wob,
 		0,
 		5 * wave(t, 0.5, -0.15) * idleW - 14 * spinW + 10 * wob * sin(TAU * 1.7 * (c - LAND))
 	)

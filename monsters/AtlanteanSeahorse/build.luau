@@ -83,6 +83,9 @@ return {
 			B:block(body, v(0.15, 0.5, 0.9), cf(1.69, 7.15, -0.2), DARK)
 			B:block(chest, v(0.15, 0.45, 0.7), cf(1.79, 8.3, 0.6), DARK)
 			B:block(chest, v(0.15, 0.35, 0.55), cf(1.79, 8.05, -0.6), LORANGE)
+			-- dark rear side panels (two-tone colour blocking)
+			B:block(body, v(0.15, 0.7, 1.2), cf(1.69, 7.1, 1.2), DARK)
+			B:block(chest, v(0.15, 0.7, 1.0), cf(1.54, 9.1, 1.15), DARK)
 		end)
 		-- orichalcum chest gem in a gold diamond setting
 		B:block(chest, v(1.1, 1.1, 0.2), cf(0, 8.15, -2.12, 0, 0, 45), GOLD)
@@ -153,6 +156,13 @@ return {
 		B:block(head, v(1.6, 1.0, 0.6), cf(0, 12.4, 2.85), ORANGE)
 		B:block(head, v(0.6, 0.6, 0.6), cf(0, 13.3, 2.1), MARBLE) -- head knobs
 		B:block(head, v(0.5, 0.5, 0.5), cf(0, 12.9, 3.0), GOLD)
+		-- spiny marble crest down the back of the head + neck (gold-tipped)
+		local crest = { { head, v(0, 12.7, 2.7), v(0, 13.6, 3.9), 0.8 }, { head, v(0, 11.5, 2.6), v(0, 11.8, 3.8), 0.7 },
+			{ chest, v(0, 9.9, 1.9), v(0, 10.4, 3.0), 0.7 } }
+		for _, k in crest do
+			B:spike(k[1], k[2], k[3], k[4], k[4], MARBLE)
+			B:block(k[1], v(0.4, 0.4, 0.4), CFrame.new(k[3]), GOLD)
+		end
 
 		-- snout (own bone: it tilts and pushes out to blow bubbles)
 		local snout = B:bone("Snout", "Head", v(0, 10.6, -1.3))
