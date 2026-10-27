@@ -395,6 +395,7 @@ end
 -- Rarity name colors (gradient stops), styled like the tycoon tags in the references.
 local RARITY_GRADIENTS = {
 	Common = { "#d9d9d9", "#a6a6a6" },
+	Uncommon = { "#8dff7a", "#2fbf4a" },
 	Rare = { "#5fb4ff", "#2f6bff" },
 	Epic = { "#d07bff", "#8a3dff" },
 	Legendary = { "#ffe35c", "#ff9a1a" },

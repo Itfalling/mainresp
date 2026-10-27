@@ -456,7 +456,7 @@ function tagSprite(name, rarity) {
   const g = cv.getContext('2d');
   g.textAlign = 'center';
   g.lineJoin = 'round';
-  const grads = { Divine: ['#ff8fd8', '#ffe36b', '#8dff8a', '#7fd4ff'], Cosmic: ['#7b5cff', '#ff5ce1', '#5ce1ff'], Secret: ['#ffffff', '#9aa0b4'], Mythic: ['#ff6b9a', '#ff2a4d'], Legendary: ['#ffe35c', '#ff9a1a'], Epic: ['#d07bff', '#8a3dff'] };
+  const grads = { Divine: ['#ff8fd8', '#ffe36b', '#8dff8a', '#7fd4ff'], Cosmic: ['#7b5cff', '#ff5ce1', '#5ce1ff'], Secret: ['#ffffff', '#9aa0b4'], Mythic: ['#ff6b9a', '#ff2a4d'], Legendary: ['#ffe35c', '#ff9a1a'], Epic: ['#d07bff', '#8a3dff'], Rare: ['#5fb4ff', '#2f6bff'], Uncommon: ['#8dff7a', '#2fbf4a'], Common: ['#d9d9d9', '#a6a6a6'] };
   const stops = grads[rarity] || ['#ffffff', '#ffffff'];
   g.font = 'bold 56px system-ui';
   const lg = g.createLinearGradient(100, 0, 412, 0);
