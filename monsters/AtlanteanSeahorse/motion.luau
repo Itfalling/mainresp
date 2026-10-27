@@ -28,9 +28,9 @@ local TAU = 2 * pi
 local BP = Vector3.new(0, 6.8, 0.4)
 local CP = Vector3.new(0, 7.6, 0.3)
 local HP = Vector3.new(0, 10.0, 0.8)
-local SP = Vector3.new(0, 10.9, -1.3)
-local TIP = Vector3.new(0, 10.85, -5.7)
-local BC = Vector3.new(0, 10.9, -6.0)
+local SP = Vector3.new(0, 10.6, -1.3)
+local TIP = Vector3.new(0, 10.55, -5.7)
+local BC = Vector3.new(0, 10.6, -6.0)
 
 local LAND = 6.05
 local REL = 5.28 -- bubble ring release
@@ -54,8 +54,8 @@ local function rig(c, t)
 	end
 
 	local jumpY = L.track(c, {
-		{ 3.3, 0 }, { 4.0, -1.3, "cubicOut" }, { 4.1, -1.4 }, { 4.6, 5.2, "cubicOut" },
-		{ 5.2, 6.0, "quadOut" }, { 5.5, 5.7, "quadIn" }, { LAND, -1.1, "quadIn" },
+		{ 3.3, 0 }, { 4.0, -1.3, "cubicOut" }, { 4.1, -1.4 }, { 4.6, 4.2, "cubicOut" },
+		{ 5.2, 4.8, "quadOut" }, { 5.5, 4.55, "quadIn" }, { LAND, -1.1, "quadIn" },
 		{ LAND + 0.1, -1.25, "quadOut" }, { 6.6, 0.5, "backOut" }, { 7.0, 0.25, "quadInOut" },
 		{ 8.6, 0, "sineInOut" },
 	})
@@ -69,21 +69,21 @@ local function rig(c, t)
 	local by = hover * (1 - 0.6 * busy) + 0.55 * pr * idleW + jumpY
 	local bz = 0.4 * antic
 	local yaw = 6 * wave(t, 1 / 9) * idleW + spin + 20 * proud
-	local pitch = -16 * antic + 6 * land + 9 * wob + 2 * wave(t, 1 / 3, 0.2) * idleW
+	local pitch = -10 * antic + 6 * land + 9 * wob + 2 * wave(t, 1 / 3, 0.2) * idleW
 	local roll = 7 * side * pr * idleW + 8 * wob * cos(TAU * 1.3 * (c - LAND))
 	local tilt = 15 * spinW
 	local sa = rad(spin)
 	local body = CFrame.new(0, by, bz) * ang(tilt * cos(sa), 0, tilt * sin(sa)) * ang(pitch, yaw, roll)
 
 	local chest = ang(
-		3 * wave(t, 1 / 3) * idleW - 12 * antic + 6 * spinW + 18 * proud - 10 * wob + 5 * inhale,
+		3 * wave(t, 1 / 3) * idleW - 8 * antic + 6 * spinW + 18 * proud - 10 * wob + 5 * inhale,
 		-4 * side * idleW,
 		-4 * side * pr * idleW
 	)
 
 	local look = (8 * L.noise(t, 3.3, 0.3) + 4 * wave(t, 1 / 9, 0.3)) * idleW
 	local head = ang(
-		10 * idleW - 4 * pr * idleW - 18 * antic + 16 * spinW + 10 * inhale - 16 * blow + 16 * proud - 8 * wob,
+		7 * idleW - 4 * pr * idleW - 8 * antic + 16 * spinW + 10 * inhale - 16 * blow + 16 * proud - 8 * wob,
 		look - 14 * proud,
 		6 * wave(t, 2 / 9, 0.1) * idleW + 3 * side * idleW - 10 * spinW + 12 * wink + 6 * proud
 	)

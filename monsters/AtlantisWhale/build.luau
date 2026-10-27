@@ -236,6 +236,11 @@ return {
 			B:block(fluke, v(0.5, 0.5, 0.6), cf(10.2, 9.0, 22.0), NT, NEON)
 			B:trail(fluke, v(10.2, 9.0, 22.2), v(8.6, 9.0, 21.6), { name = "FlukeTrail" .. side, color = { "#ffffff", NS }, life = 0.4, trans = { 0.45, 1 } })
 		end)
+		-- splash crown flashed on the slap (hidden)
+		for i = 1, 6 do
+			local a = (i - 1) * 60 + 30
+			B:block(fluke, v(0.4, 0.4, 2.4), CFrame.new(0, 9.0, 19.8) * ang(0, a, 0) * CFrame.new(0, 0, -6.5) * ang(-30, 0, 0), FOAM, { mat = "Neon", tr = 1, name = "SplashLine" .. i })
+		end
 		local flukeFx = B:block(fluke, v(14, 1.5, 4), cf(0, 9.0, 19.5), MAIN, { tr = 1, name = "FlukeFX" })
 		B:emitter(flukeFx, "burst", { name = "SlapBurst", color = { "#ffffff", NS, "#9fe2ff" }, size = { 1.0, 0.7, 0 }, speed = { 8, 18 }, life = { 0.5, 1.1 } })
 
@@ -339,7 +344,7 @@ return {
 		local halo = B:bone("Halo", "Spire", v(0, 24.9, -1))
 		for i = 1, 10 do
 			local a = i * 36
-			local len = (i % 2 == 0) and 2.0 or 2.9
+			local len = (i % 2 == 0) and 2.8 or 4.2
 			B:block(halo, v(0.3, 0.3, len), CFrame.new(0, 24.9, -1) * ang(0, a, 0) * CFrame.new(0, 0, -1.0 - len / 2) * ang(25, 0, 0), (i % 2 == 0) and NT or NG, { mat = "Neon", tr = 1, name = "Ray" .. i })
 		end
 

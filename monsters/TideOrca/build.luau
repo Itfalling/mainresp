@@ -374,8 +374,8 @@ return {
 		-- wave ring: blue slabs with white foam crests that burst outward
 		for k = 1, 8 do
 			local wb = B:bone("Wave" .. k, "Root", SC)
-			B:block(wb, v(4.2, 1.2, 1.2), CFrame.new(SC), AQUA, { tr = 1, name = "WavePart" .. k })
-			B:block(wb, v(3.6, 0.5, 0.8), CFrame.new(SC + v(0, 0.8, -0.1)), k % 2 == 0 and SKY or WHITE,
+			B:block(wb, v(5.0, 1.6, 1.4), CFrame.new(SC), AQUA, { tr = 1, name = "WavePart" .. k })
+			B:block(wb, v(4.4, 0.6, 1.0), CFrame.new(SC + v(0, 1.05, -0.1)), k % 2 == 0 and SKY or WHITE,
 				{ mat = k % 2 == 0 and "Neon" or nil, tr = 1, name = "FoamPart" .. k })
 		end
 		-- splash droplet cubes

@@ -26,9 +26,9 @@ local SW = 2 / 7 -- swim frequency (4 strokes per loop)
 
 local CHAIN = { "Head", "Body", "Tail1", "Tail2", "Tail3", "Fluke" }
 local AMP = { 3, 2.5, 5, 9, 13, 20 } -- swim pitch (absolute), head -> fluke
-local ARC = { 10, 22, 30, 38, 46, 56 } -- rising arc: nose up, tail curls under
-local LIFT = { -6, -10, -18, -32, -46, -64 } -- dive wind-up: tail lifts high
-local SLAPA = { 2, 4, 14, 28, 44, 70 } -- slap: tail whips down
+local ARC = { 34, 22, 30, 40, 50, 62 } -- rising arc: nose up, tail curls under
+local LIFT = { -4, -12, -26, -44, -62, -82 } -- dive wind-up: tail lifts high
+local SLAPA = { 4, 6, 16, 30, 46, 72 } -- slap: tail whips down
 local BLINKS = { 0.9, 4.6, 12.6 }
 
 local FIRE = 7.45
@@ -46,10 +46,10 @@ function M.Update(t, pose, ctx)
 	-- envelopes
 	------------------------------------------------------------------
 	local breath = L.env(c, 5.0, 1.2, 0.3, 0.45, "sineInOut", "cubicIn")
-	local rise = L.env(c, 6.35, 1.1, 1.55, 1.4, "backOut", "sineInOut")
+	local rise = L.env(c, 6.35, 1.1, 1.45, 0.7, "backOut", "sineInOut")
 	local charge = L.env(c, 6.9, 0.55, 0.0, 0.12, "quadIn", "quadOut")
 	local beam = L.env(c, FIRE, 0.12, 1.45, 0.5, "expoOut", "cubicIn")
-	local lift = L.env(c, 9.0, 0.7, 0.05, 0.09, "sineInOut", "expoIn")
+	local lift = L.env(c, 9.0, 0.75, 0.05, 0.09, "sineInOut", "expoIn")
 	local slap = L.env(c, 9.7, 0.14, 0.04, 1.4, "quadIn", "elasticOut")
 	local squash = L.env(c, SLAP, 0.06, 0.04, 0.9, "linear", "elasticOut")
 	local content = L.env(c, 10.25, 0.4, 1.9, 0.6, "sineInOut", "sineInOut")
@@ -76,7 +76,7 @@ function M.Update(t, pose, ctx)
 	-- content nod
 	pitch[1] += -5 * content * (0.5 + 0.5 * sin(TAU * 1.0 * (c - 10.25)))
 	-- song: head lifts while the beam fires
-	pitch[1] += 8 * beam
+	pitch[1] += 12 * beam
 
 	------------------------------------------------------------------
 	-- body: calm bob, deep-breath sink, majestic rise, squash on the slap
@@ -87,7 +87,7 @@ function M.Update(t, pose, ctx)
 	local roll = 3 * wave(t, 1 / 7) * swimW - 5 * look + 4 * look2
 	local yaw = 2 * wave(t, 1 / 14, 0.2) * swimW
 	pose.Body = pa(0, by, bz, pitch[2], yaw, roll)
-	pose.Head = ang(pitch[1] - pitch[2], 16 * look - 13 * look2, 4 * look - 3 * look2)
+	pose.Head = ang(pitch[1] - pitch[2], 22 * look - 16 * look2, 6 * look - 4 * look2)
 	for i = 3, #CHAIN do
 		pose[CHAIN[i]] = ang(pitch[i] - pitch[i - 1], 0, 0)
 	end
@@ -97,7 +97,7 @@ function M.Update(t, pose, ctx)
 	-- face: warm smile, hums, the song, blinks, content closed eyes
 	------------------------------------------------------------------
 	local humMouth = hum * (0.5 + 0.5 * sin(TAU * 2 * c))
-	local jaw = -2 - 5 * humMouth - 14 * beam - 6 * charge + 3 * breath - 8 * squash
+	local jaw = -2 - 5 * humMouth - 24 * beam - 6 * charge + 3 * breath - 8 * squash
 	pose.Jaw = ang(jaw, 0, 0)
 
 	local blink = 0
@@ -126,7 +126,7 @@ function M.Update(t, pose, ctx)
 	-- flippers: slow glide, tuck on the breath, open wide on the rise
 	------------------------------------------------------------------
 	local glide = sin(TAU * (SW * t + 0.05))
-	local flap = 12 * glide * swimW - 14 * breath + 42 * rise - 20 * lift + 30 * squash
+	local flap = 12 * glide * swimW - 14 * breath + 42 * rise + 6 * lift + 30 * squash
 	local sweep = 8 * sin(TAU * (SW * t + 0.3)) * swimW + 18 * breath - 22 * rise + 10 * lift
 	local tipFlap = 10 * sin(TAU * (SW * t - 0.05)) * swimW + 22 * rise * (1 + 0.25 * sin(TAU * 1.5 * c)) - 10 * breath + 25 * squash
 	L.both(pose, "Fin", ang(0, sweep, flap))
@@ -159,6 +159,10 @@ function M.Update(t, pose, ctx)
 	------------------------------------------------------------------
 	ctx.transparency("BeamCore", beam > 0.02 and (1 - 0.92 * beam) or 1)
 	ctx.transparency("BeamGlow", beam > 0.02 and (1 - 0.5 * beam) or 1)
+	local splashOn = c > SLAP and c < SLAP + 0.3
+	for i = 1, 6 do
+		ctx.transparency("SplashLine" .. i, splashOn and 0.15 + 2.5 * max(0, c - SLAP - 0.0) or 1)
+	end
 	for i = 1, 10 do
 		ctx.transparency("Ray" .. i, beam > 0.05 and (1 - 0.9 * beam) or 1)
 	end

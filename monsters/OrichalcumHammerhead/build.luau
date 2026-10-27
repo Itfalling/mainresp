@@ -54,6 +54,8 @@ return {
 		segment(body2, -1.6, 3.4, 8.0, 6.2, 6.2)
 		B:sym(function()
 			B:block(body2, v(0.12, 1.0, 1.6), cf(3.12, 9.0, 1.6), DARK) -- side spot
+			B:block(body2, v(0.5, 0.6, 0.6), cf(3.2, 10.2, -0.6), MARBLE) -- barnacles
+			B:block(body2, v(0.4, 0.4, 0.4), cf(3.2, 10.5, 0.1), MARBLE)
 			B:block(body2, v(0.2, 0.3, 2.6), cf(3.15, 7.6, 0.2), TURQ, NEON) -- lateral line
 		end)
 		local bubbleVol = B:block(body2, v(10, 8, 24), cf(0, 9, 1), MAIN, { tr = 1, name = "BubbleVolume" })
@@ -106,8 +108,11 @@ return {
 		segment(body3, 3.0, 6.4, 8.2, 5.0, 5.0)
 		B:block(body3, v(5.3, 5.3, 0.6), cf(0, 8.2, 3.3), DARK) -- joint collar
 		battlePlate(body3, 10.7, 4.9, 3.4, 1.8)
-		-- small pelvic fins
+		-- small pelvic fins + marble barnacle clusters (sunken-ruin crust)
 		B:sym(function()
+			B:block(body3, v(0.5, 0.7, 0.7), cf(2.6, 9.3, 4.2), MARBLE)
+			B:block(body3, v(0.4, 0.5, 0.5), cf(2.6, 8.7, 4.8), MARBLE)
+			B:block(body3, v(0.35, 0.35, 0.35), cf(2.75, 9.4, 4.25), DARK)
 			B:beam(body3, v(1.8, 5.8, 4.2), v(3.0, 4.6, 6.0), 0.5, 1.4, DARK)
 		end)
 

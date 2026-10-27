@@ -103,9 +103,9 @@ function M.Update(t, pose, ctx)
 	local bx = 0.3 * wave(t, 3 * F, 0.2) * idleW - 0.6 * hideL
 	local jit = 6 * panic * L.noise(t, 3.3, 9) + 4 * startle * sin(TAU * 18 * c)
 	local wobble = sin(TAU * 2.6 * (c - PFFT - 0.1))
-	local yaw = spin + 22 * hideAll + 10 * eep * sin(TAU * 8 * c)
+	local yaw = spin + 10 * hideAll + 10 * eep * sin(TAU * 8 * c)
 		+ (10 * L.noise(t, 1.7, 0.4) + 6 * wave(t, 2 * F)) * idleW
-		+ 14 * wob * wobble - 18 * peek
+		+ 14 * wob * wobble - 8 * peek
 	local pitch = -5 * hideAll + 14 * startle - 10 * suck + 5 * wave(t, 5 * F, 0.25) * idleW
 		+ 8 * hic + 10 * wob * sin(TAU * 2.6 * (c - PFFT))
 	local roll = 6 * wave(t, 4 * F, 0.1) * idleW + jit + 24 * wob * wobble - 8 * hideAll
@@ -287,7 +287,7 @@ function M.Update(t, pose, ctx)
 			for _, b0 in { 0.2, 2.0 } do
 				local ub = (c - b0 - (k - 1) * 0.18) / 1.3
 				if ub > 0 and ub < 1 and k <= 3 then
-					cfk = pa(0.5 * sin(TAU * (1.5 * ub + k * 0.3)), by + 4.5 * ub, -1.2 * ub, 0, 90 * ub, 45)
+					cfk = pa(0.5 * sin(TAU * (1.5 * ub + k * 0.3)), by + 4.5 * ub, -0.6 - 2.6 * ub, 0, 90 * ub, 45)
 					tr = ub > 0.85 and 0.8 or 0.35
 				end
 			end

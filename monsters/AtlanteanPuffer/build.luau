@@ -38,12 +38,12 @@ return {
 		-- BODY core (stepped ball = core cube + 6 panels on their own bones)
 		------------------------------------------------------------------
 		local body = B:bone("Body", "Root", C)
-		B:block(body, v(6.4, 4.0, 6.4), at(0, 1.2, 0), TEAL)
-		B:block(body, v(6.4, 2.4, 6.4), at(0, -2.0, 0), CREAM)
+		B:block(body, v(5.6, 3.6, 5.6), at(0, 1.0, 0), TEAL)
+		B:block(body, v(5.6, 2.0, 5.6), at(0, -1.8, 0), CREAM)
 		-- hidden inflated fill (revealed while puffed)
-		B:block(body, v(7.8, 5.0, 7.8), at(0, 1.4, 0), TEAL, { tr = 1, name = "FillTop" })
-		B:block(body, v(7.85, 2.8, 7.85), at(0, -2.5, 0), CREAM, { tr = 1, name = "FillBot" })
-		B:block(body, v(7.95, 0.35, 7.95), at(0, -1.1, 0), GOLD, { tr = 1, name = "FillBelt" })
+		B:block(body, v(7.6, 4.9, 7.6), at(0, 1.35, 0), TEAL, { tr = 1, name = "FillTop" })
+		B:block(body, v(7.65, 2.7, 7.65), at(0, -2.45, 0), CREAM, { tr = 1, name = "FillBot" })
+		B:block(body, v(7.75, 0.35, 7.75), at(0, -1.1, 0), GOLD, { tr = 1, name = "FillBelt" })
 		local fx = B:block(body, v(6, 6, 6), at(0, 0, 0), TEAL, { tr = 1, name = "BodyFX" })
 		B:emitter(fx, "bubble", { name = "AmbientBubbles", color = { "#ffffff", BUBC }, rate = 2.5, size = { 0.25, 0.4, 0.5 } })
 		B:emitter(fx, "burst", { name = "PuffBurst", color = { "#ffffff", NGOLD, TURQ }, speed = { 10, 18 }, size = { 1.0, 0.6, 0 } })
@@ -51,44 +51,44 @@ return {
 		B:light(fx, { name = "PuffLight", color = TURQ, brightness = 0.3, range = 14 })
 
 		-- TOP panel: dark teal back with deep spots
-		local top = B:bone("Top", "Body", rp(0, 3.2, 0))
-		B:block(top, v(5.0, 2.4, 5.0), at(0, 2.6, 0), DTEAL)
+		local top = B:bone("Top", "Body", rp(0, 2.8, 0))
+		B:block(top, v(5.4, 2.8, 5.4), at(0, 2.4, 0), DTEAL)
 		B:block(top, v(0.9, 0.2, 0.9), at(1.3, 3.85, 1.2), DEEP)
 		B:block(top, v(0.7, 0.2, 0.7), at(-1.5, 3.85, 0.3), DEEP)
 		B:block(top, v(0.6, 0.2, 0.6), at(0.4, 3.85, 2.0), DEEP)
 		B:block(top, v(0.6, 0.2, 0.6), at(-0.9, 3.85, -1.8), DEEP)
 
 		-- BELLY panel: cream with stepped marble plates and a gold trim
-		local belly = B:bone("Belly", "Body", rp(0, -3.2, 0))
-		B:block(belly, v(5.0, 2.4, 5.0), at(0, -2.6, 0), CREAM)
+		local belly = B:bone("Belly", "Body", rp(0, -2.8, 0))
+		B:block(belly, v(5.4, 2.8, 5.4), at(0, -2.4, 0), CREAM)
 		B:block(belly, v(3.8, 0.3, 1.5), at(0, -3.9, -1.3), MARBLE)
 		B:block(belly, v(3.2, 0.3, 1.3), at(0, -3.9, 0.3), MSHADE)
 		B:block(belly, v(4.2, 0.3, 0.4), at(0, -3.9, 1.6), GOLD)
 
 		-- SIDE panels: teal over cream, gold belt, deep spots
 		B:sym(function(side)
-			local s = B:bone("Side" .. side, "Body", rp(3.2, 0, 0))
-			B:block(s, v(2.4, 2.8, 5.0), at(2.6, 1.1, 0), TEAL)
-			B:block(s, v(2.4, 2.2, 5.0), at(2.6, -1.4, 0), CREAM)
-			B:block(s, v(0.2, 0.35, 5.0), at(3.85, -0.3, 0), GOLD)
+			local s = B:bone("Side" .. side, "Body", rp(2.8, 0, 0))
+			B:block(s, v(2.8, 3.0, 5.4), at(2.4, 1.2, 0), TEAL)
+			B:block(s, v(2.8, 2.4, 5.4), at(2.4, -1.5, 0), CREAM)
+			B:block(s, v(0.2, 0.35, 5.4), at(3.85, -0.3, 0), GOLD)
 			B:block(s, v(0.2, 0.9, 0.9), at(3.85, 1.6, 0.9), DEEP)
 			B:block(s, v(0.2, 0.6, 0.6), at(3.85, 2.2, -1.2), DEEP)
 			B:block(s, v(0.2, 0.6, 0.6), at(3.85, 0.7, 2.0), DEEP)
 		end)
 
 		-- REAR panel
-		local rear = B:bone("Rear", "Body", rp(0, 0, 3.2))
-		B:block(rear, v(5.0, 2.8, 2.4), at(0, 1.1, 2.6), TEAL)
-		B:block(rear, v(5.0, 2.2, 2.4), at(0, -1.4, 2.6), CREAM)
-		B:block(rear, v(5.0, 0.35, 0.2), at(0, -0.3, 3.85), GOLD)
+		local rear = B:bone("Rear", "Body", rp(0, 0, 2.8))
+		B:block(rear, v(5.4, 3.0, 2.8), at(0, 1.2, 2.4), TEAL)
+		B:block(rear, v(5.4, 2.4, 2.8), at(0, -1.5, 2.4), CREAM)
+		B:block(rear, v(5.4, 0.35, 0.2), at(0, -0.3, 3.85), GOLD)
 		B:block(rear, v(0.8, 0.8, 0.2), at(-1.4, 1.7, 3.85), DEEP)
 
 		------------------------------------------------------------------
 		-- FACE panel: googly eyes, worried brows, pouty lips, chin plates
 		------------------------------------------------------------------
-		local face = B:bone("Face", "Body", rp(0, 0, -3.2))
-		B:block(face, v(5.0, 2.8, 2.4), at(0, 1.1, -2.6), TEAL)
-		B:block(face, v(5.0, 2.2, 2.4), at(0, -1.4, -2.6), CREAM)
+		local face = B:bone("Face", "Body", rp(0, 0, -2.8))
+		B:block(face, v(5.4, 3.0, 2.8), at(0, 1.2, -2.4), TEAL)
+		B:block(face, v(5.4, 2.4, 2.8), at(0, -1.5, -2.4), CREAM)
 		B:block(face, v(3.0, 0.5, 1.0), at(0, -2.35, -3.55), MARBLE) -- stepped chin plates
 		B:block(face, v(2.0, 0.45, 1.0), at(0, -2.8, -3.5), MSHADE)
 
@@ -172,7 +172,7 @@ return {
 		local tfin = B:bone("TailFin", "Tail", rp(0, 0.3, 5.0))
 		B:block(tfin, v(0.6, 2.6, 0.9), at(0, 0.3, 5.4), DTEAL)
 		B:block(tfin, v(0.5, 3.6, 0.9), at(0, 0.3, 6.2), FINC)
-		B:block(tfin, v(0.45, 4.4, 0.9), at(0, 0.3, 7.0), LTEAL)
+		B:block(tfin, v(0.45, 4.6, 1.0), at(0, 0.3, 7.0), LTEAL)
 		B:block(tfin, v(0.5, 1.4, 0.8), at(0, 1.9, 7.8), GOLD)
 		B:block(tfin, v(0.5, 1.4, 0.8), at(0, -1.3, 7.8), GOLD)
 		B:block(tfin, v(0.4, 0.4, 0.4), at(0, 2.7, 8.25), TURQ, NEON)
@@ -212,11 +212,11 @@ return {
 		local SPINES = {
 			{ "SpTopA", "Top", { 1.6, 3.8, 1.4 }, { 0.35, 1, 0.3 }, true },
 			{ "SpTopB", "Top", { 1.6, 3.8, -1.3 }, { 0.35, 1, -0.3 }, true },
-			{ "SpEdgeU", "Body", { 3.0, 3.0, 0.5 }, { 1, 1, 0 }, true },
-			{ "SpEdgeD", "Body", { 3.0, -3.0, 0.5 }, { 1, -1, 0 }, true },
-			{ "SpEdgeB", "Body", { 3.0, 0.4, 3.0 }, { 1, 0, 1 }, true },
-			{ "SpBack", "Body", { 0, 3.0, 3.0 }, { 0, 1, 1 }, false },
-			{ "SpChin", "Body", { 0, -3.0, -3.0 }, { 0, -1, -1 }, false },
+			{ "SpEdgeU", "Body", { 2.85, 2.85, 0.5 }, { 1, 1, 0 }, true },
+			{ "SpEdgeD", "Body", { 2.85, -2.85, 0.5 }, { 1, -1, 0 }, true },
+			{ "SpEdgeB", "Body", { 2.85, 0.4, 2.85 }, { 1, 0, 1 }, true },
+			{ "SpBack", "Body", { 0, 2.85, 2.85 }, { 0, 1, 1 }, false },
+			{ "SpChin", "Body", { 0, -2.85, -2.85 }, { 0, -1, -1 }, false },
 			{ "SpSideA", "Side", { 3.8, 1.9, 0.7 }, { 1, 0.3, 0 }, true },
 			{ "SpSideB", "Side", { 3.8, -1.7, 0.5 }, { 1, -0.3, 0 }, true },
 			{ "SpSideC", "Side", { 3.8, 0.1, 1.9 }, { 1, 0, 0.35 }, true },

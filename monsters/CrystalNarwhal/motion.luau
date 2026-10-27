@@ -36,7 +36,7 @@ local STREAM = { -6, 0, 6, 9, 12, 14, 16 } -- launch: tail drags behind / below
 local CURL = { 10, 0, -6, -10, -13, -15, -18 } -- top of the breach: C-arc, tail up
 local FALL = { -6, 0, -5, -8, -10, -10, -10 } -- nose-first fall: tail whips up
 local WIG = { 6, 2, 8, 14, 20, 26, 34 } -- splashdown follow-through flaps
-local BLINKS = { 1.55, 2.6, 2.78, 10.35 }
+local BLINKS = { 1.35, 2.72, 10.35, 10.55 }
 
 local APEX = 4.75
 local SPLASH = 5.9
@@ -68,7 +68,7 @@ function M.Update(t, pose, ctx)
 	local jumpY = L.track(c, {
 		-- little excited spin hop in the idle
 		{ 1.85, 0 }, { 2.15, 1.6, "quadOut" }, { 2.5, -0.3, "quadIn" }, { 2.75, 0, "quadOut" },
-		{ 3.0, 0 }, { 3.75, -1.2, "cubicOut" }, { 3.85, -1.3 }, { 4.5, 9.0, "cubicOut" },
+		{ 3.0, 0 }, { 3.75, -0.8, "cubicOut" }, { 3.85, -0.9 }, { 4.5, 9.0, "cubicOut" },
 		{ 4.9, 10.0, "quadOut" }, { 5.3, 9.0, "quadIn" }, { SPLASH, -1.6, "quadIn" },
 		{ SPLASH + 0.12, -1.9, "quadOut" }, { 6.9, 0, "elasticOut" },
 		-- puppy hops

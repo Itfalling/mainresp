@@ -251,7 +251,7 @@ function M.Update(t, pose, ctx)
 	for k = 1, 8 do
 		local deg = (k - 1) * 45 + 22.5
 		local a = rad(deg)
-		local r = 5 + 13 * we
+		local r = 6.5 + 12 * we
 		local cf = pa(sin(a) * r, 1.6 * sin(pi * min(1, wu * 1.4)) - 0.6 * wu, cos(a) * r, 0, deg + 90, 10 * sin(pi * wu))
 		pose["Wave" .. k] = wOn and cf or CFrame.new()
 		local tr = wOn and (wu > 0.55 and (wu - 0.55) / 0.45 or 0) or 1

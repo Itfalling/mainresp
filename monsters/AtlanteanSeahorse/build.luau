@@ -97,12 +97,12 @@ return {
 		-- DORSAL FIN: 4 fluttering aqua rays with gold tips on the lower back
 		------------------------------------------------------------------
 		B:block(body, v(0.7, 2.6, 0.5), cf(0, 6.95, 2.4), GOLD)
-		local rays = { { 6.0, -0.5, 1.8 }, { 6.6, -0.05, 2.2 }, { 7.2, 0.4, 2.35 }, { 7.8, 0.85, 2.0 } }
+		local rays = { { 5.95, -0.25, 1.7 }, { 6.6, -0.05, 2.15 }, { 7.25, 0.2, 2.35 }, { 7.9, 0.45, 2.05 } }
 		for i, r in rays do
 			local y, rise, len = r[1], r[2], r[3]
 			local fb = B:bone("Dorsal" .. i, "Body", v(0, y, 2.55))
 			local a, b = v(0, y, 2.4), v(0, y + rise, 2.55 + len)
-			B:beam(fb, a, b, 0.3, 0.62, i % 2 == 1 and AQUA or TEAL)
+			B:beam(fb, a, b, 0.3, 0.72, i % 2 == 1 and AQUA or TEAL)
 			local dir = (b - a).Unit
 			B:block(fb, v(0.4, 0.66, 0.6), CFrame.lookAt(b + dir * 0.2, b + dir * 2), GOLD)
 		end
@@ -167,7 +167,7 @@ return {
 		local mouthFX = B:block(snout, v(0.8, 0.8, 0.6), cf(0, 10.6, -5.9), ORANGE, { tr = 1, name = "MouthFX" })
 		B:emitter(mouthFX, "bubble", { name = "SnoutBubbles", color = { WHITE, "#bff6ff" }, rate = 0, size = { 0.3, 0.55, 0.65 }, speed = { 2, 4 }, spread = 30, dir = "Front" })
 		B:emitter(mouthFX, "burst", { name = "BubbleBurst", color = { WHITE, "#bff6ff", TURQ }, speed = { 6, 13 }, size = { 0.8, 0.6, 0 }, spread = 35, dir = "Front", life = { 0.4, 0.9 } })
-		B:trail(snout, v(0, 11.3, -5.4), v(0, 10.2, -5.4), { name = "SnoutTrail", color = { WHITE, TURQ }, life = 0.2, trans = { 0.55, 1 } })
+		B:trail(snout, v(0, 11.3, -5.4), v(0, 9.9, -5.4), { name = "SnoutTrail", color = { WHITE, TURQ }, life = 0.2, trans = { 0.55, 1 } })
 
 		B:sym(function(side)
 			-- BIG eye on the front corner: white block, glowing turquoise iris
@@ -275,10 +275,10 @@ return {
 			local a = rad(k * 68)
 			local y = 4.6 + k * 0.9
 			local r = 3.2 + 0.25 * sin(k)
-			B:block(swirl, v(1.5, 0.28, 0.4), cf(sin(a) * r, y, 0.4 + cos(a) * r, 0, k * 68, -12),
-				k % 2 == 0 and TURQ or WHITE, { mat = "Neon", tr = 1, name = "Swirl" .. (k + 1) })
+			B:block(swirl, v(2.2, 0.35, 0.45), cf(sin(a) * r, y, 0.4 + cos(a) * r, 0, k * 68, -12),
+				k % 3 == 2 and WHITE or TURQ, { mat = "Neon", tr = 1, name = "Swirl" .. (k + 1) })
 		end
-		local BC = v(0, 10.9, -6.0)
+		local BC = v(0, 10.6, -6.0)
 		for k = 1, 8 do
 			local bb = B:bone("Bub" .. k, "Root", BC)
 			local s = k % 2 == 0 and 0.5 or 0.65

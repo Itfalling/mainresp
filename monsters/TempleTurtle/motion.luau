@@ -105,7 +105,7 @@ function M.Update(t, pose, ctx)
 	-- FACE: droopy lids, blinks, squeeze in the yawn, wide eyes on surprise
 	------------------------------------------------------------------
 	local close = drowsy * 0.85
-	close = max(close, yawn * 1.0, 0.55 * happy, 0.95 * tuck)
+	close = max(close, yawn * 1.0, 0.3 * happy, 0.95 * tuck)
 	for _, b in BLINKS do
 		close = max(close, L.env(c, b, 0.07, 0.06, 0.12))
 	end
