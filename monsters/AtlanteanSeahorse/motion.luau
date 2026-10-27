@@ -186,7 +186,7 @@ function M.Update(t, pose, ctx)
 	------------------------------------------------------------------
 	local jolt = L.env(c, LAND, 0.05, 0.05, 0.9, "quadOut", "elasticOut")
 	local psi = 40 * t + 0.5 * r.spin
-	pose.Orbit = pa(0, 0.5 * S * r.jumpY, 0, 0, psi, 0)
+	pose.Orbit = pa(0, S * r.jumpY, 0, 0, psi, 0) -- follows the jump so cubes stay clear of the face
 	for i = 1, 4 do
 		local s = i % 2 == 0 and -1 or 1
 		pose["Orb" .. i] = pa(0, 0.9 * wave(t, 1 / 3, i * 0.27) - 1.2 * jolt + 0.8 * spinW, 0,

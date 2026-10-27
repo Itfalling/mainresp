@@ -156,7 +156,7 @@ function M.Update(t, pose, ctx)
 	local gp = (t / 2.75) % 1
 	local giggle = (sin(pi * L.remap(gp, 0, 0.3)) ^ 2) * idleW
 	local laugh = max(0.6 * giggle, launch, glow, 0.8 * wig, joy * (0.6 + 0.4 * L.wave01(t, 33 * F)), 0.3 * dive)
-	pose.Jaw = ang(-(6 + 26 * laugh), 0, 0)
+	pose.Jaw = ang(-(13 + 22 * laugh), 0, 0)
 
 	------------------------------------------------------------------
 	-- eyes: blinks, "^ ^" happy squint at the top + during joy, squeeze on the splash

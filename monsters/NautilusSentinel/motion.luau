@@ -23,7 +23,8 @@ local rad, max, min, sin, cos, floor, pi, abs = math.rad, math.max, math.min, ma
 
 local SPIN0, SPIN1, POP = 4.95, 6.55, 6.55
 local TURNS = 4
-local BLINKS = { 0.25, 3.0, 3.2, 9.35 }
+local BLINKS = { 0.9, 3.0, 3.2, 9.35 }
+local BETAS = { -112, -90, -68, -36, -21, -7, 7, 21, 36, 68, 90, 112 }
 
 local function blinkAt(c)
 	local b = 0
@@ -184,15 +185,15 @@ function M.Update(t, pose, ctx)
 		if k == 6 then poke, tap = pokeR, tapR end
 		if k == 7 then poke, tap = pokeL, tapL end
 		local sideSign = k <= 6 and 1 or -1
-		local outer = math.abs(-110 + 20 * (k - 1)) / 110
+		local outer = math.abs(BETAS[k]) / 112
 		for j = 1, 3 do
 			local ph = -0.13 * j - 0.083 * k
 			local rx = 10 * wave(t, 0.8, ph) * wigA * (0.7 + 0.25 * j)
 			local rz = 7 * wave(t, 0.6, ph * 0.8 + 0.3) * wigA * (0.6 + 0.3 * j)
 			-- tuck in (curl under), flare out wide, dizzy dangle, happy wave
 			rx += (j == 1 and -38 or (j == 2 and -30 or -45)) * tuck - 12 * peekTuck
-			rx += (j == 1 and (25 + 50 * outer) or (j == 2 and 20 or 35)) * flare
-			rz += sideSign * (j == 1 and 45 or 10) * (1 - outer) * flare
+			rx += (j == 1 and (10 + 60 * outer) or (j == 2 and 12 + 10 * outer or 40)) * flare
+			rz += sideSign * (j == 1 and 50 or 12) * (1 - outer) * flare
 			rx += 22 * happy * wave(t, 1.6, -0.08 * k - 0.1 * j) * (j == 1 and 0.6 or 1) * (0.25 + 0.75 * outer)
 			rz += sideSign * 18 * happy * (1 - outer) * (j == 1 and 1 or 0.3)
 			rx += 20 * dizzy * wave(t, 1.4, -0.15 * j) * (j == 1 and 0.4 or 1)

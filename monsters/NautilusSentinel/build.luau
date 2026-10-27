@@ -255,20 +255,25 @@ return {
 		B:emitter(sipFx, "bubble", { name = "SiphonBubbles", color = { "#ffffff", SKY }, rate = 2.5, size = { 0.25, 0.45, 0.55 } })
 
 		------------------------------------------------------------------
-		-- TENTACLES: 12 x 3 bones in a forward horseshoe under the face.
-		-- Each bone's pivot frame is yawed so local -Z points OUTWARD:
-		-- +X rot flares a tentacle out/up, -X tucks it in, Z sways it sideways.
+		-- TENTACLES: 12 x 3 bones. Six front ones hang in a tidy, nearly
+		-- parallel fringe under the face (a "beard"); three per side splay
+		-- out wide as a stepped skirt. Each bone's pivot frame is yawed so
+		-- local -Z points OUTWARD: +X rot flares a tentacle out/up, -X tucks
+		-- it in, Z sways it sideways. Clean dark->light->cream gradient per
+		-- tentacle (no mid bands) keeps the cluster readable from the front.
 		------------------------------------------------------------------
-		local CC = v(0, 5.6, -4.5)
+		local BETAS = { -112, -90, -68, -36, -21, -7, 7, 21, 36, 68, 90, 112 }
+		local CC = v(0, 5.7, -4.3)
 		for k = 1, 12 do
-			local beta = -110 + 20 * (k - 1)
+			local beta = BETAS[k]
 			local rot = CFrame.Angles(0, rad(beta), 0)
-			local base = CC + v(-sin(rad(beta)) * 2.3, 0, -cos(rad(beta)) * 1.3)
+			local front = math.abs(beta) < 45
+			local base = front and v(-sin(rad(beta)) * 3.6, CC.Y, -5.55)
+				or CC + v(-sin(rad(beta)) * 2.45, 0.15, -cos(rad(beta)) * 1.5)
 			local poker = k == 6 or k == 7
-			local lens = poker and { 2.0, 1.8, 1.5 } or { 1.6, 1.4, 1.2 }
-			local side = math.abs(beta) > 60
-			local th = { side and 45 or 32, 18, 55 }
-			local wid = { 1.1, 0.9, 0.75 }
+			local lens = poker and { 1.9, 1.8, 1.5 } or (front and { 1.7, 1.5, 1.2 } or { 1.6, 1.5, 1.3 })
+			local th = front and { 12, 16, 62 } or { 58, 22, 50 }
+			local wid = { 1.15, 0.9, 0.7 }
 			local p = base
 			local parent = "Head"
 			for j = 1, 3 do
@@ -278,11 +283,8 @@ return {
 				local q = p + d * lens[j]
 				local col = j == 1 and TEAL or TEAL2
 				B:beam(b, p - d * 0.3, q, wid[j], wid[j], col)
-				if j == 2 then
-					B:beam(b, p - d * 0.15, p + d * 0.3, wid[j] + 0.2, wid[j] + 0.2, CREAM)
-				end
 				if j == 3 then
-					B:beam(b, q - d * 0.15, q + d * 0.45, 0.55, 0.55, CREAM)
+					B:beam(b, q - d * 0.1, q + d * 0.45, 0.6, 0.6, CREAM)
 					if poker or k == 1 or k == 12 then
 						B:trail(b, q + v(0, 0.3, 0), q - v(0, 0.3, 0), { name = "TipTrail" .. k, color = { TURQ, "#ffffff" }, life = 0.2, trans = { 0.55, 1 } })
 					end
