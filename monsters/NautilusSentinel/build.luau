@@ -130,6 +130,17 @@ return {
 			local ru = r(SPAN)
 			B:block(shell, v(W + 1.0, ru * 0.6 + 0.6, 0.8), frameAt(-60, ru * 0.7 + 0.3) * CFrame.new(0, 0, -0.1), BRONZE)
 		end
+		-- ornate gold chin plate over the lower lip keel (seen under the face when
+		-- the tentacles flare open)
+		do
+			local a, rr = 228, r(12)
+			local f = frameAt(a, rr + 0.78)
+			B:block(shell, v(W - 1.0, 0.35, 3.4), f, GOLD)
+			B:block(shell, v(W - 2.2, 0.2, 2.6), f * CFrame.new(0, 0.2, 0), BRONZE)
+			for _, xx in { -1.6, 0, 1.6 } do
+				B:block(shell, v(0.7, 0.2, 0.7), f * CFrame.new(xx, 0.32, 0) * ang(0, 45, 0), TURQ, { mat = "Neon", name = "LipRune" })
+			end
+		end
 		-- hood "door": closes the aperture while the head hides inside the shell
 		-- (hidden until the Sentinel Spiral)
 		local door = CFrame.new(0, 8.35, -3.3) * ang(24, 0, 0)
@@ -201,11 +212,11 @@ return {
 				B:block(shell, v(0.2, 0.3, 0.3), g * CFrame.new(0.25, 0, 0), "#4a5458")
 			end)
 			-- coral tuft on the back keel
-			local f = frameAt(115, r(125) + 0.6)
-			B:block(shell, v(0.6, 1.4, 0.6), f, CORAL)
-			B:block(shell, v(0.5, 0.9, 0.5), f * CFrame.new(0.55, 0.2, 0.35) * ang(0, 0, -25), CORAL2)
-			B:block(shell, v(0.5, 1.0, 0.5), f * CFrame.new(-0.55, 0.15, -0.3) * ang(0, 0, 25), CORAL)
-			B:block(shell, v(0.35, 0.35, 0.35), f * CFrame.new(0, 0.85, 0), "#ffd0c8")
+			local f = frameAt(44, r(196) + 1.25) * CFrame.new(-1.3, 0, 0)
+			B:block(shell, v(0.8, 1.9, 0.8), f, CORAL)
+			B:block(shell, v(0.6, 1.2, 0.6), f * CFrame.new(0.65, 0.35, 0) * ang(0, 0, -30), CORAL2)
+			B:block(shell, v(0.6, 1.3, 0.6), f * CFrame.new(-0.6, 0.25, 0.2) * ang(-15, 0, 28), CORAL)
+			B:block(shell, v(0.45, 0.45, 0.45), f * CFrame.new(0, 1.05, 0), "#ffd0c8")
 		end
 
 		------------------------------------------------------------------
@@ -256,9 +267,9 @@ return {
 			B:block(head, v(1.45, 0.45, 0.12), cf(0.95, 9.0, -7.36, 0, 0, 38), TURQ, { mat = "Neon", tr = 1, name = "Happy" .. side .. "2" })
 			B:block(head, v(1.45, 0.45, 0.12), cf(1.85, 9.0, -7.36, 0, 0, -38), TURQ, { mat = "Neon", tr = 1, name = "Happy" .. side .. "3" })
 			-- brows
-			local brow = B:bone("Brow" .. side, "Head", v(1.4, 10.6, -7.0))
-			B:block(brow, v(2.3, 0.55, 0.4), cf(1.4, 10.62, -7.05), BROW)
-			B:block(brow, v(1.1, 0.5, 0.4), cf(1.4, 10.95, -7.05), BROW) -- stepped arch (curious)
+			local brow = B:bone("Brow" .. side, "Head", v(1.4, 10.8, -7.0))
+			B:block(brow, v(2.3, 0.5, 0.4), cf(1.4, 10.78, -7.05), BROW)
+			B:block(brow, v(1.1, 0.45, 0.4), cf(1.4, 11.08, -7.05), BROW) -- stepped arch (curious)
 		end)
 		-- MOUTH: curious little "o" (idle), big surprised O, happy smile
 		B:block(head, v(0.9, 0.6, 0.12), cf(0, 6.85, -6.45), MOUTH, { name = "MouthO" })

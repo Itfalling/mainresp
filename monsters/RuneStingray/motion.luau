@@ -26,7 +26,7 @@ local F = 1 / 12 -- every always-on wave runs whole cycles per loop
 
 local WAMP = { 12, 26, 40 } -- idle absolute wing angles (deg), root -> tip
 local DIHED = { 3, 6, 9 }
-local CURL = { -18, -48, -78 }
+local CURL = { -18, -46, -70 }
 local UP = { 50, 72, 90 }
 local DOWN = { -26, -38, -46 }
 local SPREAD = { 6, 10, 14 }
@@ -65,8 +65,8 @@ function M.Update(t, pose, ctx)
 	local land = L.env(c, 9.1, 0.25, 0.1, 0.7, "quadOut", "sineInOut")
 
 	local bodyY = L.track(c, {
-		{ 3.2, 0 }, { 4.4, -1.2, "sineInOut" }, { 4.95, -1.4 }, { 5.8, 6.2, "backOut" },
-		{ 6.8, 5.8, "sineInOut" }, { 9.05, 0.3, "sineInOut" }, { 9.35, -0.6, "quadOut" }, { 10.2, 0, "sineInOut" },
+		{ 3.2, 0 }, { 4.4, -0.5, "sineInOut" }, { 4.95, -0.7 }, { 5.8, 6.8, "backOut" },
+		{ 6.8, 6.4, "sineInOut" }, { 9.05, 0.3, "sineInOut" }, { 9.35, -0.6, "quadOut" }, { 10.2, 0, "sineInOut" },
 	})
 	local bodyPitch = L.track(c, {
 		{ 3.2, 0 }, { 4.4, -9, "sineInOut" }, { 4.85, 4 }, { 5.3, 16, "cubicOut" }, { 6.0, 0, "sineInOut" },
@@ -80,7 +80,10 @@ function M.Update(t, pose, ctx)
 	local stroke = 4 * F -- wing stroke frequency (3 s period: slow & calm)
 	local bob = (0.55 * wave(t, stroke, 0.35)) * (1 - 0.6 * busy)
 	local sway = 2.5 * wave(t, 2 * F, 0.1) * (1 - busy) + 7 * glide * sin(TAU * 0.5 * (c - 6.9))
-	pose.Body = pa(0, bodyY + bob - 0.5 * land, 0,
+	-- HOVER: glide a touch higher so the cloak-curled wing tips, the stinger and the
+	-- wings during the barrel roll all stay clear of the floor
+	local HOVER = 0.65
+	pose.Body = pa(0, HOVER + bodyY + bob - 0.5 * land, 0,
 		2.5 * wave(t, stroke, 0.1) * idleW + bodyPitch,
 		3 * wave(t, F, 0.2) * idleW,
 		roll + sway)

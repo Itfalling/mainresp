@@ -194,8 +194,8 @@ function M.Update(t, pose, ctx)
 	-- the arm so the whole thing swings like one huge hammer.
 	------------------------------------------------------------------
 	local aX = L.track(c, {
-		{ T0, 0 }, { T1, 124, "cubicOut" }, { T2, 130 }, { T3, 24, "cubicIn" }, { T4, 29, "quadOut" },
-		{ T5, 25 }, { T6, 29, "backOut" }, { T7, 27 }, { T8, 0, "cubicInOut" },
+		{ T0, 0 }, { T1, 124, "cubicOut" }, { T2, 130 }, { T3, 30, "cubicIn" }, { T4, 36, "quadOut" },
+		{ T5, 32 }, { T6, 29, "backOut" }, { T7, 27 }, { T8, 0, "cubicInOut" },
 	})
 	local aZ = L.track(c, { { T0, 0 }, { T1, 12 }, { T3, -14 }, { T5, -14 }, { T6, 25, "backOut" }, { T7, 25 }, { T8, 0 } })
 	local bend = L.track(c, {

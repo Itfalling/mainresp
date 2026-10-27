@@ -35,6 +35,7 @@ local WIGGLE = { 18, 6, 12, 20, 28, 34, 40 } -- splashdown follow-through
 local BLINKS = { 1.3, 2.35, 9.6, 10.4 }
 
 local SPLASH = 5.8
+local LIFT, TAIL_LIFT, HEAD_LIFT = 1.3, 10, 4
 local APEX = 4.65
 
 -- wings: phase lag, idle flap amplitude, fold (x, y, z), flare z, parachute z
@@ -73,8 +74,8 @@ function M.Update(t, pose, ctx)
 	-- big root tracks
 	local jumpY = L.track(c, {
 		{ 3.0, 0 }, { 3.75, -2.3, "cubicOut" }, { 3.85, -2.4 }, { 4.35, 7.6, "cubicOut" },
-		{ 4.75, 9.0, "quadOut" }, { 5.2, 8.3, "quadIn" }, { SPLASH, -2.3, "quadIn" },
-		{ SPLASH + 0.12, -2.6, "quadOut" }, { 6.9, 0, "elasticOut" },
+		{ 4.75, 9.0, "quadOut" }, { 5.2, 8.3, "quadIn" }, { SPLASH, -1.2, "quadIn" },
+		{ SPLASH + 0.12, -1.5, "quadOut" }, { 6.9, 0, "elasticOut" },
 		{ 7.1, 0 }, { 7.3, -1.1, "quadOut" }, { 7.7, 3.6, "backOut" }, { 8.15, 3.2 },
 		{ 8.45, -0.7, "quadIn" }, { 9.2, 0, "elasticOut" },
 	})
@@ -109,7 +110,12 @@ function M.Update(t, pose, ctx)
 	-- root: hover bob + coil / leap / backflip / splash / happy spin
 	------------------------------------------------------------------
 	local bob = 1.1 * wave(t, SW) * (1 - 0.7 * max(busyLeap, busySpin))
-	local by = bob + jumpY
+	-- floor clearance: hover a little higher, and lift the body while the big
+	-- pitches (launch nose-up, backflip, nose-dive) would swing the long fan
+	-- tail / big head down through the floor
+	local bigP = math.rad(bodyPitch + flip)
+	local clear = LIFT + TAIL_LIFT * max(0, sin(bigP)) + HEAD_LIFT * max(0, -sin(bigP))
+	local by = bob + jumpY + clear
 	local bz = 1.2 * coil - 1.0 * launch
 	local roll = 6 * wave(t, SW, 0.15) * swimW + 14 * wig * sin(TAU * (wigPhase + 0.3)) + 10 * happy * sin(TAU * wagPhase * 0.5)
 	pose.Body1 = pa(0, by, bz, pitch[CENTER] + bodyPitch + flip, yaw[CENTER] + spin, roll)

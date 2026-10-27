@@ -58,7 +58,14 @@ local HEAD_REST = CFrame.new(0, 6.6, -3.6)
 local HEAD_C = BODY_REST:Inverse() * HEAD_REST
 local FANG_REST = CFrame.new(3.3, 5.3, -8.6)
 local FANG_C = HEAD_REST:Inverse() * FANG_REST
-local FANG_TIP = FANG_REST:Inverse() * Vector3.new(1.7, 0.8, -10.1)
+local FANG_PTS = { FANG_REST:Inverse() * Vector3.new(1.7, 0.8, -10.1) }
+-- corners of the hook beam's lower end and the spike base (they swing lower than the tip when rolled)
+for _, dx in { -0.6, 0.6 } do
+	for _, dz in { -0.6, 0.6 } do
+		table.insert(FANG_PTS, FANG_REST:Inverse() * Vector3.new(2.75 + dx, 1.6, -10.0 + dz))
+		table.insert(FANG_PTS, FANG_REST:Inverse() * Vector3.new(2.8 + dx * 0.75, 2.0, -10.0 + dz * 0.75))
+	end
+end
 local JAW_REST = CFrame.new(0, 5.9, -5.0)
 local JAW_C = HEAD_REST:Inverse() * JAW_REST
 local JAW_PTS = {}
@@ -204,10 +211,24 @@ function M.Update(t, pose, ctx)
 	local headWM = BODY_REST * L.mirror(pose.Body) * HEAD_C * L.mirror(headCF)
 	local function fangFix(hw, z)
 		return liftTo(function(x)
-			return (hw * FANG_C * ang(x, 0, z) * FANG_TIP).Y
+			local fw = hw * FANG_C * ang(x, 0, z)
+			local m = math.huge
+			for _, p in FANG_PTS do
+				m = math.min(m, (fw * p).Y)
+			end
+			return m
 		end, fx, 0.2, fx + 80)
 	end
 	pose.FangR = ang(fangFix(headW, fz + twitch), 0, fz + twitch)
+	if c > 7.0 and c < 7.06 then
+		local x = fangFix(headW, fz + twitch)
+		local fw = headW * FANG_C * ang(x, 0, fz + twitch)
+		local ys = {}
+		for _, p in FANG_PTS do table.insert(ys, string.format("%.2f", (fw * p).Y)) end
+		local function mn(xx) local f2 = headW * FANG_C * ang(xx, 0, fz + twitch) local m = 99 for _, p in FANG_PTS do m = math.min(m, (f2 * p).Y) end return m end
+		print("DBG2", mn(x), mn(x + 2), mn(x + 20), mn(x - 20))
+		print("DBG", c, fx, x, fz + twitch, table.concat(ys, " "), headW.Position, BODY_REST * pose.Body)
+	end
 	pose.FangL = L.mirror(ang(fangFix(headWM, fz - twitch), 0, fz - twitch))
 
 	------------------------------------------------------------------

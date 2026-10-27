@@ -95,7 +95,10 @@ function M.Update(t, pose, ctx)
 	------------------------------------------------------------------
 	local bob = 1.0 * wave(t, 0.5) * (1 - 0.5 * special)
 	local hop = 0.4 * L.bounce(t, 1.0) * idleW
-	local by = bob + hop + 1.0 * coil - 1.3 * squash + 0.3 * lunge + 0.6 * settle
+	-- HOVER: swim a little higher so the big paddling flippers and the chomping
+	-- jaw never dip into the floor at the bottom of the bob
+	local HOVER = 2.1
+	local by = HOVER + bob + hop + 1.0 * coil - 1.3 * squash + 0.3 * lunge + 0.6 * settle
 	local bz = 4.0 * coil - 7.5 * lunge
 	local bx = 0.5 * wave(t, SWIM_HZ, 0.3) * swimW
 	local roll = 8 * wave(t, SWIM_HZ, 0.15) * swimW + 10 * thrash * sin(2 * pi * (thrPhase + 0.5))

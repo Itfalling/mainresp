@@ -40,9 +40,13 @@ function M.Update(t, pose, ctx)
 	--------------------------------------------------------------------
 	-- BODY: bouncy swim, coil back on the wind-up, lunge nose-high, squash on the snap
 	--------------------------------------------------------------------
+	local chompWin = (L.env(c, 0.3, 0.08, 0.5, 0.1) + L.env(c, 6.3, 0.08, 0.4, 0.1) + L.env(c, 7.2, 0.08, 0.4, 0.1)) * idleW
 	local swim = wave(t, 0.6)
-	local by = (1.4 * swim + 0.6 * L.bounce(t, 1.2) - 0.3) * idleW
-		- 1.8 * windup + 3.2 * lunge - 2.0 * snap + 0.5 * chew * wave(t, 3)
+	-- HOVER keeps the big underbite off the floor: a little constant lift, plus the
+	-- body rises as the jaw drops on the idle chomp-chomps
+	local hover = 1.0 + 1.5 * chompWin
+	local by = hover + (1.4 * swim + 0.6 * L.bounce(t, 1.2) - 0.3) * idleW
+		- 1.0 * windup + 3.2 * lunge - 2.0 * snap + 0.5 * chew * wave(t, 3)
 	local bz = 4.2 * windup - 4.5 * lunge - 1.2 * hold + 1.6 * snap
 	local brx = 10 * wave(t, 0.6, 0.2) * idleW - 20 * windup + 24 * lunge - 16 * snap
 	local bry = 12 * wave(t, 0.9, -0.05) * idleW - 14 * windup + 16 * wiggle * wave(t, 2.5)
@@ -54,7 +58,6 @@ function M.Update(t, pose, ctx)
 	-- JAW: agape idle with chomp-chomps; clamps shut on wind-up, flung open
 	-- and trembling, SNAP, chews
 	--------------------------------------------------------------------
-	local chompWin = (L.env(c, 0.3, 0.08, 0.5, 0.1) + L.env(c, 6.3, 0.08, 0.4, 0.1) + L.env(c, 7.2, 0.08, 0.4, 0.1)) * idleW
 	local chomp = chompWin * max(0, wave(t, 3.5))
 	local jawIdle = -9 - 4 * wave(t, 0.6, 0.3) - 18 * chomp
 	local shut = max(windup, gape)

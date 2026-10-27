@@ -109,7 +109,7 @@ function M.Update(t, pose, ctx)
 	local headYaw = 0.7 * look
 	local headPitch = 0.6 * lookUp + 4 * wave(t, 0.4, 0.1) + 10 * surprise - 6 * giddy
 	local headRoll = tiltRoll + 8 * giddy * wave(t, 4) + 14 * dizzy * sin(prec * 0.35 + 1.2) + 6 * happy * wave(t, 1.2)
-	pose.Head = pa(0, 0.2 * surprise - 0.2 * retract, retract - 0.4 * flare, headPitch, headYaw, headRoll)
+	pose.Head = pa(0, 0.45 * surprise - 0.2 * retract, retract - 0.8 * flare, headPitch, headYaw, headRoll)
 	pose.Hood = ang(-15 * tuck + 5 * wave(t, 0.4, 0.3) + 15 * surprise + 9 * peekOh + 6 * happy + 4 * abs(tiltRoll) / 17, 0, 0)
 
 	-- eyes: darting pupils that follow the look, swirl when dizzy

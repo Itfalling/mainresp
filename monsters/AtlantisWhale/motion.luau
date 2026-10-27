@@ -23,6 +23,7 @@ M.Cycle = 14
 local sin, pi, max, min = math.sin, math.pi, math.max, math.min
 local TAU = 2 * pi
 local SW = 2 / 7 -- swim frequency (4 strokes per loop)
+local HOVER = 1.0 -- extra hover height so the flippers clear the floor on the downstroke
 
 local CHAIN = { "Head", "Body", "Tail1", "Tail2", "Tail3", "Fluke" }
 local AMP = { 4, 3, 7, 12, 17, 26 } -- swim pitch (absolute), head -> fluke
@@ -89,7 +90,7 @@ function M.Update(t, pose, ctx)
 	-- body: calm bob, deep-breath sink, majestic rise, squash on the slap
 	------------------------------------------------------------------
 	local bob = 1.0 * sin(TAU * (SW * t + 0.15)) * (1 - 0.6 * special)
-	local by = bob - 2.0 * breath + 3.4 * rise - 1.6 * squash + 0.5 * lift
+	local by = HOVER + bob - 2.0 * breath + 3.4 * rise - 1.6 * squash + 0.5 * lift
 	local bz = -1.5 * rise + 0.8 * lift
 	local roll = 3 * wave(t, 1 / 7) * swimW - 5 * look + 4 * look2
 	local yaw = 2 * wave(t, 1 / 14, 0.2) * swimW
@@ -136,9 +137,9 @@ function M.Update(t, pose, ctx)
 	-- flippers: slow glide, tuck on the breath, open wide on the rise
 	------------------------------------------------------------------
 	local glide = sin(TAU * (SW * t + 0.05))
-	local flap = 18 * glide * swimW - 14 * breath + 42 * rise + 6 * lift + 30 * squash
-	local sweep = 8 * sin(TAU * (SW * t + 0.3)) * swimW + 18 * breath - 22 * rise + 10 * lift
-	local tipFlap = 10 * sin(TAU * (SW * t - 0.05)) * swimW + 22 * rise * (1 + 0.25 * sin(TAU * 1.5 * c)) - 10 * breath + 25 * squash
+	local flap = (5 + 13 * glide) * swimW + 2 * breath + 42 * rise + 6 * lift + 30 * squash
+	local sweep = 8 * sin(TAU * (SW * t + 0.3)) * swimW + 30 * breath - 22 * rise + 10 * lift
+	local tipFlap = (3 + 8 * sin(TAU * (SW * t - 0.05))) * swimW + 22 * rise * (1 + 0.25 * sin(TAU * 1.5 * c)) - 3 * breath + 25 * squash
 	-- a soft wave of the flipper on the side she glances at (hello, little city)
 	local waveL = look * (0.55 + 0.45 * sin(TAU * 1.6 * (c - 1.6)))
 	local waveR = look2 * (0.55 + 0.45 * sin(TAU * 1.6 * (c - 12.0)))
