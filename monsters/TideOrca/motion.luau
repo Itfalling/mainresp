@@ -148,7 +148,7 @@ function M.Update(t, pose, ctx)
 	-- JAW (one hinged jaw): base grin, smirk roll, talk/laugh/roar
 	------------------------------------------------------------------
 	local chat = abs(sin(TAU * 8 * c))
-	local jOpen = 8 + 3 * L.wave01(t, 8 * F) * idleW
+	local jOpen = 12 + 3 * L.wave01(t, 8 * F) * idleW
 		+ 4 * sly
 		- 4 * windL + 48 * lunge + 18 * kid
 		- 4 * inhale + 14 * squirt + (12 + 13 * chat) * cackle
@@ -176,7 +176,7 @@ function M.Update(t, pose, ctx)
 	-- tongue: tease (raspberry), "nyeh" flick, cheeky peek on the bow
 	local tOut = max(tease, 0.75 * kid, 0.55 * wink2, 0.6 * splay)
 	local wig = sin(TAU * 6 * c)
-	pose.Tongue = pa(0, 0.55 * tOut, -3.6 * tOut, 6 * tOut, 0, 0)
+	pose.Tongue = pa(0, 0.3 * tOut, -2.1 * tOut, 6 * tOut, 0, 0)
 	pose.TongueTip = ang(-28 * tOut + 10 * tOut * wig, 30 * tOut * sin(TAU * 4 * c), 14 * tOut * wig)
 
 	------------------------------------------------------------------
@@ -195,8 +195,9 @@ function M.Update(t, pose, ctx)
 	local sw = L.env(c, BREACH - 0.05, 0.15, APEX - BREACH - 0.15, 0.2)
 	px += 0.45 * sw * cos(TAU * 2.2 * (c - BREACH))
 	py += 0.4 * sw * sin(TAU * 2.2 * (c - BREACH))
-	pose.PupilR = CFrame.new(px, py, 0)
-	pose.PupilL = CFrame.new(px, py, 0)
+	-- (the eyes are smaller now: scale the pupil travel to stay inside the white)
+	pose.PupilR = CFrame.new(0.65 * px, 0.7 * py, 0)
+	pose.PupilL = CFrame.new(0.65 * px, 0.7 * py, 0)
 	local tiny = (c > 1.62 and c < 2.1) or (c > APEX and c < APEX + 0.45) or (c > SPLAT - 0.02 and c < SPLAT + 0.12)
 	for _, side in { "R", "L" } do
 		ctx.transparency("PupilBig" .. side, tiny and 1 or 0)
