@@ -145,7 +145,7 @@ function M.Update(t, pose, ctx)
 	-- JAW (one hinged jaw): base grin, smirk roll, talk/laugh/roar
 	------------------------------------------------------------------
 	local chat = abs(sin(TAU * 8 * c))
-	local jOpen = 5 + 3 * L.wave01(t, 8 * F) * idleW
+	local jOpen = 8 + 3 * L.wave01(t, 8 * F) * idleW
 		+ 4 * sly
 		- 4 * windL + 48 * lunge + 18 * kid
 		- 4 * inhale + 14 * squirt + (12 + 13 * chat) * cackle
@@ -276,15 +276,24 @@ function M.Update(t, pose, ctx)
 	-- belly-flop, sweep across the chest on the bow
 	------------------------------------------------------------------
 	local paddle = wave(t, 8 * F, 0.1)
+	-- the BOW flourish: right fin shoots up and twirls (courtly hand-roll),
+	-- then sweeps grandly across the chest; left fin flings up and back;
+	-- on the way up both fins flare out in a "ta-da!"
+	local bRz = track(c, { { BOW, 0 }, { BOW + 0.35, 105, "backOut" }, { BOWEND, 92, "sineInOut" }, { BOWEND + 0.35, 45, "backOut" }, { 13.75, 0, "quadInOut" } })
+	local bRy = track(c, { { BOW, 0 }, { BOW + 0.35, 45, "backOut" }, { BOWEND, 30, "sineInOut" }, { BOWEND + 0.35, -15, "backOut" }, { 13.75, 0, "quadInOut" } })
+	local twirl = L.env(c, BOW + 0.25, 0.15, BOWEND - BOW - 0.5, 0.2)
+	local bRx = 60 * twirl * sin(TAU * 2.2 * (c - BOW - 0.25))
+	local bLz = track(c, { { BOW, 0 }, { BOW + 0.45, 75, "backOut" }, { BOWEND, 62 }, { BOWEND + 0.35, 55, "backOut" }, { 13.75, 0, "quadInOut" } })
+	local bLy = track(c, { { BOW, 0 }, { BOW + 0.45, -50, "backOut" }, { BOWEND, -40 }, { BOWEND + 0.35, -10, "backOut" }, { 13.75, 0, "quadInOut" } })
 	local function fin(side, ph, bowArm)
 		local z = 14 * paddle * idleW + 25 * lunge + 15 * windL + 20 * cackle * sin(TAU * 4 * c + ph)
 			+ 30 * giggle * sin(TAU * 7 * c + ph) + 20 * tease * sin(TAU * 2 * c + ph)
 			+ 20 * wind * (1 - tuck) - 30 * tuck + 45 * splay - 25 * squash + 25 * slapHit
-			+ (bowArm and 55 * bow or 25 * bow)
-		local x = 10 * paddle * idleW + 20 * lunge - 25 * tuck + 20 * splay + (bowArm and 65 * bow or 0)
-		local y = -15 * tuck + (bowArm and 30 * bow or 0) - 10 * lunge
+			+ (bowArm and bRz or bLz) + 6 * bow * sin(TAU * 2 * c + ph)
+		local x = 10 * paddle * idleW + 20 * lunge - 25 * tuck + 20 * splay + (bowArm and bRx or 0)
+		local y = -15 * tuck - 10 * lunge + (bowArm and bRy or bLy)
 		local tipZ = 12 * wave(t, 8 * F, 0.3) * idleW + 15 * squash + 18 * splay * sin(TAU * 5 * c)
-			+ 10 * giggle * sin(TAU * 7 * c + 1) - 15 * tuck
+			+ 10 * giggle * sin(TAU * 7 * c + 1) - 15 * tuck + (bowArm and 25 * twirl * sin(TAU * 2.2 * (c - BOW) - 0.8) or 15 * bow)
 		return ang(x, y, z), ang(0, 0, tipZ)
 	end
 	local fR, tR2 = fin("R", 0, true)

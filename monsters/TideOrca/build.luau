@@ -52,19 +52,37 @@ return {
 		------------------------------------------------------------------
 		local body = B:bone("Body", "Root", v(0, 9.5, 0))
 		-- chest
-		blk(body, 10.2, 8.0, 7.0, 0, 9.6, -2.6, BLACK)
+		blk(body, 9.0, 8.0, 7.0, 0, 9.6, -2.6, BLACK) -- core (x +-4.5)
+		blk(body, 10.2, 5.2, 6.6, 0, 9.6, -2.4, BLACK) -- rounded side band (x +-5.1)
 		blk(body, 8.4, 1.0, 6.6, 0, 14.1, -2.4, BLK2)
 		blk(body, 8.6, 1.0, 6.8, 0, 5.2, -2.6, WHITE)
 		blk(body, 6.4, 0.7, 5.6, 0, 4.45, -2.4, WSHADE)
 		-- mid
-		blk(body, 9.2, 7.2, 6.2, 0, 9.7, 3.6, BLACK)
+		blk(body, 8.0, 7.2, 6.2, 0, 9.7, 3.6, BLACK) -- core (x +-4)
+		blk(body, 9.2, 4.8, 5.8, 0, 9.9, 3.6, BLACK) -- side band (x +-4.6)
 		blk(body, 7.4, 0.9, 5.8, 0, 13.7, 3.4, BLK2)
 		blk(body, 7.4, 0.9, 6.0, 0, 5.75, 3.6, WHITE)
 		blk(body, 5.6, 0.25, 1.8, 0, 14.25, 5.7, GREY) -- saddle patch
 		B:sym(function()
 			blk(body, 0.4, 2.2, 6.6, 5.15, 6.7, -2.6, WHITE) -- white belly sweep
-			blk(body, 0.4, 2.6, 3.6, 4.65, 7.4, 4.0, WHITE) -- rear flank sweep
-			blk(body, 0.4, 1.6, 1.6, 4.65, 9.4, 5.1, WHITE)
+			-- rear flank sweep: stepped white flame rising toward the tail
+			blk(body, 0.9, 2.6, 3.0, 4.4, 7.4, 3.0, WHITE)
+			blk(body, 0.9, 2.2, 2.4, 4.45, 9.0, 4.9, WHITE)
+			blk(body, 0.9, 1.4, 1.2, 4.45, 10.6, 5.9, WHITE)
+			blk(body, 0.5, 1.2, 1.6, 4.85, 7.7, 1.0, WHITE)
+			-- grey orca saddle wrapping down the upper flank (stepped)
+			blk(body, 0.5, 1.1, 4.4, 4.0, 12.8, 3.8, GREY)
+			blk(body, 0.4, 0.7, 2.6, 4.55, 11.95, 4.4, GREY)
+			blk(body, 0.4, 0.5, 1.2, 4.55, 11.35, 5.0, GREY)
+			-- sculpted side: deep keel stripe + muscle ridges in two shades
+			blk(body, 0.3, 0.6, 6.2, 5.2, 7.3, -2.4, DEEP)
+			blk(body, 0.3, 0.5, 3.0, 5.2, 13.3, -4.2, BLK2)
+			blk(body, 0.6, 1.0, 5.6, 4.35, 13.0, -2.4, BLK2)
+			blk(body, 0.3, 0.6, 3.2, 4.7, 12.6, 0.9, BLK2)
+			-- gold rivet row along the upper chest step
+			for k = 0, 2 do
+				blk(body, 0.5, 0.5, 0.5, 4.75, 13.7, -5.0 + k * 1.6, DGOLD)
+			end
 			-- marble shoulder shield with gold frame + glyph
 			blk(body, 0.5, 3.0, 4.0, 5.35, 10.3, -2.6, MARBLE)
 			blk(body, 0.6, 0.5, 4.6, 5.4, 12.0, -2.6, GOLD)
@@ -101,9 +119,20 @@ return {
 		local spout = blk(body, 1, 1, 1, 0, 15.8, -3.6, WATER, { tr = 1, name = "SpoutFX" })
 		B:emitter(spout, "burst", { name = "SpoutBurst", color = { "#ffffff", WATER }, speed = { 12, 20 }, spread = 16, size = { 0.9, 0.7, 0.2 }, life = { 0.6, 1.1 }, accel = { 0, -30, 0 }, drag = 0.5 })
 		-- barnacles + coral on the flanks
-		blk(body, 0.5, 0.8, 0.8, -4.75, 11.6, 2.2, BARN)
-		blk(body, 0.5, 0.55, 0.55, -4.75, 12.5, 3.1, BARN)
-		blk(body, 0.2, 0.3, 0.3, -5.0, 11.7, 2.2, DEEP)
+		blk(body, 0.5, 0.8, 0.8, -4.85, 10.6, 2.0, BARN)
+		blk(body, 0.5, 0.55, 0.55, -4.85, 11.4, 2.9, BARN)
+		blk(body, 0.2, 0.3, 0.3, -5.1, 10.7, 2.0, DEEP)
+		blk(body, 0.5, 0.7, 0.7, 4.85, 10.9, 1.8, BARN)
+		blk(body, 0.2, 0.3, 0.3, 5.1, 11.0, 1.8, DEEP)
+		blk(body, 0.5, 0.45, 0.45, 4.85, 11.6, 2.6, BARN)
+		-- sunken temple tile on each flank (carved glyph, gold frame)
+		B:sym(function()
+			blk(body, 0.4, 2.0, 2.0, 4.8, 9.4, 3.4, MARBLE)
+			blk(body, 0.45, 0.4, 2.3, 4.82, 10.5, 3.4, GOLD)
+			blk(body, 0.45, 0.4, 2.3, 4.82, 8.3, 3.4, GOLD)
+			blk(body, 0.2, 1.2, 0.3, 5.05, 9.4, 3.4, DTEAL)
+			blk(body, 0.2, 0.3, 1.0, 5.05, 9.7, 3.4, DTEAL)
+		end)
 		blk(body, 0.45, 1.1, 0.45, 4.2, 13.9, 5.6, CORAL)
 		blk(body, 0.35, 0.7, 0.35, 4.55, 14.5, 5.3, CORAL2, nil, 0, 0, -25)
 		-- ambient volume
@@ -133,28 +162,38 @@ return {
 		-- HEAD (big cartoon head)
 		------------------------------------------------------------------
 		local head = B:bone("Head", "Body", hv(0, 10, -6))
-		hb(head, 9.4, 6.0, 9.0, 0, 12.0, -9.7, BLACK) -- core (y 9..15, z -14.2..-5.2)
-		hb(head, 8.0, 0.9, 7.4, 0, 15.4, -9.6, BLK2) -- top step
-		-- snout / rostrum (stepped)
-		hb(head, 7.8, 1.9, 3.2, 0, 9.95, -15.7, BLACK)
-		hb(head, 6.0, 1.4, 0.8, 0, 9.9, -17.6, BLK2)
-		hb(head, 0.55, 0.55, 0.3, 0, 10.5, -18.05, TURQ, NEON) -- nose gem
-		-- slim gold nose guard between the eyes
-		hb(head, 0.7, 3.2, 0.5, 0, 12.4, -14.4, GOLD)
-		hb(head, 0.6, 0.6, 0.2, 0, 14.2, -14.6, TURQ, NEON, 0, 0, 45)
+		-- rounded, chunky stepped head: a narrower tall core, wide cheek
+		-- band, stepped top dome and stepped back corners (no box)
+		hb(head, 8.0, 6.4, 9.0, 0, 12.0, -9.7, BLACK) -- core (x +-4, y 8.8..15.2)
+		hb(head, 9.6, 4.6, 7.8, 0, 11.3, -9.5, BLACK) -- cheek band (x +-4.8)
+		hb(head, 10.4, 2.6, 5.6, 0, 10.6, -9.0, BLK2) -- chubby lower cheeks
+		hb(head, 6.6, 0.8, 7.6, 0, 15.5, -9.4, BLK2) -- top dome step
+		hb(head, 4.4, 0.5, 5.6, 0, 16.0, -9.2, BLACK) -- dome cap (under the crown)
+		-- snout / rostrum: stepped, rounded corners
+		hb(head, 6.6, 1.6, 2.8, 0, 9.8, -15.5, BLACK)
+		hb(head, 8.2, 1.5, 2.4, 0, 9.75, -15.0, BLACK)
+		hb(head, 5.0, 1.2, 0.6, 0, 9.7, -17.1, BLK2)
+		B:sym(function(side)
+			-- giggle blush (hidden, pops on the laughs) on the snout corners
+			hb(head, 1.2, 0.45, 0.2, 3.7, 10.25, -16.3, CORAL2, { tr = 1, name = "Blush" .. side })
+		end)
 		-- mouth roof (dark) and the dark cheek walls
 		hb(head, 7.4, 0.3, 10.4, 0, 8.95, -11.9, MOUTH)
 		B:sym(function(side)
 			hb(head, 0.3, 1.5, 9.4, 3.75, 8.4, -11.6, MOUTH)
 			-- cheek bulge + white side patch (the orca marking, no eye here)
-			hb(head, 0.6, 2.3, 6.4, 4.95, 10.3, -10.6, BLK2)
-			hb(head, 0.5, 1.4, 3.6, 4.95, 13.7, -11.2, WHITE)
-			hb(head, 0.5, 1.8, 3.2, 4.95, 13.1, -8.6, WHITE)
-			hb(head, 0.5, 1.0, 1.6, 4.95, 11.9, -7.4, WHITE)
+			-- royal helm strap: gold band from the crown down the cheek to a
+			-- stepped marble jowl plate at the jaw hinge
+			hb(head, 0.6, 4.4, 0.9, 5.1, 11.6, -6.9, GOLD)
+			hb(head, 0.5, 1.2, 2.6, 5.45, 9.9, -7.6, MARBLE)
+			hb(head, 0.55, 0.4, 2.8, 5.47, 10.6, -7.6, DGOLD)
+			hb(head, 1.0, 1.4, 3.6, 4.5, 13.7, -11.2, WHITE)
+			hb(head, 1.0, 1.8, 3.2, 4.55, 13.1, -8.4, WHITE)
+			hb(head, 1.0, 1.0, 1.6, 4.6, 12.0, -7.2, WHITE)
 			-- upper teeth (sides)
 			for i = 0, 3 do
 				local h = i % 2 == 0 and 0.9 or 0.65
-				hb(head, 0.7, h, 0.7, 3.45, 8.85 - h / 2, -15.2 + i * 1.5, WHITE)
+				hb(head, 0.7, h, 0.7, 3.45, 8.85 - h / 2, -14.2 + i * 1.5, WHITE)
 			end
 		end)
 		-- upper teeth (front row) with two cheeky front fangs
@@ -173,7 +212,7 @@ return {
 			hb(eye, 2.8, 3.4, 1.8, 2.7, 12.2, -15.11, WHITE)
 			hb(eye, 3.0, 0.3, 1.7, 2.7, 10.55, -15.05, WSHADE) -- lower lid shade
 			local pup = B:bone("Pupil" .. side, "Eye" .. side, hv(2.7, 12.1, -16.0))
-			hb(pup, 1.4, 1.8, 0.2, 2.7, 12.1, -16.05, PUPIL, { name = "PupilBig" .. side })
+			hb(pup, 1.6, 2.0, 0.2, 2.7, 12.1, -16.05, PUPIL, { name = "PupilBig" .. side })
 			hb(pup, 0.7, 0.8, 0.2, 2.7, 12.15, -16.06, PUPIL, { tr = 1, name = "PupilSmall" .. side })
 			-- lids (hidden): black lid, happy-closed "^" and a smug half-lid
 			local lid = B:bone("Lid" .. side, "Eye" .. side, hv(2.7, 14.0, -16.15))
@@ -214,8 +253,13 @@ return {
 			hb(jaw, 0.3, 1.2, 6.0, 3.65, 8.3, -10.0, MOUTH) -- inner cheek
 			for i = 0, 3 do
 				local h = i % 2 == 0 and 0.75 or 0.55
-				hb(jaw, 0.65, h, 0.65, 3.25, 7.95 + h / 2, -14.6 + i * 1.4, WHITE)
+				hb(jaw, 0.65, h, 0.65, 3.25, 7.95 + h / 2, -14.3 + i * 1.4, WHITE)
 			end
+			-- ONE grin: the white chin + black lip step UP at each mouth
+			-- corner so the open mouth reads as a cheeky "D" smile
+			hb(jaw, 1.4, 0.8, 1.4, 3.5, 8.3, -15.6, WHITE)
+			hb(jaw, 1.5, 0.4, 1.5, 3.5, 8.85, -15.6, BLACK)
+			hb(jaw, 0.6, 0.5, 0.6, 3.0, 9.25, -15.9, WHITE) -- corner fang
 		end)
 		for i = -2, 2 do
 			local h = i % 2 == 0 and 0.75 or 0.55
@@ -236,7 +280,7 @@ return {
 		hb(crown, 8.0, 0.9, 7.0, 0, 16.3, -9.8, MARBLE)
 		hb(crown, 8.3, 0.45, 7.3, 0, 16.95, -9.8, GOLD)
 		B:sym(function()
-			hb(crown, 0.45, 0.45, 0.1, 2.6, 16.3, -13.33, TURQ, NEON)
+			hb(crown, 0.45, 0.45, 0.1, 2.6, 16.3, -13.33, TEAL)
 			hb(crown, 0.45, 0.45, 0.1, 1.3, 16.3, -13.33, DGOLD)
 		end)
 		local COLS = { { -3.4, -12.7 }, { -1.5, -12.7 }, { 1.5, -12.7 }, { 3.4, -12.7 }, { -3.5, -9.8 }, { 3.5, -9.8 }, { -3.0, -6.9 }, { 3.0, -6.9 } }

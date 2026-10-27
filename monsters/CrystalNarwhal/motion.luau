@@ -41,16 +41,17 @@ for i = 1, 14 do
 	local a = (i - 1) * 2.39996 -- golden angle
 	local yy = 1 - 2 * (i - 0.5) / 14
 	local r = math.sqrt(1 - yy * yy)
-	SHARD[i] = Vector3.new(r * cos(a), yy * 0.8 + 0.25, r * sin(a))
+	SHARD[i] = Vector3.new(r * cos(a), yy * 0.55 + 0.12, r * sin(a))
 end
 local SH0 = Vector3.new(0, 21, -3) -- shard rest position (build)
 local BODY0 = Vector3.new(0, 9.6, -1) -- body pivot (build)
 
 -- how much the body has to lift so a pitched body clears the floor
+-- (pivot y 9.6; chin with open jaw ~(-7.4, -15.6), fluke bottom ~(0.6, 20.2))
 local function guard(p)
 	local s, co = sin(rad(p)), cos(rad(p))
-	local front = -15.4 * s + 8.3 * co - 9.3 -- chin / open jaw (nose down lowers it)
-	local tail = 19.5 * s - 1.2 * co - 9.0 -- flukes (nose up lowers them)
+	local front = 0.4 - 9.6 - (-7.4 * co + 15.6 * s) -- nose down lowers the chin
+	local tail = 0.4 - 9.6 - (0.6 * co - 20.2 * s) -- nose up lowers the flukes
 	return max(0, front, tail)
 end
 
@@ -88,19 +89,22 @@ function M.Update(t, pose, ctx)
 		{ HOP2 + 0.2, 2.4, "quadOut" }, { HOP2 + 0.42, -0.7, "quadIn" }, { HOP2 + 0.7, 0.3, "quadOut" }, { SETTLE, 0, "quadInOut" },
 	})
 	-- breach: dive dips the nose, then a big arc up, then splash down
+	-- (peak capped: the whole narwhal stays under ~30 studs - pets share pens)
 	local pitchB = L.track(c, {
-		{ DIVE, 0 }, { DIVE + 0.45, -34, "cubicOut" }, { LAUNCH, -36 },
-		{ LAUNCH + 0.4, 50, "backOut" }, { LAUNCH + 0.55, 42, "quadInOut" }, { SPIN1, 42 },
-		{ FW + 0.1, 52, "quadOut" }, { FALL + 0.15, 30, "quadInOut" }, { SPLASH - 0.22, -28, "quadIn" },
-		{ SPLASH, 6, "quadOut" }, { SPLASH + 0.18, -3, "quadInOut" }, { HOP1 + 0.2, 0, "quadInOut" },
+		{ DIVE, 0 }, { DIVE + 0.45, -22, "cubicOut" }, { LAUNCH, -24 },
+		{ LAUNCH + 0.25, 10, "backOut" }, { SPIN0, 3, "quadInOut" }, { SPIN1, 2 },
+		{ FW + 0.1, 5, "quadOut" }, { FALL + 0.15, 2, "quadInOut" }, { SPLASH - 0.2, -16, "quadIn" },
+		{ SPLASH, 5, "quadOut" }, { SPLASH + 0.18, -3, "quadInOut" }, { HOP1 + 0.2, 0, "quadInOut" },
 	})
 	local liftB = L.track(c, {
-		{ LAUNCH - 0.02, 0 }, { LAUNCH + 0.45, 14.5, "cubicOut" }, { SPIN1, 15.5, "sineInOut" },
-		{ FW + 0.12, 16.5, "quadOut" }, { SPLASH, -1.2, "quadIn" }, { SPLASH + 0.15, -1.5, "quadOut" },
+		{ DIVE, 0 }, { DIVE + 0.45, -1.2, "cubicOut" }, { LAUNCH - 0.02, -1.4 },
+		{ LAUNCH + 0.25, 3.0, "cubicOut" }, { SPIN0, 6.4, "quadOut" }, { SPIN1, 7.0, "sineInOut" },
+		{ FW + 0.12, 7.3, "quadOut" }, { FALL + 0.1, 7.0, "quadInOut" }, { SPLASH, -1.2, "quadIn" }, { SPLASH + 0.15, -1.5, "quadOut" },
 		{ HOP1, -0.4, "quadOut" }, { HOP1 + 0.1, 0, "quadOut" },
 	})
-	local zB = L.track(c, { { DIVE, 0 }, { DIVE + 0.45, -1.5, "cubicOut" }, { LAUNCH + 0.5, -3.0, "quadOut" }, { FALL, -2.0 }, { SPLASH, -1.0, "quadIn" }, { SETTLE, 0, "quadInOut" } })
-	local spin = L.track(c, { { SPIN0, 0 }, { SPIN1, 720, "cubicInOut" } })
+	local zB = L.track(c, { { DIVE, 0 }, { DIVE + 0.45, 1.2, "cubicOut" }, { LAUNCH + 0.4, -2.5, "quadOut" }, { FALL, -2.0 }, { SPLASH, -1.0, "quadIn" }, { SETTLE, 0, "quadInOut" } })
+	-- corkscrew: two full rolls about the long axis at the top of the arc
+	local spin = L.track(c, { { SPIN0, 0 }, { SPIN0 + 0.15, -25, "quadOut" }, { SPIN1, 720, "backOut" } })
 
 	-- idle gags: wiggle, barrel roll, wet shimmy
 	local wiggle = sin(TAU * 3.2 * (c - WIG)) * wig
@@ -114,21 +118,20 @@ function M.Update(t, pose, ctx)
 	local yaw = 14 * wiggle + 6 * wave(t, 3 * F) * idleW - 16 * wink + 6 * L.noise(t, 2.2, 0.35) * idleW
 	local roll = 10 * wiggle + rollA + 5 * wave(t, 4 * F, 0.1) * idleW + 14 * shimmy + 6 * wink
 	local by = bob * (1 - 0.7 * busy) + hopY + liftB - 1.0 * rollDip + 4.2 * rollE + 0.8 * spoutE * L.env(c, SPOUT + 0.35, 0.1, 0.15, 0.4)
-	by = max(by + 1.6, guard(pitch))
+	by = max(by + 1.1, guard(pitch))
 	local bx = 0.4 * wave(t, 3 * F, 0.2) * idleW + 0.6 * wiggle
 	local bz = zB
-	-- spin about the tusk axis (tilted 27 deg up in the body frame)
-	local spinCF = ang(27, 0, 0) * ang(0, 0, spin) * ang(-27, 0, 0)
-	pose.Body = pa(bx, by, bz, 0, 0, 0) * ang(pitch, yaw, 0) * spinCF * ang(0, 0, roll)
+	-- corkscrew roll about the body's own long axis (keeps the footprint small)
+	pose.Body = pa(bx, by, bz, 0, 0, 0) * ang(pitch, yaw, 0) * ang(0, 0, spin + roll)
 
 	------------------------------------------------------------------
 	-- HEAD: happy bobbing, throws back on the "wheee", nods on landings
 	------------------------------------------------------------------
 	local land = splashE + 0.6 * L.env(c, HOP1 + 0.42, 0.05, 0.05, 0.25) + 0.6 * L.env(c, HOP2 + 0.4, 0.05, 0.05, 0.25)
-	local headP = 4 * wave(t, 12 * F, 0.15) * idleW + 10 * air + 8 * land + 8 * dive
+	local headP = 4 * wave(t, 12 * F, 0.15) * idleW - 4 * air + 8 * land + 8 * dive
 		+ 8 * giggle * wave(t, 52 * F) - 8 * L.env(c, SPOUT, 0.25, 0.3, 0.2) + 12 * L.env(c, SPOUT + 0.4, 0.08, 0.3, 0.3)
 	local headY = 7 * wave(t, 4 * F, 0.3) * idleW - 16 * wink - 10 * wiggle
-	local headR = 9 * wave(t, 5 * F) * idleW - 14 * wink + 8 * wiggle
+	local headR = 9 * wave(t, 5 * F) * idleW - 14 * wink + 8 * wiggle + 14 * fwE
 	pose.Head = ang(headP, headY, headR)
 
 	------------------------------------------------------------------
@@ -254,7 +257,7 @@ function M.Update(t, pose, ctx)
 	for i = 1, 8 do
 		ctx.transparency("Ray" .. i, raysOn and ((i + math.floor(c * 12)) % 2 == 0 and 0.15 or 0.5) or 1)
 	end
-	pose.Rays = ang(27, 0, 0) * ang(0, 0, -spin * 0.5 + 200 * c)
+	pose.Rays = ang(0, 0, -spin * 0.5 + 200 * c)
 
 	------------------------------------------------------------------
 	-- SHRINE: wobbles with the body, crystal heart pulses + pops
@@ -288,13 +291,21 @@ function M.Update(t, pose, ctx)
 	------------------------------------------------------------------
 	-- BLOWHOLE SPOUT: fountain of water cubes
 	------------------------------------------------------------------
-	for k = 1, 5 do
-		local u = (c - (SPOUT + 0.4) - (k - 1) * 0.06) / 1.0
+	-- telescoping water column shoots up out of the blowhole...
+	local colE = L.env(c, SPOUT + 0.38, 0.12, 0.55, 0.3, "backOut", "quadIn")
+	for k = 1, 3 do
+		local wob = 0.25 * sin(TAU * 7 * c + k)
+		pose["Column" .. k] = pa(wob, (k - 1) * 2.5 * colE + 1.0 * colE, 0, 0, 90 * c * k, 0)
+		ctx.transparency("ColumnP" .. k, colE > 0.08 and (0.05 + 0.08 * k) or 1)
+	end
+	-- ...and a fountain of big water cubes bursts out of its top
+	for k = 1, 8 do
+		local u = (c - (SPOUT + 0.45) - (k - 1) * 0.05) / 1.15
 		if u > 0 and u < 1 then
-			local a = k * 1.3
-			local r = 2.8 * u
-			local y = 24 * u - 20 * u * u
-			pose["Spout" .. k] = pa(r * cos(a), y, r * sin(a) * 0.6, 200 * u, 120 * u * k, 45)
+			local a = k * 0.785 + 0.3
+			local r = 5.5 * u
+			local y = 6.5 * min(1, u * 6) + 14 * u - 14 * u * u
+			pose["Spout" .. k] = pa(r * cos(a), y, r * sin(a), 220 * u, 120 * u * k, 45)
 			ctx.transparency("SpoutP" .. k, u > 0.85 and 0.6 or 0.05)
 		else
 			pose["Spout" .. k] = CFrame.new()
@@ -305,14 +316,15 @@ function M.Update(t, pose, ctx)
 	------------------------------------------------------------------
 	-- FIREWORK shards: burst from the body at the apex, arc, fade
 	------------------------------------------------------------------
-	local origin = BODY0 + Vector3.new(0, liftB + 5, zB) -- around the shrine at the apex
+	local origin = BODY0 + Vector3.new(0, 7.3 + 4.5, -2.0) -- frozen at the apex, around the shrine
 	for i = 1, 14 do
-		local u = (c - FW) / 1.15
+		local u = (c - FW) / 1.3
 		if u > 0 and u < 1 then
 			local e = L.ease.expoOut(min(1, u * 1.2))
-			local p = origin + SHARD[i] * (17 * e) + Vector3.new(0, -6 * u * u, 0) - SH0
+			local d = SHARD[i]
+			local p = origin + Vector3.new(d.X * 19, d.Y * 14, d.Z * 15) * e + Vector3.new(0, -7 * u * u, 0) - SH0
 			pose["Shard" .. i] = pa(p.X, p.Y, p.Z, 360 * u * (i % 2 == 0 and 1 or -1), 200 * u, 45)
-			ctx.transparency("ShardP" .. i, u > 0.8 and 0.6 or 0)
+			ctx.transparency("ShardP" .. i, u > 0.85 and 0.55 or 0)
 		else
 			pose["Shard" .. i] = CFrame.new()
 			ctx.transparency("ShardP" .. i, 1)
