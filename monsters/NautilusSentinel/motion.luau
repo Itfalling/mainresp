@@ -144,6 +144,11 @@ function M.Update(t, pose, ctx)
 	for _, n in { "Smile1", "Smile2", "Smile3", "SmileTongue" } do
 		ctx.transparency(n, isHappy and 0 or 1)
 	end
+	local shock = surprise > 0.3
+	for _, sd in { "R", "L" } do
+		ctx.transparency("Pupil" .. sd .. "Big", shock and 1 or 0)
+		ctx.transparency("Pupil" .. sd .. "Dot", shock and 0 or 1)
+	end
 	local squint = isHappy
 	for _, s in { "R", "L" } do
 		for k = 1, 3 do

@@ -17,7 +17,8 @@ return {
 		-- the whole shark hovers LIFT studs higher than it was authored so the
 		-- prowl, head-butts and fin strokes never scrape the floor
 		local LIFT = 2
-		local function v(x, y, z)
+		local v = P.v -- sizes
+		local function pv(x, y, z) -- positions (lifted)
 			return P.v(x, y + LIFT, z)
 		end
 		local function cf(x, y, z, rx, ry, rz)
@@ -59,7 +60,7 @@ return {
 		------------------------------------------------------------------
 		-- BODY (Body2 is the swimmer's center; the chain runs both ways)
 		------------------------------------------------------------------
-		local body2 = B:bone("Body2", "Root", v(0, 8, 0.5))
+		local body2 = B:bone("Body2", "Root", pv(0, 8, 0.5))
 		segment(body2, -1.6, 3.4, 8.0, 6.2, 6.2)
 		B:sym(function()
 			B:block(body2, v(0.12, 1.0, 1.6), cf(3.12, 9.0, 1.6), DARK) -- side spot
@@ -73,7 +74,7 @@ return {
 
 		-- tall stepped dorsal fin with a gold blade leading edge (own bone for
 		-- follow-through)
-		local dorsal = B:bone("Dorsal", "Body2", v(0, 11.2, 0.6))
+		local dorsal = B:bone("Dorsal", "Body2", pv(0, 11.2, 0.6))
 		do
 			local d, zo = 4.6, 0
 			for i = 0, 4 do
@@ -89,11 +90,11 @@ return {
 			end
 			B:wedge(dorsal, v(0.8, 1.0, 1.6), cf(0, 16.75, 0.8 + zo - 0.3), GOLD)
 			B:block(dorsal, v(0.6, 0.6, 0.6), cf(0, 17.4, 0.8 + zo + 0.2), TURQ, NEON)
-			B:trail(dorsal, v(0, 17.4, 0.8 + zo + 0.3), v(0, 16.3, 0.8 + zo + 0.6), { name = "DorsalTrail", color = { "#ffffff", TURQ }, life = 0.22, trans = { 0.55, 1 } })
+			B:trail(dorsal, pv(0, 17.4, 0.8 + zo + 0.3), pv(0, 16.3, 0.8 + zo + 0.6), { name = "DorsalTrail", color = { "#ffffff", TURQ }, life = 0.22, trans = { 0.55, 1 } })
 		end
 
 		-- Body1 = the chest: biggest segment, gill slits, shoulder armor
-		local body1 = B:bone("Body1", "Body2", v(0, 8, -1.5))
+		local body1 = B:bone("Body1", "Body2", pv(0, 8, -1.5))
 		segment(body1, -7.0, -1.2, 8.0, 6.6, 6.6)
 		battlePlate(body1, 11.5, -5.4, 4.2, 2.0)
 		battlePlate(body1, 11.5, -2.8, 4.0, 2.0)
@@ -113,7 +114,7 @@ return {
 			B:block(body1, v(0.6, 0.35, 0.35), cf(3.5, 6.9, -2.9), TURQ, NEON)
 		end)
 
-		local body3 = B:bone("Body3", "Body2", v(0, 8.1, 3.3))
+		local body3 = B:bone("Body3", "Body2", pv(0, 8.1, 3.3))
 		segment(body3, 3.0, 6.4, 8.2, 5.0, 5.0)
 		B:block(body3, v(5.3, 5.3, 0.6), cf(0, 8.2, 3.3), DARK) -- joint collar
 		battlePlate(body3, 10.7, 4.9, 3.4, 1.8)
@@ -122,7 +123,7 @@ return {
 			B:block(body3, v(0.5, 0.7, 0.7), cf(2.6, 9.3, 4.2), MARBLE)
 			B:block(body3, v(0.4, 0.5, 0.5), cf(2.6, 8.7, 4.8), MARBLE)
 			B:block(body3, v(0.35, 0.35, 0.35), cf(2.75, 9.4, 4.25), DARK)
-			B:beam(body3, v(1.8, 5.8, 4.2), v(3.0, 4.6, 6.0), 0.5, 1.4, DARK)
+			B:beam(body3, pv(1.8, 5.8, 4.2), pv(3.0, 4.6, 6.0), 0.5, 1.4, DARK)
 		end)
 
 		------------------------------------------------------------------
@@ -137,7 +138,7 @@ return {
 		local parent = "Body3"
 		for i, s in tails do
 			local name = "Tail" .. i
-			local b = B:bone(name, parent, v(0, s[4] - 0.1, s[1]))
+			local b = B:bone(name, parent, pv(0, s[4] - 0.1, s[1]))
 			segment(b, s[2], s[3], s[4], s[5], s[6])
 			B:block(b, v(s[5] + 0.3, s[6] + 0.3, 0.5), cf(0, s[4], s[2] + 0.25), DARK)
 			if i == 1 then
@@ -153,7 +154,7 @@ return {
 		-- heterocercal crescent fluke: pixel-art rows sweeping back, each row
 		-- with a dark leading edge; the big upper lobe has a gold blade edge
 		local FZ, FY = 11.2, 8.8
-		local fluke = B:bone("Fluke", "Tail3", v(0, FY, FZ))
+		local fluke = B:bone("Fluke", "Tail3", pv(0, FY, FZ))
 		local function fb(sx, sy, sz, z, y, col, opts)
 			return B:block(fluke, v(sx, sy, sz), cf(0, FY + y, FZ + z), col, opts)
 		end
@@ -173,13 +174,13 @@ return {
 		row(-3.5, 1.6, 3.4, 0.9, DARK)
 		fb(0.6, 0.6, 0.6, 3.2, -4.2, TURQ, NEON)
 		fb(0.2, 0.25, 1.6, 3.6, 3.0, TURQ, NEON) -- trailing edge strip
-		B:trail(fluke, v(0, FY + 6.3, FZ + 4.8), v(0, FY + 4.5, FZ + 4.2), { name = "FlukeTrailTop", color = { "#ffffff", TURQ }, life = 0.3, trans = { 0.45, 1 } })
-		B:trail(fluke, v(0, FY - 4.2, FZ + 3.4), v(0, FY - 3.0, FZ + 3.2), { name = "FlukeTrailBot", color = { "#ffffff", TURQ }, life = 0.3, trans = { 0.45, 1 } })
+		B:trail(fluke, pv(0, FY + 6.3, FZ + 4.8), pv(0, FY + 4.5, FZ + 4.2), { name = "FlukeTrailTop", color = { "#ffffff", TURQ }, life = 0.3, trans = { 0.45, 1 } })
+		B:trail(fluke, pv(0, FY - 4.2, FZ + 3.4), pv(0, FY - 3.0, FZ + 3.2), { name = "FlukeTrailBot", color = { "#ffffff", TURQ }, life = 0.3, trans = { 0.45, 1 } })
 
 		------------------------------------------------------------------
 		-- HEAD: skull + the huge gold-armored HAMMER
 		------------------------------------------------------------------
-		local head = B:bone("Head", "Body1", v(0, 8.2, -6.4))
+		local head = B:bone("Head", "Body1", pv(0, 8.2, -6.4))
 		B:block(head, v(6.2, 5.2, 2.0), cf(0, 8.2, -7.0), MAIN) -- jowl (hides the neck joint)
 		B:block(head, v(5.8, 4.3, 5.2), cf(0, 8.55, -9.2), MAIN) -- skull
 		B:block(head, v(3.6, 0.4, 4.8), cf(0, 10.85, -8.6), DARK)
@@ -221,14 +222,14 @@ return {
 			B:block(head, v(3.6, 0.25, 0.1), cf(4.7, 10.48, -13.92, 0, 0, 16), GOLD) -- gold glint on the ridge
 			-- gold cheek guard + bronze helmet spike at the hammer end
 			B:block(head, v(0.3, 1.0, 3.0), cf(8.75, 8.35, -11.8), GOLD)
-			B:spike(head, v(8.4, 10.8, -10.6), v(10.0, 12.2, -9.2), 1.0, 1.0, BRONZE)
+			B:spike(head, pv(8.4, 10.8, -10.6), pv(10.0, 12.2, -9.2), 1.0, 1.0, BRONZE)
 			-- EYE: dark socket, glowing narrow slit wrapping the outer-front
 			-- corner, pupils pushed inward/forward = a mean glare
 			B:block(head, v(2.5, 1.45, 2.5), cf(7.6, 9.15, -12.6, 0, 0, 12), PUPIL)
 			B:block(head, v(2.1, 0.75, 2.3), cf(7.85, 9.15, -12.75, 0, 0, 12), TURQ, { mat = "Neon", name = "Eye" .. side })
 			B:block(head, v(0.8, 0.85, 0.1), cf(7.25, 9.1, -13.92, 0, 0, 12), PUPIL)
 			B:block(head, v(0.8, 0.25, 0.1), cf(5.4, 9.0, -13.85), PUPIL) -- nostril
-			B:trail(head, v(8.7, 10.6, -10.2), v(8.7, 8.0, -10.2), { name = "HammerTrail" .. side, color = { "#ffffff", TURQ }, life = 0.2, trans = { 0.55, 1 } })
+			B:trail(head, pv(8.7, 10.6, -10.2), pv(8.7, 8.0, -10.2), { name = "HammerTrail" .. side, color = { "#ffffff", TURQ }, life = 0.2, trans = { 0.55, 1 } })
 			-- upper teeth (side rows), hang from the lip line into the gap
 			for i, z in { -11.9, -10.3, -8.7, -7.3 } do
 				local h = i % 2 == 1 and 0.95 or 0.75
@@ -266,7 +267,7 @@ return {
 
 		-- brows (bones): heavy gold brow plates slanted down toward the middle
 		B:sym(function(side)
-			local brow = B:bone("Brow" .. side, "Head", v(7.4, 10.5, -13.2))
+			local brow = B:bone("Brow" .. side, "Head", pv(7.4, 10.5, -13.2))
 			B:block(brow, v(4.4, 1.25, 1.2), cf(7.6, 10.45, -14.0, 0, 0, 22), BRONZED)
 			B:block(brow, v(4.5, 0.35, 1.3), cf(7.45, 11.15, -14.0, 0, 0, 22), GOLD)
 			B:block(brow, v(3.6, 0.8, 2.2), cf(7.75, 10.95, -12.5, 0, 0, 22), BRONZE)
@@ -280,7 +281,7 @@ return {
 		------------------------------------------------------------------
 		-- JAW (hinged at the back of the mouth) with an underbite + tusks
 		------------------------------------------------------------------
-		local jaw = B:bone("Jaw", "Head", v(0, 6.0, -6.4))
+		local jaw = B:bone("Jaw", "Head", pv(0, 6.0, -6.4))
 		B:block(jaw, v(5.6, 1.4, 6.8), cf(0, 4.9, -10.0), MAIN)
 		B:block(jaw, v(5.6, 1.3, 1.3), cf(0, 4.95, -13.95), MAIN) -- jutting underbite chin
 		B:block(jaw, v(5.5, 0.5, 1.1), cf(0, 4.15, -14.0), BELLY)
@@ -305,7 +306,7 @@ return {
 		-- PECTORAL FINS: 2 bones each (shoulder + blade)
 		------------------------------------------------------------------
 		B:sym(function(side)
-			local F = CFrame.new(v(3.0, 5.8, -3.4)) * ang(0, -28, -12)
+			local F = CFrame.new(pv(3.0, 5.8, -3.4)) * ang(0, -28, -12)
 			local function at(x, y, z)
 				return F * CFrame.new(x, y, z)
 			end
@@ -337,7 +338,7 @@ return {
 			{ -9.0, 5.5, -9.0, 1.3, MARBLE, MAIN },
 		}
 		for i, o in orbs do
-			local ob = B:bone("Orb" .. i, "Root", v(o[1], o[2], o[3]))
+			local ob = B:bone("Orb" .. i, "Root", pv(o[1], o[2], o[3]))
 			local s = o[4]
 			B:block(ob, v(s, s, s), cf(o[1], o[2], o[3]), o[5])
 			B:block(ob, v(s + 0.1, s * 0.3, s + 0.1), cf(o[1], o[2] + s * 0.36, o[3]), o[6])
@@ -349,7 +350,7 @@ return {
 		-- rings (revealed one after another = an expanding wave), debris
 		-- cubes, dust / burst / bubble emitters and a flash light
 		------------------------------------------------------------------
-		local IMP = P.v(0, 0.35, -18.5) -- on the ground (not lifted)
+		local IMP = P.v(0, 0.35, -16.5) -- on the ground (not lifted)
 		local impBone = B:bone("Impact", "Root", IMP)
 		local impFx = B:block(impBone, v(6, 1, 6), CFrame.new(IMP), MAIN, { tr = 1, name = "ImpactFX" })
 		B:emitter(impFx, "dust", { name = "ImpactDust", color = { MARBLE, "#cfc3a6" } })

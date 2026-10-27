@@ -28,20 +28,20 @@ local PEEK, EEP = 7.9, 8.95
 -- spines: name, dir (right side), kind ("Body" spines sit on the core edges
 -- and must also travel with the swelling corner), mirrored
 local SPINES = {
-	{ "SpTopA", { 0.35, 1, 0.3 }, "P", true },
-	{ "SpTopB", { 0.35, 1, -0.3 }, "P", true },
-	{ "SpEdgeU", { 1, 1, 0 }, "Body", true },
-	{ "SpEdgeD", { 1, -1, 0 }, "Body", true },
-	{ "SpEdgeB", { 1, 0, 1 }, "Body", true },
-	{ "SpBack", { 0, 1, 1 }, "Body", false },
-	{ "SpChin", { 0, -1, -1 }, "Body", false },
-	{ "SpSideA", { 1, 0.3, 0 }, "P", true },
-	{ "SpSideB", { 1, -0.3, 0 }, "P", true },
-	{ "SpSideC", { 1, 0, 0.35 }, "P", true },
-	{ "SpRearU", { 0.3, 0.3, 1 }, "P", true },
-	{ "SpRearD", { 0.3, -0.3, 1 }, "P", true },
-	{ "SpBellyA", { 0.3, -1, -0.2 }, "P", true },
-	{ "SpBellyB", { 0, -1, 0.3 }, "P", false },
+	{ "SpTopA", { 0.45, 1, 0.4 }, 0, true },
+	{ "SpTopB", { 0.45, 1, -0.45 }, 0, true },
+	{ "SpEdgeU", { 1, 1, 0 }, 1.7, true },
+	{ "SpEdgeD", { 1, -1, 0 }, 1.7, true },
+	{ "SpEdgeB", { 1, 0, 1 }, 1.7, true },
+	{ "SpCorner", { 1, 1, 1 }, 2.4, true },
+	{ "SpChin", { 0, -1, -1 }, 1.5, false },
+	{ "SpSideA", { 1, 0.35, -0.1 }, 0, true },
+	{ "SpSideB", { 1, -0.35, 0.1 }, 0, true },
+	{ "SpSideC", { 1, 0.1, 0.6 }, 0, true },
+	{ "SpRearU", { 0.35, 0.35, 1 }, 0, true },
+	{ "SpRearD", { 0.35, -0.35, 1 }, 0, true },
+	{ "SpBellyA", { 0.35, -1, 0.1 }, 0, true },
+	{ "SpBellyB", { 0, -1, -0.3 }, 0, false },
 }
 for _, s in SPINES do
 	s[2] = Vector3.new(s[2][1], s[2][2], s[2][3]).Unit
@@ -115,13 +115,13 @@ function M.Update(t, pose, ctx)
 	-- INFLATE: panels push outward (with a soft breathing pulse)
 	------------------------------------------------------------------
 	local breathe = 0.08 * wave(t, 5 * F, 0.5) * idleW
-	local d = 1.4 * P - 0.35 * suck + breathe
+	local d = 1.7 * P - 0.5 * suck + breathe
 	local jx = 0.12 * panic * sin(TAU * 11 * c)
 	pose.Top = pa(0, d, 0, 0, 0, 0)
 	pose.Belly = pa(0, -d, 0, 0, 0, 0)
 	L.both(pose, "Side", pa(d + jx, 0, 0, 0, 0, 0))
 	pose.Rear = pa(0, 0, d, 0, 0, 0)
-	pose.Face = pa(0, 0, -(1.0 * P - 0.25 * suck + breathe), 0, 0, 0)
+	pose.Face = pa(0, 0, -(1.4 * P - 0.3 * suck + breathe), 0, 0, 0)
 	local fillOn = P > 0.3 and 0 or 1
 	ctx.transparency("FillTop", fillOn)
 	ctx.transparency("FillBot", fillOn)
@@ -131,10 +131,7 @@ function M.Update(t, pose, ctx)
 	for i, s in SPINES do
 		local delay = ((i * 7) % 5) * 0.025
 		local ps = puffAt(c - delay)
-		local ext = 1.0 * ps - 0.3 * suck + 0.12 * panic * sin(TAU * (7 * c + i * 0.17))
-		if s[3] == "Body" then
-			ext += 1.0 * ps
-		end
+		local ext = (1.3 + s[3]) * ps - 0.4 * suck + 0.15 * panic * sin(TAU * (7 * c + i * 0.17))
 		local dir = s[2]
 		local cfR = CFrame.new(dir * ext)
 		if s[4] then
@@ -148,7 +145,7 @@ function M.Update(t, pose, ctx)
 	-- CHEEKS: puff in & out at idle, balloon on the suck-in
 	------------------------------------------------------------------
 	local cp = 0.45 * L.wave01(t, 5 * F, 0.1) * idleW + 1.0 * suck
-	L.both(pose, "Cheek", pa(0.5 * cp + 1.2 * P, -0.25 * P, -0.25 * cp - 1.0 * P, 0, 0, 0))
+	L.both(pose, "Cheek", pa(0.5 * cp + 1.5 * P, -0.25 * P, -0.25 * cp - 1.3 * P, 0, 0, 0))
 	local blushOn = max(embar, shy * 1.3) > 0.3
 	for _, side in { "R", "L" } do
 		ctx.transparency("BlushBig" .. side, blushOn and 0 or 1)
@@ -171,7 +168,8 @@ function M.Update(t, pose, ctx)
 	local py = (-0.15 + 0.08 * L.noise(t, 8.2, 5)) * idleW
 	local ang2 = TAU * 2.2 * (c - INFL)
 	px += 0.38 * cos(ang2) * panic + 0.3 * peek * (1 - eep) + 0.25 * shyPeek
-	py += 0.38 * sin(ang2) * panic - 0.15 * hideL + 0.2 * startle
+	px += -0.4 * hideL * (1 - peek)
+	py += 0.38 * sin(ang2) * panic - 0.3 * hideL * (1 - peek) + 0.2 * startle
 	pose.PupilR = CFrame.new(px, py, 0)
 	pose.PupilL = CFrame.new(px - 0.7 * panic * cos(ang2), py, 0)
 	local tiny = (c > STARTLE + 0.02 and c < PFFT + 0.35) or (c > EEP and c < EEP + 0.3) or (c > 2.66 and c < 2.85)
@@ -219,8 +217,10 @@ function M.Update(t, pose, ctx)
 		local y = 150 * hide - 25 * startle + 10 * wave(t, 5 * F, side) * idleW
 		local z = fl + 50 * startle + 25 * Pc + 10 * hide + 20 * eep + 30 * pfft
 		local x = 12 * hide
-		local tipY = 72 * hide + 12 * wave(t, 40 * F, 0.15) * (1 - hide) - 20 * Pc
-		return ang(x, y, z), ang(0, tipY, 10 * wave(t, 40 * F, 0.2))
+		local tipY = 98 * hide + 12 * wave(t, 40 * F, 0.15) * (1 - hide) - 20 * Pc
+		-- hide: the fins swing to the front AND drop down so they cover the
+		-- mouth + cheeks while the big worried eyes peek out over the top
+		return pa(0.4 * hide, -2.0 * hide, 0, x, y, z), ang(0, tipY, 10 * wave(t, 40 * F, 0.2))
 	end
 	local fR, tR = fin(max(hideR, shy * (1 - shyPeek)), 0)
 	local fL, tL = fin(max(hideL, shy), 0.25)

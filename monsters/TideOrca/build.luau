@@ -200,7 +200,7 @@ return {
 			local by = R and 11.45 or 10.4
 			local tilt = R and -6 or 22
 			local brow = B:bone("Brow" .. side, "Head", v(3.6, by, -13.4))
-			B:block(brow, v(2.7, 1.0, 0.6), cf(3.5, by, -13.55, 0, 0, tilt), WHITE)
+			B:block(brow, v(3.2, 1.0, 0.6), cf(3.3, by, -13.55, 0, 0, tilt), WHITE)
 			B:block(brow, v(0.6, 1.0, 2.4), cf(4.65, by + (R and -0.1 or 0.45), -12.5, 0, 0, tilt), WHITE)
 			-- eyelid (hidden until it blinks / winks)
 			local lid = B:bone("Lid" .. side, "Head", v(4.0, 11.3, -12.5))
@@ -392,8 +392,8 @@ return {
 		for k = 1, 12 do
 			local wb = B:bone("Wave" .. k, "Root", SC)
 			B:block(wb, v(6.4, 1.5, 1.6), CFrame.new(SC), AQUA, { tr = 1, name = "WavePart" .. k })
-			B:block(wb, v(4.8, 1.2, 1.2), CFrame.new(SC + v(0, 1.3, 0.1)), "#7fd4f5", { tr = 1, name = "CrestPart" .. k })
-			B:block(wb, v(3.2, 0.6, 1.0), CFrame.new(SC + v(0, 2.15, 0.2)), k % 2 == 0 and SKY or WHITE,
+			B:block(wb, v(4.8, 1.6, 1.2), CFrame.new(SC + v(0, 1.5, 0.1)), "#7fd4f5", { tr = 1, name = "CrestPart" .. k })
+			B:block(wb, v(3.2, 0.7, 1.0), CFrame.new(SC + v(0, 2.6, 0.2)), k % 2 == 0 and SKY or WHITE,
 				{ mat = k % 2 == 0 and "Neon" or nil, tr = 1, name = "FoamPart" .. k })
 		end
 		-- splash droplet cubes

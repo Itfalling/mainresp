@@ -184,20 +184,31 @@ return {
 			B:block(k[1], v(0.4, 0.4, 0.4), CFrame.new(k[3]), GOLD)
 		end
 
-		-- snout (own bone: it tilts and pushes out to blow bubbles)
+		-- snout (own bone: it tilts and pushes out to blow bubbles). The
+		-- geometry is authored straight and then angled DOWN by SNT degrees
+		-- about the pivot, so the eyes stay readable above it from the front.
+		-- motion.luau uses the same SNT for the bubble-ring aim (keep in sync).
+		local SNT = -15
+		local SNR = CFrame.new(0, 10.6, -1.3) * ang(SNT, 0, 0)
+		local function snc(x, y, z, rx, ry, rz)
+			return SNR * CFrame.new(x, y - 10.6, z + 1.3) * ang(rx or 0, ry or 0, rz or 0)
+		end
+		local function snp(x, y, z) return snc(x, y, z).Position end
 		local snout = B:bone("Snout", "Head", v(0, 10.6, -1.3))
-		B:block(snout, v(1.6, 1.4, 3.8), cf(0, 10.6, -3.1), ORANGE)
-		B:block(snout, v(1.0, 0.25, 3.2), cf(0, 11.4, -3.3), DARK)
-		B:block(snout, v(1.2, 0.25, 3.4), cf(0, 9.82, -3.1), CREAM)
-		B:block(snout, v(1.95, 1.75, 0.5), cf(0, 10.6, -2.4), GOLD) -- orichalcum band
-		B:block(snout, v(0.35, 0.12, 0.3), cf(0, 11.53, -2.4), TURQ, NEON)
-		B:block(snout, v(2.0, 1.8, 0.7), cf(0, 10.6, -5.1), LORANGE) -- puckered tip
-		B:block(snout, v(0.9, 0.7, 0.12), cf(0, 10.55, -5.48), MOUTH)
-		B:block(snout, v(0.55, 0.16, 0.1), cf(0.62, 10.78, -5.48, 0, 0, 28), BROW) -- smug smirk
-		local mouthFX = B:block(snout, v(0.8, 0.8, 0.6), cf(0, 10.6, -5.9), ORANGE, { tr = 1, name = "MouthFX" })
+		B:block(snout, v(1.6, 1.4, 3.8), snc(0, 10.6, -3.1), ORANGE)
+		B:block(snout, v(1.0, 0.25, 3.2), snc(0, 11.4, -3.3), DARK)
+		B:block(snout, v(1.2, 0.25, 3.4), snc(0, 9.82, -3.1), CREAM)
+		B:block(snout, v(1.95, 1.75, 0.5), snc(0, 10.6, -2.4), GOLD) -- orichalcum band
+		B:block(snout, v(0.35, 0.12, 0.3), snc(0, 11.53, -2.4), TURQ, NEON)
+		B:block(snout, v(2.0, 1.8, 0.7), snc(0, 10.6, -5.1), LORANGE) -- puckered tip
+		-- smug lopsided smirk (rest) / round "O" (revealed while blowing)
+		B:block(snout, v(0.8, 0.22, 0.12), snc(-0.1, 10.42, -5.48), MOUTH, { name = "Smirk" })
+		B:block(snout, v(0.42, 0.22, 0.12), snc(0.42, 10.56, -5.48, 0, 0, 32), MOUTH, { name = "Smirk2" })
+		B:block(snout, v(0.85, 0.8, 0.12), snc(0, 10.55, -5.5), MOUTH, { tr = 1, name = "MouthO" })
+		local mouthFX = B:block(snout, v(0.8, 0.8, 0.6), snc(0, 10.6, -5.9), ORANGE, { tr = 1, name = "MouthFX" })
 		B:emitter(mouthFX, "bubble", { name = "SnoutBubbles", color = { WHITE, "#bff6ff" }, rate = 0, size = { 0.3, 0.55, 0.65 }, speed = { 2, 4 }, spread = 30, dir = "Front" })
 		B:emitter(mouthFX, "burst", { name = "BubbleBurst", color = { WHITE, "#bff6ff", TURQ }, speed = { 6, 13 }, size = { 0.8, 0.6, 0 }, spread = 35, dir = "Front", life = { 0.4, 0.9 } })
-		B:trail(snout, v(0, 11.3, -5.4), v(0, 9.9, -5.4), { name = "SnoutTrail", color = { WHITE, TURQ }, life = 0.2, trans = { 0.55, 1 } })
+		B:trail(snout, snp(0, 11.3, -5.4), snp(0, 9.9, -5.4), { name = "SnoutTrail", color = { WHITE, TURQ }, life = 0.2, trans = { 0.55, 1 } })
 
 		B:sym(function(side)
 			-- BIG eye on the front corner: white block, glowing turquoise iris
@@ -216,7 +227,7 @@ return {
 			local lid = B:bone("Lid" .. side, "Head", v(1.75, 13.0, -1.2))
 			B:block(lid, v(2.36, 1.08, 2.36), cf(1.75, 12.54, -1.2), ORANGE, { name = "LidTop" .. side })
 			B:block(lid, v(2.46, 0.22, 2.46), cf(1.75, 12.0, -1.2), BROW, { name = "Lash" .. side })
-			B:block(lid, v(2.34, 1.2, 2.34), cf(1.75, 13.68, -1.2), ORANGE, { tr = 1, name = "LidFill" .. side })
+			B:block(lid, v(2.34, 1.1, 2.34), cf(1.75, 13.6, -1.2), ORANGE, { tr = 1, name = "LidFill" .. side })
 			-- brow (own bone: the smug arch)
 			local brow = B:bone("Brow" .. side, "Head", v(1.75, 13.25, -2.05))
 			B:block(brow, v(2.1, 0.42, 0.65), cf(1.75, 13.28, -2.05), BROW)
@@ -256,9 +267,9 @@ return {
 		cb(0.8, 0.18, 0.08, -0.4, 1.9, -1.12, GOLDN, NEON) -- rune
 		-- volutes (scrolls): left whole, right broken
 		cb(0.8, 1.35, 1.5, -2.0, 1.55, 0, MARBLE)
-		cb(0.86, 0.55, 0.55, -2.02, 1.5, 0, GOLD)
+		cb(0.5, 0.5, 1.62, -2.0, 1.55, 0, GOLD) -- volute eye (front + back)
 		cb(0.7, 0.9, 1.2, 2.0, 1.45, 0.1, MARBLE)
-		cb(0.76, 0.42, 0.42, 2.03, 1.45, 0.1, GOLD)
+		cb(0.42, 0.42, 1.32, 2.0, 1.45, 0.1, GOLD)
 		-- orichalcum crystal growing out of the break + a seaweed tuft
 		cb(0.45, 1.0, 0.45, 1.1, 2.25, 0.25, TURQ, NEON, 0, 0, -20)
 		cb(0.3, 0.6, 0.3, 1.55, 2.1, -0.25, TURQ, NEON, 15, 0, -35)
@@ -289,10 +300,12 @@ return {
 				B:block(ob, v(1.3, 0.3, 1.3), cf(x, y - 0.9, z), DGOLD)
 			end
 		end
-		orb(1, 7.0, 12.0, 0.5, "cube")
-		orb(2, -7.0, 8.5, 0.0, "cube")
-		orb(3, 5.5, 5.0, 4.0, "crystal")
-		orb(4, -5.0, 13.5, 4.0, "column")
+		-- wide orbit; motion.luau dips each cube while it passes in FRONT so
+		-- it never crosses the face (same ORB table there - keep in sync)
+		orb(1, 8.5, 11.5, 0.4, "cube")
+		orb(2, -8.5, 9.0, 0.4, "cube")
+		orb(3, 6.2, 7.5, 6.6, "crystal")
+		orb(4, -6.2, 12.0, 6.6, "column")
 
 		------------------------------------------------------------------
 		-- TIDAL TWIRL VFX (hidden): a spiral water ribbon that whirls round
@@ -301,11 +314,11 @@ return {
 		------------------------------------------------------------------
 		local SWC = v(0, 8.0, 0.4)
 		local swirl = B:bone("Swirl", "Root", SWC)
-		for k = 0, 9 do
-			local a = rad(k * 68)
-			local y = 4.6 + k * 0.9
-			local r = 3.2 + 0.25 * sin(k)
-			B:block(swirl, v(2.2, 0.35, 0.45), cf(sin(a) * r, y, 0.4 + cos(a) * r, 0, k * 68, -12),
+		for k = 0, 11 do
+			local a = rad(k * 60)
+			local y = 4.4 + k * 0.75
+			local r = 3.3 + 0.2 * sin(k)
+			B:block(swirl, v(3.5, 0.4, 0.5), cf(sin(a) * r, y, 0.4 + cos(a) * r, 0, k * 60, -10),
 				k % 3 == 2 and WHITE or TURQ, { mat = "Neon", tr = 1, name = "Swirl" .. (k + 1) })
 		end
 		local BC = v(0, 10.6, -6.0)

@@ -85,8 +85,8 @@ function M.Update(t, pose, ctx)
 		{ 4.6, -7.0, "cubicOut" }, { 5.9, -6.8 }, { 7.5, 0, "sineInOut" },
 	})
 	local by = tr(c, {
-		{ 2.9, 0 }, { 3.85, 1.6, "cubicOut" }, { 4.05, 1.8 }, { 4.3, 0.4, "quadIn" }, { SLAM, -2.1, "quadIn" },
-		{ 4.62, -1.4, "backOut" }, { 5.6, -1.5 }, { POUND, -2.4, "quadIn" }, { 5.95, -1.2, "backOut" },
+		{ 2.9, 0 }, { 3.85, 1.6, "cubicOut" }, { 4.05, 1.8 }, { 4.3, 0.4, "quadIn" }, { SLAM, 1.4, "quadIn" },
+		{ 4.62, -0.3, "backOut" }, { 5.6, -0.4 }, { POUND, 1.5, "quadIn" }, { 5.95, -0.2, "backOut" },
 		{ 6.6, 0.6, "sineInOut" }, { 7.5, 0, "sineInOut" },
 	})
 	local bp = tr(c, {
@@ -99,9 +99,11 @@ function M.Update(t, pose, ctx)
 	local bx = 5.5 * arc + 0.5 * wave(t, SWIM_HZ, 0.3) * swimW
 	local byaw = -40 * arc
 
+	local chompWin = max(L.env(c, 2.0, 0.1, 0.6, 0.1), L.env(c, 9.0, 0.1, 0.5, 0.1))
+	local chomp = chompWin * L.wave01(t, 3.0)
 	local bob = 0.8 * wave(t, 0.5) * (1 - 0.6 * special)
 	local surge = 0.5 * L.bounce(t, 1.0) * idleW -- aggressive prowl lurch
-	by += bob - 0.3 * surge - 0.3 * butt
+	by += bob - 0.3 * surge + 0.5 * butt + 0.7 * chomp * idleW
 	bz += 1.0 * pre - 2.4 * butt - 0.5 * surge
 	bp += -6 * butt + 3 * pre
 
@@ -120,7 +122,8 @@ function M.Update(t, pose, ctx)
 	end
 	-- the hammerhead sweep: the head scans side to side (grumpy, suspicious)
 	yaw[1] += (18 * wave(t, 0.3, 0.1) + 6 * wave(t, 0.7, 0.4)) * idleW + 6 * shake
-	pitch[1] += (4 * wave(t, 1.0, 0.2)) * idleW + 14 * pre - 14 * butt
+	-- the gnash lifts the snout (keeps the gaping jaw off the floor)
+	pitch[1] += (4 * wave(t, 1.0, 0.2) + 10 * chomp) * idleW + 14 * pre - 14 * butt
 	-- signature head pitch: rear up, SLAM down, pound, chin up smug
 	pitch[1] += tr(c, {
 		{ 2.9, 0 }, { 3.85, 18, "cubicOut" }, { 4.05, 20 }, { 4.28, 0, "quadIn" }, { SLAM, -26, "expoIn" },
@@ -149,9 +152,7 @@ function M.Update(t, pose, ctx)
 	-- jaw: grumpy gnash, snaps on head-butts, snarl in the wind-up, gape on
 	-- the charge, CHOMP on the slam, chomps per thrash whip, smug sneer
 	------------------------------------------------------------------
-	local chompWin = max(L.env(c, 2.0, 0.1, 0.6, 0.1), L.env(c, 9.0, 0.1, 0.5, 0.1))
-	local chomp = chompWin * L.wave01(t, 3.0)
-	local jaw = (-5 - 30 * chomp) * idleW
+	local jaw = (-5 - 28 * chomp) * idleW
 	jaw += -34 * pre * idleW + 4 * butt
 	jaw += -40 * ant - 30 * rush * (1 - squash)
 	jaw += -26 * thrash * max(0, sin(2 * pi * thrPhase * 2))
@@ -193,9 +194,9 @@ function M.Update(t, pose, ctx)
 	local flail = thrash * sin(2 * pi * thrPhase)
 	local s = wave(t, 0.5, 0)
 	local sw = wave(t, 0.5, 0.25)
-	local flap = 22 * s * swimW + 36 * ant + 8 * slick + 26 * flail + 20 * smug - 10 * squash
+	local flap = (6 + 16 * s) * swimW + 36 * ant + 8 * slick + 20 * flail + 20 * smug - 10 * squash
 	local sweep = 18 * sw * swimW + 24 * ant - 50 * slick + 20 * flail - 10 * smug
-	local tipFlap = 20 * wave(t, 0.5, -0.15) * swimW + 22 * ant - 6 * slick + 30 * thrash * sin(2 * pi * (thrPhase - 0.2)) + 16 * smug
+	local tipFlap = (4 + 15 * wave(t, 0.5, -0.15)) * swimW + 22 * ant - 6 * slick + 30 * thrash * sin(2 * pi * (thrPhase - 0.2)) + 16 * smug
 	L.both(pose, "Pec", ang(0, sweep, flap))
 	L.both(pose, "PecTip", ang(0, 0, tipFlap))
 

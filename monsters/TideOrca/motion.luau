@@ -37,7 +37,7 @@ local YAMP = { 5, 3, 2, 4, 6, 8, 9 } -- a little side wiggle on top
 local DIVE = { -16, -6, 0, -6, -12, -18, -24 } -- nose-down banana curl, tail up
 local STREAM = { 8, 3, 0, 6, 12, 16, 20 } -- launch: tail streams down behind
 local FLOP = { -16, -6, 0, 7, 12, 16, 22 } -- belly-flop: ends keep falling
-local SLAP = { 5, 2, 0, 10, 18, 26, 34 } -- happy tail slap
+local SLAP = { 7, 3, 0, 14, 26, 38, 50 } -- happy tail slap (big, readable)
 local BLINKS = { 0.2, 4.0, 11.55 }
 
 local LAUNCH, APEX, SPLASH = 4.4, 5.1, 6.2
@@ -156,7 +156,7 @@ function M.Update(t, pose, ctx)
 	------------------------------------------------------------------
 	local paddle = wave(t, 8 * F)
 	local slick = max(dive, launch * (1 - fall), L.env(c, 1.8, 0.1, 0.2, 0.3))
-	local flapZ = 26 * paddle * swimW + 45 * fall + 30 * flop - 15 * slick + 22 * grin * sin(TAU * 4 * (c - 8.55))
+	local flapZ = 26 * paddle * swimW + 36 * fall + 20 * flop - 15 * slick + 22 * grin * sin(TAU * 4 * (c - 8.55))
 		+ 18 * tease * sin(TAU * 3 * (c - 2.6))
 	local sweep = 18 * wave(t, 8 * F, 0.25) * swimW - 55 * slick + 20 * fall
 	L.both(pose, "Fin", ang(0, sweep, flapZ))
@@ -265,7 +265,7 @@ function M.Update(t, pose, ctx)
 		local r = 4.8 + 11 * we
 		-- rears up out of the "water" fast, crests, then rolls over and sinks
 		local rise = L.ease.backOut(min(1, wu * 4))
-		local y = -2.2 + 3.4 * rise - 3.0 * L.ease.quadIn(L.remap(wu, 0.45, 1))
+		local y = -2.4 + 4.2 * rise - 3.6 * L.ease.quadIn(L.remap(wu, 0.45, 1))
 		local lean = -10 + 45 * wu
 		local cf = pa(sin(a) * r, y + 0.25 * sin(TAU * (2 * wu + k * 0.17)), cos(a) * r, 0, deg, 0) * ang(lean, 0, 0)
 		pose["Wave" .. k] = wOn and cf or CFrame.new()

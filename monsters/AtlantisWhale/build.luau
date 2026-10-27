@@ -123,20 +123,20 @@ return {
 			B:block(pupil, v(1.5, 2.1, 0.2), cf(3.85, 10.6, -16.9), PUPIL)
 			B:block(pupil, v(0.2, 2.1, 1.5), cf(5.5, 10.6, -15.6), PUPIL)
 			B:block(head, v(0.55, 0.55, 0.1), cf(4.25, 11.3, -17.05), "#ffffff", NEON)
-			B:block(head, v(0.3, 0.3, 0.1), cf(3.45, 10.0, -17.05), "#ffffff", NEON)
+			B:block(head, v(0.3, 0.3, 0.1), cf(3.35, 10.3, -17.05), "#ffffff", NEON)
 			B:block(head, v(0.1, 0.55, 0.55), cf(5.65, 11.3, -15.85), "#ffffff", NEON)
 			-- gentle raised brow (inner end lifted = kind) + soft lower lid
 			B:block(head, v(2.7, 0.45, 2.9), cf(4.0, 12.6, -15.3, 0, 0, -12), DARK)
 			B:block(head, v(2.3, 0.35, 0.3), cf(4.0, 9.15, -16.75), SPOT)
 			B:block(head, v(0.3, 0.35, 2.2), cf(5.38, 9.15, -15.3), SPOT)
 			-- hidden lids: blink (flat lash) / content closed happy eyes (arc)
-			B:block(head, v(3.0, 3.2, 3.3), cf(4.15, 10.8, -15.5), MAIN, { tr = 1, name = "Lid" .. side })
+			B:block(head, v(3.3, 3.2, 3.3), cf(4.2, 10.8, -15.5), MAIN, { tr = 1, name = "Lid" .. side })
 			B:block(head, v(2.3, 0.35, 0.15), cf(4.0, 10.4, -17.2), PUPIL, { tr = 1, name = "Lash" .. side })
-			B:block(head, v(0.15, 0.35, 2.4), cf(5.7, 10.4, -15.4), PUPIL, { tr = 1, name = "LashS" .. side })
+			B:block(head, v(0.15, 0.35, 2.4), cf(5.93, 10.4, -15.4), PUPIL, { tr = 1, name = "LashS" .. side })
 			B:block(head, v(1.0, 0.35, 0.15), cf(4.0, 11.15, -17.2), PUPIL, { tr = 1, name = "Happy" .. side .. "1" })
 			B:block(head, v(0.85, 0.35, 0.15), cf(4.75, 10.8, -17.2, 0, 0, -35), PUPIL, { tr = 1, name = "Happy" .. side .. "2" })
 			B:block(head, v(0.85, 0.35, 0.15), cf(3.25, 10.8, -17.2, 0, 0, 35), PUPIL, { tr = 1, name = "Happy" .. side .. "3" })
-			B:block(head, v(0.15, 0.35, 1.8), cf(5.7, 11.05, -15.4), PUPIL, { tr = 1, name = "Happy" .. side .. "4" })
+			B:block(head, v(0.15, 0.35, 1.8), cf(5.93, 11.05, -15.4), PUPIL, { tr = 1, name = "Happy" .. side .. "4" })
 		end)
 
 		------------------------------------------------------------------
@@ -165,20 +165,24 @@ return {
 				return F * CFrame.new(x, y, z)
 			end
 			local arm = B:bone("Fin" .. side, "Body", F)
-			B:block(arm, v(3.8, 1.3, 2.6), at(1.4, 0, 0), MAIN)
-			B:block(arm, v(3.4, 0.3, 2.3), at(1.6, -0.6, 0.1), CREAM)
-			B:block(arm, v(0.7, 1.55, 2.85), at(3.0, 0, 0), GOLD)
+			B:block(arm, v(4.2, 1.0, 3.4), at(1.4, 0, 0), MAIN)
+			B:block(arm, v(3.6, 0.3, 3.0), at(1.7, -0.55, 0.1), CREAM)
+			B:block(arm, v(0.7, 1.25, 3.65), at(3.0, 0, 0), GOLD)
 			local tip = B:bone("FinTip" .. side, "Fin" .. side, at(3.3, 0, 0))
-			B:block(tip, v(3.6, 1.1, 2.4), at(5.0, 0, 0.3), MAIN)
-			B:block(tip, v(2.8, 0.9, 1.9), at(8.0, 0, 0.8), MAIN)
-			B:block(tip, v(1.6, 0.8, 1.3), at(10.0, 0, 1.3), DARK)
-			B:block(tip, v(3.4, 1.0, 0.5), at(5.0, 0, -1.1), CREAM)
-			B:block(tip, v(2.6, 0.85, 0.5), at(8.0, 0, -0.35), CREAM)
-			B:block(tip, v(0.6, 1.3, 2.6), at(6.7, 0, 0.5), GOLD)
-			B:block(tip, v(0.25, 0.2, 1.6), at(6.7, 0.7, 0.5), NT, NEON)
-			B:block(tip, v(1.2, 0.2, 0.9), at(8.2, 0.5, 0.8), SPOT)
-			B:block(tip, v(0.5, 0.45, 0.6), at(10.9, 0, 1.5), NT, NEON)
-			local a, b = at(10.8, 0, 1.6), at(9.4, 0, 1.9)
+			-- broad flat humpback paddle, sweeping back toward the tip
+			B:block(tip, v(3.8, 0.85, 3.2), at(5.0, 0, 0.3), MAIN)
+			B:block(tip, v(3.0, 0.75, 2.6), at(8.1, 0, 0.9), MAIN)
+			B:block(tip, v(2.0, 0.65, 1.8), at(10.4, 0, 1.4), DARK)
+			-- cream leading-edge bumps (humpback tubercles), stepped
+			B:block(tip, v(1.2, 0.95, 0.7), at(4.2, 0, -1.45), CREAM)
+			B:block(tip, v(1.1, 0.9, 0.7), at(6.0, 0, -1.15), CREAM)
+			B:block(tip, v(1.0, 0.8, 0.6), at(7.7, 0, -0.55), CREAM)
+			B:block(tip, v(0.9, 0.7, 0.55), at(9.3, 0, -0.05), CREAM)
+			B:block(tip, v(0.6, 1.15, 3.3), at(6.75, 0, 0.5), GOLD)
+			B:block(tip, v(0.25, 0.2, 2.2), at(6.75, 0.62, 0.5), NT, NEON)
+			B:block(tip, v(1.4, 0.2, 1.2), at(8.3, 0.42, 1.0), SPOT)
+			B:block(tip, v(0.55, 0.5, 0.6), at(11.45, 0, 1.6), NT, NEON)
+			local a, b = at(11.4, 0, 1.7), at(9.8, 0, 2.1)
 			B:trail(tip, a.Position, b.Position, { name = "FinTrail" .. side, color = { "#ffffff", NT }, life = 0.35, trans = { 0.5, 1 } })
 		end)
 
@@ -239,9 +243,14 @@ return {
 			B:trail(fluke, v(10.2, 9.0, 22.2), v(8.6, 9.0, 21.6), { name = "FlukeTrail" .. side, color = { "#ffffff", NS }, life = 0.4, trans = { 0.45, 1 } })
 		end)
 		-- splash crown flashed on the slap (hidden)
-		for i = 1, 6 do
-			local a = (i - 1) * 60 + 30
-			B:block(fluke, v(0.4, 0.4, 2.4), CFrame.new(0, 9.0, 19.8) * ang(0, a, 0) * CFrame.new(0, 0, -6.5) * ang(-30, 0, 0), FOAM, { mat = "Neon", tr = 1, name = "SplashLine" .. i })
+		-- splash crown: water columns flaring out around the flukes (rises + fades)
+		local splash = B:bone("Splash", "Fluke", v(0, 9.0, 19.5))
+		for i = 1, 8 do
+			local a = math.rad((i - 1) * 45 + 22.5)
+			local x, z = 8.0 * math.cos(a), 3.6 * math.sin(a)
+			local yaw = math.deg(math.atan2(x, z))
+			local h = (i % 2 == 0) and 2.4 or 3.4
+			B:block(splash, v(0.7, h, 0.7), CFrame.new(x, 9.0, 19.5 + z) * ang(0, yaw, 0) * ang(32, 0, 0) * CFrame.new(0, h / 2, 0), FOAM, { mat = "Neon", tr = 1, name = "SplashLine" .. i })
 		end
 		local flukeFx = B:block(fluke, v(14, 1.5, 4), cf(0, 9.0, 19.5), MAIN, { tr = 1, name = "FlukeFX" })
 		B:emitter(flukeFx, "burst", { name = "SlapBurst", color = { "#ffffff", NS, "#9fe2ff" }, size = { 1.0, 0.7, 0 }, speed = { 8, 18 }, life = { 0.5, 1.1 } })
@@ -340,14 +349,14 @@ return {
 		B:emitter(tipFx, "burst", { name = "BeamBurst", color = { "#ffffff", NS, NG }, size = { 1.0, 0.6, 0 }, speed = { 10, 20 } })
 		B:light(tipFx, { name = "SpireLight", color = NT, brightness = 0.4, range = 14 })
 		-- hidden beam of light shooting up from the tip
-		B:block(spire, v(0.8, 16, 0.8), cf(0, 33.5, -1), "#d8fbff", { mat = "Neon", tr = 1, name = "BeamCore" })
-		B:block(spire, v(1.8, 16, 1.8), cf(0, 33.5, -1), NS, { mat = "Neon", tr = 1, name = "BeamGlow" })
+		B:block(spire, v(1.1, 16, 1.1), cf(0, 33.5, -1), "#d8fbff", { mat = "Neon", tr = 1, name = "BeamCore" })
+		B:block(spire, v(2.6, 16, 2.6), cf(0, 33.5, -1), NS, { mat = "Neon", tr = 1, name = "BeamGlow" })
 		-- halo of rays around the tip (spins)
 		local halo = B:bone("Halo", "Spire", v(0, 24.9, -1))
 		for i = 1, 10 do
 			local a = i * 36
-			local len = (i % 2 == 0) and 2.8 or 4.2
-			B:block(halo, v(0.3, 0.3, len), CFrame.new(0, 24.9, -1) * ang(0, a, 0) * CFrame.new(0, 0, -1.0 - len / 2) * ang(25, 0, 0), (i % 2 == 0) and NT or NG, { mat = "Neon", tr = 1, name = "Ray" .. i })
+			local len = (i % 2 == 0) and 3.6 or 5.8
+			B:block(halo, v(0.35, 0.35, len), CFrame.new(0, 24.9, -1) * ang(0, a, 0) * ang(14, 0, 0) * CFrame.new(0, 0, -1.2 - len / 2), (i % 2 == 0) and NT or NG, { mat = "Neon", tr = 1, name = "Ray" .. i })
 		end
 
 		-- gold voxel chunks that pop out when the towers rise (hidden)

@@ -349,7 +349,7 @@ return {
 		local shardCol = { GOLD, TURQ, MARBLE, "#bfefff", GOLD, TURQ, MARBLE, "#bfefff" }
 		for k = 1, 8 do
 			local sb = B:bone("Shard" .. k, "Root", SH)
-			local s = (k % 3 == 0) and 0.6 or 0.9
+			local s = (k % 3 == 0) and 0.8 or 1.2
 			B:block(sb, v(s, s, s), CFrame.new(SH), shardCol[k], { mat = shardCol[k] == TURQ and "Neon" or nil, tr = 1, name = "ShardPart" .. k })
 		end
 	end,

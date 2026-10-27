@@ -119,7 +119,7 @@ function M.Update(t, pose, ctx)
 	------------------------------------------------------------------
 	local bob = 0.8 * wave(t, 0.5) * (1 - 0.6 * special)
 	local hop = 0.45 * L.bounce(t, 2.0) * guard
-	local by = bob + hop + L.track(c, BY) - 0.9 * squash + 0.5 * puff - 0.3 * guard
+	local by = bob + hop + L.track(c, BY) - 1.4 * squash + 0.5 * puff - 0.3 * guard
 	local bz = L.track(c, BZ) - 2.8 * jab + 1.1 * wind
 	local bx = 0.4 * wave(t, 0.3) * swimW
 	local spin = L.track(c, ROLL)
@@ -142,7 +142,7 @@ function M.Update(t, pose, ctx)
 	------------------------------------------------------------------
 	-- face: jaw (gritted -> "HUP!" -> battle cry -> "HA!"), brows, lids
 	------------------------------------------------------------------
-	local jawX = -(16 * jab + 32 * thrust + 30 * shout + 8 * puff) - 10 * spinE * L.wave01(c, 4.0)
+	local jawX = -(18 * jab + 40 * thrust + 44 * shout + 8 * puff) - 10 * spinE * L.wave01(c, 4.0)
 	jawX -= 6 * victory * (1 - shout) -- confident open smirk while posing
 	jawX -= 14 * grr * L.wave01(c, 9.0) -- chattering grit
 	pose.Jaw = ang(jawX, 0, 0)
@@ -233,7 +233,7 @@ function M.Update(t, pose, ctx)
 	local se = L.ease.cubicOut(sp)
 	for k = 1, 8 do
 		local d = SHARD_DIR[k]
-		local r = 6 * se
+		local r = 8 * se
 		local spn = 540 * sp * (k % 2 == 0 and -1 or 1)
 		pose["Shard" .. k] = shardOn
 				and pa(SH_BX + d[1] * r, SH_BY + d[2] * r - 4 * sp * sp, SH_BZ + d[3] * r, spn, spn * 0.7, 45 * k)

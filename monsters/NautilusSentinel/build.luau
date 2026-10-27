@@ -39,6 +39,7 @@ return {
 		local GOLD, BRONZE = "#f2b53a", "#b77a26"
 		local TEAL, TEAL2, DTEAL, HOOD = "#2bb3a6", "#5fd0c0", "#13706b", "#1c8f87"
 		local CREAM = "#f3e3c3"
+		local BROW = "#0b3f3c"
 		local PUPIL, MOUTH, TONGUE, BLUSH = "#0d1a22", "#2a0f16", "#ff7a8a", "#ff9aa6"
 		local TURQ, SKY, GLOW = "#3ff0e0", "#6fe3ff", "#ffe27a"
 		local NEON = { mat = "Neon" }
@@ -170,15 +171,15 @@ return {
 		B:block(spire, v(2.6, 0.7, 2.6), cf(0, topY + 0.2, C.Z), BRONZE)
 		B:block(spire, v(2.0, 0.5, 2.0), cf(0, topY + 0.75, C.Z), GOLD)
 		B:sym(function()
-			B:block(spire, v(0.45, 1.0, 0.45), cf(0.65, topY + 1.5, C.Z - 0.65), WHITE)
-			B:block(spire, v(0.45, 1.0, 0.45), cf(0.65, topY + 1.5, C.Z + 0.65), WHITE)
+			B:block(spire, v(0.45, 0.8, 0.45), cf(0.65, topY + 1.4, C.Z - 0.65), WHITE)
+			B:block(spire, v(0.45, 0.8, 0.45), cf(0.65, topY + 1.4, C.Z + 0.65), WHITE)
 		end)
-		local crystal = B:block(spire, v(0.6, 0.9, 0.6), cf(0, topY + 1.45, C.Z), TURQ, { mat = "Neon", name = "SpireCrystal" })
+		local crystal = B:block(spire, v(0.6, 0.8, 0.6), cf(0, topY + 1.4, C.Z), TURQ, { mat = "Neon", name = "SpireCrystal" })
 		B:light(crystal, { name = "SpireLight", color = TURQ, brightness = 0.6, range = 7 })
-		B:block(spire, v(2.2, 0.5, 2.2), cf(0, topY + 2.2, C.Z), GOLD)
-		B:block(spire, v(1.4, 0.5, 1.4), cf(0, topY + 2.65, C.Z), GOLD)
-		B:block(spire, v(0.45, 0.6, 0.45), cf(0, topY + 3.15, C.Z), TURQ, NEON)
-		B:trail(spire, v(0, topY + 3.3, C.Z - 0.2), v(0, topY + 2.6, C.Z - 0.2), { name = "SpireTrail", color = { TURQ, GLOW }, life = 0.3, trans = { 0.45, 1 } })
+		B:block(spire, v(2.2, 0.5, 2.2), cf(0, topY + 2.0, C.Z), GOLD)
+		B:block(spire, v(1.4, 0.5, 1.4), cf(0, topY + 2.45, C.Z), GOLD)
+		B:block(spire, v(0.45, 0.5, 0.45), cf(0, topY + 2.9, C.Z), TURQ, NEON)
+		B:trail(spire, v(0, topY + 3.1, C.Z - 0.2), v(0, topY + 2.4, C.Z - 0.2), { name = "SpireTrail", color = { TURQ, GLOW }, life = 0.3, trans = { 0.45, 1 } })
 
 		------------------------------------------------------------------
 		-- HEAD: peeks out of the aperture (pulls back in along +Z)
@@ -214,7 +215,8 @@ return {
 			B:block(head, v(2.2, 2.7, 0.3), cf(1.4, 8.9, -6.68), WHITE) -- sclera
 			B:block(head, v(1.7, 2.1, 0.12), cf(1.35, 8.85, -6.86), TURQ, { mat = "Neon", name = "Eye" .. side })
 			local pupil = B:bone("Pupil" .. side, "Head", v(1.35, 8.8, -6.95))
-			B:block(pupil, v(1.1, 1.5, 0.1), cf(1.35, 8.8, -6.95), PUPIL)
+			B:block(pupil, v(1.1, 1.5, 0.1), cf(1.35, 8.8, -6.95), PUPIL, { name = "Pupil" .. side .. "Big" })
+			B:block(pupil, v(0.55, 0.7, 0.1), cf(1.35, 8.8, -6.95), PUPIL, { tr = 1, name = "Pupil" .. side .. "Dot" })
 			B:block(pupil, v(0.5, 0.5, 0.06), cf(1.65, 9.25, -7.02), "#ffffff", NEON)
 			B:block(pupil, v(0.28, 0.28, 0.06), cf(1.0, 8.3, -7.02), "#ffffff", NEON)
 			-- blink lid (hidden while open) + lash line
@@ -227,12 +229,12 @@ return {
 			B:block(head, v(1.45, 0.45, 0.12), cf(1.85, 9.0, -7.36, 0, 0, -38), TURQ, { mat = "Neon", tr = 1, name = "Happy" .. side .. "3" })
 			-- brows
 			local brow = B:bone("Brow" .. side, "Head", v(1.4, 10.6, -7.0))
-			B:block(brow, v(2.1, 0.45, 0.4), cf(1.4, 10.62, -7.0), DTEAL)
+			B:block(brow, v(2.1, 0.45, 0.4), cf(1.4, 10.62, -7.0), BROW)
 		end)
 		-- MOUTH: curious little "o" (idle), big surprised O, happy smile
 		B:block(head, v(0.9, 0.6, 0.12), cf(0, 6.85, -6.45), MOUTH, { name = "MouthO" })
-		B:block(head, v(1.4, 0.9, 0.12), cf(0, 6.9, -6.47), MOUTH, { tr = 1, name = "MouthBig" })
-		B:block(head, v(0.7, 0.35, 0.1), cf(0, 6.6, -6.53), TONGUE, { tr = 1, name = "MouthBigTongue" })
+		B:block(head, v(1.6, 1.2, 0.12), cf(0, 6.8, -6.47), MOUTH, { tr = 1, name = "MouthBig" })
+		B:block(head, v(0.7, 0.35, 0.1), cf(0, 6.4, -6.53), TONGUE, { tr = 1, name = "MouthBigTongue" })
 		B:block(head, v(1.5, 0.5, 0.12), cf(0, 6.8, -6.47), MOUTH, { tr = 1, name = "Smile1" })
 		B:block(head, v(0.35, 0.35, 0.12), cf(0.9, 7.1, -6.47), MOUTH, { tr = 1, name = "Smile2" })
 		B:block(head, v(0.35, 0.35, 0.12), cf(-0.9, 7.1, -6.47), MOUTH, { tr = 1, name = "Smile3" })
