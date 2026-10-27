@@ -233,7 +233,8 @@ function M.Update(t, pose, ctx)
 	px = px * (1 - cross) - 0.5 * cross
 	py = py * (1 - cross) - 0.42 * cross
 	px += 0.3 * sin(TAU * 1.0 * (c - SPIN0)) * spinning
-	L.both(pose, "Pupil", CFrame.new(px, py, 0))
+	-- (scaled to the smaller, kinder eyes so the iris stays inside the white)
+	L.both(pose, "Pupil", CFrame.new(0.55 * px, 0.55 * py, 0))
 
 	local surprise = max(boop * (1 - giggleB), 0.8 * launch * (1 - spinning))
 	local browUp = 0.15 * wave(t, 4 * F, 0.1) * idleW + 0.6 * surprise + 0.3 * hum + 0.35 * proud
