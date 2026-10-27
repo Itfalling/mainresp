@@ -243,9 +243,8 @@ return {
 		B:block(head, v(3.0, 0.8, 0.4), cf(0, 10.2, -14.55), GOLD)
 		B:block(head, v(1.6, 0.6, 0.4), cf(0, 9.6, -14.55), GOLD)
 		B:block(head, v(1.2, 1.6, 0.5), cf(0, 8.7, -14.6), GOLD2)
-		B:block(head, v(0.6, 0.6, 0.2), cf(0, 8.75, -14.9), TURQ, NEON)
-		B:block(head, v(0.5, 0.3, 0.1), cf(-1.0, 10.2, -14.78), BRONZED)
-		B:block(head, v(0.5, 0.3, 0.1), cf(1.0, 10.2, -14.78), BRONZED)
+		-- (no glowing gem on the nasal guard: dead-centre between the eyes it
+		-- read as a third eye)
 		-- helmet dome + bronze crest over the skull
 		B:block(head, v(5.0, 0.6, 5.0), cf(0, 11.0, -8.9), GOLD)
 		B:block(head, v(5.1, 0.3, 0.4), cf(0, 10.9, -6.5), BRONZED)
