@@ -132,7 +132,7 @@ function M.Update(t, pose, ctx)
 		{ BREACH + 0.45, 58, "cubicOut" }, { APEX, 62, "quadOut" }, { FALL, 66, "sineInOut" }, { SPLAT - 0.1, -8, "quadIn" },
 		{ SPLAT + 0.12, -3, "quadOut" }, { SPLAT + 0.5, 4, "quadInOut" }, { LIFT1, 0, "quadInOut" },
 		{ LIFT1 + 0.3, -5, "quadOut" }, { SLAP1, 4, "quadIn" }, { SLAP1 + 0.2, -4, "quadOut" }, { SLAP2, 6, "quadIn" },
-		{ SLAP2 + 0.3, 0, "quadOut" }, { BOW, 0 }, { BOW + 0.4, -8, "backOut" }, { BOWEND, -8 }, { BOWEND + 0.45, 3, "backOut" },
+		{ SLAP2 + 0.3, 0, "quadOut" }, { BOW, 0 }, { BOW + 0.4, -15, "backOut" }, { BOWEND, -13 }, { BOWEND + 0.45, 3, "backOut" },
 		{ 13.7, 0, "quadInOut" },
 	})
 	local spin = track(c, { { BREACH, 0 }, { APEX - 0.05, 720, "cubicOut" } })
@@ -160,7 +160,7 @@ function M.Update(t, pose, ctx)
 	------------------------------------------------------------------
 	local hP = 2.5 * wave(t, 8 * F, 0.45) * idleW - 8 * windL + 10 * lunge - 5 * kid + 6 * inhale - 6 * squirt
 		- 6 * cackle * abs(sin(TAU * 4 * c)) - 4 * tease - 10 * tip
-		+ 10 * wind * (1 - tuck) - 6 * tuck + 14 * squash - 10 * splay * (1 - squash) - 14 * bow
+		+ 10 * wind * (1 - tuck) - 6 * tuck + 14 * squash - 10 * splay * (1 - squash) - 24 * bow
 		- 6 * slapLift + 5 * slapHit + 4 * giggle * sin(TAU * 7 * c + 1)
 	local hY = (5 * wave(t, 4 * F, 0.3)) * idleW + 7 * sly * (c < 0.7 and 1 or -1) - 10 * tease * sin(TAU * 1.2 * (c - 4.1))
 		+ 6 * bow * sin(TAU * 0.8 * (c - BOW))
@@ -264,8 +264,8 @@ function M.Update(t, pose, ctx)
 	local cPop = L.env(c, APEX - 0.02, 0.1, 0.25, 0.35, "backOut", "bounceOut")
 	local cLand = L.env(c, SPLAT, 0.05, 0.05, 0.4, "quadOut", "bounceOut")
 	local bowTip = L.env(c, BOW + 0.15, 0.3, BOWEND - BOW - 0.6, 0.4, "backOut", "bounceOut")
-	pose.Crown = pa(0, 0.9 * tip + 2.4 * cPop + 1.6 * bowTip + 0.8 * cLand + 0.6 * lunge, -0.8 * tip - 1.4 * bowTip,
-		3 * wave(t, 8 * F, 0.5) * idleW - 26 * tip - 34 * bowTip + 10 * windL + 8 * giggle * sin(TAU * 7 * c) - 12 * cLand,
+	pose.Crown = pa(0, 0.9 * tip + 2.4 * cPop + 3.2 * bowTip + 0.8 * cLand + 0.6 * lunge, -0.8 * tip - 2.4 * bowTip,
+		3 * wave(t, 8 * F, 0.5) * idleW - 26 * tip - 46 * bowTip + 10 * windL + 8 * giggle * sin(TAU * 7 * c) - 12 * cLand,
 		crownSpin, 3 * wave(t, 5 * F, 0.1) * idleW + 10 * tip + 8 * bowTip + 6 * cackle * sin(TAU * 4 * c))
 	local beamOn = c > APEX and c < APEX + 0.35
 	ctx.transparency("CrownBeam", beamOn and (c < APEX + 0.25 and 0.15 or 0.6) or 1)
