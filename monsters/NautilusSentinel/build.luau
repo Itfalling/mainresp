@@ -39,7 +39,7 @@ return {
 		local GOLD, BRONZE = "#f2b53a", "#b77a26"
 		local TEAL, TEAL2, DTEAL, HOOD = "#2bb3a6", "#5fd0c0", "#13706b", "#1c8f87"
 		local CREAM = "#f3e3c3"
-		local BROW = "#0b3f3c"
+		local BROW = "#10202a"
 		local PUPIL, MOUTH, TONGUE, BLUSH = "#0d1a22", "#2a0f16", "#ff7a8a", "#ff9aa6"
 		local TURQ, SKY, GLOW = "#3ff0e0", "#6fe3ff", "#ffe27a"
 		local NEON = { mat = "Neon" }
@@ -196,7 +196,8 @@ return {
 		local hood = B:bone("Hood", "Head", v(0, 11.0, -2.2))
 		B:block(hood, v(6.2, 1.3, 5.0), cf(0, 11.55, -4.3), HOOD)
 		B:block(hood, v(5.0, 0.7, 3.8), cf(0, 12.5, -3.9), HOOD)
-		B:block(hood, v(6.4, 0.5, 0.6), cf(0, 10.95, -6.6), DTEAL) -- visor ledge
+		B:block(hood, v(6.4, 0.45, 0.6), cf(0, 11.12, -6.6), CREAM) -- pale hood rim (brows read against it)
+		B:block(hood, v(5.2, 1.6, 3.8), cf(0, 10.6, -4.3), DTEAL) -- under-hood filler: no gap when it lifts
 		B:block(hood, v(6.3, 0.4, 0.2), cf(0, 11.55, -6.88), GOLD) -- diadem band
 		B:block(hood, v(1.1, 1.1, 0.25), cf(0, 11.7, -6.95, 0, 0, 45), GOLD)
 		B:block(hood, v(0.55, 0.55, 0.15), cf(0, 11.7, -7.1, 0, 0, 45), TURQ, { mat = "Neon", name = "HoodGem" })
@@ -229,12 +230,13 @@ return {
 			B:block(head, v(1.45, 0.45, 0.12), cf(1.85, 9.0, -7.36, 0, 0, -38), TURQ, { mat = "Neon", tr = 1, name = "Happy" .. side .. "3" })
 			-- brows
 			local brow = B:bone("Brow" .. side, "Head", v(1.4, 10.6, -7.0))
-			B:block(brow, v(2.1, 0.45, 0.4), cf(1.4, 10.62, -7.0), BROW)
+			B:block(brow, v(2.3, 0.55, 0.4), cf(1.4, 10.62, -7.05), BROW)
+			B:block(brow, v(1.1, 0.5, 0.4), cf(1.4, 10.95, -7.05), BROW) -- stepped arch (curious)
 		end)
 		-- MOUTH: curious little "o" (idle), big surprised O, happy smile
 		B:block(head, v(0.9, 0.6, 0.12), cf(0, 6.85, -6.45), MOUTH, { name = "MouthO" })
-		B:block(head, v(1.6, 1.2, 0.12), cf(0, 6.8, -6.47), MOUTH, { tr = 1, name = "MouthBig" })
-		B:block(head, v(0.7, 0.35, 0.1), cf(0, 6.4, -6.53), TONGUE, { tr = 1, name = "MouthBigTongue" })
+		B:block(head, v(1.9, 1.5, 0.12), cf(0, 6.95, -6.47), MOUTH, { tr = 1, name = "MouthBig" })
+		B:block(head, v(1.0, 0.45, 0.1), cf(0, 6.45, -6.53), TONGUE, { tr = 1, name = "MouthBigTongue" })
 		B:block(head, v(1.5, 0.5, 0.12), cf(0, 6.8, -6.47), MOUTH, { tr = 1, name = "Smile1" })
 		B:block(head, v(0.35, 0.35, 0.12), cf(0.9, 7.1, -6.47), MOUTH, { tr = 1, name = "Smile2" })
 		B:block(head, v(0.35, 0.35, 0.12), cf(-0.9, 7.1, -6.47), MOUTH, { tr = 1, name = "Smile3" })
