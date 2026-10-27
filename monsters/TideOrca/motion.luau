@@ -144,6 +144,8 @@ function M.Update(t, pose, ctx)
 	for i = CENTER + 1, #CHAIN do
 		pose[CHAIN[i]] = ang(pitch[i] - pitch[i - 1], yaw[i] - yaw[i - 1], 0)
 	end
+	-- flukes ride slightly upturned so their top face (and the V) reads from the front 3/4
+	pose.Fluke = ang(-14, 0, 0) * pose.Fluke
 
 	------------------------------------------------------------------
 	-- face
@@ -180,6 +182,8 @@ function M.Update(t, pose, ctx)
 	pose.LidL = CFrame.new(0, -1.5 * closeL, 0)
 	ctx.transparency("EyelidR", closeR > 0.06 and 0 or 1)
 	ctx.transparency("EyelidL", closeL > 0.06 and 0 or 1)
+	ctx.transparency("LashR", closeR > 0.06 and 0 or 1)
+	ctx.transparency("LashL", closeL > 0.06 and 0 or 1)
 
 	-- wink star
 	local wsOn = (c > 10.65 and c < 11.15) or (c > 5.02 and c < 5.3)

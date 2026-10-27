@@ -33,9 +33,9 @@ local TAU = 2 * pi
 local CHAIN = { "Head", "Body", "Body2", "Tail1", "Tail2", "Tail3", "Fluke" }
 local CENTER = 2
 local SWIM = 0.375 -- 6 strokes per loop
-local AMP = { 2.5, 2, 4, 7, 11, 15, 20 } -- vertical stroke, head -> flukes
+local AMP = { 2.5, 2, 5, 9, 14, 19, 26 } -- vertical stroke, head -> flukes
 local BREACH_BEND = { -6, 0, -5, -9, -11, -11, -9 } -- tail curls up as she rises
-local SLAP_BEND = { 0, 0, 7, 13, 17, 21, 25 } -- + = tail down (slam), - = lift
+local SLAP_BEND = { 0, 0, 10, 19, 27, 35, 42 } -- + = tail down (slam), - = lift
 local SPIN_LAG = { 0, 0, 5, 10, 15, 20, 26 } -- tail trails in the pirouette
 local WIG = { 6, 0, 6, 10, 14, 18, 22 } -- happy wag (yaw)
 
@@ -154,8 +154,8 @@ function M.Update(t, pose, ctx)
 	------------------------------------------------------------------
 	-- jaw: "mmm" hum, "whee!" on the breach, proud smile, "oh!", giggles
 	local jawX = -(4 + 6 * L.wave01(c, 2.2)) * hum
-		- 16 * breach - 18 * proud - 14 * jolt
-		- (8 + 10 * L.wave01(c, 5.0)) * giggle - 10 * wiggle - 6 * glance * (1 - patArm) - 8 * fSpout
+		- 10 * breach - 16 * proud - 6 * jolt
+		- (4 + 7 * L.wave01(c, 5.0)) * giggle - 10 * wiggle - 6 * glance * (1 - patArm) - 8 * fSpout
 	pose.Jaw = ang(min(0, jawX), 0, 0)
 
 	-- lids: content half-close while humming, closed for the breath,
@@ -166,8 +166,8 @@ function M.Update(t, pose, ctx)
 	end
 	close = max(close, L.env(c, BOOP + 0.25, 0.05, 0.05, 0.1)) -- blink after the boop
 	close = close * (1 - jolt)
-	pose.LidR = CFrame.new(0, -3.05 * close, 0)
-	pose.LidL = CFrame.new(0, -3.05 * close, 0)
+	pose.LidR = CFrame.new(0, -3.25 * close, 0)
+	pose.LidL = CFrame.new(0, -3.25 * close, 0)
 	local lidTr = close > 0.04 and 0 or 1
 	for _, s in { "R", "L" } do
 		ctx.transparency("Eyelid" .. s, lidTr)
@@ -196,11 +196,11 @@ function M.Update(t, pose, ctx)
 	local commonY = idleY - 35 * breath + 10 * breach + 45 * proud + 30 * clap
 	local tipZ = 14 * wave(t, SWIM, -0.15) * swimW + 20 * breach + 15 * spinE + 0.6 * flap
 	-- right flipper also does the PAT
-	local rZ = commonZ + 125 * patArm - 10 * patBeat
+	local rZ = commonZ + 118 * patArm - 10 * patBeat
 	local rY = commonY - 30 * patArm
-	pose.FinR = ang(0, rY, rZ)
+	pose.FinR = pa(-0.2 * patArm, 2.2 * patArm, 0, 0, rY, rZ)
 	pose.FinL = L.mirror(ang(0, commonY, commonZ))
-	pose.FinTipR = ang(0, 0, tipZ - 30 * patArm - 22 * patBeat)
+	pose.FinTipR = ang(0, 0, tipZ - 25 * patArm - 22 * patBeat)
 	pose.FinTipL = L.mirror(ang(0, 0, tipZ))
 
 	------------------------------------------------------------------
@@ -243,7 +243,7 @@ function M.Update(t, pose, ctx)
 	local spOn = fSpout > 0.03
 	pose.Spout = pa(0, -3.0 * (1 - fSpout), 0, 0, 30 * c, 4 * sin(TAU * 3 * c))
 	for k = 1, 6 do
-		ctx.transparency("Spout" .. k, spOn and (k >= 5 and 0.15 or 0.3) or 1)
+		ctx.transparency("Spout" .. k, spOn and (k >= 3 and 0.05 or 0.15) or 1)
 	end
 
 	------------------------------------------------------------------
@@ -251,9 +251,11 @@ function M.Update(t, pose, ctx)
 	------------------------------------------------------------------
 	local sp = L.remap(c, SLAM, SLAM + 0.85)
 	local splashOn = c > SLAM and c < SLAM + 0.85
-	pose.Splash = pa(0, -1.2 + 2.4 * L.ease.cubicOut(sp), 0, 0, 25 * sp, 0)
+	pose.Splash = pa(0, -1.4 + 3.0 * L.ease.backOut(min(1, sp * 1.6)) - 1.0 * sp * sp, 0, 0, 25 * sp, 0)
 	for i = 0, 9 do
-		ctx.transparency("SplashP" .. i, splashOn and (0.2 + 0.8 * max(0, (sp - 0.45) / 0.55)) or 1)
+		local str = splashOn and (0.05 + 0.95 * max(0, (sp - 0.45) / 0.55)) or 1
+		ctx.transparency("SplashP" .. i, str)
+		ctx.transparency("SplashD" .. i, str)
 	end
 
 	------------------------------------------------------------------
@@ -277,7 +279,7 @@ function M.Update(t, pose, ctx)
 	local o1 = orbit(c)
 	local o2 = orbit(c + 0.05)
 	local oyaw = math.deg(atan2(-(o2.X - o1.X), -(o2.Z - o1.Z)))
-	local noseP = Vector3.new(0, 8.8 + bob, -10.4)
+	local noseP = Vector3.new(0, 9.5 + bob, -10.25)
 	local fpos = o1 + (noseP - o1) * fishIn + Vector3.new(0, 0.4 * jolt, -1.6 * jolt)
 	local dYaw = ((180 - oyaw + 180) % 360) - 180
 	local fyaw = oyaw + dYaw * fishIn + 18 * sin(TAU * 4 * t)

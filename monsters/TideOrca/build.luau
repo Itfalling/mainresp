@@ -35,6 +35,7 @@ return {
 		local MARBLE, MSHADE, BARNACLE = "#f4efe2", "#d9cfb8", "#e3d6b8"
 		local CRYSTAL, CRYSTAL_L = "#2ad1c4", "#5ff5e8"
 		local PUPIL, MOUTH, TONGUE, TONGUED, PINK = "#0d1020", "#2a0d18", "#ff7f8f", "#e2606a", "#ff9db5"
+		local LID, BROWRIM = "#4f6090", "#5b6c99"
 		local WATER, FOAM = "#7fd8ff", "#e9fcff"
 		local TURQ, GLOW = "#3ff0e0", "#ffe27a" -- the two (small) neon accents
 		local NEON = { mat = "Neon" }
@@ -158,17 +159,24 @@ return {
 			{ 1.8, 12.9, 15.0, 1.3 }, { 3.0, 13.4, 15.7, 1.2 },
 			{ 4.1, 14.0, 16.3, 1.1 }, { 5.1, 14.6, 16.8, 1.0 }, { 6.0, 15.3, 17.1, 0.9 },
 		}
+		-- each fluke half rises in a slight V (dihedral) so its top surface
+		-- shows from the 3/4 and side views instead of reading edge-on
+		local DIH = 25
 		for _, dir in { 1, -1 } do
+			local F = CFrame.new(0, Y0, 0) * ang(0, 0, DIH * dir)
+			local function fat(x, y, z)
+				return F * CFrame.new(x, y, z)
+			end
 			for _, r in rows do
 				local x, len = r[1] * dir, r[3] - r[2]
 				local zc = (r[2] + r[3]) / 2
-				B:block(fluke, v(r[4], 1.1, len), cf(x, Y0, zc), BLACK)
-				B:block(fluke, v(r[4] - 0.1, 0.25, len - 0.3), cf(x, Y0 - 0.62, zc + 0.1), WHITE)
-				B:block(fluke, v(r[4] + 0.1, 1.15, 0.5), cf(x, Y0, r[2] + 0.2), GOLD)
+				B:block(fluke, v(r[4], 1.1, len), fat(x, 0, zc), BLACK)
+				B:block(fluke, v(r[4] - 0.1, 0.25, len - 0.3), fat(x, -0.62, zc + 0.1), WHITE)
+				B:block(fluke, v(r[4] + 0.1, 1.15, 0.5), fat(x, 0, r[2] + 0.2), GOLD)
 			end
-			B:block(fluke, v(0.9, 0.8, 1.0), cf(6.7 * dir, Y0, 16.9), CRYSTAL)
-			B:block(fluke, v(0.55, 0.55, 0.6), cf(7.2 * dir, Y0, 17.2), TURQ, NEON)
-			B:trail(fluke, v(7.1 * dir, Y0, 17.2), v(5.4 * dir, Y0, 16.8), { name = dir > 0 and "FlukeTrailR" or "FlukeTrailL", color = { "#ffffff", TURQ }, life = 0.3, trans = { 0.45, 1 } })
+			B:block(fluke, v(0.9, 0.8, 1.0), fat(6.7 * dir, 0, 16.9), CRYSTAL)
+			B:block(fluke, v(0.55, 0.55, 0.6), fat(7.2 * dir, 0, 17.2), TURQ, NEON)
+			B:trail(fluke, fat(7.1 * dir, 0, 17.2).Position, fat(5.4 * dir, 0, 16.8).Position, { name = dir > 0 and "FlukeTrailR" or "FlukeTrailL", color = { "#ffffff", TURQ }, life = 0.3, trans = { 0.45, 1 } })
 		end
 		local wake = B:block(fluke, v(3, 1.5, 2), cf(0, Y0, 15.0), BLACK, { tr = 1, name = "WakeFX" })
 		B:emitter(wake, "burst", { name = "WakeBurst", color = { "#ffffff", WATER, TURQ }, size = { 0.8, 0.6, 0 }, speed = { 5, 12 } })
@@ -219,12 +227,6 @@ return {
 		B:block(head, v(1.3, 0.7, 0.3), cf(2.5, Y0 - 1.95, -8.95, 0, 0, 26), MOUTH)
 		B:block(head, v(0.4, 0.38, 0.2), cf(2.3, Y0 - 2.0, -9.1, 0, 0, 26), WHITE)
 		B:block(head, v(1.0, 0.6, 0.3), cf(-2.45, Y0 - 2.3, -8.95, 0, 0, 4), MOUTH)
-		-- royal nose guard: gold strap over the melon ending in a jewel
-		B:block(head, v(1.0, 0.4, 1.8), cf(0, Y0 + 2.45, -8.6), GOLD)
-		B:block(head, v(1.3, 1.3, 0.3), cf(0, Y0 + 1.85, -9.48, 0, 0, 45), GOLD)
-		B:block(head, v(0.7, 0.7, 0.2), cf(0, Y0 + 1.85, -9.6, 0, 0, 45), CRYSTAL)
-		B:block(head, v(0.8, 0.8, 0.12), cf(-0.95, Y0 + 0.5, -9.43), "#4d5d88") -- glossy shine
-		B:block(head, v(0.4, 0.4, 0.12), cf(-0.5, Y0 + 1.0, -9.43), "#4d5d88")
 		-- gold forehead circlet (the crown sits on it)
 		B:block(head, v(5.2, 0.6, 0.8), cf(0, Y0 + 3.4, -7.65), GOLD)
 		B:block(head, v(1.2, 0.8, 0.85), cf(0, Y0 + 3.5, -7.7), DGOLD)
@@ -251,11 +253,12 @@ return {
 			B:block(head, v(0.2, 0.55, 2.4), cf(3.55, Y0 - 2.25, -6.9), MOUTH)
 			-- heavy brow on its own bone (sits on the eye, cuts its top)
 			local brow = B:bone("Brow" .. side, "Head", v(2.35, Y0 + 1.75, -7.6))
-			B:block(brow, v(2.8, 1.0, 1.75), cf(2.35, Y0 + 1.75, -7.55, 0, 0, 12), DEEP)
-			B:block(brow, v(1.0, 0.35, 1.3), cf(3.25, Y0 + 2.3, -7.3, 0, 0, 12), DARK)
+			B:block(brow, v(2.8, 1.0, 1.85), cf(2.35, Y0 + 1.75, -7.75, 0, 0, 12), DEEP)
+			B:block(brow, v(2.6, 0.3, 1.6), cf(2.33, Y0 + 2.33, -7.7, 0, 0, 12), BROWRIM)
 			-- eyelid for blinks / winks / squints (hidden until it closes)
 			local lid = B:bone("Lid" .. side, "Head", v(2.45, Y0 + 2.3, -7.35))
-			B:block(lid, v(2.05, 2.5, 2.3), cf(2.45, Y0 + 2.3, -7.45), BLACK, { tr = 1, name = "Eyelid" .. side })
+			B:block(lid, v(2.05, 2.5, 2.3), cf(2.45, Y0 + 2.3, -7.4), LID, { tr = 1, name = "Eyelid" .. side })
+			B:block(lid, v(2.15, 0.36, 0.12), cf(2.45, Y0 + 1.22, -8.58), DEEP, { tr = 1, name = "Lash" .. side })
 		end)
 		local headFx = B:block(head, v(1.5, 1.0, 1.0), cf(0, Y0 - 2.2, -10.0), WHITE, { tr = 1, name = "MouthFX" })
 		B:emitter(headFx, "burst", { name = "Spray", color = { "#ffffff", WATER, FOAM }, size = { 0.4, 0.3, 0 }, speed = { 5, 10 }, life = { 0.3, 0.7 }, spread = 40 })

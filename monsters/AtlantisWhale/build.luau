@@ -37,7 +37,7 @@ return {
 		local SEA, SEA_L, CORAL = "#3f9a3c", "#86d65a", "#ff7a5c"
 		local WHITE, PUPIL, MOUTH, TONGUE = "#ffffff", "#0d1020", "#2a0d18", "#ff7f8f"
 		local PINK, BALEEN, BROW = "#ff9db5", "#e6dbc0", "#13284f"
-		local TURQ, SKY, GOLDN = "#3ff0e0", "#6fe3ff", "#ffe27a" -- small neon accents
+		local TURQ, SKY, GOLDN = "#3ff0e0", "#3cc6ff", "#ffe27a" -- small neon accents
 		local NEON = { mat = "Neon" }
 
 		------------------------------------------------------------------
@@ -87,7 +87,7 @@ return {
 		B:block(body, v(10.3, 7.6, 0.5), cf(0, 9.4, 3.85), BRONZE)
 		B:block(body, v(10.5, 0.4, 0.6), cf(0, 13.0, 3.85), GOLD)
 		B:sym(function()
-			B:block(body, v(0.2, 0.6, 0.6), cf(5.5, 9.6, -3.0), TURQ, NEON)
+			B:block(body, v(0.2, 0.9, 0.9), cf(5.5, 9.6, -3.0), GOLD) -- collar stud
 			plate(body, 5.3, 9.7, -0.6, 3.2, 2.6)
 			plate(body, 5.3, 9.4, 2.1, 2.6, 2.0)
 		end)
@@ -119,22 +119,22 @@ return {
 		B:block(body2, v(0.45, 0.45, 0.45), cf(0, 14.8, 7.9), TURQ, NEON)
 
 		local tail1 = B:bone("Tail1", "Body2", v(0, 9.6, 8.8))
-		segment(tail1, 8.6, 12.4, 6.6, 5.2, 9.9)
-		B:block(tail1, v(6.8, 5.4, 0.4), cf(0, 9.9, 8.8), BRONZE)
+		segment(tail1, 8.6, 12.4, 7.4, 5.8, 9.9)
+		B:block(tail1, v(7.6, 6.0, 0.4), cf(0, 9.9, 8.8), BRONZE)
 		B:block(tail1, v(0.6, 0.12, 0.6), cf(0.9, 12.87, 10.6), SPOT)
 		B:block(tail1, v(0.5, 0.8, 1.6), cf(0, 6.7, 11.0), CREAM) -- keel ridge
 
 		local tail2 = B:bone("Tail2", "Tail1", v(0, 10.2, 12.3))
-		segment(tail2, 12.2, 15.2, 4.6, 3.6, 10.6)
-		B:block(tail2, v(4.8, 3.8, 0.35), cf(0, 10.6, 12.3), GOLD)
-		B:block(tail2, v(0.5, 0.6, 1.4), cf(0, 13.0, 13.8), DARK) -- ridge knuckles
-		B:block(tail2, v(0.45, 0.45, 0.45), cf(0, 13.45, 13.8), GOLD)
+		segment(tail2, 12.2, 15.2, 5.4, 4.2, 10.6)
+		B:block(tail2, v(5.6, 4.4, 0.35), cf(0, 10.6, 12.3), GOLD)
+		B:block(tail2, v(0.5, 0.6, 1.4), cf(0, 13.2, 13.8), DARK) -- ridge knuckles
+		B:block(tail2, v(0.45, 0.45, 0.45), cf(0, 13.65, 13.8), GOLD)
 
 		local tail3 = B:bone("Tail3", "Tail2", v(0, 11.0, 15.1))
-		B:block(tail3, v(3.0, 2.6, 2.2), cf(0, 11.3, 16.0), MAIN)
-		B:block(tail3, v(2.2, 0.4, 2.0), cf(0, 12.7, 16.0), DARK)
-		B:block(tail3, v(2.2, 0.4, 2.0), cf(0, 9.9, 16.0), CREAM)
-		B:block(tail3, v(3.2, 2.8, 0.35), cf(0, 11.3, 15.15), BRONZE)
+		B:block(tail3, v(3.6, 3.0, 2.2), cf(0, 11.3, 16.0), MAIN)
+		B:block(tail3, v(2.6, 0.4, 2.0), cf(0, 12.9, 16.0), DARK)
+		B:block(tail3, v(2.6, 0.4, 2.0), cf(0, 9.7, 16.0), CREAM)
+		B:block(tail3, v(3.8, 3.2, 0.35), cf(0, 11.3, 15.15), BRONZE)
 
 		------------------------------------------------------------------
 		-- FLUKES: horizontal stepped rows sweeping back, gold leading edges
@@ -174,11 +174,12 @@ return {
 		B:block(head, v(0.6, 0.12, 0.6), cf(-1.6, 14.1, -6.6), SPOT)
 		B:block(head, v(0.5, 0.12, 0.5), cf(2.0, 14.1, -5.1), SPOT)
 		B:block(head, v(9.2, 0.8, 6.0), cf(0, 7.3, -6.1), MAIN) -- upper lip
+		B:block(head, v(7.8, 1.7, 1.2), cf(0, 7.65, -9.9), "#5c9be3") -- chubby lighter muzzle (one step out)
 		B:block(head, v(7.8, 0.3, 5.4), cf(0, 6.6, -6.2), MOUTH) -- palate
 		-- the gentle smile: dark mouth slot with a tidy comb of baleen plates
-		B:block(head, v(4.8, 0.7, 0.4), cf(0, 6.75, -9.0), MOUTH)
+		B:block(head, v(4.8, 0.7, 0.4), cf(0, 6.75, -10.35), MOUTH)
 		for _, x in { -1.6, -0.8, 0, 0.8, 1.6 } do
-			B:block(head, v(0.42, 0.36, 0.2), cf(x, 6.92, -9.22), BALEEN)
+			B:block(head, v(0.42, 0.36, 0.2), cf(x, 6.92, -10.6), BALEEN)
 		end
 		-- gold tiara with a turquoise gem on the forehead
 		B:block(head, v(5.6, 0.45, 0.35), cf(0, 13.0, -9.15), GOLD)
@@ -189,29 +190,30 @@ return {
 		B:block(head, v(1.1, 0.1, 0.5), cf(0, 14.33, -4.2), MOUTH)
 		local blow = B:block(head, v(1.0, 0.6, 1.0), cf(0, 14.6, -4.2), MAIN, { tr = 1, name = "BlowFX" })
 		B:emitter(blow, "burst", { name = "SpoutBurst", color = { "#ffffff", WATERL }, size = { 0.6, 0.5, 0.2 }, speed = { 9, 15 }, spread = 22, life = { 0.8, 1.3 }, accel = { 0, -22, 0 } })
-		local nose = B:block(head, v(1.5, 1.0, 0.6), cf(0, 8.6, -9.9), MAIN, { tr = 1, name = "NoseFX" })
+		local nose = B:block(head, v(1.5, 1.0, 0.6), cf(0, 9.0, -10.6), MAIN, { tr = 1, name = "NoseFX" })
 		B:emitter(nose, "burst", { name = "BoopBurst", color = { "#ffffff", PINK, GOLDN }, size = { 0.6, 0.4, 0 }, speed = { 4, 9 }, life = { 0.4, 0.8 } })
 
 		B:sym(function(side)
 			-- smile corners curling up into the cheeks + side mouth line
-			B:block(head, v(1.2, 0.5, 0.3), cf(2.85, 6.95, -9.05, 0, 0, 22), MOUTH)
-			B:block(head, v(1.2, 0.45, 0.3), cf(3.95, 7.28, -9.05, 0, 0, 6), MOUTH)
+			B:block(head, v(1.2, 0.5, 0.3), cf(2.85, 6.95, -10.4, 0, 0, 22), MOUTH)
+			B:block(head, v(0.9, 0.45, 0.3), cf(3.5, 7.25, -10.4, 0, 0, 8), MOUTH)
+			B:block(head, v(0.2, 0.42, 1.0), cf(3.92, 7.25, -9.95), MOUTH)
 			B:block(head, v(0.2, 0.45, 2.4), cf(4.62, 7.2, -7.9), MOUTH)
 			-- rosy blush
-			B:block(head, v(1.1, 0.45, 0.12), cf(3.75, 8.15, -9.43), PINK)
+			B:block(head, v(1.1, 0.45, 0.12), cf(2.95, 8.05, -10.52), PINK)
 			-- gold cheek guard (no glowing dot: it would read as a second eye)
 			B:block(head, v(0.26, 2.6, 2.4), cf(4.85, 9.6, -5.0), BRONZE)
 			B:block(head, v(0.3, 2.0, 1.8), cf(4.9, 9.6, -5.0), GOLD)
 			B:block(head, v(0.34, 0.25, 1.0), cf(4.93, 9.9, -5.0), ENGRAVE)
 			-- BIG eye on the front corner: dark socket rim, white block, glowing
 			-- sky iris, ONE pupil + glint on the front face only
-			B:block(head, v(3.0, 3.4, 0.2), cf(3.45, 10.3, -9.4), NAVY)
-			B:block(head, v(2.5, 3.0, 2.2), cf(3.55, 10.3, -8.45), WHITE)
-			B:block(head, v(1.7, 2.3, 1.4), cf(3.45, 10.2, -9.0), SKY, { mat = "Neon", name = "Eye" .. side })
-			local pup = B:bone("Pupil" .. side, "Head", v(3.4, 10.05, -9.76))
-			B:block(pup, v(0.95, 1.5, 0.12), cf(3.4, 10.05, -9.76), PUPIL)
-			B:block(pup, v(0.42, 0.42, 0.1), cf(3.68, 10.55, -9.83), WHITE, NEON)
-			B:block(pup, v(0.2, 0.2, 0.1), cf(3.15, 9.55, -9.83), WHITE, NEON)
+			B:block(head, v(3.3, 3.6, 0.2), cf(3.3, 10.3, -9.4), NAVY)
+			B:block(head, v(2.8, 3.2, 2.2), cf(3.4, 10.3, -8.45), WHITE)
+			B:block(head, v(1.9, 2.4, 1.4), cf(3.25, 10.2, -9.0), SKY, { mat = "Neon", name = "Eye" .. side })
+			local pup = B:bone("Pupil" .. side, "Head", v(3.2, 10.05, -9.76))
+			B:block(pup, v(1.05, 1.6, 0.12), cf(3.2, 10.05, -9.76), PUPIL)
+			B:block(pup, v(0.45, 0.45, 0.1), cf(3.5, 10.6, -9.83), WHITE, NEON)
+			B:block(pup, v(0.2, 0.2, 0.1), cf(2.9, 9.5, -9.83), WHITE, NEON)
 			-- little motherly lashes at the outer corner
 			B:block(head, v(0.3, 0.6, 0.3), cf(4.9, 11.75, -9.3, 0, 0, -32), BROW)
 			B:block(head, v(0.3, 0.5, 0.3), cf(5.1, 11.15, -9.2, 0, 0, -60), BROW)
@@ -220,9 +222,9 @@ return {
 			B:block(brow, v(2.9, 0.7, 1.2), cf(3.5, 12.3, -9.15, 0, 0, -12), BROW)
 			B:block(brow, v(1.0, 0.35, 1.0), cf(2.5, 12.7, -9.05, 0, 0, -12), DARK)
 			-- eyelid (hidden above the eye until it blinks / squints)
-			local lid = B:bone("Lid" .. side, "Head", v(3.55, 13.4, -8.55))
-			B:block(lid, v(2.65, 3.1, 2.7), cf(3.55, 13.45, -8.55), MAIN, { tr = 1, name = "Eyelid" .. side })
-			B:block(lid, v(2.75, 0.3, 2.75), cf(3.55, 11.95, -8.55), BROW, { tr = 1, name = "Lash" .. side })
+			local lid = B:bone("Lid" .. side, "Head", v(3.4, 13.5, -8.55))
+			B:block(lid, v(2.95, 3.3, 2.7), cf(3.4, 13.55, -8.55), MAIN, { tr = 1, name = "Eyelid" .. side })
+			B:block(lid, v(3.05, 0.3, 2.75), cf(3.4, 11.95, -8.55), BROW, { tr = 1, name = "Lash" .. side })
 		end)
 
 		------------------------------------------------------------------
@@ -230,6 +232,7 @@ return {
 		------------------------------------------------------------------
 		local jaw = B:bone("Jaw", "Head", v(0, 6.9, -3.4))
 		B:block(jaw, v(8.6, 1.5, 6.0), cf(0, 5.9, -6.15), CREAM)
+		B:block(jaw, v(7.4, 1.4, 1.3), cf(0, 5.95, -9.8), CREAM) -- chin
 		B:block(jaw, v(7.4, 0.7, 5.4), cf(0, 4.9, -5.9), CREAM_D)
 		B:block(jaw, v(7.6, 0.2, 5.2), cf(0, 6.6, -6.1), MOUTH)
 		B:block(jaw, v(4.4, 0.25, 4.0), cf(0, 6.75, -6.8), TONGUE)
@@ -398,23 +401,24 @@ return {
 		-- blowhole fountain (hidden water column on the head)
 		------------------------------------------------------------------
 		local spout = B:bone("Spout", "Head", v(0, 14.3, -4.2))
-		B:block(spout, v(0.9, 1.4, 0.9), cf(0, 15.0, -4.2), WATERL, { tr = 1, name = "Spout1" })
-		B:block(spout, v(1.2, 1.4, 1.2), cf(0, 16.3, -4.2), WATERL, { tr = 1, name = "Spout2" })
-		B:block(spout, v(1.6, 1.0, 1.6), cf(0, 17.5, -4.2), WHITE, { tr = 1, name = "Spout3" })
-		B:block(spout, v(2.6, 0.6, 2.6), cf(0, 18.2, -4.2), WATERL, { tr = 1, name = "Spout4" })
-		B:block(spout, v(0.6, 0.6, 0.6), cf(1.4, 17.7, -4.2), WHITE, { tr = 1, name = "Spout5" })
-		B:block(spout, v(0.6, 0.6, 0.6), cf(-1.4, 17.7, -4.2), WHITE, { tr = 1, name = "Spout6" })
+		B:block(spout, v(1.1, 1.8, 1.1), cf(0, 15.2, -4.2), WATERL, { tr = 1, name = "Spout1" })
+		B:block(spout, v(1.5, 1.8, 1.5), cf(0, 16.9, -4.2), WATERL, { tr = 1, name = "Spout2" })
+		B:block(spout, v(2.0, 1.2, 2.0), cf(0, 18.3, -4.2), WHITE, { tr = 1, name = "Spout3" })
+		B:block(spout, v(3.2, 0.7, 3.2), cf(0, 19.1, -4.2), WATERL, { tr = 1, name = "Spout4" })
+		B:block(spout, v(0.7, 0.7, 0.7), cf(1.9, 18.4, -4.2), WHITE, { tr = 1, name = "Spout5" })
+		B:block(spout, v(0.7, 0.7, 0.7), cf(-1.9, 18.4, -4.2), WHITE, { tr = 1, name = "Spout6" })
 
 		------------------------------------------------------------------
 		-- splash crown for the tail slap (hidden), around the flukes
 		------------------------------------------------------------------
-		local SPC = v(0, 4.0, 19.0)
+		local SPC = v(0, 4.2, 17.8)
 		local splash = B:bone("Splash", "Root", SPC)
 		for i = 0, 9 do
 			local a = math.rad(i * 36)
-			local h = (i % 2 == 0) and 2.4 or 1.6
-			local p = SPC + v(math.cos(a) * 3.6, h / 2, math.sin(a) * 3.0)
-			B:block(splash, v(0.8, h, 0.8), CFrame.new(p) * ang(0, -i * 36, 0), i % 2 == 0 and WATERL or WHITE, { tr = 1, name = "SplashP" .. i })
+			local h = (i % 2 == 0) and 3.2 or 2.2
+			local p = SPC + v(math.cos(a) * 4.6, h / 2, math.sin(a) * 3.6)
+			B:block(splash, v(1.1, h, 1.1), CFrame.new(p) * ang(0, -i * 36, 0), i % 2 == 0 and WATERL or WHITE, { tr = 1, name = "SplashP" .. i })
+			B:block(splash, v(0.6, 0.6, 0.6), CFrame.new(p + v(math.cos(a) * 0.5, h / 2 + 0.5, math.sin(a) * 0.5)) * ang(0, -i * 36, 0), WHITE, { tr = 1, name = "SplashD" .. i })
 		end
 		local spfx = B:block(splash, v(6, 1, 6), CFrame.new(SPC), MAIN, { tr = 1, name = "SplashFX" })
 		B:emitter(spfx, "burst", { name = "SplashBurst", color = { "#ffffff", WATERL, "#9fe2ff" }, size = { 0.8, 0.6, 0.1 }, speed = { 8, 16 }, spread = 50, life = { 0.6, 1.2 }, accel = { 0, -20, 0 } })
