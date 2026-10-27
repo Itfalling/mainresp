@@ -179,7 +179,9 @@ function M.Update(t, pose, ctx)
 			local rz = 7 * wave(t, 0.6, ph * 0.8 + 0.3) * wigA * (0.6 + 0.3 * j)
 			-- tuck in (curl under), flare out wide, dizzy dangle, happy wave
 			rx += (j == 1 and -38 or (j == 2 and -30 or -45)) * tuck - 12 * peekTuck
-			rx += (j == 1 and 70 or (j == 2 and 20 or 35)) * flare
+			local outer = math.abs(-110 + 20 * (k - 1)) / 110
+			rx += (j == 1 and (25 + 50 * outer) or (j == 2 and 20 or 35)) * flare
+			rz += sideSign * (j == 1 and 45 or 10) * (1 - outer) * flare
 			rx += 22 * happy * wave(t, 1.6, -0.08 * k - 0.1 * j) * (j == 1 and 0.6 or 1)
 			rx += 20 * dizzy * wave(t, 1.4, -0.15 * j) * (j == 1 and 0.4 or 1)
 			rz += 14 * dizzy * wave(t, 1.4, -0.15 * j + 0.25) * (j == 1 and 0.4 or 1)

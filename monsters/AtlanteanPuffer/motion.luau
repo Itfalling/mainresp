@@ -191,6 +191,8 @@ function M.Update(t, pose, ctx)
 	for _, side in { "R", "L" } do
 		ctx.transparency("Lid" .. side, lidOn)
 		ctx.transparency("Lash" .. side, lidOn)
+		ctx.transparency("LashA" .. side, lidOn)
+		ctx.transparency("LashB" .. side, lidOn)
 		ctx.transparency("HalfLid" .. side, halfOn)
 		ctx.transparency("HalfLash" .. side, halfOn)
 	end

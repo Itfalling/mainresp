@@ -243,29 +243,31 @@ return {
 		local gem = B:block(bill, S(0.5, 0.5, 0.2), H(0, 9.0, -9.5, 0, 0, 45), TURQ, { mat = "Neon", name = "Crystal" })
 		B:emitter(gem, "burst", { name = "CrystalFlash", color = { "#ffffff", TURQ }, speed = { 5, 11 }, size = { 0.7, 0.5, 0 }, life = { 0.3, 0.7 } })
 		B:light(gem, { name = "CrystalLight", color = TURQ, brightness = 0.4, range = 10 })
-		B:block(bill, S(0.8, 0.8, 3.0), H(0, 7.9, -10.6), GOLD) -- shaft
-		B:block(bill, S(1.05, 1.05, 0.4), H(0, 7.9, -9.8), DGOLD)
-		B:block(bill, S(1.05, 1.05, 0.4), H(0, 7.9, -11.4), DGOLD)
+		-- the trident itself sits on its own bone so it can twirl about its shaft
+		local tri = B:bone("Trident", "Bill", hp(0, 7.9, -9.1))
+		B:block(tri, S(0.8, 0.8, 3.0), H(0, 7.9, -10.6), GOLD) -- shaft
+		B:block(tri, S(1.05, 1.05, 0.4), H(0, 7.9, -9.8), DGOLD)
+		B:block(tri, S(1.05, 1.05, 0.4), H(0, 7.9, -11.4), DGOLD)
 		-- the trident stands upright (prongs fan up / down) so it reads from the side
-		B:block(bill, S(0.7, 3.9, 0.7), H(0, 7.9, -12.35), GOLD) -- crossbar
-		B:block(bill, S(0.9, 1.1, 0.9), H(0, 7.9, -12.35), DGOLD)
-		B:block(bill, S(0.75, 0.75, 2.0), H(0, 7.9, -13.6), GOLD) -- center prong
-		B:spike(bill, H(0, 7.9, -14.5).Position, H(0, 7.9, -16.0).Position, 0.85 * HS, 0.85 * HS, GOLD)
-		B:trail(bill, hp(0, 8.6, -15.3), hp(0, 7.2, -15.3), { name = "TridentTrail", color = { "#ffffff", GLOW, TURQ }, life = 0.45, trans = { 0.3, 1 } })
+		B:block(tri, S(0.7, 3.9, 0.7), H(0, 7.9, -12.35), GOLD) -- crossbar
+		B:block(tri, S(0.9, 1.1, 0.9), H(0, 7.9, -12.35), DGOLD)
+		B:block(tri, S(0.75, 0.75, 2.0), H(0, 7.9, -13.6), GOLD) -- center prong
+		B:spike(tri, H(0, 7.9, -14.5).Position, H(0, 7.9, -16.0).Position, 0.85 * HS, 0.85 * HS, GOLD)
+		B:trail(tri, hp(0, 8.6, -15.3), hp(0, 7.2, -15.3), { name = "TridentTrail", color = { "#ffffff", GLOW, TURQ }, life = 0.45, trans = { 0.3, 1 } })
 		for _, d in { 1, -1 } do
 			local y = 7.9 + 1.75 * d
-			B:block(bill, S(0.95, 0.55, 0.9), H(0, 7.9 + 1.95 * d, -12.35), BRONZE)
-			B:block(bill, S(0.65, 0.65, 1.7), H(0, y, -13.3), GOLD)
-			B:spike(bill, H(0, y, -14.1).Position, H(0, y + 0.15 * d, -15.4).Position, 0.75 * HS, 0.75 * HS, GOLD)
-			B:spike(bill, H(0, y + 0.3 * d, -13.6).Position, H(0, y + 0.9 * d, -12.9).Position, 0.5 * HS, 0.5 * HS, DGOLD) -- barb
-			B:trail(bill, hp(0.6, y, -14.8), hp(-0.6, y, -14.8), { name = d > 0 and "ProngTrailTop" or "ProngTrailBot", color = { "#ffffff", TURQ }, life = 0.3, trans = { 0.45, 1 } })
+			B:block(tri, S(0.95, 0.55, 0.9), H(0, 7.9 + 1.95 * d, -12.35), BRONZE)
+			B:block(tri, S(0.65, 0.65, 1.7), H(0, y, -13.3), GOLD)
+			B:spike(tri, H(0, y, -14.1).Position, H(0, y + 0.15 * d, -15.4).Position, 0.75 * HS, 0.75 * HS, GOLD)
+			B:spike(tri, H(0, y + 0.3 * d, -13.6).Position, H(0, y + 0.9 * d, -12.9).Position, 0.5 * HS, 0.5 * HS, DGOLD) -- barb
+			B:trail(tri, hp(0.6, y, -14.8), hp(-0.6, y, -14.8), { name = d > 0 and "ProngTrailTop" or "ProngTrailBot", color = { "#ffffff", TURQ }, life = 0.3, trans = { 0.45, 1 } })
 		end
-		local tipFx = B:block(bill, S(1.6, 1.6, 1.6), H(0, 7.9, -15.4), GOLD, { tr = 1, name = "TipFX" })
+		local tipFx = B:block(tri, S(1.6, 1.6, 1.6), H(0, 7.9, -15.4), GOLD, { tr = 1, name = "TipFX" })
 		B:emitter(tipFx, "burst", { name = "LungeBurst", color = { "#ffffff", GLOW, TURQ } })
 		B:emitter(tipFx, "burst", { name = "BubbleBurst", color = { "#ffffff", "#9fe2ff" }, size = { 0.5, 0.8, 0.2 }, speed = { 5, 11 }, life = { 0.6, 1.2 } })
 		B:light(tipFx, { name = "TipLight", color = GLOW, brightness = 0.01, range = 12 })
 		-- victory glint star on the trident tip (hidden)
-		local glint = B:bone("Glint", "Bill", hp(0, 7.9, -16.4))
+		local glint = B:bone("Glint", "Trident", hp(0, 7.9, -16.4))
 		B:block(glint, v(0.35, 2.8, 0.35), H(0, 7.9, -16.4), "#ffffff", { mat = "Neon", tr = 1, name = "GlintA" })
 		B:block(glint, v(2.8, 0.35, 0.35), H(0, 7.9, -16.4), "#ffffff", { mat = "Neon", tr = 1, name = "GlintB" })
 

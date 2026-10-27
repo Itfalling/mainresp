@@ -18,7 +18,7 @@ return {
 		local v, cf, ang = P.v, P.cf, P.ang
 		-- everything is authored around y = 9 and lifted by OY through this thin
 		-- wrapper (positions only, never sizes)
-		local OY = 0.5
+		local OY = 0.8
 		local function up(x)
 			if typeof(x) == "Vector3" then return x + Vector3.new(0, OY, 0) end
 			return CFrame.new(0, OY, 0) * x
@@ -125,7 +125,7 @@ return {
 		do
 			local rr = r(0)
 			B:block(shell, v(W + 1.3, rr * 0.75 + 0.9, 0.8), frameAt(240, rr * 0.625 + 0.45) * CFrame.new(0, 0, 0.1), GOLD)
-			B:block(shell, v(W - 1.0, 0.5, 0.5), frameAt(240, rr + 0.95) * CFrame.new(0, 0, 0.1), TURQ, NEON)
+			B:block(shell, v(2.4, 0.3, 0.4), frameAt(240, rr + 0.95) * CFrame.new(0, 0, 0.1), TURQ, NEON)
 			local ru = r(SPAN)
 			B:block(shell, v(W + 1.0, ru * 0.6 + 0.6, 0.8), frameAt(-60, ru * 0.7 + 0.3) * CFrame.new(0, 0, -0.1), BRONZE)
 		end
@@ -175,13 +175,12 @@ return {
 		-- HEAD: peeks out of the aperture (pulls back in along +Z)
 		------------------------------------------------------------------
 		local head = B:bone("Head", "Shell", v(0, 8.4, -2.6))
-		B:block(head, v(5.6, 4.0, 4.4), cf(0, 9.0, -4.2), TEAL) -- y 7..11, front z -6.4
-		B:block(head, v(5.0, 1.3, 4.0), cf(0, 6.45, -4.15), CREAM) -- chin step, front z -6.15
-		B:block(head, v(5.9, 0.5, 4.2), cf(0, 7.1, -4.0), TEAL2) -- lip band between head and chin
+		B:block(head, v(5.6, 4.6, 4.4), cf(0, 8.7, -4.2), TEAL) -- y 6.4..11, front z -6.4
+		B:block(head, v(5.0, 1.1, 4.0), cf(0, 6.05, -4.15), CREAM) -- chin step, front z -6.15
 		B:sym(function()
 			B:block(head, v(0.25, 0.9, 0.9), cf(2.85, 9.6, -3.4), CREAM) -- side spots
 			B:block(head, v(0.25, 0.6, 0.6), cf(2.85, 8.4, -4.6), CREAM)
-			B:block(head, v(0.8, 0.4, 0.1), cf(2.3, 7.55, -6.47), BLUSH) -- blush
+			B:block(head, v(0.8, 0.4, 0.1), cf(2.25, 7.0, -6.45), BLUSH) -- blush
 		end)
 		-- spotted hood with a gold diadem
 		local hood = B:bone("Hood", "Head", v(0, 11.0, -2.2))
@@ -213,22 +212,22 @@ return {
 			local lid = B:bone("Lid" .. side, "Head", v(1.4, 10.4, -7.1))
 			B:block(lid, v(2.6, 3.1, 0.2), cf(1.4, 8.9, -7.12), HOOD, { tr = 1, name = "Eyelid" .. side })
 			B:block(lid, v(2.6, 0.3, 0.22), cf(1.4, 7.45, -7.14), DTEAL, { tr = 1, name = "Lash" .. side })
-			-- happy squint: covers the bottom of the eye leaving a ^-arch
-			B:block(head, v(2.6, 1.3, 0.2), cf(1.4, 8.0, -7.12), TEAL, { tr = 1, name = "Happy" .. side .. "1" })
-			B:block(head, v(0.7, 0.8, 0.2), cf(2.35, 9.0, -7.12), TEAL, { tr = 1, name = "Happy" .. side .. "2" })
-			B:block(head, v(0.7, 0.8, 0.2), cf(0.45, 9.0, -7.12), TEAL, { tr = 1, name = "Happy" .. side .. "3" })
+			-- happy closed eyes: a teal cover with a glowing "^" (hidden until happy)
+			B:block(head, v(2.6, 3.1, 0.2), cf(1.4, 8.9, -7.12), TEAL, { tr = 1, name = "Happy" .. side .. "1" })
+			B:block(head, v(1.45, 0.45, 0.12), cf(0.95, 9.0, -7.27, 0, 0, 38), TURQ, { mat = "Neon", tr = 1, name = "Happy" .. side .. "2" })
+			B:block(head, v(1.45, 0.45, 0.12), cf(1.85, 9.0, -7.27, 0, 0, -38), TURQ, { mat = "Neon", tr = 1, name = "Happy" .. side .. "3" })
 			-- brows
 			local brow = B:bone("Brow" .. side, "Head", v(1.4, 10.6, -7.0))
 			B:block(brow, v(2.1, 0.45, 0.4), cf(1.4, 10.62, -7.0), DTEAL)
 		end)
 		-- MOUTH: curious little "o" (idle), big surprised O, happy smile
-		B:block(head, v(0.9, 0.6, 0.12), cf(0, 6.5, -6.2), MOUTH, { name = "MouthO" })
-		B:block(head, v(1.4, 1.1, 0.12), cf(0, 6.45, -6.22), MOUTH, { tr = 1, name = "MouthBig" })
-		B:block(head, v(0.7, 0.35, 0.1), cf(0, 6.1, -6.29), TONGUE, { tr = 1, name = "MouthBigTongue" })
-		B:block(head, v(1.5, 0.6, 0.12), cf(0, 6.4, -6.22), MOUTH, { tr = 1, name = "Smile1" })
-		B:block(head, v(0.35, 0.35, 0.12), cf(0.9, 6.75, -6.22), MOUTH, { tr = 1, name = "Smile2" })
-		B:block(head, v(0.35, 0.35, 0.12), cf(-0.9, 6.75, -6.22), MOUTH, { tr = 1, name = "Smile3" })
-		B:block(head, v(0.8, 0.3, 0.1), cf(0, 6.22, -6.29), TONGUE, { tr = 1, name = "SmileTongue" })
+		B:block(head, v(0.9, 0.6, 0.12), cf(0, 6.85, -6.45), MOUTH, { name = "MouthO" })
+		B:block(head, v(1.4, 0.9, 0.12), cf(0, 6.9, -6.47), MOUTH, { tr = 1, name = "MouthBig" })
+		B:block(head, v(0.7, 0.35, 0.1), cf(0, 6.6, -6.53), TONGUE, { tr = 1, name = "MouthBigTongue" })
+		B:block(head, v(1.5, 0.5, 0.12), cf(0, 6.8, -6.47), MOUTH, { tr = 1, name = "Smile1" })
+		B:block(head, v(0.35, 0.35, 0.12), cf(0.9, 7.1, -6.47), MOUTH, { tr = 1, name = "Smile2" })
+		B:block(head, v(0.35, 0.35, 0.12), cf(-0.9, 7.1, -6.47), MOUTH, { tr = 1, name = "Smile3" })
+		B:block(head, v(0.8, 0.25, 0.1), cf(0, 6.65, -6.53), TONGUE, { tr = 1, name = "SmileTongue" })
 		local faceFx = B:block(head, v(4, 3, 1), cf(0, 9, -7.2), TEAL, { tr = 1, name = "FaceFX" })
 		B:emitter(faceFx, "burst", { name = "PopBurst", color = { "#ffffff", TURQ, SKY }, speed = { 8, 15 } })
 		local starFx = B:block(head, v(5, 1, 3), cf(0, 14.2, -4.0), TEAL, { tr = 1, name = "StarFX" })
@@ -249,11 +248,11 @@ return {
 		-- Each bone's pivot frame is yawed so local -Z points OUTWARD:
 		-- +X rot flares a tentacle out/up, -X tucks it in, Z sways it sideways.
 		------------------------------------------------------------------
-		local CC = v(0, 6.0, -4.6)
+		local CC = v(0, 5.6, -4.5)
 		for k = 1, 12 do
 			local beta = -110 + 20 * (k - 1)
 			local rot = CFrame.Angles(0, rad(beta), 0)
-			local base = CC + v(-sin(rad(beta)) * 2.3, 0, -cos(rad(beta)) * 1.5)
+			local base = CC + v(-sin(rad(beta)) * 2.3, 0, -cos(rad(beta)) * 1.3)
 			local poker = k == 6 or k == 7
 			local lens = poker and { 2.0, 1.8, 1.5 } or { 1.6, 1.4, 1.2 }
 			local side = math.abs(beta) > 60

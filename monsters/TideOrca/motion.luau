@@ -32,7 +32,7 @@ local F = 1 / 12 -- every always-on wave runs whole cycles per loop
 
 local CHAIN = { "Head", "Body1", "Body2", "Tail1", "Tail2", "Tail3", "Fluke" }
 local CENTER = 3
-local PAMP = { 3, 2, 3, 8, 14, 20, 28 } -- vertical swim wave (abs pitch), head -> fluke
+local PAMP = { 3, 2, 3, 9, 16, 24, 34 } -- vertical swim wave (abs pitch), head -> fluke
 local YAMP = { 5, 3, 2, 4, 6, 8, 9 } -- a little side wiggle on top
 local DIVE = { -16, -6, 0, -6, -12, -18, -24 } -- nose-down banana curl, tail up
 local STREAM = { 8, 3, 0, 6, 12, 16, 20 } -- launch: tail streams down behind
@@ -278,7 +278,7 @@ function M.Update(t, pose, ctx)
 		local u = (c - SQ - (k - 1) * 0.07) / 0.95
 		local on = u > 0 and u < 1
 		local spread = (k - 2.5) * 0.9
-		pose["Squirt" .. k] = on and pa(spread * u, 8 * 4 * u * (1 - u) - 2 * u, -7 * u, 300 * u, 200 * u, 45) or CFrame.new()
+		pose["Squirt" .. k] = on and pa(spread * 1.4 * u, 10 * 4 * u * (1 - u) - 2 * u, -8 * u, 300 * u, 200 * u, 45) or CFrame.new()
 		ctx.transparency("SquirtPart" .. k, on and (u > 0.8 and (u - 0.8) / 0.2 * 0.8 + 0.2 or 0.2) or 1)
 	end
 

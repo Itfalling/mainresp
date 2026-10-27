@@ -126,7 +126,7 @@ function M.Update(t, pose, ctx)
 		{ 2.9, 0 }, { 3.85, 18, "cubicOut" }, { 4.05, 20 }, { 4.28, 0, "quadIn" }, { SLAM, -30, "expoIn" },
 		{ 4.6, -18, "backOut" }, { 5.6, -18 }, { POUND, -30, "quadIn" }, { 5.95, -10, "backOut" },
 		{ 6.5, 0, "sineInOut" }, { 7.7, 0 },
-	}) + 14 * smug
+	}) + 20 * smug
 	pitch[1] += 8 * thrash * sin(2 * pi * thrPhase * 2)
 	-- the fluke flicks on the slam and the swagger
 	pitch[#CHAIN] += -18 * squash - 10 * smug * wave(c, 2.0)
@@ -167,7 +167,7 @@ function M.Update(t, pose, ctx)
 	local furrow = 0.25 + 0.5 * twitch + 0.75 * max(pre, butt, ant, rush, thrash)
 	furrow = min(1.2, furrow)
 	local bR = pa(0, -0.3 * furrow, 0, -4 * furrow, 0, 12 * furrow)
-	local bL = pa(0, -0.3 * furrow * (1 - smug) + 0.5 * smug, 0, 0, 0, 12 * furrow * (1 - smug) - 18 * smug)
+	local bL = pa(0, -0.3 * furrow * (1 - smug) + 0.9 * smug, 0, 0, 0, 12 * furrow * (1 - smug) - 30 * smug)
 	L.both(pose, "Brow", bR, bL)
 
 	------------------------------------------------------------------

@@ -150,8 +150,8 @@ function M.Update(t, pose, ctx)
 	local wide = L.env(c, 4.15, 0.15, 1.2, 0.3)
 	local clR = max(blink, 0.55 * antic, r.wink) - 0.38 * wide - 0.1 * proud
 	local clL = max(blink, 0.55 * antic) - 0.38 * wide + 0.1 * proud
-	pose.LidR = CFrame.new(0, -1.0 * clR, 0)
-	pose.LidL = CFrame.new(0, -1.0 * clL, 0)
+	pose.LidR = CFrame.new(0, -1.1 * clR, 0)
+	pose.LidL = CFrame.new(0, -1.1 * clL, 0)
 	ctx.transparency("LidFillR", clR > 0.15 and 0 or 1)
 	ctx.transparency("LidFillL", clL > 0.15 and 0 or 1)
 	-- brows: right flat + low, left arched up (smug); right squeezes on the wink

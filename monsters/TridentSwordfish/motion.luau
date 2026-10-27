@@ -132,6 +132,10 @@ function M.Update(t, pose, ctx)
 
 	-- trident: thrusts out of the collar on the lunge and every jab
 	pose.Bill = pa(0, 0, -1.0 * thrust - 0.6 * jab + 0.3 * wind, 0, 0, 0)
+	-- knightly flourishes: brandish wiggle in the guard, a full 360 TWIRL on
+	-- the chest-puff and another one to start the victory pose
+	local twirl = L.track(c, { { 2.1, 0 }, { 2.6, 360, "backOut" } }) + L.track(c, { { 5.8, 0 }, { 6.3, 360, "backOut" } })
+	pose.Trident = ang(0, 0, twirl + 25 * guard * wave(t, 1.5))
 
 	------------------------------------------------------------------
 	-- face: jaw (gritted -> "HUP!" -> battle cry -> "HA!"), brows, lids
@@ -170,11 +174,11 @@ function M.Update(t, pose, ctx)
 	-- pectoral fins (model axes, right side): +Z raise, +Y sweep forward
 	------------------------------------------------------------------
 	local pad = wave(t, SWIM)
-	local baseZ = 12 * pad * swimW + 28 * guard + 18 * puff - 12 * coil + 38 * spinE
-	local baseY = 10 * wave(t, SWIM, 0.25) * swimW + 28 * guard - 18 * jab - 38 * coil - 55 * lungeE * (1 - spinE)
+	local baseZ = 12 * pad * swimW + 48 * guard + 18 * puff - 12 * coil + 38 * spinE
+	local baseY = 10 * wave(t, SWIM, 0.25) * swimW + 40 * guard - 18 * jab - 38 * coil - 55 * lungeE * (1 - spinE)
 	local tipZ = 16 * wave(t, SWIM, -0.15) * swimW + 18 * guard - 15 * coil + 25 * spinE * sin(TAU * 3 * (c - 4.2))
-	local rightZ = baseZ + 70 * salute + 10 * salute * wave(c, 2.0)
-	local rightY = baseY + 15 * salute
+	local rightZ = baseZ + 60 * salute + 10 * salute * wave(c, 2.0)
+	local rightY = baseY + 65 * salute
 	local leftZ = baseZ - 22 * salute
 	local leftY = baseY - 35 * salute
 	pose.PecR = ang(0, rightY, rightZ)
@@ -251,6 +255,10 @@ function M.Update(t, pose, ctx)
 	ctx.light("CrystalLight", min(1.5, 0.35 + 0.5 * coil + 1.1 * flash))
 	ctx.light("TipLight", min(1.5, 1.4 * L.env(c, SN - 0.04, 0.04, 0.12, 0.3) + 0.6 * L.env(c, 5.95, 0.05, 0.2, 0.3)))
 
+	if ctx.crossed(2.45) then
+		ctx.emit("CrystalFlash", 12)
+		ctx.emit("AmbientSparkle", 8)
+	end
 	if ctx.crossed(3.05) then
 		ctx.emit("BubbleBurst", 6)
 	end

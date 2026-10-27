@@ -107,7 +107,9 @@ return {
 			-- eyelids (hidden): full blink lid + embarrassed half lid
 			local lid = B:bone("Lid" .. side, "Eye" .. side, rp(1.55, 0.7, -3.6))
 			B:block(lid, v(2.75, 2.95, 1.9), at(1.55, 0.7, -3.75), TEAL, { tr = 1, name = "Lid" .. side })
-			B:block(lid, v(2.85, 0.4, 0.3), at(1.55, -0.6, -4.8), DEEP, { tr = 1, name = "Lash" .. side })
+			B:block(lid, v(1.9, 0.45, 0.3), at(1.55, 0.3, -4.8), DEEP, { tr = 1, name = "Lash" .. side })
+			B:block(lid, v(0.45, 0.5, 0.3), at(0.6, 0.65, -4.81), DEEP, { tr = 1, name = "LashA" .. side })
+			B:block(lid, v(0.45, 0.5, 0.3), at(2.5, 0.65, -4.81), DEEP, { tr = 1, name = "LashB" .. side })
 			B:block(lid, v(2.75, 1.3, 1.9), at(1.55, 1.5, -3.76), TEAL, { tr = 1, name = "HalfLid" .. side })
 			B:block(lid, v(2.85, 0.35, 0.3), at(1.55, 0.85, -4.81), DEEP, { tr = 1, name = "HalfLash" .. side })
 			-- worried brow (inner end raised)
@@ -153,8 +155,6 @@ return {
 			local tip = B:bone("FinTip" .. side, "Fin" .. side, tipF)
 			B:block(tip, v(1.2, 2.2, 0.45), FR * CFrame.new(2.75, 0.1, 0), FINC)
 			B:block(tip, v(1.0, 2.8, 0.4), FR * CFrame.new(3.75, 0.15, 0), LTEAL)
-			B:block(tip, v(0.9, 0.15, 0.48), FR * CFrame.new(3.7, 0.75, 0), DTEAL)
-			B:block(tip, v(0.9, 0.15, 0.48), FR * CFrame.new(3.7, -0.45, 0), DTEAL)
 			B:block(tip, v(0.5, 2.8, 0.45), FR * CFrame.new(4.45, 0.15, 0), GOLD)
 			B:trail(tip, (FR * CFrame.new(4.6, 1.4, 0)).Position, (FR * CFrame.new(4.6, -1.1, 0)).Position,
 				{ name = "FinTrail" .. side, color = { "#ffffff", TURQ }, life = 0.25, trans = { 0.5, 1 } })

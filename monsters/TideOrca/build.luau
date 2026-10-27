@@ -267,7 +267,7 @@ return {
 		-- PECTORAL FINS: big black paddles with gold fin bands
 		------------------------------------------------------------------
 		B:sym(function(side)
-			local F = CFrame.new(v(4.0, 5.8, -3.6)) * ang(0, -24, -22)
+			local F = CFrame.new(v(4.0, 5.9, -3.6)) * ang(0, -34, -14)
 			local function at(x, y, z) return F * CFrame.new(x, y, z) end
 			local fin = B:bone("Fin" .. side, "Body1", F)
 			B:block(fin, v(2.8, 1.3, 3.2), at(1.1, 0, 0), BLACK)
@@ -405,7 +405,7 @@ return {
 		local BH = v(0, 13.0, -4.3)
 		for k = 1, 4 do
 			local sb = B:bone("Squirt" .. k, "Body1", BH)
-			local s = k == 1 and 0.9 or 0.7
+			local s = k == 1 and 1.3 or 1.0
 			B:block(sb, v(s, s, s), CFrame.new(BH), k % 2 == 0 and WHITE or SKY, { mat = k % 2 == 1 and "Neon" or nil, tr = 1, name = "SquirtPart" .. k })
 		end
 	end,

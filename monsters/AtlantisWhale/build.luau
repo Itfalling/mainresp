@@ -102,7 +102,7 @@ return {
 		-- the smile line wraps around the front
 		B:block(head, v(10.1, 0.4, 8.6), cf(0, 7.65, -11.9), DARK)
 		B:block(head, v(9.3, 0.4, 2.5), cf(0, 7.65, -17.3), DARK)
-		B:block(head, v(9, 0.3, 10.4), cf(0, 7.4, -12.9), MOUTH) -- palate
+		B:block(head, v(9, 0.3, 10.4), cf(0, 7.4, -12.9), "#5a2344") -- palate
 		B:block(head, v(7.6, 0.9, 0.4), cf(0, 7.0, -17.7), CREAM) -- front baleen
 		local blowFx = B:block(head, v(1.2, 0.6, 1.0), cf(0, 13.7, -9.0), MAIN, { tr = 1, name = "BlowFX" })
 		B:emitter(blowFx, "bubble", { name = "HumBubbles", color = { "#ffffff", NS }, rate = 10, enabled = false, speed = { 2, 4 }, size = { 0.3, 0.55, 0.7 }, spread = 25 })
@@ -145,7 +145,7 @@ return {
 		local jaw = B:bone("Jaw", "Head", v(0, 7.5, -7.8))
 		B:block(jaw, v(9.6, 1.4, 10.0), cf(0, 6.8, -12.7), MAIN)
 		B:block(jaw, v(8.0, 1.4, 0.8), cf(0, 6.8, -17.9), MAIN) -- stepped chin
-		B:block(jaw, v(8.4, 0.2, 9.8), cf(0, 7.45, -13.2), MOUTH)
+		B:block(jaw, v(8.4, 0.2, 9.8), cf(0, 7.45, -13.2), "#4a1a38")
 		B:block(jaw, v(4, 0.3, 5), cf(0, 7.5, -12.2), TONGUE)
 		B:block(jaw, v(9.0, 1.6, 9.4), cf(0, 5.4, -12.4), CREAM)
 		B:block(jaw, v(7.4, 1.4, 0.8), cf(0, 5.5, -17.4), CREAM)

@@ -173,20 +173,20 @@ return {
 			-- BIG eye on the front corner: white block, glowing turquoise iris
 			-- wrapping the corner, black pupils (front + side) and glints
 			B:block(head, v(2.0, 2.1, 2.0), cf(1.75, 11.98, -1.2), WHITE)
-			B:block(head, v(1.66, 1.75, 1.55), cf(1.97, 11.88, -1.48), TURQ, { mat = "Neon", name = "Eye" .. side })
-			B:block(head, v(0.8, 1.15, 0.1), cf(1.68, 11.72, -2.3), PUPIL)
-			B:block(head, v(0.1, 1.15, 0.8), cf(2.84, 11.72, -1.55), PUPIL)
-			B:block(head, v(0.34, 0.34, 0.08), cf(2.05, 12.1, -2.33), WHITE, NEON)
-			B:block(head, v(0.08, 0.34, 0.34), cf(2.87, 12.1, -1.15), WHITE, NEON)
+			B:block(head, v(1.38, 1.4, 1.3), cf(2.09, 11.9, -1.58), TURQ, { mat = "Neon", name = "Eye" .. side })
+			B:block(head, v(0.7, 0.95, 0.1), cf(1.88, 11.8, -2.28), PUPIL)
+			B:block(head, v(0.1, 0.95, 0.7), cf(2.83, 11.8, -1.65), PUPIL)
+			B:block(head, v(0.3, 0.3, 0.08), cf(2.2, 11.75, -2.3), WHITE, NEON)
+			B:block(head, v(0.08, 0.3, 0.3), cf(2.85, 11.75, -1.2), WHITE, NEON)
 			-- blush + gill plate
 			B:block(head, v(0.9, 0.42, 0.12), cf(1.95, 10.65, -1.42), BLUSH)
 			B:block(head, v(0.2, 1.4, 1.5), cf(1.95, 10.9, 0.9), DARK)
 			B:block(head, v(0.2, 0.9, 0.9), cf(2.0, 11.2, 0.9), LORANGE)
 			-- heavy SMUG lid: rests half closed; slides down for blinks / winks
 			local lid = B:bone("Lid" .. side, "Head", v(1.75, 13.0, -1.2))
-			B:block(lid, v(2.36, 1.15, 2.36), cf(1.75, 12.47, -1.2), ORANGE, { name = "LidTop" .. side })
-			B:block(lid, v(2.46, 0.22, 2.46), cf(1.75, 11.95, -1.2), BROW, { name = "Lash" .. side })
-			B:block(lid, v(2.34, 1.1, 2.34), cf(1.75, 13.6, -1.2), ORANGE, { tr = 1, name = "LidFill" .. side })
+			B:block(lid, v(2.36, 1.08, 2.36), cf(1.75, 12.54, -1.2), ORANGE, { name = "LidTop" .. side })
+			B:block(lid, v(2.46, 0.22, 2.46), cf(1.75, 12.0, -1.2), BROW, { name = "Lash" .. side })
+			B:block(lid, v(2.34, 1.2, 2.34), cf(1.75, 13.68, -1.2), ORANGE, { tr = 1, name = "LidFill" .. side })
 			-- brow (own bone: the smug arch)
 			local brow = B:bone("Brow" .. side, "Head", v(1.75, 13.25, -2.05))
 			B:block(brow, v(2.1, 0.42, 0.65), cf(1.75, 13.28, -2.05), BROW)
@@ -259,10 +259,10 @@ return {
 				B:block(ob, v(1.3, 0.3, 1.3), cf(x, y - 0.9, z), DGOLD)
 			end
 		end
-		orb(1, 5.6, 11.5, -1.5, "cube")
-		orb(2, -5.8, 9.0, -0.5, "cube")
-		orb(3, 5.0, 5.5, 3.0, "crystal")
-		orb(4, -5.0, 13.0, 3.0, "column")
+		orb(1, 7.0, 12.0, 0.5, "cube")
+		orb(2, -7.0, 8.5, 0.0, "cube")
+		orb(3, 5.5, 5.0, 4.0, "crystal")
+		orb(4, -5.0, 13.5, 4.0, "column")
 
 		------------------------------------------------------------------
 		-- TIDAL TWIRL VFX (hidden): a spiral water ribbon that whirls round
