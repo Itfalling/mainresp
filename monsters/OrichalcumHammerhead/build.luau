@@ -214,7 +214,6 @@ return {
 			B:block(head, v(2.5, 1.45, 2.5), cf(7.6, 9.15, -12.6, 0, 0, 12), PUPIL)
 			B:block(head, v(2.1, 0.75, 2.3), cf(7.85, 9.15, -12.75, 0, 0, 12), TURQ, { mat = "Neon", name = "Eye" .. side })
 			B:block(head, v(0.6, 0.8, 0.1), cf(7.15, 9.05, -13.92, 0, 0, 12), PUPIL)
-			B:block(head, v(0.1, 0.8, 0.6), cf(8.92, 9.35, -13.3, 0, 0, 12), PUPIL)
 			B:block(head, v(0.8, 0.25, 0.1), cf(5.4, 9.0, -13.85), PUPIL) -- nostril
 			B:trail(head, v(8.7, 10.6, -10.2), v(8.7, 8.0, -10.2), { name = "HammerTrail" .. side, color = { "#ffffff", TURQ }, life = 0.2, trans = { 0.55, 1 } })
 			-- upper teeth (side rows), hang from the lip line into the gap

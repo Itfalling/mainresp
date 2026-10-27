@@ -185,9 +185,9 @@ function M.Update(t, pose, ctx)
 	for _, b in BLINKS do
 		blink = max(blink, L.env(c, b, 0.06, 0.06, 0.1))
 	end
-	L.both(pose, "Lid", CFrame.new(0, 1.8 * (1 - blink), 0))
-	local lidOn = blink > 0.05 and 0 or 1
-	local halfOn = (embar > 0.4 and peek < 0.3 and eep < 0.2 and blink < 0.05) and 0 or 1
+	L.both(pose, "Lid", CFrame.new(0, 1.2 * (1 - blink), 0))
+	local lidOn = blink > 0.35 and 0 or 1
+	local halfOn = (embar > 0.4 and peek < 0.3 and eep < 0.2 and blink <= 0.35) and 0 or 1
 	for _, side in { "R", "L" } do
 		ctx.transparency("Lid" .. side, lidOn)
 		ctx.transparency("Lash" .. side, lidOn)

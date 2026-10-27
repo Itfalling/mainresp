@@ -76,6 +76,11 @@ return {
 			B:block(s, v(0.2, 0.6, 0.6), at(3.85, 0.7, 2.0), DEEP)
 		end)
 
+		-- barnacles on the lower left flank
+		B:block("SideL", v(0.4, 0.8, 0.9), at(-3.9, -1.6, 1.4), MSHADE)
+		B:block("SideL", v(0.2, 0.35, 0.35), at(-4.12, -1.5, 1.4), DEEP)
+		B:block("SideL", v(0.35, 0.55, 0.6), at(-3.88, -1.9, 0.4), MSHADE)
+
 		-- REAR panel
 		local rear = B:bone("Rear", "Body", rp(0, 0, 2.8))
 		B:block(rear, v(5.4, 3.0, 2.8), at(0, 1.2, 2.4), TEAL)
@@ -102,9 +107,9 @@ return {
 			-- eyelids (hidden): full blink lid + embarrassed half lid
 			local lid = B:bone("Lid" .. side, "Eye" .. side, rp(1.55, 0.7, -3.6))
 			B:block(lid, v(2.75, 2.95, 1.9), at(1.55, 0.7, -3.75), TEAL, { tr = 1, name = "Lid" .. side })
-			B:block(lid, v(2.8, 0.35, 0.2), at(1.55, -0.65, -4.75), DEEP, { tr = 1, name = "Lash" .. side })
+			B:block(lid, v(2.85, 0.4, 0.3), at(1.55, -0.6, -4.8), DEEP, { tr = 1, name = "Lash" .. side })
 			B:block(lid, v(2.75, 1.3, 1.9), at(1.55, 1.5, -3.76), TEAL, { tr = 1, name = "HalfLid" .. side })
-			B:block(lid, v(2.8, 0.3, 0.2), at(1.55, 0.85, -4.76), DEEP, { tr = 1, name = "HalfLash" .. side })
+			B:block(lid, v(2.85, 0.35, 0.3), at(1.55, 0.85, -4.81), DEEP, { tr = 1, name = "HalfLash" .. side })
 			-- worried brow (inner end raised)
 			local brow = B:bone("Brow" .. side, "Face", rp(1.55, 2.6, -3.9))
 			B:block(brow, v(2.3, 0.55, 1.3), at(1.55, 2.65, -3.8, 0, 0, -18), DEEP)
@@ -202,6 +207,12 @@ return {
 			B:block(crown, v(0.5, 0.5, 2.35), CR * CFrame.new(1.7, 1.05, 0), MSHADE)
 			B:block(crown, v(0.35, 0.35, 0.1), CR * CFrame.new(1.65, 1.35, -1.2), GOLD)
 		end)
+		-- a little coral sprig growing on the ruin + a seaweed strand
+		cb(0.4, 0.7, 0.4, 1.1, 2.45, 0.5, "#ff7a5c")
+		cb(0.35, 0.5, 0.35, 1.4, 2.85, 0.5, "#ff9a6e", nil, -30)
+		cb(0.3, 0.45, 0.3, 0.85, 2.9, 0.5, "#ff7a5c", nil, 25)
+		cb(0.3, 1.0, 0.3, -1.85, 0.75, -0.6, "#3fae6a")
+		cb(0.3, 0.6, 0.3, -1.95, 0.0, -0.6, "#2f8f55", nil, 15)
 		local gem = cb(0.55, 0.55, 0.55, 0, 2.45, 0, TURQ, { mat = "Neon", name = "CrownGem" }, 45)
 		B:emitter(gem, "sparkle", { name = "Sparkle", color = { "#ffffff", NGOLD, TURQ }, rate = 3 })
 

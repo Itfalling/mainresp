@@ -299,10 +299,10 @@ return {
 		B:sym(function(side)
 			for _, z in { -3.4, 2.0 } do
 				fi += 1
-				B:block(city, v(1.4, 0.3, 1.6), cf(5.1, 13.95, z), WATER)
-				B:block(city, v(0.35, 4.6, 1.4), cf(5.78, 11.6, z), WATER, { tr = 0.3, name = "Fall" .. fi })
-				B:block(city, v(0.38, 3.0, 0.3), cf(5.82, 11.4, z + 0.3), FOAM, { tr = 0.3, name = "FallStreak" .. fi })
-				B:block(city, v(0.6, 0.4, 1.8), cf(5.85, 9.35, z), FOAM)
+				B:block(city, v(1.5, 0.35, 2.0), cf(5.1, 13.95, z), FOAM)
+				B:block(city, v(0.4, 4.8, 1.8), cf(5.8, 11.6, z), "#8fdcff", { tr = 0.2, name = "Fall" .. fi })
+				B:block(city, v(0.44, 3.4, 0.35), cf(5.84, 11.6, z + 0.45), FOAM, { tr = 0.2, name = "FallStreak" .. fi })
+				B:block(city, v(0.7, 0.5, 2.3), cf(5.9, 9.3, z), FOAM)
 			end
 		end)
 		local fallFx = B:block(city, v(12.4, 0.6, 7), cf(0, 9.4, -0.7), MAIN, { tr = 1, name = "FallFX" })

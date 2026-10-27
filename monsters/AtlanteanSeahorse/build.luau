@@ -184,9 +184,9 @@ return {
 			B:block(head, v(0.2, 0.9, 0.9), cf(2.0, 11.2, 0.9), LORANGE)
 			-- heavy SMUG lid: rests half closed; slides down for blinks / winks
 			local lid = B:bone("Lid" .. side, "Head", v(1.75, 13.0, -1.2))
-			B:block(lid, v(2.15, 1.15, 2.15), cf(1.75, 12.47, -1.2), ORANGE, { name = "LidTop" .. side })
-			B:block(lid, v(2.25, 0.22, 2.25), cf(1.75, 11.95, -1.2), BROW, { name = "Lash" .. side })
-			B:block(lid, v(2.13, 1.1, 2.13), cf(1.75, 13.6, -1.2), ORANGE, { tr = 1, name = "LidFill" .. side })
+			B:block(lid, v(2.36, 1.15, 2.36), cf(1.75, 12.47, -1.2), ORANGE, { name = "LidTop" .. side })
+			B:block(lid, v(2.46, 0.22, 2.46), cf(1.75, 11.95, -1.2), BROW, { name = "Lash" .. side })
+			B:block(lid, v(2.34, 1.1, 2.34), cf(1.75, 13.6, -1.2), ORANGE, { tr = 1, name = "LidFill" .. side })
 			-- brow (own bone: the smug arch)
 			local brow = B:bone("Brow" .. side, "Head", v(1.75, 13.25, -2.05))
 			B:block(brow, v(2.1, 0.42, 0.65), cf(1.75, 13.28, -2.05), BROW)
@@ -200,7 +200,7 @@ return {
 			end
 			B:trail(pec, v(3.5, 11.2, 2.05), v(3.5, 10.5, 2.05), { name = "PecTrail" .. side, color = { WHITE, AQUA }, life = 0.18, trans = { 0.55, 1 } })
 		end)
-		local winkFX = B:block(head, v(0.6, 0.6, 0.6), cf(-2.1, 12.6, -2.2), ORANGE, { tr = 1, name = "WinkFX" })
+		local winkFX = B:block(head, v(0.6, 0.6, 0.6), cf(2.3, 12.6, -2.3), ORANGE, { tr = 1, name = "WinkFX" })
 		B:emitter(winkFX, "burst", { name = "WinkSparkle", color = { WHITE, GOLDN }, speed = { 3, 6 }, size = { 0.8, 0.5, 0 }, life = { 0.3, 0.6 }, drag = 4 })
 
 		------------------------------------------------------------------

@@ -68,7 +68,7 @@ local function rig(c, t)
 
 	local by = hover * (1 - 0.6 * busy) + 0.55 * pr * idleW + jumpY
 	local bz = 0.4 * antic
-	local yaw = 6 * wave(t, 1 / 9) * idleW + spin + 20 * proud
+	local yaw = 6 * wave(t, 1 / 9) * idleW + spin + 34 * proud
 	local pitch = -10 * antic + 6 * land + 9 * wob + 2 * wave(t, 1 / 3, 0.2) * idleW
 	local roll = 7 * side * pr * idleW + 8 * wob * cos(TAU * 1.3 * (c - LAND))
 	local tilt = 15 * spinW
@@ -83,9 +83,9 @@ local function rig(c, t)
 
 	local look = (8 * L.noise(t, 3.3, 0.3) + 4 * wave(t, 1 / 9, 0.3)) * idleW
 	local head = ang(
-		7 * idleW - 4 * pr * idleW - 8 * antic + 16 * spinW + 10 * inhale - 16 * blow + 16 * proud - 8 * wob,
-		look - 14 * proud,
-		6 * wave(t, 2 / 9, 0.1) * idleW + 3 * side * idleW - 10 * spinW + 12 * wink + 6 * proud
+		7 * idleW - 4 * pr * idleW - 8 * antic + 16 * spinW + 10 * inhale - 16 * blow + 12 * proud - 8 * wob,
+		look - 4 * proud,
+		6 * wave(t, 2 / 9, 0.1) * idleW + 3 * side * idleW - 10 * spinW - 12 * wink - 5 * proud
 	)
 
 	local puff = max(L.env(c, 0.8, 0.12, 0.12, 0.35), L.env(c, 2.3, 0.12, 0.12, 0.35))
@@ -148,15 +148,15 @@ function M.Update(t, pose, ctx)
 		blink = max(blink, L.env(c, b, 0.06, 0.06, 0.09))
 	end
 	local wide = L.env(c, 4.15, 0.15, 1.2, 0.3)
-	local clR = max(blink, 0.55 * antic) - 0.38 * wide + 0.12 * proud
-	local clL = max(blink, 0.55 * antic, r.wink) - 0.38 * wide - 0.1 * proud
+	local clR = max(blink, 0.55 * antic, r.wink) - 0.38 * wide - 0.1 * proud
+	local clL = max(blink, 0.55 * antic) - 0.38 * wide + 0.1 * proud
 	pose.LidR = CFrame.new(0, -1.0 * clR, 0)
 	pose.LidL = CFrame.new(0, -1.0 * clL, 0)
 	ctx.transparency("LidFillR", clR > 0.15 and 0 or 1)
 	ctx.transparency("LidFillL", clL > 0.15 and 0 or 1)
-	-- brows: right flat + low, left arched up (smug); flip on the wink
-	local browR = pa(0, -0.05 + 0.25 * r.wink + 0.15 * wide - 0.15 * antic, 0, 0, 0, -4 + 10 * r.wink)
-	local browL = pa(0, 0.12 + 0.06 * wave(t, 2 / 9) * idleW - 0.3 * r.wink + 0.15 * wide - 0.15 * antic, 0, 0, 0, 12 - 14 * r.wink)
+	-- brows: right flat + low, left arched up (smug); right squeezes on the wink
+	local browR = pa(0, -0.05 - 0.2 * r.wink + 0.15 * wide - 0.15 * antic, 0, 0, 0, -4 - 8 * r.wink)
+	local browL = pa(0, 0.12 + 0.06 * wave(t, 2 / 9) * idleW + 0.1 * r.wink + 0.15 * wide - 0.15 * antic, 0, 0, 0, 10 + 3 * r.wink)
 	L.both(pose, "Brow", browR, browL)
 
 	------------------------------------------------------------------

@@ -167,7 +167,7 @@ function M.Update(t, pose, ctx)
 		ctx.transparency("Ray" .. i, beam > 0.05 and (1 - 0.9 * beam) or 1)
 	end
 	for k = 1, 4 do
-		local f = 0.28 + 0.1 * sin(TAU * (3 * t + k * 0.37))
+		local f = 0.2 + 0.1 * sin(TAU * (3 * t + k * 0.37))
 		ctx.transparency("Fall" .. k, f)
 		ctx.transparency("FallStreak" .. k, 0.15 + 0.35 * (0.5 + 0.5 * sin(TAU * (5 * t + k * 0.21))))
 	end

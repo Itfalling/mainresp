@@ -61,6 +61,7 @@ return {
 		local N, SPAN = 16, 300
 		local DPSI = SPAN / N
 		local W = 7.0
+		local RUNES = { 1, 5, 7, 11, 13 }
 		local SEAM = exp(-GROW * 360) -- previous whorl's rim, as a fraction of r
 		for i = 1, N do
 			local psi = (i - 0.5) * DPSI
@@ -73,21 +74,27 @@ return {
 			-- core chamber (cream marble), from near the umbilicus to the rim
 			local r0, r1 = 0.3 * rr, rr
 			B:block(shell, v(W + alt, r1 - r0, rr * chord + 0.4), frameAt(a, (r0 + r1) / 2), MARBLE)
-			-- raised side ring (stripes), leaves the umbilicus recessed
+			-- raised side ring (outer whorl), leaves the umbilicus recessed
 			local b0, b1 = SEAM * rr, 0.87 * rr
-			B:block(shell, v(W + 1.2 + alt * 1.5, b1 - b0, b1 * chord + 0.35), frameAt(a, (b0 + b1) / 2),
-				striped and RUST or (deep and MARBLE2 or MARBLE))
-			-- rounded keel cap
+			local bx = (W + 1.2 + alt * 1.5) / 2
+			B:block(shell, v(bx * 2, b1 - b0, b1 * chord + 0.35), frameAt(a, (b0 + b1) / 2), deep and MARBLE2 or MARBLE)
+			-- rounded keel cap (tiger stripes wrap over the keel)
 			B:block(shell, v(W - 1.6 + alt, 0.9, (rr + 0.7) * chord + 0.3), frameAt(a, rr + 0.25),
 				striped and DRUST or (psi < 75 and WHITE or MARBLE))
-			-- rune windows on some chambers (both sides)
-			if i % 3 == 2 then
-				local k = (i + 1) / 3
+			-- thin rust tiger-stripe flames running in from the rim (both sides)
+			if striped then
+				local f = frameAt(a, 0.77 * rr)
 				for s = -1, 1, 2 do
-					local f = frameAt(a, (SEAM + 0.87) / 2 * rr)
-					local x = s * ((W + 1.2 + alt * 1.5) / 2)
-					B:block(shell, v(0.3, 1.35, 1.35), f * CFrame.new(x + s * 0.1, 0, 0), BRONZE)
-					B:block(shell, v(0.2, 0.7, 0.7), f * CFrame.new(x + s * 0.3, 0, 0), TURQ,
+					B:block(shell, v(0.2, 0.22 * rr, 0.7), f * CFrame.new(s * (bx + 0.08), 0, 0), RUST)
+				end
+			end
+			-- rune windows on some chambers (both sides)
+			local k = table.find(RUNES, i)
+			if k then
+				local f = frameAt(a, (SEAM + 0.87) / 2 * rr)
+				for s = -1, 1, 2 do
+					B:block(shell, v(0.3, 1.1, 1.1), f * CFrame.new(s * (bx + 0.1), 0, 0), BRONZE)
+					B:block(shell, v(0.2, 0.6, 0.6), f * CFrame.new(s * (bx + 0.3), 0, 0), TURQ,
 						{ mat = "Neon", name = "Rune" .. (s > 0 and k or k + 5) })
 				end
 			end
@@ -102,7 +109,7 @@ return {
 			local r0, r1 = SEAM * rr, rr + 0.1
 			local chord = 2 * sin(rad(180 / NI))
 			B:block(shell, v(W + 0.55 + (i % 2) * 0.06, r1 - r0, r1 * chord + 0.3), frameAt(a, (r0 + r1) / 2),
-				i % 2 == 0 and RUST or MARBLE2)
+				i % 2 == 0 and RUST or "#c45a22")
 		end
 		-- orichalcum gold hoops between chambers, a thin turquoise strip on the keel
 		local hoopTop = {}
@@ -168,12 +175,13 @@ return {
 		-- HEAD: peeks out of the aperture (pulls back in along +Z)
 		------------------------------------------------------------------
 		local head = B:bone("Head", "Shell", v(0, 8.4, -2.6))
-		B:block(head, v(5.6, 5.1, 4.4), cf(0, 8.45, -4.2), TEAL) -- y 5.9..11, front z -6.4
-		B:block(head, v(5.9, 1.0, 4.0), cf(0, 6.3, -4.0), CREAM) -- cream underside band
+		B:block(head, v(5.6, 4.0, 4.4), cf(0, 9.0, -4.2), TEAL) -- y 7..11, front z -6.4
+		B:block(head, v(5.0, 1.3, 4.0), cf(0, 6.45, -4.15), CREAM) -- chin step, front z -6.15
+		B:block(head, v(5.9, 0.5, 4.2), cf(0, 7.1, -4.0), TEAL2) -- lip band between head and chin
 		B:sym(function()
-			B:block(head, v(0.2, 2.6, 2.8), cf(2.85, 8.6, -4.0), DTEAL) -- side panel
-			B:block(head, v(0.25, 0.9, 0.9), cf(2.9, 9.1, -3.6), CREAM) -- side spot
-			B:block(head, v(0.8, 0.4, 0.1), cf(2.3, 7.15, -6.47), BLUSH) -- blush
+			B:block(head, v(0.25, 0.9, 0.9), cf(2.85, 9.6, -3.4), CREAM) -- side spots
+			B:block(head, v(0.25, 0.6, 0.6), cf(2.85, 8.4, -4.6), CREAM)
+			B:block(head, v(0.8, 0.4, 0.1), cf(2.3, 7.55, -6.47), BLUSH) -- blush
 		end)
 		-- spotted hood with a gold diadem
 		local hood = B:bone("Hood", "Head", v(0, 11.0, -2.2))
@@ -214,13 +222,13 @@ return {
 			B:block(brow, v(2.1, 0.45, 0.4), cf(1.4, 10.62, -7.0), DTEAL)
 		end)
 		-- MOUTH: curious little "o" (idle), big surprised O, happy smile
-		B:block(head, v(0.9, 0.6, 0.12), cf(0, 6.8, -6.45), MOUTH, { name = "MouthO" })
-		B:block(head, v(1.4, 1.2, 0.12), cf(0, 6.75, -6.47), MOUTH, { tr = 1, name = "MouthBig" })
-		B:block(head, v(0.7, 0.35, 0.1), cf(0, 6.35, -6.52), TONGUE, { tr = 1, name = "MouthBigTongue" })
-		B:block(head, v(1.5, 0.7, 0.12), cf(0, 6.65, -6.47), MOUTH, { tr = 1, name = "Smile1" })
-		B:block(head, v(0.35, 0.35, 0.12), cf(0.9, 7.05, -6.47), MOUTH, { tr = 1, name = "Smile2" })
-		B:block(head, v(0.35, 0.35, 0.12), cf(-0.9, 7.05, -6.47), MOUTH, { tr = 1, name = "Smile3" })
-		B:block(head, v(0.8, 0.3, 0.1), cf(0, 6.45, -6.52), TONGUE, { tr = 1, name = "SmileTongue" })
+		B:block(head, v(0.9, 0.6, 0.12), cf(0, 6.5, -6.2), MOUTH, { name = "MouthO" })
+		B:block(head, v(1.4, 1.1, 0.12), cf(0, 6.45, -6.22), MOUTH, { tr = 1, name = "MouthBig" })
+		B:block(head, v(0.7, 0.35, 0.1), cf(0, 6.1, -6.29), TONGUE, { tr = 1, name = "MouthBigTongue" })
+		B:block(head, v(1.5, 0.6, 0.12), cf(0, 6.4, -6.22), MOUTH, { tr = 1, name = "Smile1" })
+		B:block(head, v(0.35, 0.35, 0.12), cf(0.9, 6.75, -6.22), MOUTH, { tr = 1, name = "Smile2" })
+		B:block(head, v(0.35, 0.35, 0.12), cf(-0.9, 6.75, -6.22), MOUTH, { tr = 1, name = "Smile3" })
+		B:block(head, v(0.8, 0.3, 0.1), cf(0, 6.22, -6.29), TONGUE, { tr = 1, name = "SmileTongue" })
 		local faceFx = B:block(head, v(4, 3, 1), cf(0, 9, -7.2), TEAL, { tr = 1, name = "FaceFX" })
 		B:emitter(faceFx, "burst", { name = "PopBurst", color = { "#ffffff", TURQ, SKY }, speed = { 8, 15 } })
 		local starFx = B:block(head, v(5, 1, 3), cf(0, 14.2, -4.0), TEAL, { tr = 1, name = "StarFX" })
@@ -250,7 +258,7 @@ return {
 			local lens = poker and { 2.0, 1.8, 1.5 } or { 1.6, 1.4, 1.2 }
 			local side = math.abs(beta) > 60
 			local th = { side and 45 or 32, 18, 55 }
-			local wid = { 0.95, 0.8, 0.65 }
+			local wid = { 1.1, 0.9, 0.75 }
 			local p = base
 			local parent = "Head"
 			for j = 1, 3 do
@@ -260,14 +268,11 @@ return {
 				local q = p + d * lens[j]
 				local col = j == 1 and TEAL or TEAL2
 				B:beam(b, p - d * 0.3, q, wid[j], wid[j], col)
-				if j > 1 then
+				if j == 2 then
 					B:beam(b, p - d * 0.15, p + d * 0.3, wid[j] + 0.2, wid[j] + 0.2, CREAM)
-				else
-					-- cream sucker pad on the inner face of the first segment
-					B:beam(b, p + d * 0.4 - rot:VectorToWorldSpace(v(0, 0, -1)) * 0.35, p + d * 1.2 - rot:VectorToWorldSpace(v(0, 0, -1)) * 0.35, 0.5, 0.5, CREAM)
 				end
 				if j == 3 then
-					B:beam(b, q - d * 0.1, q + d * 0.35, 0.45, 0.45, CREAM)
+					B:beam(b, q - d * 0.15, q + d * 0.45, 0.55, 0.55, CREAM)
 					if poker or k == 1 or k == 12 then
 						B:trail(b, q + v(0, 0.3, 0), q - v(0, 0.3, 0), { name = "TipTrail" .. k, color = { TURQ, "#ffffff" }, life = 0.2, trans = { 0.55, 1 } })
 					end

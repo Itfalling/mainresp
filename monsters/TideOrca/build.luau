@@ -72,6 +72,10 @@ return {
 		-- stepped belly plates
 		B:block(body2, v(5.0, 0.5, 1.4), cf(0, 4.25, 0.8), WHITE)
 		B:block(body2, v(4.2, 0.5, 1.4), cf(0, 4.25, 3.4), WHITE)
+		B:sym(function()
+			B:block(body2, v(0.5, 0.9, 0.9), cf(4.35, 10.4, 0.6), MARBLE2) -- barnacles
+			B:block(body2, v(0.4, 0.6, 0.6), cf(4.35, 11.1, 1.2), MARBLE)
+		end)
 		local vol = B:block(body2, v(12, 9, 26), cf(0, 9, 0), BLACK, { tr = 1, name = "BubbleVolume" })
 		B:emitter(vol, "bubble", { name = "AmbientBubbles", color = { "#ffffff", SKY }, rate = 5, size = { 0.25, 0.45, 0.6 } })
 		B:emitter(vol, "sparkle", { name = "AmbientSparkle", color = { "#ffffff", TURQ, "#ffe27a" }, rate = 3 })
@@ -115,9 +119,15 @@ return {
 		B:block(body1, v(6.0, 0.5, 1.4), cf(0, 4.1, -3.2), PLATE)
 		B:block(body1, v(5.0, 0.5, 1.4), cf(0, 4.15, -1.6), WHITE)
 		-- blowhole (marble rim, dark hole)
-		B:block(body1, v(1.8, 0.3, 1.4), cf(0, 12.75, -3.6), MARBLE)
-		B:block(body1, v(1.1, 0.32, 0.6), cf(0, 12.8, -3.6), MOUTH)
-		local spoutFx = B:block(body1, v(1, 0.4, 1), cf(0, 13.1, -3.6), BLACK, { tr = 1, name = "SpoutFX" })
+		B:block(body1, v(1.8, 0.3, 1.4), cf(0, 12.75, -4.3), MARBLE)
+		B:block(body1, v(1.1, 0.32, 0.6), cf(0, 12.8, -4.3), MOUTH)
+		local spoutFx = B:block(body1, v(1, 0.4, 1), cf(0, 13.1, -4.3), BLACK, { tr = 1, name = "SpoutFX" })
+		-- royal back plate: marble slab with gold trim and a rune
+		B:block(body1, v(4.6, 0.5, 3.0), cf(0, 12.85, -1.5), MARBLE)
+		B:block(body1, v(5.2, 0.4, 0.5), cf(0, 12.85, -3.1), GOLD)
+		B:block(body1, v(5.2, 0.4, 0.5), cf(0, 12.85, 0.1), GOLD)
+		B:block(body1, v(1.4, 0.12, 1.4), cf(0, 13.12, -1.5, 0, 45, 0), DGOLD)
+		B:block(body1, v(0.6, 0.12, 0.6), cf(0, 13.18, -1.5, 0, 45, 0), TURQ, NEON)
 		B:emitter(spoutFx, "burst", { name = "SpoutBurst", color = { "#ffffff", SKY, AQUA }, speed = { 12, 20 }, spread = 14, size = { 0.8, 0.6, 0.2 }, life = { 0.6, 1.1 }, accel = { 0, -30, 0 }, drag = 0.5 })
 		-- gold rune-engraved collar (frames the big head)
 		B:block(body1, v(9.7, 8.4, 0.6), cf(0, 8.4, -5.65), DGOLD)
@@ -281,9 +291,16 @@ return {
 		B:block(tail1, v(7.15, 2.2, 1.6), cf(0, 8.5, 5.8), WHITE) -- flank patch step
 		B:block(tail1, v(7.15, 1.0, 1.2), cf(0, 10.0, 6.0), WHITE)
 		B:block(tail1, v(1.0, 0.8, 3.0), cf(0, 12.0, 7.0), CHAR) -- back ridge
+		B:sym(function()
+			-- barnacle cluster (sunken-ruin crust)
+			B:block(tail1, v(0.5, 0.8, 0.8), cf(3.55, 9.6, 7.6), MARBLE2)
+			B:block(tail1, v(0.4, 0.6, 0.6), cf(3.55, 10.4, 8.2), MARBLE)
+			B:block(tail1, v(0.35, 0.5, 0.5), cf(3.55, 9.9, 8.5), MARBLE2)
+		end)
 		local tail2 = B:bone("Tail2", "Tail1", v(0, 8.8, 8.7))
 		segment(tail2, 8.6, 12.0, 8.8, 5.2, 4.8, 1.2)
 		band(tail2, 11.1, 8.8, 5.5, 5.15, 0.9)
+		B:block(tail2, v(0.9, 0.7, 1.4), cf(0, 11.7, 9.6), CHAR) -- back knob
 		local tail3 = B:bone("Tail3", "Tail2", v(0, 8.9, 11.9))
 		B:block(tail3, v(3.4, 3.8, 2.6), cf(0, 8.9, 13.0), BLACK)
 		B:block(tail3, v(0.9, 0.8, 2.2), cf(0, 11.1, 13.0), CHAR) -- top keel
@@ -385,7 +402,7 @@ return {
 			B:block(db, v(s, s, s), CFrame.new(SC + v(0, 1, 0)), k % 2 == 0 and WHITE or AQUA, { tr = 1, name = "DropPart" .. k })
 		end
 		-- blowhole squirt cubes
-		local BH = v(0, 13.0, -3.6)
+		local BH = v(0, 13.0, -4.3)
 		for k = 1, 4 do
 			local sb = B:bone("Squirt" .. k, "Body1", BH)
 			local s = k == 1 and 0.9 or 0.7
