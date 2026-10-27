@@ -185,14 +185,11 @@ function M.Update(t, pose, ctx)
 	end
 	L.both(pose, "Lid", CFrame.new(0, 1.2 * (1 - blink), 0))
 	local lidOn = blink > 0.35 and 0 or 1
-	local halfOn = (embar > 0.4 and peek < 0.3 and eep < 0.2 and blink <= 0.35) and 0 or 1
 	for _, side in { "R", "L" } do
 		ctx.transparency("Lid" .. side, lidOn)
 		ctx.transparency("Lash" .. side, lidOn)
 		ctx.transparency("LashA" .. side, lidOn)
 		ctx.transparency("LashB" .. side, lidOn)
-		ctx.transparency("HalfLid" .. side, halfOn)
-		ctx.transparency("HalfLash" .. side, halfOn)
 	end
 
 	-- worried brows: always a bit worried, shoot up on frights
@@ -214,7 +211,7 @@ function M.Update(t, pose, ctx)
 	local buzz = wave(t, 40 * F)
 	local function fin(hide, side)
 		local fl = 14 * buzz * (1 - 0.6 * hide) + 30 * Pc * wave(t, 70 * F)
-		local y = 150 * hide - 25 * startle + 10 * wave(t, 5 * F, side) * idleW
+		local y = 165 * hide - 25 * startle + 10 * wave(t, 5 * F, side) * idleW
 		local z = fl + 50 * startle + 25 * Pc + 10 * hide + 20 * eep + 30 * pfft
 		local x = 12 * hide
 		local tipY = 98 * hide + 12 * wave(t, 40 * F, 0.15) * (1 - hide) - 20 * Pc

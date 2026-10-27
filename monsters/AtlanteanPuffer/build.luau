@@ -119,14 +119,12 @@ return {
 			local pup = B:bone("Pupil" .. side, "Eye" .. side, rp(1.55, 0.55, -4.4))
 			B:block(pup, v(1.3, 1.6, 0.2), at(1.55, 0.5, -4.48), PUPIL, { name = "PupilBig" .. side })
 			B:block(pup, v(0.6, 0.7, 0.2), at(1.55, 0.6, -4.49), PUPIL, { tr = 1, name = "PupilSmall" .. side })
-			-- eyelids (hidden): full blink lid + embarrassed half lid
+			-- eyelid (hidden): full blink lid with lashes
 			local lid = B:bone("Lid" .. side, "Eye" .. side, rp(1.55, 0.7, -3.6))
 			B:block(lid, v(2.75, 2.95, 1.9), at(1.55, 0.7, -3.75), TEAL, { tr = 1, name = "Lid" .. side })
 			B:block(lid, v(1.9, 0.45, 0.3), at(1.55, 0.3, -4.8), DEEP, { tr = 1, name = "Lash" .. side })
 			B:block(lid, v(0.45, 0.5, 0.3), at(0.6, 0.65, -4.81), DEEP, { tr = 1, name = "LashA" .. side })
 			B:block(lid, v(0.45, 0.5, 0.3), at(2.5, 0.65, -4.81), DEEP, { tr = 1, name = "LashB" .. side })
-			B:block(lid, v(2.75, 0.95, 1.9), at(1.55, 0.47, -3.76), TEAL, { tr = 1, name = "HalfLid" .. side })
-			B:block(lid, v(2.85, 0.3, 0.3), at(1.55, 0.0, -4.81), DEEP, { tr = 1, name = "HalfLash" .. side })
 			-- worried brow (inner end raised)
 			local brow = B:bone("Brow" .. side, "Face", rp(1.55, 2.6, -3.9))
 			B:block(brow, v(2.4, 0.6, 1.0), at(1.6, 2.7, -3.95, 0, 0, -22), BROW)
