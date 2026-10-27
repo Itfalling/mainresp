@@ -168,18 +168,45 @@ return {
 		------------------------------------------------------------------
 		local topY = C.Y + r(240) + 0.55
 		local spire = B:bone("Spire", "Shell", v(0, topY, C.Z))
-		B:block(spire, v(2.6, 0.7, 2.6), cf(0, topY + 0.2, C.Z), BRONZE)
-		B:block(spire, v(2.0, 0.5, 2.0), cf(0, topY + 0.75, C.Z), GOLD)
+		-- stepped ziggurat plinth
+		B:block(spire, v(3.6, 0.7, 3.6), cf(0, topY + 0.2, C.Z), BRONZE)
+		B:block(spire, v(3.0, 0.5, 3.0), cf(0, topY + 0.8, C.Z), GOLD)
+		B:block(spire, v(3.1, 0.2, 0.3), cf(0, topY + 0.8, C.Z - 1.4), TURQ, NEON) -- rune strip
+		-- four marble columns with gold caps around a glowing crystal
 		B:sym(function()
-			B:block(spire, v(0.45, 0.8, 0.45), cf(0.65, topY + 1.4, C.Z - 0.65), WHITE)
-			B:block(spire, v(0.45, 0.8, 0.45), cf(0.65, topY + 1.4, C.Z + 0.65), WHITE)
+			for _, zz in { -1.0, 1.0 } do
+				B:block(spire, v(0.6, 1.3, 0.6), cf(1.0, topY + 1.65, C.Z + zz), WHITE)
+				B:block(spire, v(0.8, 0.25, 0.8), cf(1.0, topY + 2.35, C.Z + zz), GOLD)
+			end
 		end)
-		local crystal = B:block(spire, v(0.6, 0.8, 0.6), cf(0, topY + 1.4, C.Z), TURQ, { mat = "Neon", name = "SpireCrystal" })
-		B:light(crystal, { name = "SpireLight", color = TURQ, brightness = 0.6, range = 7 })
-		B:block(spire, v(2.2, 0.5, 2.2), cf(0, topY + 2.0, C.Z), GOLD)
-		B:block(spire, v(1.4, 0.5, 1.4), cf(0, topY + 2.45, C.Z), GOLD)
-		B:block(spire, v(0.45, 0.5, 0.45), cf(0, topY + 2.9, C.Z), TURQ, NEON)
-		B:trail(spire, v(0, topY + 3.1, C.Z - 0.2), v(0, topY + 2.4, C.Z - 0.2), { name = "SpireTrail", color = { TURQ, GLOW }, life = 0.3, trans = { 0.45, 1 } })
+		local crystal = B:block(spire, v(0.8, 1.2, 0.8), cf(0, topY + 1.65, C.Z), TURQ, { mat = "Neon", name = "SpireCrystal" })
+		B:light(crystal, { name = "SpireLight", color = TURQ, brightness = 0.6, range = 8 })
+		-- stepped pediment roof
+		B:block(spire, v(3.2, 0.5, 3.2), cf(0, topY + 2.65, C.Z), MARBLE)
+		B:block(spire, v(2.4, 0.5, 2.4), cf(0, topY + 3.1, C.Z), GOLD)
+		B:block(spire, v(1.4, 0.5, 1.4), cf(0, topY + 3.55, C.Z), GOLD)
+		B:block(spire, v(0.5, 0.6, 0.5), cf(0, topY + 4.05, C.Z), TURQ, NEON)
+		B:trail(spire, v(0, topY + 4.3, C.Z - 0.2), v(0, topY + 3.5, C.Z - 0.2), { name = "SpireTrail", color = { TURQ, GLOW }, life = 0.3, trans = { 0.45, 1 } })
+
+		-- barnacle clusters + coral tufts on the old shell (sunken-ruin flavour)
+		do
+			local BARN, CORAL, CORAL2 = "#cfc6b4", "#ff7f6e", "#ff5f7a"
+			B:sym(function()
+				local x = (W + 1.2) / 2 + 0.25
+				local f = frameAt(152, r(88) * 0.66) * CFrame.new(x, 0, 0)
+				B:block(shell, v(0.6, 1.0, 1.0), f, BARN)
+				B:block(shell, v(0.2, 0.5, 0.5), f * CFrame.new(0.3, 0, 0), "#4a5458")
+				local g = frameAt(132, r(108) * 0.74) * CFrame.new(x - 0.05, 0, 0)
+				B:block(shell, v(0.5, 0.7, 0.7), g, BARN)
+				B:block(shell, v(0.2, 0.3, 0.3), g * CFrame.new(0.25, 0, 0), "#4a5458")
+			end)
+			-- coral tuft on the back keel
+			local f = frameAt(115, r(125) + 0.6)
+			B:block(shell, v(0.6, 1.4, 0.6), f, CORAL)
+			B:block(shell, v(0.5, 0.9, 0.5), f * CFrame.new(0.55, 0.2, 0.35) * ang(0, 0, -25), CORAL2)
+			B:block(shell, v(0.5, 1.0, 0.5), f * CFrame.new(-0.55, 0.15, -0.3) * ang(0, 0, 25), CORAL)
+			B:block(shell, v(0.35, 0.35, 0.35), f * CFrame.new(0, 0.85, 0), "#ffd0c8")
+		end
 
 		------------------------------------------------------------------
 		-- HEAD: peeks out of the aperture (pulls back in along +Z)
@@ -248,6 +275,16 @@ return {
 			name = "DizzyStars", rate = 0, color = { GLOW, "#ffffff" }, size = { 0.5, 0.8, 0 }, speed = { 1.5, 3 },
 			life = { 0.6, 1.1 }, spread = 60,
 		})
+
+		-- DIZZY STAR RING: chunky gold stars circling the hood (hidden until dizzy)
+		local starRing = B:bone("StarRing", "Head", v(0, 14.6, -4.2))
+		for i = 1, 4 do
+			local a = rad(90 * i + 20)
+			local sp = v(cos(a) * 2.9, 14.6 + (i % 2) * 0.35, -4.2 + sin(a) * 2.4)
+			B:block(starRing, v(0.9, 0.9, 0.9), CFrame.new(sp) * ang(45, 45, 0), GOLD, { tr = 1, name = "Star" .. i .. "a" })
+			B:block(starRing, v(1.25, 0.35, 0.35), CFrame.new(sp) * ang(0, 0, 45), "#fff2a8", { tr = 1, name = "Star" .. i .. "b" })
+			B:block(starRing, v(0.35, 1.25, 0.35), CFrame.new(sp) * ang(0, 0, 45), "#fff2a8", { tr = 1, name = "Star" .. i .. "c" })
+		end
 
 		-- SIPHON (bubbles)
 		local siphon = B:bone("Siphon", "Head", v(2.5, 6.8, -2.8))

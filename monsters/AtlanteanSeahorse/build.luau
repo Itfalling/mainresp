@@ -302,10 +302,10 @@ return {
 		end
 		-- wide orbit, two cubes ABOVE the head and two BELOW the chest so
 		-- they never cross the face band (y 10-14) from any camera angle
-		orb(1, 8.5, 15.8, 0.4, "cube")
+		orb(1, 8.5, 16.4, 0.4, "cube")
 		orb(2, -8.5, 6.0, 0.4, "cube")
 		orb(3, 6.2, 5.0, 6.6, "crystal")
-		orb(4, -6.2, 15.5, 6.6, "column")
+		orb(4, -6.2, 16.2, 6.6, "column")
 
 		------------------------------------------------------------------
 		-- TIDAL TWIRL VFX (hidden): a spiral water ribbon that whirls round

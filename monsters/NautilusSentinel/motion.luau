@@ -110,7 +110,7 @@ function M.Update(t, pose, ctx)
 	local headPitch = 0.6 * lookUp + 4 * wave(t, 0.4, 0.1) + 10 * surprise - 6 * giddy
 	local headRoll = tiltRoll + 8 * giddy * wave(t, 4) + 14 * dizzy * sin(prec * 0.35 + 1.2) + 6 * happy * wave(t, 1.2)
 	pose.Head = pa(0, 0.2 * surprise - 0.2 * retract, retract - 0.4 * flare, headPitch, headYaw, headRoll)
-	pose.Hood = ang(-15 * tuck + 5 * wave(t, 0.4, 0.3) + 20 * surprise + 10 * peekOh + 6 * happy + 4 * abs(tiltRoll) / 17, 0, 0)
+	pose.Hood = ang(-15 * tuck + 5 * wave(t, 0.4, 0.3) + 15 * surprise + 9 * peekOh + 6 * happy + 4 * abs(tiltRoll) / 17, 0, 0)
 
 	-- eyes: darting pupils that follow the look, swirl when dizzy
 	local dz = dizzy * (c > 6.8 and 1 or 0)
@@ -162,6 +162,16 @@ function M.Update(t, pose, ctx)
 	for k = 1, 6 do
 		ctx.transparency("Door" .. k, doorOn and 0 or 1)
 	end
+
+	-- dizzy stars circle the hood and wobble
+	local starsOn = dizzy > 0.12
+	for i = 1, 4 do
+		for _, sfx in { "a", "b", "c" } do
+			ctx.transparency("Star" .. i .. sfx, starsOn and 0 or 1)
+		end
+	end
+	local starPop = L.clamp01(dizzy * 1.6)
+	pose.StarRing = CFrame.new(0, -1.2 * (1 - starPop), 0) * ang(8 * sin(sw * 0.5), -300 * c, 10 * cos(sw * 0.5))
 
 	-- siphon puffs
 	local puff = max(L.env(c, 1.2, 0.1, 0.05, 0.3, "backOut"), L.env(c, 3.6, 0.1, 0.05, 0.3, "backOut"), L.env(c, 9.5, 0.1, 0.05, 0.3, "backOut"))
