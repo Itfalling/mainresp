@@ -22,6 +22,7 @@ M.Cycle = 12
 
 local sin, pi, max, min, abs = math.sin, math.pi, math.max, math.min, math.abs
 local TAU = 2 * pi
+local HOVER = 1.5 -- extra hover height so flippers/beard clear the floor in the big beats
 
 local FLASH = 5.0
 local LAND = 6.85
@@ -67,7 +68,7 @@ function M.Update(t, pose, ctx)
 	local roll = L.track(c, { { 5.35, 0 }, { 6.5, 360, "cubicInOut" } })
 	if c > 6.5 then roll = 0 end
 	local sigh = L.env(c, 8.5, 0.6, 0.2, 0.9, "sineInOut", "sineInOut")
-	local by = 0.5 * wave(t, 0.25) * (1 - 0.6 * busy) + jumpY - 0.4 * drowsy + 0.5 * sigh
+	local by = HOVER + 0.5 * wave(t, 0.25) * (1 - 0.6 * busy) + jumpY - 0.4 * drowsy + 0.5 * sigh
 	by += 0.25 * L.wave(t, 0.5, 0.25) * stretch
 	local pitchB = 3 * wave(t, 0.25, 0.2) * idleW - 3 * drowsy - 6 * tuck + 14 * air * (1 - L.remap(c, 6.0, 6.8)) - 9 * land
 		+ 6 * sigh
@@ -100,8 +101,8 @@ function M.Update(t, pose, ctx)
 	pose.Jaw = ang(min(0, jaw), 0, 0)
 	-- beard swings with follow-through
 	local bsw = 8 * wave(t, 0.5, 0.35) + 20 * air * sin(TAU * 1.6 * (c - 5.3)) + 14 * jaw / -62 * 0.5
-	pose.Beard1 = ang(bsw * 0.6 - 10 * jolt + 12 * land, 0, 6 * wave(t, 0.25, 0.2) + 8 * happyBob)
-	pose.Beard2 = ang(bsw - 14 * jolt + 18 * land, 0, 10 * wave(t, 0.25, 0.45) - 10 * happyBob)
+	pose.Beard1 = ang(bsw * 0.6 - 10 * jolt + 20 * land + 14 * nod, 0, 6 * wave(t, 0.25, 0.2) + 8 * happyBob)
+	pose.Beard2 = ang(bsw - 14 * jolt + 28 * land + 18 * nod, 0, 10 * wave(t, 0.25, 0.45) - 10 * happyBob)
 
 	------------------------------------------------------------------
 	-- FACE: droopy lids, blinks, squeeze in the yawn, wide eyes on surprise
@@ -169,15 +170,17 @@ function M.Update(t, pose, ctx)
 	-- hard through the flip, clap when happy
 	------------------------------------------------------------------
 	local flapT = c - 5.2
+	-- hard flapping eases off right before touchdown so the blades don't stab the floor
+	local hardW = air * (1 - 0.7 * L.smoothstep(L.remap(c, 6.4, 6.8)))
 	local function fin(prefix, phase, amp, hz)
 		local s = wave(t, hz, phase)
 		local sw = wave(t, hz, phase + 0.25)
-		local hard = air * sin(TAU * 3.0 * flapT + phase * TAU)
+		local hard = hardW * sin(TAU * 3.0 * flapT + phase * TAU)
 		local clap = happy * sin(TAU * 2.5 * (c - 7.0) + phase * TAU)
-		local flap = amp * s * paddleW - 12 * drowsy * idleW + 40 * stretch - 10 * tuck + 60 * hard + 25 * clap + 20 * land
+		local flap = amp * (0.25 + 0.75 * s) * paddleW - 6 * drowsy * idleW + 40 * stretch - 10 * tuck + 60 * hard + 12 * happy + 22 * clap + 20 * land
 		local sweep = 0.8 * amp * sw * paddleW + 20 * stretch - 55 * tuck + 20 * air + 30 * happy + 20 * clap
-		local tip = 0.8 * amp * wave(t, hz, phase - 0.15) * paddleW + 25 * stretch - 20 * tuck
-			+ 45 * air * sin(TAU * 3.0 * flapT + phase * TAU - 1.0) + 20 * clap - 25 * land
+		local tip = 0.8 * amp * (0.25 + 0.75 * wave(t, hz, phase - 0.15)) * paddleW + 25 * stretch - 20 * tuck
+			+ 45 * hardW * sin(TAU * 3.0 * flapT + phase * TAU - 1.0) + 10 * happy + 16 * clap - 10 * land
 		L.both(pose, prefix, ang(0, sweep, flap))
 		L.both(pose, prefix .. "Tip", ang(0, 0, tip))
 	end

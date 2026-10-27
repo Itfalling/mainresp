@@ -41,6 +41,9 @@ local SLAP = { 7, 3, 0, 14, 26, 38, 50 } -- happy tail slap (big, readable)
 local BLINKS = { 0.2, 4.0, 11.55 }
 
 local LAUNCH, APEX, SPLASH = 4.4, 5.1, 6.2
+-- floor clearance: base hover lift + extra lift while the big pitches swing
+-- the long tail / big head toward the floor
+local LIFT, TAIL_LIFT, HEAD_LIFT, LUNGE_LIFT = 1.0, 8, 8, 1.2
 
 local OD = { { 1, 1 }, { -1, 1 }, { 1, -1 }, { -1, -1 }, { -1, 1 } }
 
@@ -118,7 +121,9 @@ function M.Update(t, pose, ctx)
 
 	-- root: hover bob + prank lunge + the Tidal Crown
 	local bob = 0.9 * wave(t, SW) * (1 - 0.7 * busy)
-	local by = bob + jumpY + 0.3 * L.bounce(t, 6 * F) * idleW
+	local sp = sin(rad(bodyPitch))
+	local clear = LIFT + TAIL_LIFT * max(0, sp) + HEAD_LIFT * max(0, -sp) + LUNGE_LIFT * fakeJaw
+	local by = bob + jumpY + clear + 0.3 * L.bounce(t, 6 * F) * idleW
 	local bz = fakeZ + leapZ
 	local bx = 0.4 * wave(t, SW, 0.3) * swimW
 	local roll = 5 * wave(t, SW, 0.15) * swimW + 10 * wob * sin(TAU * (wobPh + 0.3)) + spin
@@ -246,8 +251,8 @@ function M.Update(t, pose, ctx)
 		ringTr = max(fadeIn, fin_) * 0.9 + 0.1
 	end
 	local rs = 360 * 1.6 * (c - LAUNCH)
-	pose.SpinRing = pa(0, jumpY, bz, bodyPitch, 0, spin + rs)
-	pose.SpinRing2 = pa(0, jumpY, bz, bodyPitch, 0, -spin - rs)
+	pose.SpinRing = pa(0, jumpY + clear, bz, bodyPitch, 0, spin + rs)
+	pose.SpinRing2 = pa(0, jumpY + clear, bz, bodyPitch, 0, -spin - rs)
 	for k = 1, 22 do
 		ctx.transparency("RingPart" .. k, ringOn and ringTr or 1)
 	end

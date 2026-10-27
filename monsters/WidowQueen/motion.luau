@@ -152,7 +152,9 @@ function M.Update(t, pose, ctx)
 	local roll = 2 * wave(t, 0.8) * rippleW + 4 * wig * wave(t, 3.2, 0.25) - 4 * tap
 	local yaw = 6 * L.noise(t, 2.3, 0.3) * idleW
 	local tremble = shiver * wave(t, 13)
-	local bodyY = bob - 1.0 * crouch + 3.5 * rear - 0.8 * coil - 1.4 * impact
+	-- the queen draws herself up tall for the tap-tap and the head cocks (keeps the fangs off the floor)
+	local perk = 1.3 * tap + 0.9 * env(c, 7.95, 0.15, 0.4, 0.3, "sineInOut", "sineInOut")
+	local bodyY = bob - 1.0 * crouch + 3.5 * rear - 0.8 * coil - 1.4 * impact + perk
 	local bodyZ = -3.8 * lunge + 0.8 * crouch + 0.7 * coil
 	local bodyP = -3 * crouch + 42 * rear + 8 * coil - 10 * lunge + 1.5 * tremble + 2 * wave(t, 1.6, 0.1) * rippleW + 8 * air * (1 - hx) - 6 * air * hx + 3 * land
 	local bodyCF = pa(0.15 * tremble, bodyY, bodyZ, bodyP, yaw, roll + 1.5 * tremble)
