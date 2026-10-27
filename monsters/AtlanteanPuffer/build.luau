@@ -51,52 +51,66 @@ return {
 		B:emitter(fx, "leaf", { name = "MarbleChips", color = { MARBLE, CREAM, GOLD }, rate = 0, size = { 0.5, 0.5, 0.3 }, speed = { 6, 11 }, life = { 1.0, 1.8 }, spread = 180, accel = { 0, -14, 0 } })
 		B:light(fx, { name = "PuffLight", color = TURQ, brightness = 0.3, range = 14 })
 
-		-- TOP panel: dark teal back with deep spots
+		-- Each panel is a STEPPED DOME CAP (3 layers getting narrower toward
+		-- the outside) so the six caps together read as a round voxel ball.
+		-- {from, to, half-width} along the panel normal
+		local LAY = { { 1.0, 3.0, 2.7 }, { 2.9, 3.6, 2.2 }, { 3.5, 4.0, 1.5 } }
+		-- vertical caps (sides / rear / face): teal above the belt line, cream below
+		local function capV(bone, axis, sgn, belt)
+			for i, l in LAY do
+				local m, t, h = sgn * (l[1] + l[2]) / 2, l[2] - l[1], l[3]
+				local hu, hl = h + 0.3, h - 0.3
+				if axis == "X" then
+					B:block(bone, v(t, hu, 2 * h), at(m, (h - 0.3) / 2, 0), TEAL)
+					B:block(bone, v(t, hl, 2 * h), at(m, (-h - 0.3) / 2, 0), CREAM)
+					if belt and i >= 2 then B:block(bone, v(0.2, 0.35, 2 * h), at(sgn * (l[2] + 0.05), -0.3, 0), GOLD) end
+				else
+					B:block(bone, v(2 * h, hu, t), at(0, (h - 0.3) / 2, m), TEAL)
+					B:block(bone, v(2 * h, hl, t), at(0, (-h - 0.3) / 2, m), CREAM)
+					if belt and i >= 2 then B:block(bone, v(2 * h, 0.35, 0.2), at(0, -0.3, sgn * (l[2] + 0.05)), GOLD) end
+				end
+			end
+		end
+		-- horizontal caps (top / belly)
+		local function capY(bone, sgn, cols)
+			for i, l in LAY do
+				B:block(bone, v(2 * l[3], l[2] - l[1], 2 * l[3]), at(0, sgn * (l[1] + l[2]) / 2, 0), cols[i])
+			end
+		end
+
+		-- TOP cap: dark teal back with deep spots
 		local top = B:bone("Top", "Body", rp(0, 2.8, 0))
-		B:block(top, v(5.4, 2.8, 5.4), at(0, 2.4, 0), DTEAL)
-		B:block(top, v(0.9, 0.2, 0.9), at(1.3, 3.85, 1.2), DEEP)
-		B:block(top, v(0.7, 0.2, 0.7), at(-1.5, 3.85, 0.3), DEEP)
-		B:block(top, v(0.6, 0.2, 0.6), at(0.4, 3.85, 2.0), DEEP)
-		B:block(top, v(0.6, 0.2, 0.6), at(-0.9, 3.85, -1.8), DEEP)
+		capY(top, 1, { DTEAL, DTEAL, DTEAL })
+		B:block(top, v(0.6, 0.2, 0.6), at(1.85, 3.65, 1.0), DEEP)
+		B:block(top, v(0.6, 0.2, 0.6), at(-1.85, 3.65, -0.9), DEEP)
+		B:block(top, v(0.6, 0.2, 0.6), at(-0.6, 4.05, 1.0), DEEP)
 
-		-- BELLY panel: cream with stepped marble plates and a gold trim
+		-- BELLY cap: cream with a marble centre plate
 		local belly = B:bone("Belly", "Body", rp(0, -2.8, 0))
-		B:block(belly, v(5.4, 2.8, 5.4), at(0, -2.4, 0), CREAM)
-		B:block(belly, v(3.8, 0.3, 1.5), at(0, -3.9, -1.3), MARBLE)
-		B:block(belly, v(3.2, 0.3, 1.3), at(0, -3.9, 0.3), MSHADE)
-		B:block(belly, v(4.2, 0.3, 0.4), at(0, -3.9, 1.6), GOLD)
+		capY(belly, -1, { CREAM, CREAM, MARBLE })
 
-		-- SIDE panels: teal over cream, gold belt, deep spots
+		-- SIDE caps: teal over cream, gold belt, deep spots
 		B:sym(function(side)
 			local s = B:bone("Side" .. side, "Body", rp(2.8, 0, 0))
-			B:block(s, v(2.8, 3.0, 5.4), at(2.4, 1.2, 0), TEAL)
-			B:block(s, v(2.8, 2.4, 5.4), at(2.4, -1.5, 0), CREAM)
-			B:block(s, v(0.2, 0.35, 5.4), at(3.85, -0.3, 0), GOLD)
-			B:block(s, v(0.2, 0.9, 0.9), at(3.85, 1.6, 0.9), DEEP)
-			B:block(s, v(0.2, 0.6, 0.6), at(3.85, 2.2, -1.2), DEEP)
-			B:block(s, v(0.2, 0.6, 0.6), at(3.85, 0.7, 2.0), DEEP)
+			capV(s, "X", 1, true)
+			B:block(s, v(0.2, 0.7, 0.7), at(4.05, 0.85, 0.75), DEEP)
+			B:block(s, v(0.2, 0.6, 0.6), at(3.65, 1.75, -1.6), DEEP)
 		end)
 
 		-- barnacles on the lower left flank
-		B:block("SideL", v(0.4, 0.8, 0.9), at(-3.9, -1.6, 1.4), MSHADE)
-		B:block("SideL", v(0.2, 0.35, 0.35), at(-4.12, -1.5, 1.4), DEEP)
-		B:block("SideL", v(0.35, 0.55, 0.6), at(-3.88, -1.9, 0.4), MSHADE)
+		B:block("SideL", v(0.4, 0.8, 0.9), at(-3.75, -1.85, 1.3), MSHADE)
+		B:block("SideL", v(0.2, 0.35, 0.35), at(-3.98, -1.75, 1.3), DEEP)
 
-		-- REAR panel
+		-- REAR cap
 		local rear = B:bone("Rear", "Body", rp(0, 0, 2.8))
-		B:block(rear, v(5.4, 3.0, 2.8), at(0, 1.2, 2.4), TEAL)
-		B:block(rear, v(5.4, 2.4, 2.8), at(0, -1.5, 2.4), CREAM)
-		B:block(rear, v(5.4, 0.35, 0.2), at(0, -0.3, 3.85), GOLD)
-		B:block(rear, v(0.8, 0.8, 0.2), at(-1.4, 1.7, 3.85), DEEP)
+		capV(rear, "Z", 1, true)
+		B:block(rear, v(0.7, 0.7, 0.2), at(-1.0, 1.0, 4.05), DEEP)
 
 		------------------------------------------------------------------
-		-- FACE panel: googly eyes, worried brows, pouty lips, chin plates
+		-- FACE cap: googly eyes, worried brows, pouty lips
 		------------------------------------------------------------------
 		local face = B:bone("Face", "Body", rp(0, 0, -2.8))
-		B:block(face, v(5.4, 3.0, 2.8), at(0, 1.2, -2.4), TEAL)
-		B:block(face, v(5.4, 2.4, 2.8), at(0, -1.5, -2.4), CREAM)
-		B:block(face, v(3.0, 0.5, 1.0), at(0, -2.35, -3.55), MARBLE) -- stepped chin plates
-		B:block(face, v(2.0, 0.45, 1.0), at(0, -2.8, -3.5), MSHADE)
+		capV(face, "Z", -1, false)
 
 		B:sym(function(side)
 			local eye = B:bone("Eye" .. side, "Face", rp(1.55, 0.7, -3.6))

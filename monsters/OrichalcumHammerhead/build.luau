@@ -210,11 +210,15 @@ return {
 			B:block(head, v(0.3, 0.1, 1.0), cf(5.7, 11.0, -12.2), BRONZED)
 			B:block(head, v(0.4, 0.12, 0.4), cf(4.6, 11.0, -11.7), TURQ, NEON)
 			B:block(head, v(2.3, 0.5, 3.2), cf(7.6, 10.9, -11.6), GOLD2)
-			-- scowl visor rim on the front face (stepped: higher at the ends)
-			B:block(head, v(4.1, 0.6, 0.4), cf(4.6, 10.25, -13.9), GOLD)
-			B:block(head, v(0.4, 0.4, 0.1), cf(3.4, 10.25, -14.12), BRONZED)
-			B:block(head, v(0.4, 0.4, 0.1), cf(5.8, 10.25, -14.12), BRONZED)
-			B:block(head, v(0.4, 0.4, 0.1), cf(4.6, 10.25, -14.12), TURQ, NEON)
+			-- SCOWL LINE: a dark bronze stepped brow ridge across the whole
+			-- hammer front, high at the eyes and plunging to a V over the
+			-- nose -> from the front the hammer itself is one big angry frown
+			B:block(head, v(1.35, 0.75, 0.5), cf(5.95, 10.3, -13.95), BRONZED)
+			B:block(head, v(1.35, 0.75, 0.5), cf(4.7, 9.95, -13.95), BRONZED)
+			B:block(head, v(1.35, 0.75, 0.5), cf(3.45, 9.6, -13.95), BRONZED)
+			B:block(head, v(1.3, 0.75, 0.5), cf(2.2, 9.35, -14.55), BRONZED)
+			B:block(head, v(1.05, 0.75, 0.5), cf(1.05, 9.05, -14.55), BRONZED)
+			B:block(head, v(3.6, 0.25, 0.1), cf(4.7, 10.48, -13.92, 0, 0, 16), GOLD) -- gold glint on the ridge
 			-- gold cheek guard + bronze helmet spike at the hammer end
 			B:block(head, v(0.3, 1.0, 3.0), cf(8.75, 8.35, -11.8), GOLD)
 			B:spike(head, v(8.4, 10.8, -10.6), v(10.0, 12.2, -9.2), 1.0, 1.0, BRONZE)
@@ -222,7 +226,7 @@ return {
 			-- corner, pupils pushed inward/forward = a mean glare
 			B:block(head, v(2.5, 1.45, 2.5), cf(7.6, 9.15, -12.6, 0, 0, 12), PUPIL)
 			B:block(head, v(2.1, 0.75, 2.3), cf(7.85, 9.15, -12.75, 0, 0, 12), TURQ, { mat = "Neon", name = "Eye" .. side })
-			B:block(head, v(0.6, 0.8, 0.1), cf(7.15, 9.05, -13.92, 0, 0, 12), PUPIL)
+			B:block(head, v(0.8, 0.85, 0.1), cf(7.25, 9.1, -13.92, 0, 0, 12), PUPIL)
 			B:block(head, v(0.8, 0.25, 0.1), cf(5.4, 9.0, -13.85), PUPIL) -- nostril
 			B:trail(head, v(8.7, 10.6, -10.2), v(8.7, 8.0, -10.2), { name = "HammerTrail" .. side, color = { "#ffffff", TURQ }, life = 0.2, trans = { 0.55, 1 } })
 			-- upper teeth (side rows), hang from the lip line into the gap
@@ -234,12 +238,13 @@ return {
 		-- center: gold scowl visor (lowest in the middle = furrowed), nasal
 		-- guard and an orichalcum gem
 		B:block(head, v(5.5, 0.6, 3.6), cf(0, 10.8, -12.5), GOLD)
-		B:block(head, v(5.5, 1.0, 0.4), cf(0, 10.15, -14.5), GOLD)
-		B:block(head, v(1.2, 1.4, 0.4), cf(0, 9.0, -14.5), GOLD2)
-		B:block(head, v(0.7, 0.7, 0.2), cf(0, 10.15, -14.75), TURQ, NEON)
-		for _, x in { -1.9, -1.1, 1.1, 1.9 } do
-			B:block(head, v(0.4, 0.4, 0.1), cf(x, 10.15, -14.72), BRONZED)
-		end
+		-- gold widow's-peak helmet brow above the V + nasal guard + gem
+		B:block(head, v(3.0, 0.8, 0.4), cf(0, 10.2, -14.55), GOLD)
+		B:block(head, v(1.6, 0.6, 0.4), cf(0, 9.6, -14.55), GOLD)
+		B:block(head, v(1.2, 1.6, 0.5), cf(0, 8.7, -14.6), GOLD2)
+		B:block(head, v(0.6, 0.6, 0.2), cf(0, 8.75, -14.9), TURQ, NEON)
+		B:block(head, v(0.5, 0.3, 0.1), cf(-1.0, 10.2, -14.78), BRONZED)
+		B:block(head, v(0.5, 0.3, 0.1), cf(1.0, 10.2, -14.78), BRONZED)
 		-- helmet dome + bronze crest over the skull
 		B:block(head, v(5.0, 0.6, 5.0), cf(0, 11.0, -8.9), GOLD)
 		B:block(head, v(5.1, 0.3, 0.4), cf(0, 10.9, -6.5), BRONZED)
@@ -261,9 +266,10 @@ return {
 
 		-- brows (bones): heavy gold brow plates slanted down toward the middle
 		B:sym(function(side)
-			local brow = B:bone("Brow" .. side, "Head", v(7.3, 10.6, -12.4))
-			B:block(brow, v(3.8, 1.1, 3.0), cf(7.3, 10.6, -12.65, -10, 0, 27), GOLD)
-			B:block(brow, v(3.9, 0.35, 0.5), cf(7.3, 10.35, -14.05, -10, 0, 27), BRONZED)
+			local brow = B:bone("Brow" .. side, "Head", v(7.4, 10.5, -13.2))
+			B:block(brow, v(4.4, 1.25, 1.2), cf(7.6, 10.45, -14.0, 0, 0, 22), BRONZED)
+			B:block(brow, v(4.5, 0.35, 1.3), cf(7.45, 11.15, -14.0, 0, 0, 22), GOLD)
+			B:block(brow, v(3.6, 0.8, 2.2), cf(7.75, 10.95, -12.5, 0, 0, 22), BRONZE)
 		end)
 		-- eyelids (hidden until they close)
 		B:sym(function(side)
@@ -276,13 +282,14 @@ return {
 		------------------------------------------------------------------
 		local jaw = B:bone("Jaw", "Head", v(0, 6.0, -6.4))
 		B:block(jaw, v(5.6, 1.4, 6.8), cf(0, 4.9, -10.0), MAIN)
-		B:block(jaw, v(5.4, 1.0, 0.6), cf(0, 5.0, -13.6), MAIN)
+		B:block(jaw, v(5.6, 1.3, 1.3), cf(0, 4.95, -13.95), MAIN) -- jutting underbite chin
+		B:block(jaw, v(5.5, 0.5, 1.1), cf(0, 4.15, -14.0), BELLY)
 		B:block(jaw, v(5.7, 0.5, 6.6), cf(0, 4.15, -10.2), BELLY)
 		B:block(jaw, v(3.4, 0.3, 4.0), cf(0, 3.85, -10.6), MARBLE)
 		B:block(jaw, v(4.6, 0.2, 6.0), cf(0, 5.65, -10.0), MOUTH)
 		B:block(jaw, v(2.4, 0.3, 4.2), cf(0, 5.75, -9.6), "#c8485c") -- tongue
 		for _, x in { -1.35, 0, 1.35 } do
-			B:block(jaw, v(0.6, 0.85, 0.6), cf(x, 6.0, -13.25), WHITE)
+			B:block(jaw, v(0.6, 0.85, 0.6), cf(x, 6.0, -14.05), WHITE)
 		end
 		B:sym(function()
 			for i, z in { -11.1, -9.5, -7.9 } do
@@ -290,15 +297,15 @@ return {
 				B:block(jaw, v(0.6, h, 0.6), cf(2.5, 5.6 + h / 2, z), WHITE)
 			end
 			-- jutting underbite tusks
-			B:block(jaw, v(0.8, 1.9, 0.8), cf(2.6, 6.2, -13.65), WHITE)
-			B:block(jaw, v(0.5, 0.5, 0.5), cf(2.6, 7.35, -13.65), WHITE)
+			B:block(jaw, v(0.9, 2.4, 0.9), cf(2.65, 6.5, -14.15), WHITE)
+			B:block(jaw, v(0.55, 0.55, 0.55), cf(2.65, 7.95, -14.15), WHITE)
 		end)
 
 		------------------------------------------------------------------
 		-- PECTORAL FINS: 2 bones each (shoulder + blade)
 		------------------------------------------------------------------
 		B:sym(function(side)
-			local F = CFrame.new(v(3.0, 5.8, -3.4)) * ang(0, -28, -24)
+			local F = CFrame.new(v(3.0, 5.8, -3.4)) * ang(0, -28, -12)
 			local function at(x, y, z)
 				return F * CFrame.new(x, y, z)
 			end

@@ -132,7 +132,7 @@ return {
 		-- hood "door": closes the aperture while the head hides inside the shell
 		-- (hidden until the Sentinel Spiral)
 		local door = CFrame.new(0, 8.35, -3.3) * ang(24, 0, 0)
-		B:block(shell, v(W - 0.8, 5.6, 0.6), door, HOOD, { tr = 1, studs = false, name = "Door1" })
+		B:block(shell, v(W - 0.8, 5.6, 0.6), door, HOOD, { tr = 1, name = "Door1" })
 		B:block(shell, v(W - 0.6, 0.45, 0.3), door * CFrame.new(0, 0.9, -0.38), GOLD, { tr = 1, name = "Door2" })
 		B:block(shell, v(0.9, 0.9, 0.25), door * CFrame.new(0, 0.9, -0.55) * ang(0, 0, 45), GOLD, { tr = 1, name = "Door3" })
 		B:block(shell, v(0.45, 0.45, 0.15), door * CFrame.new(0, 0.9, -0.7) * ang(0, 0, 45), TURQ, { mat = "Neon", tr = 1, name = "Door4" })
@@ -219,10 +219,10 @@ return {
 			B:block(pupil, v(0.28, 0.28, 0.06), cf(1.0, 8.3, -7.02), "#ffffff", NEON)
 			-- blink lid (hidden while open) + lash line
 			local lid = B:bone("Lid" .. side, "Head", v(1.4, 10.4, -7.1))
-			B:block(lid, v(2.6, 3.1, 0.2), cf(1.4, 8.9, -7.12), HOOD, { tr = 1, studs = false, name = "Eyelid" .. side })
+			B:block(lid, v(2.6, 3.1, 0.2), cf(1.4, 8.9, -7.12), HOOD, { tr = 1, name = "Eyelid" .. side })
 			B:block(lid, v(2.6, 0.3, 0.22), cf(1.4, 7.45, -7.14), DTEAL, { tr = 1, name = "Lash" .. side })
 			-- happy closed eyes: a teal cover with a glowing "^" (hidden until happy)
-			B:block(head, v(2.6, 3.1, 0.2), cf(1.4, 8.9, -7.22), TEAL, { tr = 1, studs = false, name = "Happy" .. side .. "1" })
+			B:block(head, v(2.6, 3.1, 0.2), cf(1.4, 8.9, -7.22), TEAL, { tr = 1, name = "Happy" .. side .. "1" })
 			B:block(head, v(1.45, 0.45, 0.12), cf(0.95, 9.0, -7.36, 0, 0, 38), TURQ, { mat = "Neon", tr = 1, name = "Happy" .. side .. "2" })
 			B:block(head, v(1.45, 0.45, 0.12), cf(1.85, 9.0, -7.36, 0, 0, -38), TURQ, { mat = "Neon", tr = 1, name = "Happy" .. side .. "3" })
 			-- brows
@@ -237,7 +237,7 @@ return {
 		B:block(head, v(0.35, 0.35, 0.12), cf(0.9, 7.1, -6.47), MOUTH, { tr = 1, name = "Smile2" })
 		B:block(head, v(0.35, 0.35, 0.12), cf(-0.9, 7.1, -6.47), MOUTH, { tr = 1, name = "Smile3" })
 		B:block(head, v(0.8, 0.25, 0.1), cf(0, 6.65, -6.53), TONGUE, { tr = 1, name = "SmileTongue" })
-		local faceFx = B:block(head, v(4, 3, 1), cf(0, 9, -7.2), TEAL, { tr = 1, name = "FaceFX" })
+		local faceFx = B:block(head, v(4, 3, 0.6), cf(0, 9, -5.2), TEAL, { tr = 1, name = "FaceFX" })
 		B:emitter(faceFx, "burst", { name = "PopBurst", color = { "#ffffff", TURQ, SKY }, speed = { 8, 15 } })
 		local starFx = B:block(head, v(5, 1, 3), cf(0, 14.2, -4.0), TEAL, { tr = 1, name = "StarFX" })
 		B:emitter(starFx, "sparkle", {

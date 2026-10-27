@@ -186,10 +186,10 @@ return {
 		B:block(head, S(2.2, 0.4, 1.3), H(0, 10.35, -7.8), DARK)
 		B:block(head, S(3.4, 0.9, 1.4), H(0, 6.75, -7.8), BELLY) -- upper lip
 		-- gritted teeth on a dark mouth slot (determined grimace)
-		B:block(head, S(3.2, 0.7, 0.4), H(0, 5.95, -8.3), MOUTH)
+		B:block(head, S(3.5, 0.75, 0.4), H(0, 5.95, -8.3), MOUTH)
 		B:block(head, S(3.0, 0.3, 3.4), H(0, 5.75, -6.2), MOUTH) -- palate
-		for _, x in { -1.2, -0.4, 0.4, 1.2 } do
-			B:block(head, S(0.5, 0.5, 0.3), H(x, 6.1, -8.5), WHITE)
+		for _, x in { -1.3, -0.65, 0, 0.65, 1.3 } do
+			B:block(head, S(0.48, 0.5, 0.3), H(x, 6.1, -8.5), WHITE)
 		end
 		-- helm crest: gold ridge + stepped crystal plume
 		B:block(head, S(1.0, 0.6, 3.2), H(0, 11.6, -5.0), GOLD)
@@ -200,24 +200,31 @@ return {
 		B:sym(function(side)
 			-- BIG eye on the front corner: white block, glowing turquoise iris,
 			-- black pupils (front + side) and a glint
-			B:block(head, S(1.5, 2.2, 1.8), H(2.1, 8.6, -6.6), WHITE)
-			B:block(head, S(1.0, 1.4, 1.3), H(2.4, 8.5, -6.95), TURQ, { mat = "Neon", name = "Eye" .. side })
-			B:block(head, S(0.55, 1.0, 0.1), H(2.2, 8.4, -7.65), PUPIL)
-			B:block(head, S(0.1, 1.0, 0.55), H(2.95, 8.4, -7.0), PUPIL)
-			B:block(head, S(0.3, 0.3, 0.1), H(2.6, 8.95, -7.68), WHITE, NEON)
-			-- static angry half-lid cutting the inner top of the eye
-			B:block(head, S(1.7, 0.7, 2.0), H(2.05, 9.6, -6.65, 0, 0, 24), BLUE)
+			B:block(head, S(1.6, 2.2, 1.8), H(2.05, 8.6, -6.6), WHITE)
+			B:block(head, S(1.1, 1.5, 1.3), H(2.35, 8.45, -6.95), TURQ, { mat = "Neon", name = "Eye" .. side })
+			B:block(head, S(0.6, 1.1, 0.1), H(2.05, 8.3, -7.65), PUPIL)
+			B:block(head, S(0.1, 1.1, 0.6), H(2.95, 8.3, -7.1), PUPIL)
+			B:block(head, S(0.3, 0.3, 0.1), H(2.6, 8.75, -7.68), WHITE, NEON)
+			-- wide gritted grin wrapping round the cheeks (reads past the trident)
+			B:block(head, S(1.1, 0.7, 0.3), H(2.0, 6.1, -7.3, 0, 0, 14), MOUTH)
+			B:block(head, S(0.45, 0.42, 0.2), H(1.75, 6.15, -7.42, 0, 0, 14), WHITE)
+			B:block(head, S(0.2, 0.62, 2.4), H(2.62, 6.1, -6.0), MOUTH)
+			B:block(head, S(0.16, 0.4, 0.45), H(2.71, 6.18, -6.75), WHITE)
+			B:block(head, S(0.16, 0.4, 0.45), H(2.71, 6.18, -5.95), WHITE)
 			-- gold cheek guard with a rune dot + dark gill slit
 			B:block(head, S(0.26, 2.4, 2.2), H(2.55, 7.3, -4.6), BRONZE)
 			B:block(head, S(0.3, 1.8, 1.6), H(2.6, 7.3, -4.6), GOLD)
 			B:block(head, S(0.34, 0.4, 0.4), H(2.65, 7.5, -4.6), TURQ, NEON)
 			B:block(head, S(0.2, 3.4, 0.4), H(2.55, 8.0, -3.35), DARK)
 			-- heavy angry-heroic brow on its own bone (inner end low)
-			local brow = B:bone("Brow" .. side, "Head", hp(2.0, 10.0, -7.4))
-			B:block(brow, S(2.9, 0.85, 1.3), H(2.0, 10.0, -7.5, 0, 0, 22), BROW)
+			-- (sits right on the eye: its lower edge slants down to the nose and
+			-- cuts the inner top of the glowing iris = determined glare)
+			local brow = B:bone("Brow" .. side, "Head", hp(1.9, 9.65, -7.0))
+			B:block(brow, S(2.7, 1.0, 1.65), H(1.9, 9.65, -7.0, 0, 0, 26), BROW)
+			B:block(brow, S(1.0, 0.35, 1.2), H(2.75, 10.45, -6.8, 0, 0, 26), DARK)
 			-- eyelid for blinks / squints (hidden until it closes)
-			local lid = B:bone("Lid" .. side, "Head", hp(2.1, 10.0, -6.6))
-			B:block(lid, S(1.7, 2.3, 1.95), H(2.1, 10.0, -6.6), BLUE, { tr = 1, name = "Eyelid" .. side })
+			local lid = B:bone("Lid" .. side, "Head", hp(2.1, 10.0, -6.66))
+			B:block(lid, S(1.95, 2.3, 2.2), H(2.1, 10.0, -6.66), BLUE, { tr = 1, name = "Eyelid" .. side })
 		end)
 
 		------------------------------------------------------------------
@@ -239,8 +246,10 @@ return {
 		B:block(bill, S(2.6, 0.5, 0.9), H(0, 10.0, -8.75), GOLD)
 		B:block(bill, S(2.6, 0.5, 0.9), H(0, 7.2, -8.75), GOLD)
 		B:block(bill, S(1.4, 1.4, 0.3), H(0, 9.0, -9.25, 0, 0, 45), GOLD)
-		B:block(bill, S(1.0, 1.0, 0.3), H(0, 9.0, -9.38, 0, 0, 45), CRYSTAL)
-		local gem = B:block(bill, S(0.5, 0.5, 0.2), H(0, 9.0, -9.5, 0, 0, 45), TURQ, { mat = "Neon", name = "Crystal" })
+		B:block(bill, S(0.8, 0.8, 0.3), H(0, 9.0, -9.38, 0, 0, 45), ENGRAVE) -- rune
+		B:block(bill, S(1.2, 0.5, 1.0), H(0, 10.45, -8.75), DGOLD)
+		B:block(bill, S(0.8, 1.0, 0.7), H(0, 11.15, -8.75), CRYSTAL)
+		local gem = B:block(bill, S(0.5, 0.6, 0.45), H(0, 11.9, -8.75), TURQ, { mat = "Neon", name = "Crystal" })
 		B:emitter(gem, "burst", { name = "CrystalFlash", color = { "#ffffff", TURQ }, speed = { 5, 11 }, size = { 0.7, 0.5, 0 }, life = { 0.3, 0.7 } })
 		B:light(gem, { name = "CrystalLight", color = TURQ, brightness = 0.4, range = 10 })
 		-- the trident itself sits on its own bone so it can twirl about its shaft
@@ -280,16 +289,18 @@ return {
 				return F * CFrame.new(x, y, z)
 			end
 			local pec = B:bone("Pec" .. side, "Body1", F.Position)
-			B:block(pec, v(2.2, 0.6, 1.6), at(1.0, 0, 0.1), BLUE)
-			B:block(pec, v(1.9, 0.9, 2.0), at(0.5, 0.45, 0.0), GOLD) -- pauldron
-			B:block(pec, v(1.4, 0.3, 1.5), at(0.5, 0.95, 0.0), BRONZE)
-			B:block(pec, v(0.4, 0.12, 0.4), at(0.5, 1.12, 0.0), TURQ, NEON)
+			B:block(pec, v(2.4, 0.8, 1.9), at(1.0, 0, 0.15), BLUE)
+			B:block(pec, v(2.0, 1.0, 2.3), at(0.5, 0.5, 0.0), GOLD) -- pauldron
+			B:block(pec, v(1.5, 0.35, 1.8), at(0.5, 1.15, 0.0), BRONZE)
+			B:block(pec, v(0.5, 0.14, 0.5), at(0.5, 1.36, 0.0), TURQ, NEON)
 			local tip = B:bone("PecTip" .. side, "Pec" .. side, at(2.0, 0, 0).Position)
-			B:block(tip, v(2.0, 0.5, 1.3), at(2.9, 0, 0.35), BLUE)
-			B:block(tip, v(1.8, 0.45, 1.0), at(4.6, 0, 0.8), DARK)
-			B:block(tip, v(1.2, 0.4, 0.7), at(5.9, 0, 1.3), DARK)
-			B:block(tip, v(3.6, 0.55, 0.35), at(4.0, 0.02, -0.25), GOLD) -- leading edge
-			local a, b = at(6.4, 0, 1.5), at(5.4, 0, 2.0)
+			B:block(tip, v(2.2, 0.75, 1.9), at(3.0, 0, 0.45), BLUE)
+			B:block(tip, v(1.9, 0.65, 1.5), at(4.9, 0, 0.95), DARK)
+			B:block(tip, v(1.5, 0.55, 1.1), at(6.4, 0, 1.5), DARK)
+			B:block(tip, v(1.0, 0.45, 0.8), at(7.5, 0, 2.05), NAVY)
+			B:block(tip, v(4.6, 0.8, 0.45), at(4.3, 0.02, -0.5), GOLD) -- leading edge
+			B:block(tip, v(0.7, 0.5, 0.6), at(7.95, 0.02, 2.2), GOLD)
+			local a, b = at(8.2, 0, 2.3), at(7.0, 0, 2.7)
 			B:trail(tip, a.Position, b.Position, { name = "PecTrail" .. side, color = { "#ffffff", TURQ }, life = 0.25, trans = { 0.55, 1 } })
 		end)
 
@@ -299,15 +310,23 @@ return {
 		------------------------------------------------------------------
 		local orbs = {
 			{ 8.0, 12.5, -6.0, 1.6, BLUE, GOLD }, { -8.5, 10.0, -1.0, 1.4, GOLD, BLUE },
-			{ 7.5, 5.5, 6.0, 1.2, GOLD, DARK }, { -7.5, 13.5, 7.0, 1.6, BLUE, GOLD },
-			{ 3.5, 17.0, 2.0, 1.0, MARBLE, GOLD }, { -6.5, 5.0, -9.0, 1.1, DARK, GOLD },
+			{ 7.5, 5.5, 6.0, 1.0, "column" }, { -7.5, 13.5, 7.0, 1.6, BLUE, GOLD },
+			{ 3.5, 17.0, 2.0, 0.9, "column" }, { -6.5, 5.0, -9.0, 1.1, DARK, GOLD },
 		}
 		for i, o in orbs do
 			local ob = B:bone("Orb" .. i, "Root", v(o[1], o[2], o[3]))
 			local s = o[4]
-			B:block(ob, v(s, s, s), cf(o[1], o[2], o[3]), o[5])
-			B:block(ob, v(s + 0.1, s * 0.3, s + 0.1), cf(o[1], o[2] + s * 0.36, o[3]), o[6])
-			B:block(ob, v(s + 0.16, s * 0.14, s + 0.16), cf(o[1], o[2] - s * 0.1, o[3]), TURQ, NEON)
+			if o[5] == "column" then
+				-- broken Atlantis column: marble drum, gold capital, worn base
+				B:block(ob, v(s, s * 2.0, s), cf(o[1], o[2], o[3]), MARBLE)
+				B:block(ob, v(s * 1.5, s * 0.35, s * 1.5), cf(o[1], o[2] + s * 1.1, o[3]), GOLD)
+				B:block(ob, v(s * 1.35, s * 0.35, s * 1.35), cf(o[1], o[2] - s * 1.1, o[3]), BARNACLE)
+				B:block(ob, v(s + 0.12, s * 0.16, s + 0.12), cf(o[1], o[2] + s * 0.3, o[3]), TURQ, NEON)
+			else
+				B:block(ob, v(s, s, s), cf(o[1], o[2], o[3]), o[5])
+				B:block(ob, v(s + 0.1, s * 0.3, s + 0.1), cf(o[1], o[2] + s * 0.36, o[3]), o[6])
+				B:block(ob, v(s + 0.16, s * 0.14, s + 0.16), cf(o[1], o[2] - s * 0.1, o[3]), TURQ, NEON)
+			end
 		end
 
 		------------------------------------------------------------------
@@ -319,7 +338,7 @@ return {
 		for i = 0, 11 do
 			local a = math.rad(i * 30)
 			local col = i % 2 == 0 and TURQ or GLOW
-			B:block(slash, v(2.4, 0.45, 0.6), SC * CFrame.Angles(0, a, 0) * CFrame.new(0, 0, -4.4), col, { mat = "Neon", tr = 1, name = "Slash" .. i })
+			B:block(slash, v(3.0, 0.6, 0.8), SC * CFrame.Angles(0, a, 0) * CFrame.new(0, 0, -5.4), col, { mat = "Neon", tr = 1, name = "Slash" .. i })
 		end
 
 		------------------------------------------------------------------

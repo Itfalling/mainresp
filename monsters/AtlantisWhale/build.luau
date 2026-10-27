@@ -20,7 +20,7 @@ return {
 		local v, cf, ang = P.v, P.cf, P.ang
 
 		-- palette
-		local MAIN, DARK, SPOT = "#2a5fa8", "#183c75", "#6fa8dc"
+		local MAIN, DARK, SPOT = "#2f6fc4", "#1b468c", "#79b9ec"
 		local CREAM, GROOVE = "#f3e6c4", "#d6c095"
 		local MARBLE, MARBLE2 = "#f4f1ea", "#d9d4c8"
 		local GOLD, DGOLD = "#f0bf3c", "#b8862a"
@@ -45,15 +45,15 @@ return {
 		B:block(body, v(11.2, 0.25, 10.6), cf(0, 5.95, -1.5), GROOVE)
 		B:block(body, v(9.1, 1.2, 12.2), cf(0, 4.45, -1), CREAM)
 		-- stepped light spots (one block shows on both sides)
-		local spots = {
-			{ -4.6, 8.0, 1.8 }, { -4.2, 8.8, 0.9 },
-			{ 0.6, 7.2, 1.6 }, { 1.0, 8.0, 0.8 },
-			{ 3.6, 9.4, 1.8 }, { 3.2, 8.6, 0.9 },
-			{ -1.6, 10.6, 1.4 }, { 2.4, 10.7, 1.0 },
-		}
-		for _, s in spots do
-			B:block(body, v(11.16, 0.8, s[3]), cf(0, s[2], s[1]), SPOT)
-		end
+		-- stepped light counter-shade band along the lower flank (whale belly line)
+		B:block(body, v(11.16, 0.9, 12.2), cf(0, 6.75, -1.0), SPOT)
+		B:block(body, v(11.16, 0.8, 7.0), cf(0, 7.6, -2.2), SPOT)
+		B:block(body, v(11.16, 0.8, 2.6), cf(0, 8.4, -3.0), SPOT)
+		-- a few deliberate light freckles up high
+		B:block(body, v(11.16, 0.8, 1.6), cf(0, 9.9, 2.6), SPOT)
+		B:block(body, v(11.16, 0.8, 0.8), cf(0, 9.1, 3.0), SPOT)
+		-- neck plug: hides the head/body seam when the head turns or nods
+		B:block(body, v(10.4, 6.0, 1.2), cf(0, 8.6, -7.6), MAIN)
 		-- top spots on the dark back
 		B:block(body, v(9.16, 0.4, 1.2), cf(0, 12.0, 3.9), SPOT)
 		-- barnacles + a little coral clinging to the flanks
@@ -86,16 +86,15 @@ return {
 		B:block(head, v(9.2, 2.1, 2.4), cf(0, 8.55, -17.3), MAIN) -- muzzle
 		B:block(head, v(8.0, 0.5, 2.0), cf(0, 9.85, -17.1), MAIN)
 		B:block(head, v(3.0, 0.3, 2.2), cf(0, 13.45, -11.6), SPOT)
-		B:block(head, v(1.4, 0.3, 1.2), cf(2.6, 12.9, -8.4), SPOT)
-		B:block(head, v(1.6, 0.3, 1.0), cf(-2.2, 12.9, -14.2), SPOT)
 		B:block(head, v(2.2, 0.3, 0.8), cf(0, 10.15, -17.0), SPOT)
 		-- forehead orichalcum circlet: gold plate + turquoise gem
 		B:block(head, v(4.0, 0.35, 0.3), cf(0, 12.15, -15.85), GOLD) -- tiara
 		B:block(head, v(0.6, 0.75, 0.25), cf(0, 12.55, -15.95), NT, NEON)
 		B:block(head, v(0.4, 0.5, 0.25), cf(0.75, 12.45, -15.9), GOLD)
 		B:block(head, v(0.4, 0.5, 0.25), cf(-0.75, 12.45, -15.9), GOLD)
-		-- big warm smile drawn across the muzzle front
-		B:block(head, v(5.6, 0.4, 0.15), cf(0, 7.95, -18.55), MOUTH)
+		-- big warm open "D" smile drawn on the muzzle front, pink tongue inside
+		B:block(head, v(4.2, 0.9, 0.15), cf(0, 8.2, -18.56), MOUTH)
+		B:block(head, v(2.4, 0.4, 0.15), cf(0, 7.98, -18.6), TONGUE)
 		-- blowholes (the hum bubbles come out here)
 		B:block(head, v(0.5, 0.2, 0.9), cf(0.45, 13.45, -9.0), MOUTH)
 		B:block(head, v(0.5, 0.2, 0.9), cf(-0.45, 13.45, -9.0), MOUTH)
@@ -111,32 +110,33 @@ return {
 			-- smile corners turn UP (warm smile) + blush
 			B:block(head, v(0.3, 0.45, 0.9), cf(5.05, 8.05, -8.4), DARK)
 			B:block(head, v(0.3, 0.45, 0.7), cf(5.05, 8.45, -7.8), DARK)
-			B:block(head, v(0.7, 0.4, 0.15), cf(3.05, 8.25, -18.55), MOUTH)
-			B:block(head, v(0.5, 0.45, 0.15), cf(3.55, 8.6, -18.55), MOUTH)
-			B:block(head, v(0.2, 0.7, 1.4), cf(5.05, 8.7, -13.6), BLUSH)
-			B:block(head, v(0.9, 0.5, 0.15), cf(3.6, 9.25, -18.55), BLUSH)
+			B:block(head, v(0.7, 0.6, 0.15), cf(2.4, 8.55, -18.56), MOUTH)
+			B:block(head, v(0.5, 0.55, 0.15), cf(2.95, 9.0, -18.56), MOUTH)
+			B:block(head, v(0.2, 0.9, 1.6), cf(5.05, 8.8, -13.4), BLUSH)
+			B:block(head, v(1.1, 0.55, 0.15), cf(3.85, 8.95, -18.56), BLUSH)
 			B:block(head, v(0.4, 0.9, 8.5), cf(4.1, 7.0, -12.6), CREAM) -- baleen
 			-- big soft eye wrapping the front-side corner (reads from front AND side)
-			B:block(head, v(2.3, 2.7, 2.6), cf(4.2, 10.75, -15.2), EYEW)
-			B:block(head, v(1.7, 2.2, 0.2), cf(4.25, 10.7, -16.55), NS, NEON)
-			B:block(head, v(0.2, 2.2, 1.9), cf(5.4, 10.7, -15.2), NS, NEON)
-			local pupil = B:bone("Pupil" .. side, "Head", v(4.6, 10.55, -16.0))
-			B:block(pupil, v(1.15, 1.9, 0.2), cf(4.1, 10.55, -16.7), PUPIL)
-			B:block(pupil, v(0.2, 1.9, 1.15), cf(5.5, 10.55, -15.55), PUPIL)
-			B:block(head, v(0.45, 0.45, 0.1), cf(4.45, 11.2, -16.85), "#ffffff", NEON)
-			B:block(head, v(0.1, 0.45, 0.45), cf(5.65, 11.2, -15.85), "#ffffff", NEON)
+			B:block(head, v(2.7, 3.0, 2.9), cf(4.0, 10.8, -15.3), EYEW)
+			B:block(head, v(2.15, 2.5, 0.2), cf(4.0, 10.8, -16.75), NS, NEON)
+			B:block(head, v(0.2, 2.5, 2.2), cf(5.35, 10.8, -15.3), NS, NEON)
+			local pupil = B:bone("Pupil" .. side, "Head", v(4.4, 10.6, -16.0))
+			B:block(pupil, v(1.5, 2.1, 0.2), cf(3.85, 10.6, -16.9), PUPIL)
+			B:block(pupil, v(0.2, 2.1, 1.5), cf(5.5, 10.6, -15.6), PUPIL)
+			B:block(head, v(0.55, 0.55, 0.1), cf(4.25, 11.3, -17.05), "#ffffff", NEON)
+			B:block(head, v(0.3, 0.3, 0.1), cf(3.45, 10.0, -17.05), "#ffffff", NEON)
+			B:block(head, v(0.1, 0.55, 0.55), cf(5.65, 11.3, -15.85), "#ffffff", NEON)
 			-- gentle raised brow (inner end lifted = kind) + soft lower lid
-			B:block(head, v(2.4, 0.45, 2.8), cf(4.2, 12.45, -15.25, 0, 0, -10), DARK)
-			B:block(head, v(1.9, 0.35, 0.3), cf(4.2, 9.4, -16.6), SPOT)
-			B:block(head, v(0.3, 0.35, 2.0), cf(5.38, 9.4, -15.2), SPOT)
+			B:block(head, v(2.7, 0.45, 2.9), cf(4.0, 12.6, -15.3, 0, 0, -12), DARK)
+			B:block(head, v(2.3, 0.35, 0.3), cf(4.0, 9.15, -16.75), SPOT)
+			B:block(head, v(0.3, 0.35, 2.2), cf(5.38, 9.15, -15.3), SPOT)
 			-- hidden lids: blink (flat lash) / content closed happy eyes (arc)
-			B:block(head, v(2.7, 3.0, 3.1), cf(4.4, 10.75, -15.55), MAIN, { tr = 1, name = "Lid" .. side })
-			B:block(head, v(1.9, 0.3, 0.15), cf(4.3, 10.5, -17.15), PUPIL, { tr = 1, name = "Lash" .. side })
-			B:block(head, v(0.15, 0.3, 2.2), cf(5.8, 10.5, -15.4), PUPIL, { tr = 1, name = "LashS" .. side })
-			B:block(head, v(0.9, 0.3, 0.15), cf(4.3, 11.0, -17.15), PUPIL, { tr = 1, name = "Happy" .. side .. "1" })
-			B:block(head, v(0.75, 0.3, 0.15), cf(4.95, 10.7, -17.15, 0, 0, -35), PUPIL, { tr = 1, name = "Happy" .. side .. "2" })
-			B:block(head, v(0.75, 0.3, 0.15), cf(3.65, 10.7, -17.15, 0, 0, 35), PUPIL, { tr = 1, name = "Happy" .. side .. "3" })
-			B:block(head, v(0.15, 0.3, 1.6), cf(5.8, 10.95, -15.4), PUPIL, { tr = 1, name = "Happy" .. side .. "4" })
+			B:block(head, v(3.0, 3.2, 3.3), cf(4.15, 10.8, -15.5), MAIN, { tr = 1, name = "Lid" .. side })
+			B:block(head, v(2.3, 0.35, 0.15), cf(4.0, 10.4, -17.2), PUPIL, { tr = 1, name = "Lash" .. side })
+			B:block(head, v(0.15, 0.35, 2.4), cf(5.7, 10.4, -15.4), PUPIL, { tr = 1, name = "LashS" .. side })
+			B:block(head, v(1.0, 0.35, 0.15), cf(4.0, 11.15, -17.2), PUPIL, { tr = 1, name = "Happy" .. side .. "1" })
+			B:block(head, v(0.85, 0.35, 0.15), cf(4.75, 10.8, -17.2, 0, 0, -35), PUPIL, { tr = 1, name = "Happy" .. side .. "2" })
+			B:block(head, v(0.85, 0.35, 0.15), cf(3.25, 10.8, -17.2, 0, 0, 35), PUPIL, { tr = 1, name = "Happy" .. side .. "3" })
+			B:block(head, v(0.15, 0.35, 1.8), cf(5.7, 11.05, -15.4), PUPIL, { tr = 1, name = "Happy" .. side .. "4" })
 		end)
 
 		------------------------------------------------------------------
@@ -192,8 +192,8 @@ return {
 		B:block(t1, v(9.1, 1.4, 5.6), cf(0, 6.1, 7.7), CREAM)
 		B:block(t1, v(9.2, 0.25, 5.2), cf(0, 6.0, 7.7), GROOVE)
 		B:block(t1, v(7.5, 0.8, 5.2), cf(0, 5.1, 7.6), CREAM)
-		B:block(t1, v(9.16, 0.8, 1.4), cf(0, 9.0, 7.0), SPOT)
-		B:block(t1, v(9.16, 0.8, 0.7), cf(0, 9.8, 7.35), SPOT)
+		B:block(t1, v(9.16, 0.8, 5.6), cf(0, 7.2, 7.7), SPOT)
+		B:block(t1, v(8.6, 6.6, 2.6), cf(0, 8.6, 4.6), MAIN) -- joint plug (hidden in body)
 		B:block(t1, v(1.2, 0.8, 2.4), cf(0, 12.8, 8.6), DARK) -- little dorsal
 		B:block(t1, v(1.0, 0.7, 1.3), cf(0, 13.5, 9.2), DARK)
 		B:block(t1, v(0.6, 0.6, 0.6), cf(0, 14.05, 9.6), NT, NEON)
@@ -204,7 +204,8 @@ return {
 		B:block(t2, v(3.5, 0.7, 4.0), cf(0, 11.6, 12.1), DARK)
 		B:block(t2, v(6.9, 1.2, 4.4), cf(0, 7.1, 12.2), CREAM)
 		B:block(t2, v(5, 0.6, 4.0), cf(0, 6.25, 12.1), CREAM)
-		B:block(t2, v(6.96, 0.7, 1.2), cf(0, 9.3, 11.8), SPOT)
+		B:block(t2, v(6.96, 0.6, 4.4), cf(0, 8.0, 12.2), SPOT)
+		B:block(t2, v(6.4, 4.6, 2.4), cf(0, 8.9, 10.2), MAIN) -- joint plug
 		B:block(t2, v(0.8, 0.6, 0.8), cf(0, 12.2, 11.2), DARK)
 		B:block(t2, v(0.8, 0.6, 0.8), cf(0, 12.1, 13.0), DARK)
 
@@ -213,6 +214,7 @@ return {
 		B:block(t3, v(4.1, 1.0, 3.4), cf(0, 10.3, 15.6), DARK)
 		B:block(t3, v(3.0, 0.6, 3.2), cf(0, 7.2, 15.6), CREAM)
 		B:block(t3, v(0.7, 0.6, 0.8), cf(0, 11.0, 15.2), DARK)
+		B:block(t3, v(3.8, 3.2, 2.0), cf(0, 9.0, 14.0), MAIN) -- joint plug
 		B:block(t3, v(4.3, 3.7, 0.5), cf(0, 9.0, 16.7), GOLD) -- orichalcum tail band
 		B:block(t3, v(4.36, 0.25, 0.3), cf(0, 9.0, 16.7), NT, NEON)
 

@@ -168,7 +168,8 @@ function M.Update(t, pose, ctx)
 	local laugh = smug * L.wave01(c, 6.0, 0.25)
 	local jawA = -10 * idleW - 48 * fakeJaw - 14 * laugh - 22 * tease - 26 * launch * (1 - fall) - 30 * apex
 		+ 4 * dive - 20 * flop * (1 - jolt * 0.5) - 20 * grin - 14 * blep - 12 * glance2 * L.wave01(c, 3, 0.25)
-	pose.Jaw = ang(jawA, 0, -4 * idleW - 6 * smug - 4 * grin)
+	-- lopsided smirk: the jaw hangs crooked (open on the right, tight on the left)
+	pose.Jaw = ang(jawA, 0, -9 * idleW - 8 * smug - 6 * grin)
 	-- tongue: tease wag, blep after the wink and in the late idle
 	local tOut = max(tease, 0.6 * grin, 0.8 * blep)
 	pose.Tongue = pa(0, 0.3 * tOut, -2.6 * tOut, -16 * tOut, 18 * tease * sin(TAU * 5 * (c - 2.6)) + 8 * grin * sin(TAU * 3 * (c - 8.55)), 0)
@@ -176,18 +177,24 @@ function M.Update(t, pose, ctx)
 	------------------------------------------------------------------
 	-- eyes: sly pupils, cocked / waggling brows, blinks, squints, WINK
 	------------------------------------------------------------------
-	local px = 0.32 * glance1 - 0.32 * glance2 + 0.12 * L.noise(t, 9.3, 0.4) * idleW
-	local py = -0.1 * dive + 0.12 * apex
+	-- front pupils slide in X (clamped so they stay on the eye face); the
+	-- side pupils slide only along the side face (Y/Z) so they never float
+	local px = max(-0.35, min(0.35, 0.33 * glance1 - 0.33 * glance2 + 0.07 * L.noise(t, 9.3, 0.4) * idleW))
+	local py = max(-0.28, min(0.28, -0.25 * dive + 0.2 * apex - 0.12 * smug))
 	pose.PupilR = CFrame.new(px, py, 0)
 	pose.PupilL = CFrame.new(px, py, 0)
+	pose.PupilSR = CFrame.new(0, py, -0.32 * glance2 + 0.3 * glance1)
+	pose.PupilSL = CFrame.new(0, py, -0.32 * glance1 + 0.3 * glance2)
 
 	local waggle = glance2 * max(0, sin(TAU * 3 * (c - 9.7)))
-	-- right brow: the cocked one (pops higher on glances / smug / wink)
-	local bR = 0.35 * glance1 + 0.5 * waggle + 0.35 * smug + 0.45 * grin + 0.3 * apex - 0.4 * dive
-	pose.BrowR = pa(0, bR, 0, 0, 0, -8 * glance1 + 6 * grin)
+	local idleBrow = 0.08 * L.bounce(t, 6 * F) * idleW
+	-- right brow: the cocked one (pops way up on glances / smug / wink)
+	local bR = idleBrow + 0.75 * glance1 + 0.7 * waggle + 0.55 * smug + 0.65 * grin + 0.45 * apex - 0.6 * dive
+		+ 0.35 * fakeJaw
+	pose.BrowR = pa(0, bR, 0, 0, 0, -10 * glance1 + 8 * grin - 6 * waggle)
 	-- left brow: low and scheming, squashes down on the wink
-	local bL = -0.35 * grin + 0.25 * apex - 0.25 * tease + 0.15 * glance2 - 0.3 * dive
-	pose.BrowL = L.mirror(pa(0, bL, 0, 0, 0, 8 * grin + 6 * tease))
+	local bL = -0.4 * grin + 0.3 * apex - 0.3 * tease + 0.2 * glance2 - 0.35 * dive
+	pose.BrowL = L.mirror(pa(0, bL, 0, 0, 0, 10 * grin + 8 * tease - 6 * glance1))
 
 	local blinkR, blinkL = 0, 0
 	for _, b in BLINKS do
@@ -196,7 +203,10 @@ function M.Update(t, pose, ctx)
 	end
 	local squeeze = L.env(c, SPLASH - 0.02, 0.05, 0.2, 0.15)
 	blinkR = max(blinkR, 0.4 * dive, squeeze)
-	blinkL = max(blinkL, 0.4 * dive, squeeze, 0.5 * tease, L.env(c, 8.7, 0.08, 0.55, 0.15))
+	-- the left eye rests HALF-LIDDED (smug, scheming) except when it pops open
+	-- for the breach / apex
+	local smugLid = 0.27 * (1 - max(launch, apex, air))
+	blinkL = max(blinkL, smugLid, 0.4 * dive, squeeze, 0.5 * tease, L.env(c, 8.7, 0.08, 0.55, 0.15))
 	pose.LidR = CFrame.new(0, -2.15 * blinkR, 0)
 	pose.LidL = CFrame.new(0, -2.15 * blinkL, 0)
 	ctx.transparency("EyelidR", blinkR > 0.05 and 0 or 1)
@@ -245,18 +255,24 @@ function M.Update(t, pose, ctx)
 	------------------------------------------------------------------
 	-- wave ring bursting outward + droplet cubes after the belly-flop
 	------------------------------------------------------------------
-	local wu = L.remap(c, SPLASH, SPLASH + 1.1)
-	local wOn = c > SPLASH and c < SPLASH + 1.1
+	local WD = 1.35
+	local wu = L.remap(c, SPLASH - 0.02, SPLASH - 0.02 + WD)
+	local wOn = c > SPLASH - 0.02 and c < SPLASH - 0.02 + WD
 	local we = L.ease.cubicOut(wu)
-	for k = 1, 8 do
-		local deg = (k - 1) * 45 + 22.5
+	for k = 1, 12 do
+		local deg = (k - 1) * 30 + 15
 		local a = rad(deg)
-		local r = 6.5 + 12 * we
-		local cf = pa(sin(a) * r, 1.6 * sin(pi * min(1, wu * 1.4)) - 0.6 * wu, cos(a) * r, 0, deg + 90, 10 * sin(pi * wu))
+		local r = 4.8 + 11 * we
+		-- rears up out of the "water" fast, crests, then rolls over and sinks
+		local rise = L.ease.backOut(min(1, wu * 4))
+		local y = -2.2 + 3.4 * rise - 3.0 * L.ease.quadIn(L.remap(wu, 0.45, 1))
+		local lean = -10 + 45 * wu
+		local cf = pa(sin(a) * r, y + 0.25 * sin(TAU * (2 * wu + k * 0.17)), cos(a) * r, 0, deg, 0) * ang(lean, 0, 0)
 		pose["Wave" .. k] = wOn and cf or CFrame.new()
-		local tr = wOn and (wu > 0.55 and (wu - 0.55) / 0.45 or 0) or 1
+		local tr = wOn and (wu > 0.6 and (wu - 0.6) / 0.4 or 0.1) or 1
 		ctx.transparency("WavePart" .. k, tr)
-		ctx.transparency("FoamPart" .. k, tr)
+		ctx.transparency("CrestPart" .. k, tr)
+		ctx.transparency("FoamPart" .. k, wOn and (wu > 0.6 and (wu - 0.6) / 0.4 or 0) or 1)
 	end
 	local du = L.remap(c, SPLASH, SPLASH + 1.0)
 	local dOn = c > SPLASH and c < SPLASH + 1.0
