@@ -369,10 +369,12 @@ return {
 		-- orichalcum crystal shards that erupt from the ground around the slam
 		for k = 1, 6 do
 			local a = (k - 0.5) / 6 * 360
-			local base = CFrame.new(IMP) * ang(0, a, 0) * CFrame.new(0, 0, -4.2) * ang(-24, 0, 0)
+			local base = CFrame.new(IMP) * ang(0, a, 0) * CFrame.new(0, 0, -6.6) * ang(-26, 0, 0)
 			local cb = B:bone("Crystal" .. k, "Impact", base)
-			local hgt = k % 2 == 0 and 2.2 or 3.0
-			B:block(cb, v(1.0, hgt, 1.0), base * CFrame.new(0, hgt / 2, 0), "#5fd6d0", { tr = 1, name = "CrystalBody" .. k })
+			local hgt = k % 2 == 0 and 2.4 or 3.4
+			-- stepped orichalcum shard: wide teal base, narrower aqua shaft, glowing tip
+			B:block(cb, v(1.5, hgt * 0.45, 1.5), base * CFrame.new(0, hgt * 0.225, 0), "#2fb3ad", { tr = 1, name = "CrystalBase" .. k })
+			B:block(cb, v(1.0, hgt, 1.0), base * CFrame.new(0, hgt / 2, 0), "#7fe8e0", { tr = 1, name = "CrystalBody" .. k })
 			B:block(cb, v(0.6, 0.8, 0.6), base * CFrame.new(0, hgt + 0.35, 0), TURQ, { mat = "Neon", tr = 1, name = "CrystalTip" .. k })
 		end
 		local chunkCol = { MARBLE, GOLD, MAIN, MARBLE, BRONZE, GOLD, MARBLE, DARK }

@@ -60,7 +60,7 @@ return {
 		local segs = {
 			{ body, 5.6, 1.0, 2.8, 2.8, 0.5, GOLD },
 			{ body, 6.6, 1.0, 3.3, 3.5, 0.05, DARK },
-			{ chest, 7.6, 1.0, 3.5, 3.7, -0.05, DARK },
+			{ chest, 7.6, 1.0, 3.6, 4.2, -0.3, DARK }, -- puffed-out proud chest
 			{ chest, 8.6, 1.0, 3.0, 3.0, 0.3, DARK },
 			{ chest, 9.6, 0.8, 2.4, 2.2, 0.7, GOLD },
 		}
@@ -108,8 +108,8 @@ return {
 			B:block(chest, v(0.15, 0.7, 1.0), cf(1.54, 9.1, 1.15), DARK)
 		end)
 		-- orichalcum chest gem in a gold diamond setting
-		B:block(chest, v(1.1, 1.1, 0.2), cf(0, 8.15, -2.12, 0, 0, 45), GOLD)
-		B:block(chest, v(0.55, 0.55, 0.2), cf(0, 8.15, -2.2, 0, 0, 45), TURQ, NEON)
+		B:block(chest, v(1.1, 1.1, 0.2), cf(0, 8.15, -2.62, 0, 0, 45), GOLD)
+		B:block(chest, v(0.55, 0.55, 0.2), cf(0, 8.15, -2.7, 0, 0, 45), TURQ, NEON)
 
 		local bodyFX = B:block(body, v(3, 5, 3), cf(0, 8.2, 0.4), ORANGE, { tr = 1, name = "BodyFX" })
 		B:emitter(bodyFX, "bubble", { name = "AmbientBubbles", color = { WHITE, "#bff6ff" }, rate = 1.5, size = { 0.2, 0.4, 0.5 } })
@@ -227,19 +227,19 @@ return {
 			local lid = B:bone("Lid" .. side, "Head", v(1.75, 13.0, -1.2))
 			B:block(lid, v(2.36, 1.08, 2.36), cf(1.75, 12.54, -1.2), ORANGE, { name = "LidTop" .. side })
 			B:block(lid, v(2.46, 0.22, 2.46), cf(1.75, 12.0, -1.2), BROW, { name = "Lash" .. side })
-			B:block(lid, v(2.34, 1.1, 2.34), cf(1.75, 13.6, -1.2), ORANGE, { tr = 1, name = "LidFill" .. side })
+			B:block(lid, v(2.04, 0.9, 2.04), cf(1.75, 13.5, -1.2), ORANGE, { tr = 1, name = "LidFill" .. side })
 			-- brow (own bone: the smug arch)
 			local brow = B:bone("Brow" .. side, "Head", v(1.75, 13.25, -2.05))
 			B:block(brow, v(2.1, 0.42, 0.65), cf(1.75, 13.28, -2.05), BROW)
 			B:block(brow, v(0.8, 0.3, 0.6), cf(2.35, 13.55, -2.0), BROW)
 			-- pectoral fins behind the head: fan of 3 aqua blades, gold tips
 			local pec = B:bone("Pec" .. side, "Head", v(1.95, 10.8, 1.2))
-			local tips = { v(3.2, 11.65, 1.75), v(3.45, 10.85, 2.05), v(3.2, 10.05, 1.85) }
+			local tips = { v(3.8, 12.05, 2.0), v(4.15, 10.87, 2.43), v(3.8, 9.7, 2.15) }
 			for k, tp in tips do
-				B:beam(pec, v(1.9, 10.8, 1.2), tp, 0.62, 0.28, k == 2 and TEAL or AQUA, { up = v(0, 0, 1) })
-				B:block(pec, v(0.55, 0.55, 0.4), CFrame.new(tp + (tp - v(1.9, 10.8, 1.2)).Unit * 0.15), GOLD)
+				B:beam(pec, v(1.9, 10.8, 1.2), tp, 0.8, 0.3, k == 2 and TEAL or AQUA, { up = v(0, 0, 1) })
+				B:block(pec, v(0.6, 0.6, 0.45), CFrame.new(tp + (tp - v(1.9, 10.8, 1.2)).Unit * 0.15), GOLD)
 			end
-			B:trail(pec, v(3.5, 11.2, 2.05), v(3.5, 10.5, 2.05), { name = "PecTrail" .. side, color = { WHITE, AQUA }, life = 0.18, trans = { 0.55, 1 } })
+			B:trail(pec, v(4.2, 11.4, 2.4), v(4.2, 10.3, 2.4), { name = "PecTrail" .. side, color = { WHITE, AQUA }, life = 0.18, trans = { 0.55, 1 } })
 		end)
 		local winkFX = B:block(head, v(0.6, 0.6, 0.6), cf(2.3, 12.6, -2.3), ORANGE, { tr = 1, name = "WinkFX" })
 		B:emitter(winkFX, "burst", { name = "WinkSparkle", color = { WHITE, GOLDN }, speed = { 3, 6 }, size = { 0.8, 0.5, 0 }, life = { 0.3, 0.6 }, drag = 4 })
@@ -300,12 +300,12 @@ return {
 				B:block(ob, v(1.3, 0.3, 1.3), cf(x, y - 0.9, z), DGOLD)
 			end
 		end
-		-- wide orbit; motion.luau dips each cube while it passes in FRONT so
-		-- it never crosses the face (same ORB table there - keep in sync)
-		orb(1, 8.5, 11.5, 0.4, "cube")
-		orb(2, -8.5, 9.0, 0.4, "cube")
-		orb(3, 6.2, 7.5, 6.6, "crystal")
-		orb(4, -6.2, 12.0, 6.6, "column")
+		-- wide orbit, two cubes ABOVE the head and two BELOW the chest so
+		-- they never cross the face band (y 10-14) from any camera angle
+		orb(1, 8.5, 15.8, 0.4, "cube")
+		orb(2, -8.5, 6.0, 0.4, "cube")
+		orb(3, 6.2, 5.0, 6.6, "crystal")
+		orb(4, -6.2, 15.5, 6.6, "column")
 
 		------------------------------------------------------------------
 		-- TIDAL TWIRL VFX (hidden): a spiral water ribbon that whirls round

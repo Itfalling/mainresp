@@ -177,6 +177,9 @@ return {
 			B:block(head, v(0.5, 0.8, 0.12), cf(2.95, 7.3, -10.84), MOUTH)
 			B:block(head, v(0.45, 0.45, 0.12), cf(3.3, 7.8, -10.84), MOUTH)
 		end)
+		-- little crystal crest on the melon (behind the tusk collar)
+		dspike(head, 12.7, -8.0, 0.8, 1.4, 35, false)
+		dspike(head, 12.7, -6.5, 0.95, 1.9, 35, true)
 		-- blowhole (bubbles puff out of it)
 		B:block(head, v(1.2, 0.2, 0.7), cf(0, 12.36, -4.4), MOUTH)
 		local blow = B:block(head, v(1, 0.6, 0.6), cf(0, 12.8, -4.4), BODY, { tr = 1, name = "BlowFX" })
@@ -324,8 +327,11 @@ return {
 			-- gold orichalcum band across the lobe, with a rune dot
 			B:block(lob, v(5.0, 1.12, 0.8), cf(3.7, FY, 13.9), GOLD)
 			B:block(lob, v(0.4, 0.12, 0.4), cf(3.7, FY + 0.6, 13.9), NTURQ, NEON)
-			B:block(lob, v(0.6, 0.6, 0.6), cf(7.9, FY, 17.0) * ang(0, 45, 0), NTURQ, NEON)
-			B:trail(lob, v(7.8, FY, 16.6), v(6.3, FY, 15.2), { name = "FlukeTrail" .. side, color = { "#ffffff", NTURQ }, life = 0.28, trans = { 0.45, 1 } })
+			-- crystal spikes on the lobe tips
+			B:beam(lob, v(6.9, FY, 15.6), v(9.0, FY + 0.3, 18.2), 0.7, 0.7, TURQ)
+			B:beam(lob, v(4.9, FY, 15.8), v(5.6, FY + 0.2, 17.9), 0.55, 0.55, LTURQ)
+			B:block(lob, v(0.6, 0.6, 0.6), cf(9.1, FY + 0.3, 18.35) * ang(0, 45, 0), NTURQ, NEON)
+			B:trail(lob, v(8.9, FY, 18.0), v(7.0, FY, 16.0), { name = "FlukeTrail" .. side, color = { "#ffffff", NTURQ }, life = 0.28, trans = { 0.45, 1 } })
 		end)
 
 		------------------------------------------------------------------
@@ -348,6 +354,7 @@ return {
 			B:block(f2, v(1.1, 0.7, 1.8), F * CFrame.new(7.3, 0, 1.9), BODY)
 			B:block(f2, v(0.7, 0.55, 1.0), F * CFrame.new(8.1, 0, 2.3), WHITE)
 			B:block(f2, v(0.45, 0.4, 0.45), F * CFrame.new(8.55, 0, 2.6), NTURQ, NEON)
+			B:beam(f2, (F * CFrame.new(6.4, 0.35, 0.3)).Position, (F * CFrame.new(8.9, 0.5, 0.6)).Position, 0.55, 0.55, TURQ)
 			B:trail(f2, (F * CFrame.new(8.3, 0, 2.2)).Position, (F * CFrame.new(7.6, 0, 3.2)).Position, { name = "FlipperTrail" .. side, color = { "#ffffff", NTURQ }, life = 0.22, trans = { 0.5, 1 } })
 		end)
 

@@ -38,8 +38,6 @@ local SP = P(0, 10.6, -1.3)
 local SNT = -15
 local SNR = CFrame.Angles(rad(SNT), 0, 0)
 local TIPOFF = SNR * Vector3.new(0, -0.05 * S, -4.4 * S)
--- floating cubes, relative to the Orbit pivot (authored x, z-0.4; build.luau ORB)
-local ORB = { { 8.5, 0 }, { -8.5, 0 }, { 6.2, 6.2 }, { -6.2, 6.2 } }
 local BC = P(0, 10.6, -6.0)
 
 local LAND = 6.05
@@ -64,7 +62,7 @@ local function rig(c, t)
 	end
 
 	local jumpY = L.track(c, {
-		{ 3.3, 0 }, { 4.0, -1.3, "cubicOut" }, { 4.1, -1.4 }, { 4.6, 4.2, "cubicOut" },
+		{ 3.3, 0 }, { 4.0, -2.0, "cubicOut" }, { 4.1, -2.1 }, { 4.6, 4.2, "cubicOut" },
 		{ 5.2, 4.8, "quadOut" }, { 5.5, 4.55, "quadIn" }, { LAND, -1.1, "quadIn" },
 		{ LAND + 0.1, -1.25, "quadOut" }, { 6.6, 0.5, "backOut" }, { 7.0, 0.25, "quadInOut" },
 		{ 8.6, 0, "sineInOut" },
@@ -78,7 +76,7 @@ local function rig(c, t)
 
 	local by = hover * (1 - 0.6 * busy) + 0.95 * pr * idleW + jumpY
 	local bz = 0.4 * antic
-	local yaw = (6 * wave(t, 1 / 9) + 9 * side) * idleW + spin - 32 * proud
+	local yaw = (6 * wave(t, 1 / 9) + 9 * side) * idleW + spin - 24 * proud
 	local pitch = -10 * antic + 6 * land + 9 * wob + (2 * wave(t, 1 / 3, 0.2) + 6 * pr - 3) * idleW
 	local roll = 10 * side * pr * idleW + 8 * wob * cos(TAU * 1.3 * (c - LAND))
 	local tilt = 15 * spinW
@@ -93,13 +91,13 @@ local function rig(c, t)
 
 	local look = (8 * L.noise(t, 3.3, 0.3) + 4 * wave(t, 1 / 9, 0.3)) * idleW
 	local head = ang(
-		7 * idleW - 4 * pr * idleW + 16 * antic + 16 * spinW + 10 * inhale - 16 * blow + 8 * proud - 8 * wob,
+		7 * idleW - 4 * pr * idleW + 16 * antic + 16 * spinW + 10 * inhale - 16 * blow + 14 * proud - 8 * wob,
 		look - 6 * side * idleW - 8 * proud,
 		6 * wave(t, 2 / 9, 0.1) * idleW + 3 * side * idleW - 10 * spinW - 12 * wink - 5 * proud
 	)
 
 	local puff = max(L.env(c, 0.8, 0.12, 0.12, 0.35), L.env(c, 2.3, 0.12, 0.12, 0.35))
-	local snout = pa(0, 0, (-0.5 * blow - 0.25 * puff) * S, 6 * puff + 8 * inhale + 15 * blow, 0, 0)
+	local snout = pa(0, 0, (-0.5 * blow - 0.25 * puff) * S, 6 * puff + 8 * inhale + 15 * blow + 12 * proud, 0, 0)
 
 	return {
 		Body = body, Chest = chest, Head = head, Snout = snout,
@@ -160,8 +158,8 @@ function M.Update(t, pose, ctx)
 	local wide = L.env(c, 4.15, 0.15, 1.2, 0.3)
 	local clR = max(blink, 0.35 * antic, r.wink) - 0.38 * wide - 0.1 * proud
 	local clL = max(blink, 0.35 * antic) - 0.38 * wide + 0.1 * proud
-	pose.LidR = CFrame.new(0, -1.1 * S * clR, 0)
-	pose.LidL = CFrame.new(0, -1.1 * S * clL, 0)
+	pose.LidR = CFrame.new(0, -0.95 * S * clR, 0)
+	pose.LidL = CFrame.new(0, -0.95 * S * clL, 0)
 	ctx.transparency("LidFillR", clR > 0.15 and 0 or 1)
 	ctx.transparency("LidFillL", clL > 0.15 and 0 or 1)
 	-- brows: right flat + low, left arched up (smug); right squeezes on the wink
@@ -189,13 +187,9 @@ function M.Update(t, pose, ctx)
 	local jolt = L.env(c, LAND, 0.05, 0.05, 0.9, "quadOut", "elasticOut")
 	local psi = 40 * t + 0.5 * r.spin
 	pose.Orbit = pa(0, 0.5 * S * r.jumpY, 0, 0, psi, 0)
-	local cp, spsi = cos(rad(psi)), sin(rad(psi))
 	for i = 1, 4 do
 		local s = i % 2 == 0 and -1 or 1
-		-- dip while passing in front (-Z) so the cubes never cross the face
-		local ox, oz = ORB[i][1], ORB[i][2]
-		local zr = (-ox * spsi + oz * cp) / math.sqrt(ox * ox + oz * oz)
-		pose["Orb" .. i] = pa(0, 0.9 * wave(t, 1 / 3, i * 0.27) - 1.2 * jolt + 0.8 * spinW + 3.5 * S * zr, 0,
+		pose["Orb" .. i] = pa(0, 0.9 * wave(t, 1 / 3, i * 0.27) - 1.2 * jolt + 0.8 * spinW, 0,
 			(40 + 15 * i) * t * s, 70 * t, 20 * i)
 	end
 

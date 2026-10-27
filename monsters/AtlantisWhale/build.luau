@@ -307,12 +307,13 @@ return {
 		end
 		-- waterfalls spilling off both sides
 		local fi = 0
+		local flow = B:bone("FallFlow", "City", v(0, 13.5, -1))
 		B:sym(function(side)
 			for _, z in { -3.4, 2.0 } do
 				fi += 1
 				B:block(city, v(1.5, 0.35, 2.0), cf(5.1, 13.95, z), FOAM)
 				B:block(city, v(0.4, 4.8, 1.8), cf(5.8, 11.6, z), "#8fdcff", { tr = 0.2, name = "Fall" .. fi })
-				B:block(city, v(0.44, 3.4, 0.35), cf(5.84, 11.6, z + 0.45), FOAM, { tr = 0.2, name = "FallStreak" .. fi })
+				B:block(flow, v(0.44, 3.0, 0.35), cf(5.84, 11.7, z + 0.45), FOAM, { tr = 0.2, name = "FallStreak" .. fi })
 				B:block(city, v(0.7, 0.5, 2.3), cf(5.9, 9.3, z), FOAM)
 			end
 		end)

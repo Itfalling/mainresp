@@ -85,7 +85,7 @@ function M.Update(t, pose, ctx)
 		{ 4.6, -7.0, "cubicOut" }, { 5.9, -6.8 }, { 7.5, 0, "sineInOut" },
 	})
 	local by = tr(c, {
-		{ 2.9, 0 }, { 3.85, 1.6, "cubicOut" }, { 4.05, 1.8 }, { 4.3, 0.4, "quadIn" }, { SLAM, 1.9, "quadIn" },
+		{ 2.9, 0 }, { 3.85, 1.6, "cubicOut" }, { 4.05, 1.8 }, { 4.3, 2.3, "quadIn" }, { SLAM, 1.9, "quadIn" },
 		{ 4.62, -0.3, "backOut" }, { 5.6, 0.1 }, { POUND, 1.8, "quadIn" }, { 5.95, -0.2, "backOut" },
 		{ 6.6, 0.6, "sineInOut" }, { 7.5, 0, "sineInOut" },
 	})
@@ -168,7 +168,7 @@ function M.Update(t, pose, ctx)
 	local furrow = 0.25 + 0.5 * twitch + 0.75 * max(pre, butt, ant, rush, thrash)
 	furrow = min(1.2, furrow)
 	local bR = pa(0, -0.3 * furrow, 0, -4 * furrow, 0, 12 * furrow)
-	local bL = pa(0, -0.3 * furrow * (1 - smug) + 0.9 * smug, 0, 0, 0, 12 * furrow * (1 - smug) - 30 * smug)
+	local bL = pa(0.25 * smug, -0.3 * furrow * (1 - smug) + 0.35 * smug, 0, 0, 0, 12 * furrow * (1 - smug) - 20 * smug)
 	L.both(pose, "Brow", bR, bL)
 
 	------------------------------------------------------------------
@@ -247,8 +247,9 @@ function M.Update(t, pose, ctx)
 	for k = 1, 6 do
 		local lag = (k % 2) * 0.15
 		local h = cr * (1 - lag)
-		pose["Crystal" .. k] = pa(0, -3.4 + 3.4 * h, 0, 0, 90 * h * (k % 2 == 0 and 1 or -1), 0)
+		pose["Crystal" .. k] = pa(0, -3.8 + 3.8 * h, 0, 0, 90 * h * (k % 2 == 0 and 1 or -1), 0)
 		ctx.transparency("CrystalBody" .. k, crOn and 0 or 1)
+		ctx.transparency("CrystalBase" .. k, crOn and 0 or 1)
 		ctx.transparency("CrystalTip" .. k, crOn and 0 or 1)
 	end
 

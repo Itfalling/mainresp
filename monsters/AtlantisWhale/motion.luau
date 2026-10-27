@@ -59,7 +59,7 @@ function M.Update(t, pose, ctx)
 	end
 	local lift, slap = liftS[6], slapS[6]
 	local squash = L.env(c, SLAP, 0.06, 0.04, 0.9, "linear", "elasticOut")
-	local content = L.env(c, 10.25, 0.4, 1.9, 0.6, "sineInOut", "sineInOut")
+	local content = L.env(c, 10.25, 0.4, 1.45, 0.6, "sineInOut", "sineInOut")
 	local look = L.env(c, 1.6, 0.9, 1.1, 0.9, "sineInOut", "sineInOut") -- glance at the city (left)
 	local look2 = L.env(c, 12.0, 0.7, 0.6, 0.7, "sineInOut", "sineInOut") -- glance right
 	local hum = max(L.env(c, 2.4, 0.3, 1.1, 0.4), L.env(c, 11.0, 0.3, 1.0, 0.4), 0.7 * L.env(c, 12.4, 0.3, 0.6, 0.4))
@@ -128,7 +128,7 @@ function M.Update(t, pose, ctx)
 		end
 	end
 	-- pupils: glance back at the city, look up at the beam
-	local pz = 0.45 * max(look, look2) - 0.15 * rise
+	local pz = 0.45 * max(look, look2)
 	local py = 0.25 * beam + 0.1 * rise
 	L.both(pose, "Pupil", CFrame.new(0, py, pz))
 
@@ -139,8 +139,11 @@ function M.Update(t, pose, ctx)
 	local flap = 18 * glide * swimW - 14 * breath + 42 * rise + 6 * lift + 30 * squash
 	local sweep = 8 * sin(TAU * (SW * t + 0.3)) * swimW + 18 * breath - 22 * rise + 10 * lift
 	local tipFlap = 10 * sin(TAU * (SW * t - 0.05)) * swimW + 22 * rise * (1 + 0.25 * sin(TAU * 1.5 * c)) - 10 * breath + 25 * squash
-	L.both(pose, "Fin", ang(0, sweep, flap))
-	L.both(pose, "FinTip", ang(0, 0, tipFlap))
+	-- a soft wave of the flipper on the side she glances at (hello, little city)
+	local waveL = look * (0.55 + 0.45 * sin(TAU * 1.6 * (c - 1.6)))
+	local waveR = look2 * (0.55 + 0.45 * sin(TAU * 1.6 * (c - 12.0)))
+	L.both(pose, "Fin", ang(0, sweep - 10 * waveR, flap + 34 * waveR), ang(0, sweep - 10 * waveL, flap + 34 * waveL))
+	L.both(pose, "FinTip", ang(0, 0, tipFlap + 22 * waveR), ang(0, 0, tipFlap + 22 * waveL))
 
 	------------------------------------------------------------------
 	-- city: soft sway, counter-tilts to stay level (protective), jolts on slap
@@ -178,6 +181,7 @@ function M.Update(t, pose, ctx)
 	for i = 1, 10 do
 		ctx.transparency("Ray" .. i, beam > 0.05 and (1 - 0.9 * beam) or 1)
 	end
+	pose.FallFlow = CFrame.new(0, 0.5 - 1.0 * L.saw(t, 1.3), 0)
 	for k = 1, 4 do
 		local f = 0.2 + 0.1 * sin(TAU * (3 * t + k * 0.37))
 		ctx.transparency("Fall" .. k, f)

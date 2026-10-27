@@ -114,8 +114,11 @@ return {
 
 		B:sym(function(side)
 			local eye = B:bone("Eye" .. side, "Face", rp(1.55, 0.7, -3.6))
-			B:block(eye, v(2.9, 3.1, 1.2), at(1.55, 0.7, -3.55), DEEP) -- dark rim
-			B:block(eye, v(2.6, 2.8, 1.6), at(1.55, 0.7, -3.6), EYEW)
+			-- rounded voxel eyes: two crossed blocks for the rim and the white
+			B:block(eye, v(2.9, 2.3, 1.2), at(1.55, 0.7, -3.55), DEEP) -- dark rim
+			B:block(eye, v(2.1, 3.1, 1.2), at(1.55, 0.7, -3.55), DEEP)
+			B:block(eye, v(2.6, 2.0, 1.6), at(1.55, 0.7, -3.6), EYEW)
+			B:block(eye, v(1.8, 2.8, 1.6), at(1.55, 0.7, -3.61), EYEW)
 			local pup = B:bone("Pupil" .. side, "Eye" .. side, rp(1.55, 0.55, -4.4))
 			B:block(pup, v(1.3, 1.6, 0.2), at(1.55, 0.5, -4.48), PUPIL, { name = "PupilBig" .. side })
 			B:block(pup, v(0.6, 0.7, 0.2), at(1.55, 0.6, -4.49), PUPIL, { tr = 1, name = "PupilSmall" .. side })
@@ -222,7 +225,6 @@ return {
 		end)
 		-- a little coral sprig growing on the ruin + a seaweed strand
 		cb(0.4, 0.7, 0.4, 1.1, 2.45, 0.5, "#ff7a5c")
-		cb(0.35, 0.5, 0.35, 1.4, 2.85, 0.5, "#ff9a6e", nil, -30)
 		cb(0.3, 0.45, 0.3, 0.85, 2.9, 0.5, "#ff7a5c", nil, 25)
 		local gem = cb(0.55, 0.55, 0.55, 0, 2.45, 0, TURQ, { mat = "Neon", name = "CrownGem" }, 45)
 		B:emitter(gem, "sparkle", { name = "Sparkle", color = { "#ffffff", NGOLD, TURQ }, rate = 3 })
@@ -269,9 +271,9 @@ return {
 		------------------------------------------------------------------
 		-- personality extras: "!" startle mark, sweat drop
 		------------------------------------------------------------------
-		local alert = B:bone("Alert", "Body", rp(3.4, 5.0, -1.0))
-		local a1 = B:block(alert, v(0.6, 1.4, 0.6), at(3.4, 5.6, -1.0), NGOLD, { mat = "Neon", tr = 1, name = "Alert1" })
-		B:block(alert, v(0.6, 0.6, 0.6), at(3.4, 4.4, -1.0), NGOLD, { mat = "Neon", tr = 1, name = "Alert2" })
+		local alert = B:bone("Alert", "Body", rp(3.9, 5.0, -1.6))
+		local a1 = B:block(alert, v(0.75, 1.7, 0.75), at(3.9, 5.85, -1.6), NGOLD, { mat = "Neon", tr = 1, name = "Alert1" })
+		B:block(alert, v(0.75, 0.75, 0.75), at(3.9, 4.4, -1.6), NGOLD, { mat = "Neon", tr = 1, name = "Alert2" })
 		B:emitter(a1, "burst", { name = "StartleBurst", color = { "#ffffff", NGOLD }, speed = { 6, 12 }, size = { 0.7, 0.4, 0 } })
 		local sweat = B:bone("Sweat", "Body", rp(-3.4, 2.6, -2.4))
 		B:block(sweat, v(0.55, 0.7, 0.4), at(-3.4, 2.6, -2.4), SWEAT, { tr = 1, name = "SweatA" })
@@ -286,14 +288,16 @@ return {
 			local s = o[4]
 			B:block(cb2, v(s, s, s), cf(o[1], o[2], o[3]), MARBLE)
 			B:block(cb2, v(s + 0.1, s * 0.25, s + 0.1), cf(o[1], o[2] + s * 0.2, o[3]), GOLD)
-			B:block(cb2, v(0.3, 0.3, 0.1), cf(o[1], o[2] - s * 0.15, o[3] - s / 2 - 0.03), TURQ, NEON)
+			if i <= 2 then
+				B:block(cb2, v(0.3, 0.3, 0.1), cf(o[1], o[2] - s * 0.15, o[3] - s / 2 - 0.03), TURQ, NEON)
+			end
 		end
 
 		------------------------------------------------------------------
 		-- voxel bubbles (hidden) for idle burps and the "pfft"
 		------------------------------------------------------------------
 		local BC = rp(0, -1.3, -4.6)
-		for k = 1, 5 do
+		for k = 1, 4 do
 			local bb = B:bone("Bub" .. k, "Root", BC)
 			local s = (k % 2 == 1) and 0.7 or 0.5
 			B:block(bb, v(s, s, s), CFrame.new(BC), BUBC, { tr = 1, name = "BubP" .. k })

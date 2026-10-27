@@ -118,13 +118,13 @@ function M.Update(t, pose, ctx)
 	local hop = abs(sin(TAU * 3 * F * t)) -- bouncy idle hops
 	local bob = (1.0 * wave(t, SW) + 0.7 * hop) * (1 - 0.8 * max(busyBreach, busyJoy))
 	local by = bob + jumpY
-	local roll = 7 * wave(t, SW, 0.15) * swimW + 12 * wagAmt * sin(TAU * (33 * F * t + 0.25))
+	local roll = 9 * wave(t, SW, 0.15) * swimW + 12 * wagAmt * sin(TAU * (33 * F * t + 0.25))
 		+ 12 * wig * sin(TAU * (wigPhase + 0.3))
 	pose.Body1 = pa(0, by, bz, pitch[CENTER] + bodyPitch, yaw[CENTER], roll + spin)
 	for i = CENTER - 1, 1, -1 do
 		local r = 0
 		if CHAIN[i] == "Head" then
-			r = 14 * wig * sin(TAU * (wigPhase * 1.2 + 0.1)) + 6 * L.noise(t, 7.7, 0.4) * idleW
+			r = 14 * wig * sin(TAU * (wigPhase * 1.2 + 0.1)) + (5 * L.noise(t, 7.7, 0.4) + 11 * sin(TAU * 4 * F * t)) * idleW
 				+ 10 * joy * sin(TAU * (2 * (c - 7.1)))
 		end
 		pose[CHAIN[i]] = ang(pitch[i] - pitch[i + 1], yaw[i] - yaw[i + 1], r)
@@ -244,12 +244,12 @@ function M.Update(t, pose, ctx)
 		local a = math.rad(deg)
 		local cfr
 		if k % 2 == 1 then
-			local r = 3 + (k % 4 == 1 and 7 or 10) * pe
-			local y = (k % 4 == 1 and 11 or 8) * 4 * pu * (1 - pu) + 1.0 * pu
+			local r = 4.5 + (k % 4 == 1 and 8 or 12) * pe
+			local y = (k % 4 == 1 and 14 or 10) * 4 * pu * (1 - pu) + 1.0 * pu
 			local sp = 400 * pu * (k % 4 == 1 and -1 or 1)
 			cfr = pa(math.sin(a) * r, y, math.cos(a) * r, sp, sp * 0.6, 30 * k)
 		else
-			local r = 3.5 + 10 * pe
+			local r = 5 + 12 * pe
 			cfr = pa(math.sin(a) * r, -3.3 + 0.4 * pu, math.cos(a) * r, 0, deg, 0)
 		end
 		pose["Drop" .. k] = pOn and cfr or CFrame.new()

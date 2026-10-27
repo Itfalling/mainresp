@@ -145,7 +145,7 @@ function M.Update(t, pose, ctx)
 	-- CHEEKS: puff in & out at idle, balloon on the suck-in
 	------------------------------------------------------------------
 	local cp = 0.45 * L.wave01(t, 5 * F, 0.1) * idleW + 1.0 * suck
-	L.both(pose, "Cheek", pa(0.5 * cp + 1.5 * P, -0.25 * P, -0.25 * cp - 1.3 * P, 0, 0, 0))
+	L.both(pose, "Cheek", pa(0.5 * cp + 1.15 * P, -0.25 * P, -0.25 * cp - 1.55 * P, 0, 0, 0))
 	local blushOn = max(embar, shy * 1.3) > 0.3
 	for _, side in { "R", "L" } do
 		ctx.transparency("BlushBig" .. side, blushOn and 0 or 1)
@@ -274,7 +274,7 @@ function M.Update(t, pose, ctx)
 	------------------------------------------------------------------
 	-- voxel bubbles: little burps at idle, a jet stream on the "pfft"
 	------------------------------------------------------------------
-	for k = 1, 5 do
+	for k = 1, 4 do
 		local cfk, tr = CFrame.new(), 1
 		local u = (c - PFFT - (k - 1) * 0.07) / 0.9
 		if u > 0 and u < 1 then
