@@ -10,9 +10,15 @@
 -- gem, swept gold helm wings and a big turquoise orichalcum crystal spire.
 -- The dorsal is a trident blade (tall stepped fin with a gold leading edge and
 -- crystal tip, flanked by two crystal tines). The fluke is crystal tipped.
+-- HEAD: rounded stepped dome (narrow core, wide cheek band, chubby lower
+-- cheeks, stepped snout) with a gold helm strap + marble jowl plate.
+-- No gems on the face centre. Body sides are sculpted with stepped side
+-- bands, a grey saddle wrap, stepped white flank flame, keel + muscle
+-- ridges, rivets and a sunken temple glyph tile.
 -- FACE: ONE pair of big cartoon eyes on the front (white patch, dark rim,
 -- white eye, pupil + glint) with heavy brows, white "happy-closed ^" lids and
--- smug half-lids, and ONE real hinged jaw (black lips, white chin, dark mouth,
+-- smug half-lids, and ONE real hinged jaw whose white chin + black lip step
+-- UP at the corners into a cheeky "D" grin (black lips, white chin, dark mouth,
 -- block teeth top and bottom, a tongue that can stick out).
 -- Hidden VFX props: blowhole squirt drops, laughing tears, a wink star,
 -- three swirling water rings, a splash crown, a wave ring, a crown beam.
@@ -219,8 +225,8 @@ return {
 			hb(lid, 3.5, 3.6, 0.3, 2.7, 12.2, -16.15, BLACK, { tr = 1, name = "Lid" .. side })
 			hb(lid, 1.9, 0.5, 0.2, 1.95, 12.1, -16.35, WHITE, { tr = 1, name = "LidA" .. side }, 0, 0, 28)
 			hb(lid, 1.9, 0.5, 0.2, 3.45, 12.1, -16.35, WHITE, { tr = 1, name = "LidB" .. side }, 0, 0, -28)
-			hb(lid, 3.5, 1.9, 0.3, 2.7, 13.1, -16.15, BLACK, { tr = 1, name = "HalfLid" .. side })
-			hb(lid, 3.4, 0.35, 0.2, 2.7, 12.2, -16.35, BLK2, { tr = 1, name = "HalfLash" .. side })
+			hb(lid, 3.5, 1.5, 0.3, 2.7, 13.3, -16.15, BLACK, { tr = 1, name = "HalfLid" .. side })
+			hb(lid, 3.4, 0.35, 0.2, 2.7, 12.6, -16.35, BLK2, { tr = 1, name = "HalfLash" .. side })
 			-- the white orca eye patch = a big chunky brow
 			local brow = B:bone("Brow" .. side, "Head", hv(2.7, 14.85, -14.7))
 			hb(brow, 3.6, 0.9, 1.4, 2.6, 14.85, -14.95, WHITE)
@@ -362,17 +368,22 @@ return {
 		B:sym(function(side)
 			local FR = CFrame.new(4.9, 7.0, -3.0) * ang(0, -30, -28)
 			local fin = B:bone("Fin" .. side, "Body", FR)
-			B:block(fin, v(2.4, 1.5, 3.0), FR * CFrame.new(0.8, 0, 0), BLACK)
-			B:block(fin, v(0.7, 1.8, 3.4), FR * CFrame.new(1.9, 0, 0), GOLD)
-			B:block(fin, v(0.75, 0.4, 3.45), FR * CFrame.new(1.9, 0.75, 0), MARBLE)
-			B:block(fin, v(3.0, 1.0, 4.2), FR * CFrame.new(3.5, 0, 0.2), BLACK)
-			B:block(fin, v(2.6, 0.3, 3.6), FR * CFrame.new(3.5, -0.6, 0.2), BLK2)
-			local ft = B:bone("FinTip" .. side, "Fin" .. side, FR * CFrame.new(4.9, 0, 0))
-			B:block(ft, v(2.6, 0.9, 4.0), FR * CFrame.new(6.2, 0, 0.5), BLACK)
-			B:block(ft, v(1.8, 0.8, 2.8), FR * CFrame.new(8.0, 0, 0.8), BLACK)
-			B:block(ft, v(0.6, 0.85, 2.0), FR * CFrame.new(9.1, 0, 0.9), GOLD)
-			B:block(ft, v(0.4, 0.5, 0.6), FR * CFrame.new(9.5, 0, 0.9), TURQ, NEON)
-			B:trail(ft, (FR * CFrame.new(9.4, 0, -0.2)).Position, (FR * CFrame.new(9.4, 0, 1.9)).Position,
+			-- big chunky paddle (scaled up so the flourishes read)
+			local SX, SZ, SY = 1.3, 1.25, 1.15
+			local function fb(bone, sx, sy, sz, x, y, z, col, opts)
+				return B:block(bone, v(sx * SX, sy * SY, sz * SZ), FR * CFrame.new(x * SX, y * SY, z * SZ), col, opts)
+			end
+			fb(fin, 2.4, 1.5, 3.0, 0.8, 0, 0, BLACK)
+			fb(fin, 0.7, 1.8, 3.4, 1.9, 0, 0, GOLD)
+			fb(fin, 0.75, 0.4, 3.45, 1.9, 0.75, 0, MARBLE)
+			fb(fin, 3.0, 1.0, 4.2, 3.5, 0, 0.2, BLACK)
+			fb(fin, 2.6, 0.3, 3.6, 3.5, -0.6, 0.2, BLK2)
+			local ft = B:bone("FinTip" .. side, "Fin" .. side, FR * CFrame.new(4.9 * SX, 0, 0))
+			fb(ft, 2.6, 0.9, 4.0, 6.2, 0, 0.5, BLACK)
+			fb(ft, 1.8, 0.8, 2.8, 8.0, 0, 0.8, BLACK)
+			fb(ft, 0.6, 0.85, 2.0, 9.1, 0, 0.9, GOLD)
+			fb(ft, 0.4, 0.5, 0.6, 9.5, 0, 0.9, TURQ, NEON)
+			B:trail(ft, (FR * CFrame.new(9.4 * SX, 0, -0.2)).Position, (FR * CFrame.new(9.4 * SX, 0, 2.4)).Position,
 				{ name = "FinTrail" .. side, color = { "#ffffff", TURQ }, life = 0.25, trans = { 0.55, 1 } })
 		end)
 

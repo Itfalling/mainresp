@@ -21,8 +21,11 @@
 --   9.00  flips forward, splays its fins: the belly-flop fall
 --   9.55  SPLAT! squash, splash crown erupts, wave ring rolls out
 --  10.30  DOUBLE TAIL SLAP (10.72, 11.20) with splashes + a second wave
---  11.60  CHEEKY BOW: dips its head, tips the crown off, fin across the
---         chest, wink + star + tongue peek ... crown back on (13.0)
+--  11.60  CHEEKY BOW: dips low, doffs the floating crown to the side,
+--         right fin shoots up in a twirling courtly hand-roll, left fin
+--         tucks to the belly, wink + star + blush + tongue peek ...
+--  13.35  "TA-DA!": both fins fling up, crown drops back on, blowhole
+--         fountain salute + crown burst
 --  13.5   settles back into the swim
 local L = require(script.Parent.AnimLib)
 local ang, pa, wave = L.ang, L.pa, L.wave
@@ -89,7 +92,7 @@ function M.Update(t, pose, ctx)
 	------------------------------------------------------------------
 	local swimY = 0.7 * wave(t, 8 * F) + 0.2 * wave(t, 21 * F, 0.3)
 	local bx = 0.4 * wave(t, 3 * F, 0.2) * idleW
-	local by = swimY * idleW
+	local by = swimY * idleW + 0.6 * idleW + 0.8 * giggle + 0.5 * tease
 	local bz = 0
 	local pitch = 3.5 * wave(t, 8 * F, 0.25) * idleW
 	local yaw = (6 * wave(t, 4 * F) + 4 * L.noise(t, 1.3, 0.3)) * idleW
@@ -124,8 +127,8 @@ function M.Update(t, pose, ctx)
 		{ BREACH, 3.6 }, { BREACH + 0.4, 10.5, "cubicOut" }, { APEX, 11.5, "quadOut" }, { FALL, 11.5, "sineInOut" },
 		{ SPLAT, -1.1, "quadIn" }, { SPLAT + 0.15, -0.8, "quadOut" }, { SPLAT + 0.45, 1.2, "quadOut" }, { SPLAT + 0.75, 0.2, "quadInOut" },
 		{ LIFT1, 0.2 }, { LIFT1 + 0.3, 0.8, "quadOut" }, { SLAP1, -0.4, "quadIn" }, { SLAP1 + 0.2, 0.4, "quadOut" },
-		{ SLAP2, -0.6, "quadIn" }, { SLAP2 + 0.25, 0.4, "quadOut" }, { BOW, 0, "quadInOut" }, { BOW + 0.4, 1.4, "backOut" },
-		{ BOWEND, 1.4 }, { BOWEND + 0.4, 1.2, "backOut" }, { 13.6, 0, "quadInOut" },
+		{ SLAP2, -0.6, "quadIn" }, { SLAP2 + 0.25, 0.4, "quadOut" }, { BOW, 0, "quadInOut" }, { BOW + 0.4, 2.4, "backOut" },
+		{ BOWEND, 2.2 }, { BOWEND + 0.4, 1.2, "backOut" }, { 13.6, 0, "quadInOut" },
 	})
 	local sp = track(c, {
 		{ WIND, 0 }, { WIND + 0.35, 18, "cubicOut" }, { DIVE, 18 }, { DIVE + 0.35, -26, "backIn" }, { BREACH, -26 },
@@ -160,7 +163,7 @@ function M.Update(t, pose, ctx)
 	------------------------------------------------------------------
 	local hP = 2.5 * wave(t, 8 * F, 0.45) * idleW - 8 * windL + 10 * lunge - 5 * kid + 6 * inhale - 6 * squirt
 		- 6 * cackle * abs(sin(TAU * 4 * c)) - 4 * tease - 10 * tip
-		+ 10 * wind * (1 - tuck) - 6 * tuck + 14 * squash - 10 * splay * (1 - squash) - 24 * bow
+		+ 10 * wind * (1 - tuck) - 6 * tuck + 14 * squash - 10 * splay * (1 - squash) - 18 * bow
 		- 6 * slapLift + 5 * slapHit + 4 * giggle * sin(TAU * 7 * c + 1)
 	local hY = (5 * wave(t, 4 * F, 0.3)) * idleW + 7 * sly * (c < 0.7 and 1 or -1) - 10 * tease * sin(TAU * 1.2 * (c - 4.1))
 		+ 6 * bow * sin(TAU * 0.8 * (c - BOW))
@@ -251,6 +254,11 @@ function M.Update(t, pose, ctx)
 		ctx.transparency("TearB" .. side, tearOn and (tu > 0.8 and 0.6 or 0.15) or 1)
 	end
 
+	-- giggle blush pops on the laughs and the bow
+	local blushOn = (kid > 0.3) or (cackle > 0.3) or (giggle > 0.2) or (bow > 0.5)
+	ctx.transparency("BlushR", blushOn and 0 or 1)
+	ctx.transparency("BlushL", blushOn and 0 or 1)
+
 	-- wink star (crown tip, tongue tease, bow)
 	local starA = max(L.env(c, 6.18, 0.1, 0.25, 0.12, "backOut"), L.env(c, 4.25, 0.1, 0.3, 0.12, "backOut"), L.env(c, 12.08, 0.1, 0.5, 0.12, "backOut"))
 	pose.Star = pa(-0.8 * starA, 0.6 * starA, 0, 0, 0, 200 * c)
@@ -264,9 +272,9 @@ function M.Update(t, pose, ctx)
 	local cPop = L.env(c, APEX - 0.02, 0.1, 0.25, 0.35, "backOut", "bounceOut")
 	local cLand = L.env(c, SPLAT, 0.05, 0.05, 0.4, "quadOut", "bounceOut")
 	local bowTip = L.env(c, BOW + 0.15, 0.3, BOWEND - BOW - 0.6, 0.4, "backOut", "bounceOut")
-	pose.Crown = pa(0, 0.9 * tip + 2.4 * cPop + 3.2 * bowTip + 0.8 * cLand + 0.6 * lunge, -0.8 * tip - 2.4 * bowTip,
-		3 * wave(t, 8 * F, 0.5) * idleW - 26 * tip - 46 * bowTip + 10 * windL + 8 * giggle * sin(TAU * 7 * c) - 12 * cLand,
-		crownSpin, 3 * wave(t, 5 * F, 0.1) * idleW + 10 * tip + 8 * bowTip + 6 * cackle * sin(TAU * 4 * c))
+	pose.Crown = pa(0, 0.9 * tip + 2.4 * cPop + 4.2 * bowTip + 0.8 * cLand + 0.6 * lunge, -0.8 * tip + 1.6 * bowTip,
+		3 * wave(t, 8 * F, 0.5) * idleW - 26 * tip + 18 * bowTip + 10 * windL + 8 * giggle * sin(TAU * 7 * c) - 12 * cLand,
+		crownSpin - 25 * bowTip, 3 * wave(t, 5 * F, 0.1) * idleW + 10 * tip + 24 * bowTip + 6 * cackle * sin(TAU * 4 * c))
 	local beamOn = c > APEX and c < APEX + 0.35
 	ctx.transparency("CrownBeam", beamOn and (c < APEX + 0.25 and 0.15 or 0.6) or 1)
 	ctx.light("CrownLight", 0.4 + 1.1 * flash + 0.3 * tip)
@@ -283,20 +291,21 @@ function M.Update(t, pose, ctx)
 	-- right fin: shoots up high beside the head and does a twirling
 	-- courtly hand-roll all through the bow; left fin tucks across the
 	-- belly; on the way back up BOTH fins fling up: "ta-da!"
-	local bRz = track(c, { { BOW, 0 }, { BOW + 0.35, 110, "backOut" }, { BOWEND, 95, "sineInOut" }, { BOWEND + 0.35, 90, "backOut" }, { 13.75, 0, "quadInOut" } })
-	local bRy = track(c, { { BOW, 0 }, { BOW + 0.35, 35, "backOut" }, { BOWEND, 20, "sineInOut" }, { BOWEND + 0.35, 30, "backOut" }, { 13.75, 0, "quadInOut" } })
+	local bRz = track(c, { { BOW, 0 }, { BOW + 0.35, 85, "backOut" }, { BOWEND, 75, "sineInOut" }, { BOWEND + 0.35, 75, "backOut" }, { 13.75, 0, "quadInOut" } })
+	local bRy = track(c, { { BOW, 0 }, { BOW + 0.35, -10, "backOut" }, { BOWEND, -5, "sineInOut" }, { BOWEND + 0.35, 10, "backOut" }, { 13.75, 0, "quadInOut" } })
 	local twirl = L.env(c, BOW + 0.25, 0.15, BOWEND - BOW - 0.45, 0.2)
 	local rollPh = TAU * 1.8 * (c - BOW - 0.25)
 	local bRx = 75 * twirl * sin(rollPh)
 	bRz += 16 * twirl * cos(rollPh)
 	bRy += 16 * twirl * sin(rollPh)
-	local bLz = track(c, { { BOW, 0 }, { BOW + 0.4, -15, "backOut" }, { BOWEND, -15 }, { BOWEND + 0.35, 90, "backOut" }, { 13.75, 0, "quadInOut" } })
-	local bLy = track(c, { { BOW, 0 }, { BOW + 0.4, -55, "backOut" }, { BOWEND, -50 }, { BOWEND + 0.35, 30, "backOut" }, { 13.75, 0, "quadInOut" } })
+	local bLz = track(c, { { BOW, 0 }, { BOW + 0.4, -15, "backOut" }, { BOWEND, -15 }, { BOWEND + 0.35, 75, "backOut" }, { 13.75, 0, "quadInOut" } })
+	local bLy = track(c, { { BOW, 0 }, { BOW + 0.4, -55, "backOut" }, { BOWEND, -50 }, { BOWEND + 0.35, 10, "backOut" }, { 13.75, 0, "quadInOut" } })
 	local function fin(side, ph, bowArm)
 		local z = 14 * paddle * idleW + 25 * lunge + 15 * windL + 20 * cackle * sin(TAU * 4 * c + ph)
 			+ 30 * giggle * sin(TAU * 7 * c + ph) + 20 * tease * sin(TAU * 2 * c + ph)
 			+ 20 * wind * (1 - tuck) - 30 * tuck + 45 * splay - 25 * squash + 25 * slapHit
 			+ (bowArm and bRz or bLz) + 6 * bow * sin(TAU * 2 * c + ph)
+		z = max(z, -10 + 6 * squash) -- the big paddles never scrape the floor
 		local x = 10 * paddle * idleW + 20 * lunge - 25 * tuck + 20 * splay + (bowArm and bRx or 0)
 		local y = -15 * tuck - 10 * lunge + (bowArm and bRy or bLy)
 		local tipZ = 12 * wave(t, 8 * F, 0.3) * idleW + 15 * squash + 18 * splay * sin(TAU * 5 * c)
@@ -457,6 +466,12 @@ function M.Update(t, pose, ctx)
 		ctx.emit("SplashBurst", 20)
 	end
 	if ctx.crossed(12.1) then ctx.emit("CrownBurst", 14) end
+	if ctx.crossed(BOW + 0.35) then ctx.emit("CrystalSparkle", 16) end
+	if ctx.crossed(BOWEND + 0.35) then
+		-- "ta-da!": crown lands back on, blowhole fountain salute
+		ctx.emit("CrownBurst", 30)
+		ctx.emit("SpoutBurst", 24)
+	end
 end
 
 return M
