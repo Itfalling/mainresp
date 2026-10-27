@@ -44,6 +44,13 @@ return {
 		for _, z in { -2.1, 0.5, 3.1 } do
 			B:block(body, v(8.5, 0.35, 0.3), cf(0, 3.25, CZ + z - 0.5), CREAM_D) -- plate seams
 		end
+		-- belly underside (shows in the flip-roll): plate seams + gold sun medallion
+		B:block(body, v(0.3, 0.14, 8.1), cf(0, 2.19, CZ), CREAM_D)
+		for _, z in { -2.6, 2.6 } do
+			B:block(body, v(6.3, 0.14, 0.3), cf(0, 2.19, CZ + z), CREAM_D)
+		end
+		B:block(body, v(1.8, 0.2, 1.8), cf(0, 2.15, CZ), GOLD)
+		B:block(body, v(0.6, 0.12, 0.6), cf(0, 2.02, CZ), TURQ, NEON)
 		-- marginal rim
 		tier(4.1, 1.0, 11.0, 13.0, 3.0, STONE_D)
 		-- tier 1 stone
@@ -252,7 +259,7 @@ return {
 		-- Zzz: chunky pixel-art "Z" letters (glowing sky face + navy outline
 		-- backing), small -> big stacked up and to the right of the head
 		local ZNAVY = "#1f4f8f"
-		for k, zz in { { 1.0, 3.4, 10.8, -11.6 }, { 1.3, 4.6, 12.4, -11.2 }, { 1.65, 6.0, 14.4, -10.8 } } do
+		for k, zz in { { 1.0, 3.4, 10.8, -12.4 }, { 1.3, 4.7, 12.4, -12.1 }, { 1.65, 6.1, 14.4, -11.8 } } do
 			local s = zz[1]
 			local o = v(zz[2], zz[3], zz[4])
 			local zb = B:bone("Zzz" .. k, "Body", o)

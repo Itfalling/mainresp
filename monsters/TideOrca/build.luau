@@ -61,21 +61,16 @@ return {
 		------------------------------------------------------------------
 		local body2 = B:bone("Body2", "Root", v(0, 8.4, 0.5))
 		segment(body2, -0.2, 5.3, 8.5, 8.6, 7.2, 1.4)
-		-- white flank patch rising toward the tail (orca colour step)
-		B:block(body2, v(8.75, 1.4, 2.4), cf(0, 6.6, 4.0), WHITE)
-		B:block(body2, v(8.75, 1.2, 1.4), cf(0, 7.9, 4.5), WHITE)
-		-- grey-white saddle patch behind the fin, dripping down the sides
+		-- ONE clean stepped white flank sweep rising toward the tail (orca colour step)
+		B:block(body2, v(8.75, 1.4, 3.0), cf(0, 6.6, 3.75), WHITE)
+		B:block(body2, v(8.75, 1.2, 1.8), cf(0, 7.9, 4.35), WHITE)
+		-- grey-white saddle patch behind the fin
 		B:block(body2, v(6.4, 0.4, 1.6), cf(0, 12.65, 4.45), SADDLE)
-		B:block(body2, v(8.75, 1.2, 1.2), cf(0, 11.2, 4.6), SADDLE)
 		-- charcoal side panel (colour blocking on the big flat sides)
 		B:block(body2, v(8.75, 1.6, 2.2), cf(0, 9.6, 1.4), CHAR)
 		-- stepped belly plates
 		B:block(body2, v(5.0, 0.5, 1.4), cf(0, 4.25, 0.8), WHITE)
 		B:block(body2, v(4.2, 0.5, 1.4), cf(0, 4.25, 3.4), WHITE)
-		B:sym(function()
-			B:block(body2, v(0.5, 0.9, 0.9), cf(4.35, 10.4, 0.6), MARBLE2) -- barnacles
-			B:block(body2, v(0.4, 0.6, 0.6), cf(4.35, 11.1, 1.2), MARBLE)
-		end)
 		local vol = B:block(body2, v(12, 9, 26), cf(0, 9, 0), BLACK, { tr = 1, name = "BubbleVolume" })
 		B:emitter(vol, "bubble", { name = "AmbientBubbles", color = { "#ffffff", SKY }, rate = 5, size = { 0.25, 0.45, 0.6 } })
 		B:emitter(vol, "sparkle", { name = "AmbientSparkle", color = { "#ffffff", TURQ, "#ffe27a" }, rate = 3 })
@@ -176,9 +171,9 @@ return {
 			-- turquoise glowing iris, black pupil (own bone: sly glances)
 			B:block(head, v(2.4, 2.6, 2.2), cf(3.6, 9.3, -12.2), CHAR)
 			B:block(head, v(1.6, 1.9, 1.6), cf(4.05, 9.15, -12.59), TURQ, { mat = "Neon", name = "Eye" .. side })
-			-- orca eye patch sweeping back along the side from the brow
-			B:block(head, v(0.2, 1.6, 3.2), cf(4.05, 10.9, -9.7), WHITE)
-			B:block(head, v(0.2, 1.0, 2.0), cf(4.05, 11.25, -7.4), WHITE)
+			-- bold stepped orca eye patch sweeping back along the side from the brow
+			B:block(head, v(0.2, 2.0, 3.0), cf(4.05, 10.6, -9.6), WHITE)
+			B:block(head, v(0.2, 1.4, 1.8), cf(4.05, 10.9, -7.3), WHITE)
 			-- SMIRK: the white chin line curls up at the mouth corner (much
 			-- higher on the right = lopsided cheeky grin) + a dark crease
 			if R then
@@ -190,19 +185,23 @@ return {
 				B:block(head, v(0.2, 0.7, 2.0), cf(4.05, 6.95, -7.6), WHITE)
 				B:beam(head, v(4.18, 6.6, -9.0), v(4.18, 7.4, -7.0), 0.12, 0.28, MOUTH)
 			end
-			-- pupil bone (front + side pupil, white glints)
-			local pu = B:bone("Pupil" .. side, "Head", v(4.1, 9.0, -12.9))
+			-- pupil bones: the FRONT pupil slides in X (sly glances), the SIDE
+			-- pupil lives on its own bone and slides only along the side face
+			-- (Y/Z) so it never floats off the eye
+			local pu = B:bone("Pupil" .. side, "Head", v(4.1, 9.0, -13.4))
 			B:block(pu, v(0.8, 1.3, 0.1), cf(4.1, 9.0, -13.44), BLACK)
-			B:block(pu, v(0.1, 1.3, 0.8), cf(4.9, 9.0, -12.5), BLACK)
 			B:block(pu, v(0.4, 0.4, 0.1), cf(4.35, 9.45, -13.5), "#ffffff", NEON)
-			B:block(pu, v(0.1, 0.4, 0.4), cf(4.96, 9.45, -12.2), "#ffffff", NEON)
-			-- chunky WHITE brow = the orca eye patch: RIGHT brow cocked high and
-			-- arched, LEFT brow low and slanted (scheming)
-			local by = R and 11.05 or 10.45
-			local tilt = R and -10 or 16
-			local brow = B:bone("Brow" .. side, "Head", v(3.8, by, -13.4))
-			B:block(brow, v(3.0, 1.0, 0.6), cf(3.7, by, -13.5, 0, 0, tilt), WHITE)
-			B:block(brow, v(0.6, 1.0, 2.6), cf(4.9, by + (R and -0.2 or 0.35), -12.4, 0, 0, tilt), WHITE)
+			local ps = B:bone("PupilS" .. side, "Head", v(4.85, 9.0, -12.5))
+			B:block(ps, v(0.1, 1.3, 0.8), cf(4.9, 9.0, -12.5), BLACK)
+			B:block(ps, v(0.1, 0.4, 0.4), cf(4.96, 9.45, -12.2), "#ffffff", NEON)
+			-- chunky WHITE brows: RIGHT brow cocked HIGH (gap of black above the
+			-- eye = "oh really?"), LEFT brow low and slanted hard over the eye
+			-- (scheming). Pulled in over the eye so they read as brows, not ears.
+			local by = R and 11.45 or 10.4
+			local tilt = R and -6 or 22
+			local brow = B:bone("Brow" .. side, "Head", v(3.6, by, -13.4))
+			B:block(brow, v(2.7, 1.0, 0.6), cf(3.5, by, -13.55, 0, 0, tilt), WHITE)
+			B:block(brow, v(0.6, 1.0, 2.4), cf(4.65, by + (R and -0.1 or 0.45), -12.5, 0, 0, tilt), WHITE)
 			-- eyelid (hidden until it blinks / winks)
 			local lid = B:bone("Lid" .. side, "Head", v(4.0, 11.3, -12.5))
 			B:block(lid, v(2.1, 2.2, 2.1), cf(4.0, 11.3, -12.5), CHAR, { tr = 1, name = "Eyelid" .. side })
@@ -270,16 +269,21 @@ return {
 			local F = CFrame.new(v(4.0, 5.9, -3.6)) * ang(0, -34, -14)
 			local function at(x, y, z) return F * CFrame.new(x, y, z) end
 			local fin = B:bone("Fin" .. side, "Body1", F)
-			B:block(fin, v(2.8, 1.3, 3.2), at(1.1, 0, 0), BLACK)
-			B:block(fin, v(0.7, 1.55, 3.4), at(2.2, 0, 0), GOLD)
+			-- big round-ish orca paddle built in steps (broad chord so it reads
+			-- as a paddle from above, not a stick)
+			B:block(fin, v(2.8, 1.3, 3.4), at(1.1, 0, 0), BLACK)
+			B:block(fin, v(0.7, 1.55, 3.6), at(2.2, 0, 0), GOLD)
 			B:block(fin, v(0.12, 0.4, 0.4), at(2.2, 0.82, 0), TURQ, NEON)
+			B:block(fin, v(0.12, 0.4, 0.4), at(2.2, 0.82, 1.2), TURQ, NEON)
+			B:block(fin, v(0.12, 0.4, 0.4), at(2.2, 0.82, -1.2), TURQ, NEON)
 			local tip = B:bone("FinTip" .. side, "Fin" .. side, at(2.5, 0, 0))
-			B:block(tip, v(2.4, 1.15, 3.8), at(3.6, 0, 0.3), BLACK)
-			B:block(tip, v(1.8, 1.0, 3.2), at(5.6, 0, 0.7), BLACK)
-			B:block(tip, v(1.2, 0.9, 2.2), at(6.9, 0, 1.1), CHAR)
-			B:block(tip, v(3.6, 0.25, 3.0), at(4.5, -0.6, 0.5), WHITE) -- white underside
-			B:block(tip, v(3.2, 0.2, 0.35), at(4.6, 0.62, -1.1), CHAR)
-			local a, b = at(7.4, 0, 1.6), at(6.2, 0, 2.0)
+			B:block(tip, v(2.4, 1.15, 4.6), at(3.6, 0, 0.4), BLACK)
+			B:block(tip, v(1.8, 1.05, 5.0), at(5.6, 0, 0.8), BLACK)
+			B:block(tip, v(1.4, 0.95, 3.8), at(7.1, 0, 1.0), CHAR)
+			B:block(tip, v(0.8, 0.85, 2.2), at(8.1, 0, 1.0), CHAR)
+			B:block(tip, v(4.6, 0.25, 3.6), at(5.0, -0.6, 0.6), WHITE) -- white underside
+			B:block(tip, v(4.2, 0.2, 0.35), at(5.0, 0.6, -1.65), CHAR)
+			local a, b = at(8.5, 0, 1.6), at(7.2, 0, 2.6)
 			B:trail(tip, a.Position, b.Position, { name = "FinTrail" .. side, color = { "#ffffff", TURQ }, life = 0.25, trans = { 0.55, 1 } })
 		end)
 
@@ -291,12 +295,6 @@ return {
 		B:block(tail1, v(7.15, 2.2, 1.6), cf(0, 8.5, 5.8), WHITE) -- flank patch step
 		B:block(tail1, v(7.15, 1.0, 1.2), cf(0, 10.0, 6.0), WHITE)
 		B:block(tail1, v(1.0, 0.8, 3.0), cf(0, 12.0, 7.0), CHAR) -- back ridge
-		B:sym(function()
-			-- barnacle cluster (sunken-ruin crust)
-			B:block(tail1, v(0.5, 0.8, 0.8), cf(3.55, 9.6, 7.6), MARBLE2)
-			B:block(tail1, v(0.4, 0.6, 0.6), cf(3.55, 10.4, 8.2), MARBLE)
-			B:block(tail1, v(0.35, 0.5, 0.5), cf(3.55, 9.9, 8.5), MARBLE2)
-		end)
 		local tail2 = B:bone("Tail2", "Tail1", v(0, 8.8, 8.7))
 		segment(tail2, 8.6, 12.0, 8.8, 5.2, 4.8, 1.2)
 		band(tail2, 11.1, 8.8, 5.5, 5.15, 0.9)
@@ -319,18 +317,18 @@ return {
 		B:sym(function(side)
 			local lobe = B:bone("Fluke" .. side, "Fluke", v(1.3, 8.9, 14.8))
 			local rows = { -- x center, width, z center, depth
-				{ 2.5, 2.8, 15.4, 3.0 }, { 4.7, 2.2, 16.1, 2.6 }, { 6.5, 1.8, 16.8, 2.0 },
+				{ 2.5, 2.8, 15.6, 3.4 }, { 4.8, 2.4, 16.5, 3.4 }, { 6.9, 2.2, 17.4, 3.0 }, { 8.8, 1.8, 18.2, 2.2 },
 			}
 			for i, r in rows do
-				B:block(lobe, v(r[2], 1.2, r[4]), cf(r[1], 9.1, r[3]), i == 3 and CHAR or BLACK)
+				B:block(lobe, v(r[2], 1.2, r[4]), cf(r[1], 9.1, r[3]), i >= 3 and CHAR or BLACK)
 				B:block(lobe, v(r[2] - 0.2, 0.3, r[4] - 0.2), cf(r[1], 8.4, r[3]), WHITE)
 				B:block(lobe, v(r[2] - 0.1, 1.3, 0.5), cf(r[1], 9.05, r[3] - r[4] / 2 - 0.1), CHAR)
 			end
 			B:block(lobe, v(0.6, 1.3, 2.4), cf(3.3, 9.1, 15.4), GOLD) -- fin band stripe
 			B:block(lobe, v(0.62, 0.12, 0.4), cf(3.3, 9.76, 15.4), TURQ, NEON)
-			B:wedge(lobe, v(1.0, 1.0, 1.6), cf(7.7, 9.05, 17.5, 0, 180, 0), CHAR)
-			B:block(lobe, v(0.6, 0.6, 0.6), cf(7.8, 9.1, 18.2), TURQ, NEON)
-			B:trail(lobe, v(7.9, 9.0, 18.0), v(6.6, 9.0, 17.5), { name = "FlukeTrail" .. side, color = { "#ffffff", TURQ }, life = 0.3, trans = { 0.45, 1 } })
+			B:wedge(lobe, v(1.0, 1.0, 1.6), cf(9.9, 9.05, 19.0, 0, 180, 0), CHAR)
+			B:block(lobe, v(0.6, 0.6, 0.6), cf(10.0, 9.1, 19.6), TURQ, NEON)
+			B:trail(lobe, v(10.1, 9.0, 19.4), v(8.6, 9.0, 18.8), { name = "FlukeTrail" .. side, color = { "#ffffff", TURQ }, life = 0.3, trans = { 0.45, 1 } })
 		end)
 
 		------------------------------------------------------------------
@@ -388,11 +386,14 @@ return {
 		B:emitter(splash, "burst", { name = "SplashBurst", color = { "#ffffff", SKY, AQUA }, speed = { 10, 18 }, size = { 1.1, 0.8, 0 }, accel = { 0, -22, 0 }, spread = 70, life = { 0.6, 1.1 } })
 		B:emitter(splash, "dust", { name = "SplashMist", color = { "#ffffff", "#bfefff" }, size = { 2, 3.5, 4.5 }, speed = { 6, 12 } })
 
-		-- wave ring: blue slabs with white foam crests that burst outward
-		for k = 1, 8 do
+		-- wave ring: 12 stepped water slabs (wide blue base, lighter crest,
+		-- white/sky foam cap) laid TANGENTIALLY so they read as one ring of
+		-- water that rears up on impact and rolls outward
+		for k = 1, 12 do
 			local wb = B:bone("Wave" .. k, "Root", SC)
-			B:block(wb, v(5.0, 1.6, 1.4), CFrame.new(SC), AQUA, { tr = 1, name = "WavePart" .. k })
-			B:block(wb, v(4.4, 0.6, 1.0), CFrame.new(SC + v(0, 1.05, -0.1)), k % 2 == 0 and SKY or WHITE,
+			B:block(wb, v(6.4, 1.5, 1.6), CFrame.new(SC), AQUA, { tr = 1, name = "WavePart" .. k })
+			B:block(wb, v(4.8, 1.2, 1.2), CFrame.new(SC + v(0, 1.3, 0.1)), "#7fd4f5", { tr = 1, name = "CrestPart" .. k })
+			B:block(wb, v(3.2, 0.6, 1.0), CFrame.new(SC + v(0, 2.15, 0.2)), k % 2 == 0 and SKY or WHITE,
 				{ mat = k % 2 == 0 and "Neon" or nil, tr = 1, name = "FoamPart" .. k })
 		end
 		-- splash droplet cubes

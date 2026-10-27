@@ -13,7 +13,16 @@ return {
 	Rarity = "Legendary",
 	Element = "Atlantis",
 	Build = function(B, P)
-		local v, cf, ang = P.v, P.cf, P.ang
+		local ang = P.ang
+		-- the whole shark hovers LIFT studs higher than it was authored so the
+		-- prowl, head-butts and fin strokes never scrape the floor
+		local LIFT = 2
+		local function v(x, y, z)
+			return P.v(x, y + LIFT, z)
+		end
+		local function cf(x, y, z, rx, ry, rz)
+			return P.cf(x, y + LIFT, z, rx, ry, rz)
+		end
 		local MAIN, DARK, BELLY = "#3d7d8f", "#24505d", "#e4ece6"
 		local GOLD, GOLD2, BRONZE, BRONZED = "#f2b632", "#c98a1e", "#b8732e", "#6e3f17"
 		local WHITE, MOUTH, PUPIL = "#f8f6ea", "#120d14", "#071216"
@@ -258,8 +267,8 @@ return {
 		end)
 		-- eyelids (hidden until they close)
 		B:sym(function(side)
-			local lid = B:bone("Lid" .. side, "Head", CFrame.new(7.85, 9.95, -12.8) * ang(0, 0, 12))
-			B:block(lid, v(2.2, 0.85, 2.4), CFrame.new(7.85, 9.95, -12.8) * ang(0, 0, 12), MAIN, { tr = 1, name = "Eyelid" .. side })
+			local lid = B:bone("Lid" .. side, "Head", cf(7.85, 9.95, -12.8, 0, 0, 12))
+			B:block(lid, v(2.2, 0.85, 2.4), cf(7.85, 9.95, -12.8, 0, 0, 12), MAIN, { tr = 1, name = "Eyelid" .. side })
 		end)
 
 		------------------------------------------------------------------
@@ -333,7 +342,7 @@ return {
 		-- rings (revealed one after another = an expanding wave), debris
 		-- cubes, dust / burst / bubble emitters and a flash light
 		------------------------------------------------------------------
-		local IMP = v(0, 0.35, -20.5)
+		local IMP = P.v(0, 0.35, -18.5) -- on the ground (not lifted)
 		local impBone = B:bone("Impact", "Root", IMP)
 		local impFx = B:block(impBone, v(6, 1, 6), CFrame.new(IMP), MAIN, { tr = 1, name = "ImpactFX" })
 		B:emitter(impFx, "dust", { name = "ImpactDust", color = { MARBLE, "#cfc3a6" } })

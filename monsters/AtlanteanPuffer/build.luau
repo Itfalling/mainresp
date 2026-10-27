@@ -38,12 +38,13 @@ return {
 		-- BODY core (stepped ball = core cube + 6 panels on their own bones)
 		------------------------------------------------------------------
 		local body = B:bone("Body", "Root", C)
-		B:block(body, v(5.6, 3.6, 5.6), at(0, 1.0, 0), TEAL)
-		B:block(body, v(5.6, 2.0, 5.6), at(0, -1.8, 0), CREAM)
-		-- hidden inflated fill (revealed while puffed)
-		B:block(body, v(7.6, 4.9, 7.6), at(0, 1.35, 0), TEAL, { tr = 1, name = "FillTop" })
-		B:block(body, v(7.65, 2.7, 7.65), at(0, -2.45, 0), CREAM, { tr = 1, name = "FillBot" })
-		B:block(body, v(7.75, 0.35, 7.75), at(0, -1.1, 0), GOLD, { tr = 1, name = "FillBelt" })
+		B:block(body, v(5.6, 3.1, 5.6), at(0, 1.25, 0), TEAL)
+		B:block(body, v(5.6, 2.55, 5.6), at(0, -1.55, 0), CREAM)
+		-- hidden inflated fill (revealed while puffed): fills the stepped
+		-- notches between the pushed-out panels so the puffed ball stays round
+		B:block(body, v(8.0, 4.3, 8.0), at(0, 1.85, 0), TEAL, { tr = 1, name = "FillTop" })
+		B:block(body, v(7.95, 3.7, 7.95), at(0, -2.15, 0), CREAM, { tr = 1, name = "FillBot" })
+		B:block(body, v(8.1, 0.35, 8.1), at(0, -0.3, 0), GOLD, { tr = 1, name = "FillBelt" })
 		local fx = B:block(body, v(6, 6, 6), at(0, 0, 0), TEAL, { tr = 1, name = "BodyFX" })
 		B:emitter(fx, "bubble", { name = "AmbientBubbles", color = { "#ffffff", BUBC }, rate = 2.5, size = { 0.25, 0.4, 0.5 } })
 		B:emitter(fx, "burst", { name = "PuffBurst", color = { "#ffffff", NGOLD, TURQ }, speed = { 10, 18 }, size = { 1.0, 0.6, 0 } })

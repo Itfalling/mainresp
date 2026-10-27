@@ -164,8 +164,8 @@ function M.Update(t, pose, ctx)
 	-- cephalic lobes: slow curling, unfurl outward on the surge
 	local cw = wave(t, 2 * F, 0.2)
 	-- (base pose splays them outboard + down so they frame the face, not hide it)
-	L.both(pose, "Ceph", ang(-10 + 4 * cw + 18 * awake - 10 * curl, -20 - 10 * awake + 6 * curl, 0))
-	L.both(pose, "CephTip", ang(6 * wave(t, 2 * F, 0.05), 12 * wave(t, 2 * F, 0.0) - 30 * awake + 20 * curl, 0))
+	L.both(pose, "Ceph", ang(2 + 4 * cw + 14 * awake - 10 * curl, -20 - 4 * awake + 6 * curl, 0))
+	L.both(pose, "CephTip", ang(6 * wave(t, 2 * F, 0.05), 12 * wave(t, 2 * F, 0.0) - 16 * awake + 20 * curl, 0))
 
 	-- lower lip: calm breathing, soft "oh" while casting
 	pose.Jaw = ang(-3 - 4 * L.wave01(t, stroke, 0.2) - 16 * awake - 6 * curl, 0, 0)

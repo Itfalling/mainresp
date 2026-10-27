@@ -121,7 +121,7 @@ function M.Update(t, pose, ctx)
 		ctx.transparency("LidS" .. s, lidTr)
 		ctx.transparency("Lash" .. s, lidTr)
 	end
-	L.both(pose, "Eye", CFrame.new(0, 0.1 * surprise, -0.45 * surprise))
+	L.both(pose, "Eye", CFrame.new(0, 0.12 * surprise, -0.7 * surprise))
 	local browUp = 0.45 * surprise + 0.45 * jolt - 0.15 * drowsy + 0.25 * happy
 	L.both(pose, "Brow", pa(0, browUp, -0.1 * surprise, 0, 0, -8 * drowsy + 14 * surprise + 10 * jolt - 8 * yawn + 4 * happyBob))
 
@@ -132,7 +132,7 @@ function M.Update(t, pose, ctx)
 		local grow = L.remap(c, 0, 2.1)
 		lvl = 1 + math.floor(L.clamp01((grow * 1.7 + br * 0.9) / 3) * 2.99)
 		if c > 1.95 then lvl = 3 end
-	elseif c > 9.9 and c < 10.62 then
+	elseif c > 9.9 and c < 10.57 then
 		lvl = 1 + math.floor(L.clamp01(L.remap(c, 9.9, 10.45) * 0.8 + 0.4 * br) * 1.99)
 	elseif c > 11.1 then
 		lvl = 1

@@ -44,7 +44,10 @@ return {
 		-- shoulder bumps (stepped) where the wings meet the dome
 		B:sym(function()
 			B:block(body, v(1.4, 0.5, 4.0), C(3.0, 1.55, -0.6), DARK)
-			B:block(body, v(1.0, 0.4, 1.0), C(2.4, 2.0, -1.6), MARBLE2)
+			-- little broken Atlantis column stub (stepped base, shaft, gold capital)
+			B:block(body, v(1.1, 0.4, 1.1), C(2.4, 2.0, -1.6), MARBLE2)
+			B:block(body, v(0.6, 0.9, 0.6), C(2.4, 2.6, -1.6), MARBLE)
+			B:block(body, v(0.9, 0.3, 0.9), C(2.4, 3.15, -1.6), GOLD)
 			B:block(body, v(1.0, 0.4, 1.0), C(2.4, 2.0, 1.2), MARBLE2)
 			-- dark belly spots + gill slits on the pale belly
 			B:block(body, v(0.8, 0.12, 0.8), C(1.3, -1.78, 2.6), MID)
@@ -121,8 +124,9 @@ return {
 			-- the tip (2 bones); pushed outboard so they never hide the eyes
 			local cx = 4.05
 			local ceph = B:bone("Ceph" .. side, "Head", V(cx - 0.1, -0.4, -6.9))
-			B:block(ceph, v(1.1, 1.8, 2.6), C(cx, -0.3, -8.0), NAVY)
-			B:block(ceph, v(0.14, 1.3, 2.2), C(cx - 0.6, -0.3, -8.0), PALE)
+			B:block(ceph, v(1.1, 1.4, 2.6), C(cx, -0.1, -8.0), NAVY)
+			B:block(ceph, v(0.14, 1.0, 2.2), C(cx - 0.6, -0.1, -8.0), PALE)
+			B:block(ceph, v(1.15, 0.3, 0.8), C(cx, -0.65, -9.0), GOLD) -- orichalcum band
 			B:block(ceph, v(1.15, 0.3, 2.2), C(cx, 0.68, -8.0), DARK)
 			local tip = B:bone("CephTip" .. side, "Ceph" .. side, V(cx, -0.2, -9.1))
 			B:block(tip, v(1.0, 1.5, 1.4), C(cx, 0.2, -9.6, 35, 0, 0), NAVY)

@@ -124,11 +124,20 @@ return {
 		-- aperture lips (gold bottom, bronze top)
 		do
 			local rr = r(0)
-			B:block(shell, v(W + 1.3, rr * 0.32 + 0.9, 0.8), frameAt(240, rr * 0.84 + 0.45) * CFrame.new(0, 0, 0.1), GOLD)
+			B:block(shell, v(W + 0.5, rr * 0.2 + 0.8, 0.7), frameAt(240, rr * 0.9 + 0.4) * CFrame.new(0, 0, 0.1), GOLD)
 			B:block(shell, v(2.4, 0.3, 0.4), frameAt(240, rr + 0.95) * CFrame.new(0, 0, 0.1), TURQ, NEON)
 			local ru = r(SPAN)
 			B:block(shell, v(W + 1.0, ru * 0.6 + 0.6, 0.8), frameAt(-60, ru * 0.7 + 0.3) * CFrame.new(0, 0, -0.1), BRONZE)
 		end
+		-- hood "door": closes the aperture while the head hides inside the shell
+		-- (hidden until the Sentinel Spiral)
+		local door = CFrame.new(0, 8.35, -3.3) * ang(24, 0, 0)
+		B:block(shell, v(W - 0.8, 5.6, 0.6), door, HOOD, { tr = 1, studs = false, name = "Door1" })
+		B:block(shell, v(W - 0.6, 0.45, 0.3), door * CFrame.new(0, 0.9, -0.38), GOLD, { tr = 1, name = "Door2" })
+		B:block(shell, v(0.9, 0.9, 0.25), door * CFrame.new(0, 0.9, -0.55) * ang(0, 0, 45), GOLD, { tr = 1, name = "Door3" })
+		B:block(shell, v(0.45, 0.45, 0.15), door * CFrame.new(0, 0.9, -0.7) * ang(0, 0, 45), TURQ, { mat = "Neon", tr = 1, name = "Door4" })
+		B:block(shell, v(1.0, 0.8, 0.2), door * CFrame.new(1.6, -1.2, -0.38), CREAM, { tr = 1, name = "Door5" })
+		B:block(shell, v(0.8, 0.7, 0.2), door * CFrame.new(-1.4, -0.4, -0.38), CREAM, { tr = 1, name = "Door6" })
 		-- dark mantle cavity inside the aperture (shows when the head pulls in)
 		B:block(shell, v(5.4, 4.2, 1.2), cf(0, 8.1, -1.6), "#2a3a3a")
 		-- umbilicus boss on each side: bronze -> gold -> turquoise eye
@@ -210,10 +219,10 @@ return {
 			B:block(pupil, v(0.28, 0.28, 0.06), cf(1.0, 8.3, -7.02), "#ffffff", NEON)
 			-- blink lid (hidden while open) + lash line
 			local lid = B:bone("Lid" .. side, "Head", v(1.4, 10.4, -7.1))
-			B:block(lid, v(2.6, 3.1, 0.2), cf(1.4, 8.9, -7.12), HOOD, { tr = 1, name = "Eyelid" .. side })
+			B:block(lid, v(2.6, 3.1, 0.2), cf(1.4, 8.9, -7.12), HOOD, { tr = 1, studs = false, name = "Eyelid" .. side })
 			B:block(lid, v(2.6, 0.3, 0.22), cf(1.4, 7.45, -7.14), DTEAL, { tr = 1, name = "Lash" .. side })
 			-- happy closed eyes: a teal cover with a glowing "^" (hidden until happy)
-			B:block(head, v(2.6, 3.1, 0.2), cf(1.4, 8.9, -7.22), TEAL, { tr = 1, name = "Happy" .. side .. "1" })
+			B:block(head, v(2.6, 3.1, 0.2), cf(1.4, 8.9, -7.22), TEAL, { tr = 1, studs = false, name = "Happy" .. side .. "1" })
 			B:block(head, v(1.45, 0.45, 0.12), cf(0.95, 9.0, -7.36, 0, 0, 38), TURQ, { mat = "Neon", tr = 1, name = "Happy" .. side .. "2" })
 			B:block(head, v(1.45, 0.45, 0.12), cf(1.85, 9.0, -7.36, 0, 0, -38), TURQ, { mat = "Neon", tr = 1, name = "Happy" .. side .. "3" })
 			-- brows
