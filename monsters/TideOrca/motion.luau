@@ -6,12 +6,12 @@
 -- IDLE PRANK GAGS
 --   0.00  SLY GLANCE   half-lidded side-eye left / right, cocked brow, smirk
 --   1.30  FAKE-OUT     winds back... LUNGES at the viewer with a huge open
---                      jaw (1.65) ... freezes ... "just kidding!" - happy
---                      closed eyes + tongue flick (2.2)
+--                      jaw (1.65) ... freezes ... "just kidding!" - squint
+--                      eyes + tongue flick (2.2)
 --   2.70  SQUIRT       inhales, then squirts a jet of water drops from the
 --                      blowhole right at the viewer (3.05), cackles
 --   4.10  TONGUE TEASE head tilt, winks, raspberry tongue wiggle + spray
---   5.30  GIGGLE       shimmy-wiggle, jaw chatter, laughing tears pop
+--   5.30  GIGGLE       shimmy-wiggle, jaw chatter, eyes squeezed to a squint
 --   6.10  CROWN TIP    tips the crown like a hat with a wink and a star
 -- SIGNATURE "TIDAL CROWN"
 --   6.75  wind-up hop (nose up, tail cocked)      7.15 DIVE nose-first,
@@ -23,7 +23,7 @@
 --  10.30  DOUBLE TAIL SLAP (10.72, 11.20) with splashes + a second wave
 --  11.60  CHEEKY BOW: dips low, doffs the floating crown to the side,
 --         right fin shoots up in a twirling courtly hand-roll, left fin
---         tucks to the belly, wink + star + blush + tongue peek ...
+--         tucks to the belly, wink + star + tongue peek ...
 --  13.35  "TA-DA!": both fins fling up, crown drops back on, blowhole
 --         fountain salute + crown burst
 --  13.5   settles back into the swim
@@ -44,16 +44,6 @@ local BOW, BOWEND = 11.6, 13.0
 
 local function track(c, k) return L.track(c, k) end
 
-local function setEye(ctx, side, state)
-	-- state: "open" / "half" / "closed"
-	local closed = state == "closed"
-	local half = state == "half"
-	ctx.transparency("Lid" .. side, closed and 0 or 1)
-	ctx.transparency("LidA" .. side, closed and 0 or 1)
-	ctx.transparency("LidB" .. side, closed and 0 or 1)
-	ctx.transparency("HalfLid" .. side, half and 0 or 1)
-	ctx.transparency("HalfLash" .. side, half and 0 or 1)
-end
 
 function M.Update(t, pose, ctx)
 	local c = t % M.Cycle
@@ -148,7 +138,7 @@ function M.Update(t, pose, ctx)
 	-- JAW (one hinged jaw): base grin, smirk roll, talk/laugh/roar
 	------------------------------------------------------------------
 	local chat = abs(sin(TAU * 8 * c))
-	local jOpen = 12 + 3 * L.wave01(t, 8 * F) * idleW
+	local jOpen = 5 + 3 * L.wave01(t, 8 * F) * idleW
 		+ 4 * sly
 		- 4 * windL + 48 * lunge + 18 * kid
 		- 4 * inhale + 14 * squirt + (12 + 13 * chat) * cackle
@@ -171,16 +161,18 @@ function M.Update(t, pose, ctx)
 	hP += 0.3 * jOpen - 32 * flash
 	pose.Head = ang(hP, hY, hR)
 
-	pose.Jaw = ang(-jOpen, 0, (c < 0.7 and -smirk or smirk))
+	pose.Jaw = ang(-min(0.85 * jOpen, 60), 0, 0.5 * (c < 0.7 and -smirk or smirk))
 
 	-- tongue: tease (raspberry), "nyeh" flick, cheeky peek on the bow
 	local tOut = max(tease, 0.75 * kid, 0.55 * wink2, 0.6 * splay)
 	local wig = sin(TAU * 6 * c)
-	pose.Tongue = pa(0, 0.3 * tOut, -2.1 * tOut, 6 * tOut, 0, 0)
+	pose.Tongue = pa(0, 0.3 * tOut, -3.4 * tOut, 6 * tOut, 0, 0)
 	pose.TongueTip = ang(-28 * tOut + 10 * tOut * wig, 30 * tOut * sin(TAU * 4 * c), 14 * tOut * wig)
 
 	------------------------------------------------------------------
-	-- EYES: pupils, lids, brows
+	-- EYES (original-20 style): side-set glowing eyes. Expressions come from
+	-- the slit pupil sliding, the lid block dropping (squint / blink / wink)
+	-- and the heavy brow block lifting, lowering and tilting.
 	------------------------------------------------------------------
 	local dart = math.clamp(3 * sin(TAU * 5 * F * t), -1, 1) * 0.3
 	local px = (dart + 0.1 * L.noise(t, 5.1, 3)) * idleW
@@ -195,70 +187,50 @@ function M.Update(t, pose, ctx)
 	local sw = L.env(c, BREACH - 0.05, 0.15, APEX - BREACH - 0.15, 0.2)
 	px += 0.45 * sw * cos(TAU * 2.2 * (c - BREACH))
 	py += 0.4 * sw * sin(TAU * 2.2 * (c - BREACH))
-	-- (the eyes are smaller now: scale the pupil travel to stay inside the white)
-	pose.PupilR = CFrame.new(0.65 * px, 0.7 * py, 0)
-	pose.PupilL = CFrame.new(0.65 * px, 0.7 * py, 0)
-	local tiny = (c > 1.62 and c < 2.1) or (c > APEX and c < APEX + 0.45) or (c > SPLAT - 0.02 and c < SPLAT + 0.12)
-	for _, side in { "R", "L" } do
-		ctx.transparency("PupilBig" .. side, tiny and 1 or 0)
-		ctx.transparency("Glint" .. side, tiny and 1 or 0)
-		ctx.transparency("PupilSmall" .. side, tiny and 0 or 1)
-	end
-	-- eye pop on the lunge / flash
-	local pop = max(lunge, flash, 0.6 * squash)
-	L.both(pose, "Eye", pa(0, 0.2 * pop, -0.5 * pop, 0, 0, 0))
+	-- the slit slides along the side-set eye (forward <-> back) and a touch up/down
+	local pz = math.clamp(0.75 * px, -0.2, 0.6)
+	local pyy = math.clamp(0.4 * py, -0.12, 0.12)
+	pose.PupilR = CFrame.new(0, pyy, pz)
+	pose.PupilL = CFrame.new(0, pyy, pz)
 
-	-- lid states
-	local blink = false
+	-- lids: 0 = open, 0.5 = squint, 1 = shut (a black block drops over the eye)
+	local blink = 0
 	for _, b in { 0.95, 2.95, 4.0, 7.05, 14.4 } do
-		if c > b and c < b + 0.12 then blink = true end
+		blink = max(blink, L.env(c, b, 0.05, 0.03, 0.07))
 	end
-	local laugh = (kid > 0.4) or (cackle > 0.3) or (giggle > 0.3) or (c > FALL + 0.15 and c < SPLAT + 0.35)
-	local stateR, stateL = "open", "open"
-	if sly > 0.3 or windL > 0.4 or (tip > 0.3 and false) or (inhale > 0.5) then
-		stateR, stateL = "half", "half"
-	end
-	if blink or laugh then
-		stateR, stateL = "closed", "closed"
-	end
-	if tease > 0.3 or tip > 0.3 or wink2 > 0.3 then
-		stateL = "closed"
-		if stateR == "closed" then stateR = "open" end
-	end
-	if (c > 11.0 and c < 11.6) then stateR, stateL = "half", "half" end -- smug after the slaps
-	setEye(ctx, "R", stateR)
-	pose.LidR = CFrame.new(0, stateR == "closed" and -0.1 or 0, 0)
-	pose.LidL = CFrame.new(0, stateL == "closed" and -0.1 or 0, 0)
-	setEye(ctx, "L", stateL)
+	local laugh = max(kid, cackle, giggle, L.env(c, FALL + 0.15, 0.1, SPLAT - FALL, 0.15))
+	local squint = max(0.55 * sly, 0.6 * windL, 0.45 * inhale, 0.6 * laugh, 0.5 * L.env(c, 11.0, 0.1, 0.4, 0.1))
+	local lidR = max(squint, blink)
+	local lidL = lidR
+	-- winks on the left eye (tongue tease, crown tip, bow)
+	local wink = max(tease, tip, wink2)
+	lidL = max(lidL, wink)
+	lidR = lidR * (1 - 0.6 * wink)
+	-- wide-eyed on the big surprise beats: lids snap fully up
+	local shock = max(lunge, flash, 0.6 * squash)
+	lidR *= 1 - shock
+	lidL *= 1 - shock * (1 - wink)
+	lidR, lidL = min(1, max(0, lidR)), min(1, max(0, lidL))
+	pose.LidR = CFrame.new(0, -1.85 * lidR, 0)
+	pose.LidL = CFrame.new(0, -1.85 * lidL, 0)
+	ctx.transparency("LidR", lidR > 0.04 and 0 or 1)
+	ctx.transparency("LidL", lidL > 0.04 and 0 or 1)
 
-	-- brows: R is the cocked one; L lowers into the smirk
-	local bIdle = 0.12 * wave(t, 9 * F) * idleW
-	local upR = bIdle + 0.55 * sly - 0.35 * windL - 0.45 * lunge + 0.5 * kid + 0.4 * inhale + 0.3 * cackle
-		+ 0.55 * tease + 0.4 * giggle + 0.6 * tip + 0.7 * flash - 0.3 * tuck + 0.5 * splay + 0.6 * bow + 0.3 * slapLift
-	local upL = bIdle - 0.1 * sly - 0.35 * windL - 0.45 * lunge + 0.5 * kid + 0.4 * inhale + 0.3 * cackle
-		- 0.15 * tease + 0.4 * giggle - 0.1 * tip + 0.7 * flash - 0.3 * tuck + 0.5 * splay - 0.1 * bow + 0.3 * slapLift
-	local tR = 4 * wave(t, 9 * F, 0.2) * idleW + 10 * sly + 22 * windL + 25 * lunge - 8 * kid - 12 * cackle
-		+ 14 * tease - 10 * giggle + 10 * tip - 15 * flash + 16 * tuck - 10 * splay + 12 * bow
-	local tL = 4 * wave(t, 9 * F, 0.2) * idleW + 20 * sly + 22 * windL + 25 * lunge - 8 * kid - 12 * cackle
-		+ 18 * tease - 10 * giggle + 18 * tip - 15 * flash + 16 * tuck - 10 * splay + 18 * bow
+	-- brows: lift (studs) + tilt (deg, + = front end up / surprised,
+	-- - = front end down / tough glare). R is the cocked one.
+	local bIdle = 0.1 * wave(t, 9 * F) * idleW
+	local upR = bIdle + 0.45 * sly - 0.25 * windL - 0.2 * lunge + 0.3 * kid + 0.35 * inhale + 0.2 * cackle
+		+ 0.45 * tease + 0.25 * giggle + 0.45 * tip + 0.6 * flash - 0.25 * tuck + 0.4 * splay + 0.5 * bow + 0.2 * slapLift
+	local upL = bIdle - 0.1 * sly - 0.25 * windL - 0.2 * lunge + 0.3 * kid + 0.35 * inhale + 0.2 * cackle
+		- 0.2 * tease + 0.25 * giggle - 0.15 * tip + 0.6 * flash - 0.25 * tuck + 0.4 * splay - 0.15 * bow + 0.2 * slapLift
+	local tiltR = 3 * wave(t, 9 * F, 0.2) * idleW + 10 * sly - 16 * windL - 14 * lunge + 6 * kid + 8 * cackle
+		+ 10 * tease + 6 * giggle + 10 * tip + 14 * flash - 10 * tuck + 8 * splay + 10 * bow
+	local tiltL = 3 * wave(t, 9 * F, 0.2) * idleW - 6 * sly - 16 * windL - 14 * lunge + 6 * kid + 8 * cackle
+		- 10 * tease + 6 * giggle - 8 * tip + 14 * flash - 10 * tuck + 8 * splay - 8 * bow
 	-- the cocked brow swaps sides with the glance
-	if c < 0.7 and sly > 0 then upR, upL, tR, tL = upL, upR, tL, tR end
-	pose.BrowR = pa(0, upR, 0, 0, 0, tR)
-	pose.BrowL = L.mirror(pa(0, upL, 0, 0, 0, tL))
-
-	-- laughing tears
-	local tearOn = (cackle > 0.3) or (giggle > 0.3)
-	local tu = ((c * 1.6) % 1)
-	L.both(pose, "Tear", CFrame.new(0.6 * tu, -1.4 * tu, 0))
-	for _, side in { "R", "L" } do
-		ctx.transparency("TearA" .. side, tearOn and (tu > 0.8 and 0.6 or 0.15) or 1)
-		ctx.transparency("TearB" .. side, tearOn and (tu > 0.8 and 0.6 or 0.15) or 1)
-	end
-
-	-- giggle blush pops on the laughs and the bow
-	local blushOn = (kid > 0.3) or (cackle > 0.3) or (giggle > 0.2) or (bow > 0.5)
-	ctx.transparency("BlushR", blushOn and 0 or 1)
-	ctx.transparency("BlushL", blushOn and 0 or 1)
+	if c < 0.7 and sly > 0 then upR, upL, tiltR, tiltL = upL, upR, tiltL, tiltR end
+	pose.BrowR = pa(0, upR, 0, tiltR, 0, 0)
+	pose.BrowL = pa(0, upL, 0, tiltL, 0, 0)
 
 	-- wink star (crown tip, tongue tease, bow)
 	local starA = max(L.env(c, 6.18, 0.1, 0.25, 0.12, "backOut"), L.env(c, 4.25, 0.1, 0.3, 0.12, "backOut"), L.env(c, 12.08, 0.1, 0.5, 0.12, "backOut"))

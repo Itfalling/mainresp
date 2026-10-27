@@ -10,18 +10,15 @@
 -- gem, swept gold helm wings and a big turquoise orichalcum crystal spire.
 -- The dorsal is a trident blade (tall stepped fin with a gold leading edge and
 -- crystal tip, flanked by two crystal tines). The fluke is crystal tipped.
--- HEAD: short rounded orca melon (stepped dome, cheek band, chubby jowls,
--- a stubby black rostrum - no long snout) with a gold helm strap + marble
--- jowl plate. No gems on the face centre. Body sides are sculpted with
--- stepped side bands, a grey saddle wrap, stepped white flank flame, keel +
--- muscle ridges, rivets and a sunken temple glyph tile.
--- FACE: ONE pair of small soulful eyes on the front (rounded white, big dark
--- pupil, white glint, a dark upper lid overlapping the top) with the white
--- orca patches as chunky brows right above, hidden "^" happy lids, smug
--- half-lids and blink lids, and ONE small hinged chin between white cheeks
--- (two small front teeth, two tiny lower teeth, a tongue that can stick out)
--- with a lopsided smirk crease kicking up at one mouth corner.
--- Hidden VFX props: blowhole squirt drops, laughing tears, a wink star,
+-- HEAD (original-20 style, like the Abyssal Mosasaurus / Atomic Kaiju): a
+-- long chunky stepped orca head - cranium, stepped melon, short rostrum -
+-- with a gold helm strap + marble jowl plate and a two-tone forehead plate.
+-- FACE: ONE side-set eye per side inside the white orca patch (dark socket,
+-- glowing turquoise rectangle wrapping the outer-front corner, slit pupil on
+-- the side face, glint), a heavy black brow block over each eye, hidden lid
+-- blocks that drop for squints / winks / blinks, and ONE long orca mouth
+-- line with rows of white block teeth on both jaws, a white chin and a tongue.
+-- Hidden VFX props: blowhole squirt drops, a wink star,
 -- three swirling water rings, a splash crown, a wave ring, a crown beam.
 return {
 	DisplayName = "Atlantean Tide Orca",
@@ -166,99 +163,106 @@ return {
 		local function hspike(bone, a, b, w, d, col, opts) return B:spike(bone, a, b, w * HS, d * HS, col, opts) end
 		local function hbeam(bone, a, b, w, h, col, opts) return B:beam(bone, a, b, w * HS, h * HS, col, opts) end
 		------------------------------------------------------------------
-		-- HEAD: short, rounded orca melon (no long snout). The front face is
-		-- one flat black disc-ish panel: two small soulful eyes, white orca
-		-- brow patches, a short black rostrum and a white chin with ONE
-		-- small mouth well inside the head width.
+		-- HEAD (original-20 style): a long, chunky stepped orca head.
+		-- Side profile steps down cranium -> melon -> short rostrum; the
+		-- long straight orca mouth line runs the whole length with a row of
+		-- white block teeth top and bottom. ONE eye per side, set in the
+		-- white orca patch: a dark socket with a glowing turquoise rectangle
+		-- that wraps the outer-front corner (reads from side, 3/4 and front),
+		-- a dark slit pupil on the side face only, a heavy black brow block
+		-- overhanging it, and a hidden lid block that drops for blinks/squints.
 		------------------------------------------------------------------
 		local head = B:bone("Head", "Body", hv(0, 10, -6))
-		hb(head, 8.0, 6.0, 8.6, 0, 12.2, -9.5, BLACK) -- melon core (x +-4, y 9.2..15.2, front z -13.8)
-		hb(head, 9.6, 4.4, 7.6, 0, 11.4, -9.2, BLACK) -- cheek band (x +-4.8), rounded front corners
-		hb(head, 10.4, 2.6, 5.6, 0, 10.6, -9.0, BLK2) -- chubby jowls
-		hb(head, 6.6, 0.8, 7.4, 0, 15.5, -9.4, BLK2) -- top dome step
-		hb(head, 4.4, 0.5, 5.6, 0, 16.0, -9.2, BLACK) -- dome cap (under the crown)
-		hb(head, 6.4, 1.0, 0.5, 0, 14.6, -13.95, BLK2) -- melon brow-ridge rounding
-		-- short rostrum (upper lip): a stubby black step, not a long snout
-		hb(head, 5.8, 1.3, 0.7, 0, 9.6, -14.15, BLACK)
-		-- white orca throat + chin cheeks framing the small mouth
-		hb(head, 8.0, 2.6, 5.6, 0, 7.9, -8.0, WHITE) -- throat (y 6.6..9.2)
-		B:sym(function(side)
-			hb(head, 2.0, 2.4, 3.0, 3.5, 8.0, -12.3, WHITE) -- chin cheek
-			hb(head, 0.2, 2.2, 3.0, 2.52, 7.9, -12.3, MOUTH) -- inner mouth wall
-			-- giggle blush (hidden, pops on the laughs) under the eyes
-			hb(head, 1.1, 0.4, 0.2, 3.3, 10.45, -13.9, CORAL2, { tr = 1, name = "Blush" .. side })
-			-- royal helm strap: gold band from the crown down the cheek to a
-			-- stepped marble jowl plate at the jaw hinge
-			hb(head, 0.6, 4.4, 0.9, 5.1, 11.6, -6.9, GOLD)
-			hb(head, 0.5, 1.2, 2.6, 5.45, 9.9, -7.6, MARBLE)
-			hb(head, 0.55, 0.4, 2.8, 5.47, 10.6, -7.6, DGOLD)
-			-- the white orca eye-patch sweeping back along the side
-			hb(head, 1.0, 1.4, 3.4, 4.5, 13.7, -11.1, WHITE)
-			hb(head, 1.0, 1.8, 3.2, 4.55, 13.1, -8.4, WHITE)
-			hb(head, 1.0, 1.0, 1.6, 4.6, 12.0, -7.2, WHITE)
-		end)
-		hb(head, 4.8, 0.2, 3.8, 0, 8.98, -12.6, MOUTH) -- mouth roof
-		hb(head, 4.8, 2.2, 0.2, 0, 7.9, -10.9, MOUTH) -- mouth back wall
-		-- two small clean front teeth + the cheeky smirk: the mouth line
-		-- kicks up at ONE corner (lopsided prankster grin)
-		hb(head, 0.6, 0.55, 0.4, -0.5, 8.68, -14.25, WHITE)
-		hb(head, 0.6, 0.55, 0.4, 0.5, 8.68, -14.25, WHITE)
-		hb(head, 1.1, 0.32, 0.2, 3.3, 8.78, -13.92, MOUTH, nil, 0, 0, 32) -- smirk crease (R, raised)
-		hb(head, 0.6, 0.3, 0.2, -2.85, 8.62, -13.92, MOUTH, nil, 0, 0, -12) -- small crease (L)
-		local mfx = hb(head, 2, 1, 1, 0, 8.6, -15.2, MOUTH, { tr = 1, name = "MouthFX" })
+		hb(head, 8.8, 5.2, 8.4, 0, 11.8, -9.3, BLACK) -- cranium   x+-4.4 y 9.2..14.4 z -5.1..-13.5
+		hb(head, 7.6, 1.0, 7.4, 0, 14.9, -9.5, BLACK) -- upper step y 14.4..15.4
+		hb(head, 5.8, 0.7, 6.4, 0, 15.65, -9.6, BLK2) -- dome cap (under the crown)
+		hb(head, 7.4, 4.4, 1.9, 0, 11.4, -14.4, BLACK) -- melon     x+-3.7 y 9.2..13.6 z -13.45..-15.35
+		hb(head, 6.0, 0.8, 1.7, 0, 14.0, -14.0, BLK2) -- melon brow step
+		hb(head, 5.8, 2.3, 1.8, 0, 10.35, -16.2, BLACK) -- rostrum   x+-2.9 y 9.2..11.5 z -15.3..-17.1
+		hb(head, 4.4, 0.6, 1.5, 0, 11.8, -15.9, BLK2) -- rostrum top step
+		-- stepped two-tone forehead plate on the melon (colour blocking)
+		hb(head, 5.6, 1.2, 0.2, 0, 12.9, -15.42, BLK2)
+		hb(head, 3.8, 0.8, 0.2, 0, 11.9, -15.42, BLK2)
+		hb(head, 4.6, 0.25, 1.2, 0, 12.2, -16.1, BLK2) -- rostrum top stripe
+		-- gold helm rim along the top of the melon
+		hb(head, 6.2, 0.4, 0.4, 0, 14.2, -14.9, GOLD)
+		-- white throat behind the jaw hinge (covers the gap when it gapes)
+		hb(head, 7.6, 2.4, 1.8, 0, 8.0, -6.3, WHITE)
+		-- mouth: dark roof + back wall
+		hb(head, 7.4, 0.1, 6.4, 0, 9.15, -10.3, MOUTH)
+		hb(head, 5.2, 0.1, 3.0, 0, 9.15, -15.0, MOUTH)
+		hb(head, 7.0, 2.2, 0.2, 0, 8.1, -7.1, MOUTH)
+		local mfx = hb(head, 2, 1, 1, 0, 9.0, -17.8, MOUTH, { tr = 1, name = "MouthFX" })
 		B:emitter(mfx, "burst", { name = "Raspberry", color = { "#ffffff", WATER, TONGUE }, speed = { 6, 12 }, spread = 35, size = { 0.5, 0.35, 0 }, life = { 0.4, 0.8 }, dir = "Front", accel = { 0, -12, 0 } })
-
-		-- EYES: one pair on the front face only, smaller and set apart, each
-		-- a rounded white with a big dark pupil, a white glint and a black
-		-- upper lid that overlaps the top (gives them a look, not a stare).
 		B:sym(function(side)
-			local eye = B:bone("Eye" .. side, "Head", hv(2.3, 12.3, -14.0))
-			hb(eye, 2.4, 2.2, 0.8, 2.3, 12.3, -14.0, WHITE) -- rounded white
-			hb(eye, 2.0, 2.6, 0.8, 2.3, 12.3, -14.01, WHITE)
-			hb(eye, 2.6, 0.55, 0.3, 2.3, 13.35, -14.55, DEEP, nil, 0, 0, -6) -- upper lid line
-			local pup = B:bone("Pupil" .. side, "Eye" .. side, hv(2.15, 12.15, -14.45))
-			hb(pup, 1.3, 1.6, 0.15, 2.15, 12.15, -14.45, PUPIL, { name = "PupilBig" .. side })
-			hb(pup, 0.7, 0.8, 0.15, 2.2, 12.2, -14.46, PUPIL, { tr = 1, name = "PupilSmall" .. side })
-			-- lids (hidden): closed lid, happy-closed "^" and a smug half-lid
-			local lid = B:bone("Lid" .. side, "Eye" .. side, hv(2.3, 13.6, -14.8))
-			hb(lid, 2.7, 2.9, 0.3, 2.3, 12.3, -14.8, BLACK, { tr = 1, name = "Lid" .. side })
-			hb(lid, 1.4, 0.45, 0.15, 1.75, 12.2, -15.0, WHITE, { tr = 1, name = "LidA" .. side }, 0, 0, 28)
-			hb(lid, 1.4, 0.45, 0.15, 2.85, 12.2, -15.0, WHITE, { tr = 1, name = "LidB" .. side }, 0, 0, -28)
-			hb(lid, 2.7, 1.4, 0.3, 2.3, 13.0, -14.8, BLACK, { tr = 1, name = "HalfLid" .. side })
-			hb(lid, 2.6, 0.3, 0.15, 2.3, 12.35, -14.98, BLK2, { tr = 1, name = "HalfLash" .. side })
-			-- the white orca eye patch = a chunky brow sitting right on the eye
-			local brow = B:bone("Brow" .. side, "Head", hv(2.3, 14.25, -14.0))
-			hb(brow, 2.8, 0.8, 1.0, 2.4, 14.25, -14.0, WHITE)
-			hb(brow, 1.2, 0.7, 1.0, 3.6, 14.55, -13.9, WHITE)
-			hb(brow, 0.6, 0.6, 1.8, 4.2, 14.5, -12.9, WHITE)
-			-- laughing tears (hidden)
-			local tear = B:bone("Tear" .. side, "Head", hv(3.6, 10.9, -14.3))
-			hb(tear, 0.5, 0.6, 0.4, 3.6, 10.9, -14.3, WATER, { tr = 1, name = "TearA" .. side })
-			hb(tear, 0.3, 0.3, 0.3, 3.6, 11.35, -14.3, WATER, { tr = 1, name = "TearB" .. side }, 0, 0, 45)
+			-- mouth line kicks up at the back corner (cheeky smirk)
+			hb(head, 0.2, 0.3, 1.8, 4.42, 9.55, -7.9, MOUTH, nil, -16, 0, 0)
+			-- royal helm strap + stepped marble jowl plate at the jaw hinge
+			hb(head, 0.6, 4.6, 0.9, 4.75, 11.9, -6.6, GOLD)
+			hb(head, 0.5, 1.3, 2.4, 4.85, 9.95, -7.5, MARBLE)
+			hb(head, 0.55, 0.35, 2.6, 4.87, 10.6, -7.5, DGOLD)
+			-- the classic white orca eye patch sweeping back + up from the eye
+			hb(head, 0.5, 2.8, 3.6, 4.45, 12.4, -8.6, WHITE) -- y 11.0..13.8 z -6.8..-10.4
+			hb(head, 0.5, 0.6, 2.4, 4.45, 14.1, -8.2, WHITE)
+			hb(head, 0.5, 1.2, 1.4, 4.45, 12.0, -6.1, WHITE) -- tapering tail of the patch
+			hb(head, 0.5, 2.2, 3.0, 4.5, 11.6, -10.9, WHITE) -- frame round the eye
+			-- EYE: dark socket bump, glowing rectangle wrapping the front corner
+			hb(head, 0.8, 1.6, 2.2, 4.95, 11.6, -10.8, DEEP) -- x 4.55..5.35
+			hb(head, 0.2, 1.1, 1.7, 5.35, 11.6, -10.75, TURQ, { mat = "Neon", name = "Eye" .. side })
+			hb(head, 0.6, 1.1, 0.2, 5.0, 11.6, -11.92, TURQ, NEON)
+			hb(head, 0.08, 0.35, 0.35, 5.47, 11.95, -10.2, "#ffffff", NEON) -- glint
+			local pup = B:bone("Pupil" .. side, "Head", hv(5.48, 11.6, -11.1))
+			hb(pup, 0.12, 0.8, 0.5, 5.48, 11.6, -11.1, PUPIL)
+			-- lid (hidden): drops half-way for squints, all the way for blinks
+			local lid = B:bone("Lid" .. side, "Head", hv(5.0, 13.2, -10.85))
+			hb(lid, 1.0, 1.6, 2.6, 5.05, 13.2, -10.85, BLACK, { tr = 1, name = "Lid" .. side })
+			-- heavy black brow ridge overhanging the eye (front end low)
+			local brow = B:bone("Brow" .. side, "Head", hv(4.8, 12.85, -10.9))
+			hb(brow, 1.4, 0.9, 3.4, 4.95, 12.85, -10.9, BLK2, nil, -10, 0, 0)
+			hb(brow, 1.0, 0.6, 1.6, 4.75, 13.45, -10.6, BLACK, nil, -6, 0, 0)
+			-- upper teeth: a neat row of white blocks along the lip line
+			local up = {
+				{ 3.75, -8.6, false }, { 3.75, -9.8, true }, { 3.75, -11.0, false }, { 3.75, -12.2, true },
+				{ 3.25, -13.6, false }, { 3.25, -14.8, true }, { 2.45, -16.0, false }, { 1.3, -16.7, true },
+			}
+			for _, t in up do
+				local sx, sy = t[3] and 0.6 or 0.5, t[3] and 0.9 or 0.65
+				hb(head, sx, sy, sx, t[1], 9.2 - sy / 2, t[2], WHITE)
+			end
 		end)
-		-- white glints (same upper-outer corner on both eyes, not mirrored)
-		hb("PupilR", 0.45, 0.45, 0.08, 2.5, 12.55, -14.56, "#ffffff", { mat = "Neon", name = "GlintR" })
-		hb("PupilL", 0.45, 0.45, 0.08, -1.8, 12.55, -14.56, "#ffffff", { mat = "Neon", name = "GlintL" })
-		-- wink star (hidden), pops next to the left eye
-		local star = B:bone("Star", "Head", hv(-4.6, 14.4, -14.4))
-		hb(star, 1.6, 0.4, 0.3, -4.6, 14.4, -14.4, NGOLD, { mat = "Neon", tr = 1, name = "StarA" })
-		hb(star, 0.4, 1.6, 0.3, -4.6, 14.4, -14.4, NGOLD, { mat = "Neon", tr = 1, name = "StarB" })
+		-- wink star (hidden), pops beside the left eye
+		local star = B:bone("Star", "Head", hv(-5.6, 14.2, -12.2))
+		hb(star, 1.6, 0.4, 0.3, -5.6, 14.2, -12.2, NGOLD, { mat = "Neon", tr = 1, name = "StarA" })
+		hb(star, 0.4, 1.6, 0.3, -5.6, 14.2, -12.2, NGOLD, { mat = "Neon", tr = 1, name = "StarB" })
 
 		------------------------------------------------------------------
-		-- JAW (one small hinged chin between the cheeks) + tongue
+		-- JAW: long hinged orca lower jaw (black lip band, white chin) with a
+		-- row of white block teeth + tongue
 		------------------------------------------------------------------
-		local jaw = B:bone("Jaw", "Head", hv(0, 9.0, -10.6))
-		hb(jaw, 5.0, 1.8, 3.8, 0, 7.7, -12.5, WHITE) -- chin (y 6.8..8.6)
-		hb(jaw, 4.0, 0.6, 3.2, 0, 6.55, -12.4, WSHADE) -- chin step
-		hb(jaw, 5.0, 0.4, 0.6, 0, 8.75, -14.1, WHITE) -- front lip rim
-		hb(jaw, 4.4, 0.1, 3.0, 0, 8.62, -12.3, MOUTH) -- mouth floor
-		hb(jaw, 0.45, 0.35, 0.35, -1.6, 9.05, -14.15, WHITE) -- two tiny lower teeth
-		hb(jaw, 0.45, 0.35, 0.35, 1.6, 9.05, -14.15, WHITE)
-		local tongue = B:bone("Tongue", "Jaw", hv(0, 8.8, -11.2))
-		hb(tongue, 2.2, 0.35, 2.4, 0, 8.8, -12.4, TONGUE)
-		hb(tongue, 0.35, 0.08, 1.8, 0, 9.0, -12.5, TONGUED)
-		local ttip = B:bone("TongueTip", "Tongue", hv(0, 8.8, -13.5))
-		hb(ttip, 1.8, 0.35, 1.2, 0, 8.8, -14.0, TONGUE)
+		local jaw = B:bone("Jaw", "Head", hv(0, 9.1, -6.9))
+		hb(jaw, 8.0, 0.8, 5.8, 0, 8.6, -9.8, BLACK) -- lip band (back)
+		hb(jaw, 6.4, 0.8, 4.2, 0, 8.6, -14.7, BLACK) -- lip band (front)
+		hb(jaw, 7.8, 1.5, 5.6, 0, 7.45, -9.8, WHITE) -- white chin
+		hb(jaw, 6.2, 1.3, 4.2, 0, 7.55, -14.6, WHITE)
+		hb(jaw, 5.0, 0.5, 6.4, 0, 6.5, -11.4, WSHADE) -- chin step
+		hb(jaw, 6.6, 0.1, 5.6, 0, 9.03, -9.9, MOUTH) -- mouth floor
+		hb(jaw, 4.8, 0.1, 4.0, 0, 9.03, -14.6, MOUTH)
+		B:sym(function()
+			local low = {
+				{ 3.35, -9.2, true }, { 3.35, -10.4, false }, { 3.35, -11.6, true },
+				{ 2.75, -13.0, false }, { 2.75, -14.2, true }, { 2.75, -15.4, false },
+				{ 1.9, -16.3, true }, { 0.6, -16.4, false },
+			}
+			for _, t in low do
+				local sx, sy = t[3] and 0.6 or 0.5, t[3] and 0.85 or 0.6
+				hb(jaw, sx, sy, sx, t[1], 9.0 + sy / 2, t[2], WHITE)
+			end
+		end)
+		local tongue = B:bone("Tongue", "Jaw", hv(0, 9.1, -10.0))
+		hb(tongue, 3.0, 0.4, 3.6, 0, 9.25, -11.8, TONGUE)
+		hb(tongue, 0.4, 0.08, 2.8, 0, 9.48, -11.9, TONGUED)
+		local ttip = B:bone("TongueTip", "Tongue", hv(0, 9.2, -13.6))
+		hb(ttip, 2.4, 0.4, 1.6, 0, 9.25, -14.3, TONGUE)
 		------------------------------------------------------------------
 		-- WAR-CROWN: marble temple ring of columns, gold lintels + points,
 		-- pediment gem, helm wings, a big orichalcum crystal spire
