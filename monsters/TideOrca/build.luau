@@ -36,6 +36,13 @@ return {
 		local TURQ, NGOLD = "#3ff0e0", "#ffe27a" -- the two small neon accents
 		local NEON = { mat = "Neon" }
 
+		-- the whole monster is authored with its belly ~4.5 studs up, then
+		-- lifted by LIFT so it floats high enough for the big jaw / bow gags;
+		-- the ground VFX (splash crown, wave ring) are added with LIFT = 0
+		local LIFT = 3
+		local baseXf = B.xf
+		B.xf = function(self, c) return CFrame.new(0, LIFT, 0) * baseXf(self, c) end
+
 		local function blk(bone, sx, sy, sz, x, y, z, col, opts, rx, ry, rz)
 			return B:block(bone, v(sx, sy, sz), cf(x, y, z, rx or 0, ry or 0, rz or 0), col, opts)
 		end
@@ -123,27 +130,27 @@ return {
 		local function hspike(bone, a, b, w, d, col, opts) return B:spike(bone, a, b, w * HS, d * HS, col, opts) end
 		local function hbeam(bone, a, b, w, h, col, opts) return B:beam(bone, a, b, w * HS, h * HS, col, opts) end
 		------------------------------------------------------------------
-		-- HEAD (big cartoon head, ~1.3x)
+		-- HEAD (big cartoon head)
 		------------------------------------------------------------------
 		local head = B:bone("Head", "Body", hv(0, 10, -6))
-		hb(head, 9.4, 5.2, 9.0, 0, 11.6, -9.7, BLACK) -- core (z -14.2..-5.2)
-		hb(head, 8.0, 1.0, 7.4, 0, 14.65, -9.6, BLK2) -- top step
+		hb(head, 9.4, 6.0, 9.0, 0, 12.0, -9.7, BLACK) -- core (y 9..15, z -14.2..-5.2)
+		hb(head, 8.0, 0.9, 7.4, 0, 15.4, -9.6, BLK2) -- top step
 		-- snout / rostrum (stepped)
 		hb(head, 7.8, 1.9, 3.2, 0, 9.95, -15.7, BLACK)
 		hb(head, 6.0, 1.4, 0.8, 0, 9.9, -17.6, BLK2)
-		hb(head, 1.2, 0.3, 3.0, 0, 11.0, -15.8, GOLD) -- muzzle guard
 		hb(head, 0.55, 0.55, 0.3, 0, 10.5, -18.05, TURQ, NEON) -- nose gem
-		-- gold nose guard between the eyes
-		hb(head, 1.2, 3.8, 0.5, 0, 12.7, -14.4, GOLD)
-		hb(head, 0.6, 0.6, 0.2, 0, 13.9, -14.7, TURQ, NEON, 0, 0, 45)
+		-- slim gold nose guard between the eyes
+		hb(head, 0.7, 3.2, 0.5, 0, 12.4, -14.4, GOLD)
+		hb(head, 0.6, 0.6, 0.2, 0, 14.2, -14.6, TURQ, NEON, 0, 0, 45)
 		-- mouth roof (dark) and the dark cheek walls
 		hb(head, 7.4, 0.3, 10.4, 0, 8.95, -11.9, MOUTH)
 		B:sym(function(side)
 			hb(head, 0.3, 1.5, 9.4, 3.75, 8.4, -11.6, MOUTH)
 			-- cheek bulge + white side patch (the orca marking, no eye here)
 			hb(head, 0.6, 2.3, 6.4, 4.95, 10.3, -10.6, BLK2)
-			hb(head, 0.5, 1.7, 5.4, 4.95, 13.1, -10.2, WHITE)
-			hb(head, 0.5, 1.0, 2.6, 4.95, 12.0, -8.8, WHITE)
+			hb(head, 0.5, 1.4, 3.6, 4.95, 13.7, -11.2, WHITE)
+			hb(head, 0.5, 1.8, 3.2, 4.95, 13.1, -8.6, WHITE)
+			hb(head, 0.5, 1.0, 1.6, 4.95, 11.9, -7.4, WHITE)
 			-- upper teeth (sides)
 			for i = 0, 3 do
 				local h = i % 2 == 0 and 0.9 or 0.65
@@ -158,36 +165,36 @@ return {
 		local mfx = hb(head, 2, 1, 1, 0, 8.2, -17.5, MOUTH, { tr = 1, name = "MouthFX" })
 		B:emitter(mfx, "burst", { name = "Raspberry", color = { "#ffffff", WATER, TONGUE }, speed = { 6, 12 }, spread = 35, size = { 0.5, 0.35, 0 }, life = { 0.4, 0.8 }, dir = "Front", accel = { 0, -12, 0 } })
 
-		-- EYES: one pair, on the front face only
+		-- EYES: one pair, on the front face only. The orca's white eye patches
+		-- are the big expressive BROWS. Pupils live on the front face only.
 		B:sym(function(side)
-			hb(head, 3.8, 4.4, 0.3, 2.45, 12.85, -14.3, WHITE) -- orca eye patch
-			local eye = B:bone("Eye" .. side, "Head", hv(2.45, 12.4, -14.8))
-			hb(eye, 2.9, 2.5, 1.0, 2.45, 12.4, -14.8, DEEP) -- dark rim (stepped round)
-			hb(eye, 2.3, 3.1, 1.0, 2.45, 12.4, -14.8, DEEP)
-			hb(eye, 2.5, 2.1, 1.1, 2.45, 12.4, -14.9, WHITE)
-			hb(eye, 1.9, 2.7, 1.1, 2.45, 12.4, -14.91, WHITE)
-			local pup = B:bone("Pupil" .. side, "Eye" .. side, hv(2.45, 12.3, -15.5))
-			hb(pup, 1.2, 1.5, 0.2, 2.45, 12.25, -15.52, PUPIL, { name = "PupilBig" .. side })
-			hb(pup, 0.6, 0.7, 0.2, 2.45, 12.35, -15.53, PUPIL, { tr = 1, name = "PupilSmall" .. side })
-			-- lids (hidden): happy-closed "^" lid and a smug half-lid
-			local lid = B:bone("Lid" .. side, "Eye" .. side, hv(2.45, 13.7, -15.6))
-			hb(lid, 3.0, 3.3, 0.3, 2.45, 12.4, -15.6, WHITE, { tr = 1, name = "Lid" .. side })
-			hb(lid, 1.6, 0.45, 0.2, 1.85, 12.3, -15.8, DEEP, { tr = 1, name = "LidA" .. side }, 0, 0, 28)
-			hb(lid, 1.6, 0.45, 0.2, 3.05, 12.3, -15.8, DEEP, { tr = 1, name = "LidB" .. side }, 0, 0, -28)
-			hb(lid, 3.0, 1.6, 0.3, 2.45, 13.25, -15.6, WHITE, { tr = 1, name = "HalfLid" .. side })
-			hb(lid, 2.9, 0.35, 0.2, 2.45, 12.5, -15.8, DEEP, { tr = 1, name = "HalfLash" .. side })
-			-- heavy brow
-			local brow = B:bone("Brow" .. side, "Head", hv(2.45, 14.6, -14.9))
-			hb(brow, 3.0, 0.75, 1.0, 2.5, 14.6, -14.95, DEEP)
-			hb(brow, 1.2, 0.5, 0.9, 3.4, 15.05, -14.9, DEEP)
+			local eye = B:bone("Eye" .. side, "Head", hv(2.7, 12.2, -14.8))
+			hb(eye, 3.4, 2.8, 1.1, 2.7, 12.2, -14.75, WHITE) -- stepped round white
+			hb(eye, 2.8, 3.4, 1.1, 2.7, 12.2, -14.76, WHITE)
+			hb(eye, 3.0, 0.3, 1.0, 2.7, 10.55, -14.7, WSHADE) -- lower lid shade
+			local pup = B:bone("Pupil" .. side, "Eye" .. side, hv(2.7, 12.1, -15.35))
+			hb(pup, 1.4, 1.8, 0.2, 2.7, 12.1, -15.38, PUPIL, { name = "PupilBig" .. side })
+			hb(pup, 0.7, 0.8, 0.2, 2.7, 12.15, -15.39, PUPIL, { tr = 1, name = "PupilSmall" .. side })
+			-- lids (hidden): black lid, happy-closed "^" and a smug half-lid
+			local lid = B:bone("Lid" .. side, "Eye" .. side, hv(2.7, 14.0, -15.5))
+			hb(lid, 3.5, 3.6, 0.3, 2.7, 12.2, -15.5, BLACK, { tr = 1, name = "Lid" .. side })
+			hb(lid, 1.9, 0.5, 0.2, 1.95, 12.1, -15.7, WHITE, { tr = 1, name = "LidA" .. side }, 0, 0, 28)
+			hb(lid, 1.9, 0.5, 0.2, 3.45, 12.1, -15.7, WHITE, { tr = 1, name = "LidB" .. side }, 0, 0, -28)
+			hb(lid, 3.5, 1.9, 0.3, 2.7, 13.1, -15.5, BLACK, { tr = 1, name = "HalfLid" .. side })
+			hb(lid, 3.4, 0.35, 0.2, 2.7, 12.2, -15.7, BLK2, { tr = 1, name = "HalfLash" .. side })
+			-- the white orca eye patch = a big chunky brow
+			local brow = B:bone("Brow" .. side, "Head", hv(2.7, 14.85, -14.7))
+			hb(brow, 3.6, 0.9, 0.8, 2.6, 14.85, -14.65, WHITE)
+			hb(brow, 1.6, 0.8, 0.75, 4.1, 15.2, -14.6, WHITE)
+			hb(brow, 0.6, 0.6, 2.0, 4.65, 15.1, -13.6, WHITE)
 			-- laughing tears (hidden)
-			local tear = B:bone("Tear" .. side, "Head", hv(4.1, 11.2, -15.2))
-			hb(tear, 0.55, 0.7, 0.4, 4.1, 11.2, -15.2, WATER, { tr = 1, name = "TearA" .. side })
-			hb(tear, 0.35, 0.35, 0.35, 4.1, 11.7, -15.2, WATER, { tr = 1, name = "TearB" .. side }, 0, 0, 45)
+			local tear = B:bone("Tear" .. side, "Head", hv(4.4, 11.0, -15.3))
+			hb(tear, 0.55, 0.7, 0.4, 4.4, 11.0, -15.3, WATER, { tr = 1, name = "TearA" .. side })
+			hb(tear, 0.35, 0.35, 0.35, 4.4, 11.5, -15.3, WATER, { tr = 1, name = "TearB" .. side }, 0, 0, 45)
 		end)
 		-- glints (same side on both eyes, not mirrored)
-		hb("PupilR", 0.45, 0.45, 0.1, 2.75, 12.6, -15.66, TURQ, { mat = "Neon", name = "GlintR" })
-		hb("PupilL", 0.45, 0.45, 0.1, -2.15, 12.6, -15.66, TURQ, { mat = "Neon", name = "GlintL" })
+		hb("PupilR", 0.5, 0.5, 0.1, 3.05, 12.55, -15.52, TURQ, { mat = "Neon", name = "GlintR" })
+		hb("PupilL", 0.5, 0.5, 0.1, -2.35, 12.55, -15.52, TURQ, { mat = "Neon", name = "GlintL" })
 		-- wink star (hidden), pops next to the left eye
 		local star = B:bone("Star", "Head", hv(-5.6, 14.6, -15.2))
 		hb(star, 1.6, 0.4, 0.3, -5.6, 14.6, -15.2, NGOLD, { mat = "Neon", tr = 1, name = "StarA" })
@@ -225,103 +232,103 @@ return {
 		-- WAR-CROWN: marble temple ring of columns, gold lintels + points,
 		-- pediment gem, helm wings, a big orichalcum crystal spire
 		------------------------------------------------------------------
-		local crown = B:bone("Crown", "Head", hv(0, 15.2, -9.8))
-		hb(crown, 8.0, 0.9, 7.0, 0, 15.62, -9.8, MARBLE)
-		hb(crown, 8.3, 0.45, 7.3, 0, 16.28, -9.8, GOLD)
+		local crown = B:bone("Crown", "Head", hv(0, 15.85, -9.8))
+		hb(crown, 8.0, 0.9, 7.0, 0, 16.3, -9.8, MARBLE)
+		hb(crown, 8.3, 0.45, 7.3, 0, 16.95, -9.8, GOLD)
 		B:sym(function()
-			hb(crown, 0.45, 0.45, 0.1, 2.6, 15.62, -13.33, TURQ, NEON)
+			hb(crown, 0.45, 0.45, 0.1, 2.6, 16.3, -13.33, TURQ, NEON)
+			hb(crown, 0.45, 0.45, 0.1, 1.3, 16.3, -13.33, DGOLD)
 		end)
 		local COLS = { { -3.4, -12.7 }, { -1.5, -12.7 }, { 1.5, -12.7 }, { 3.4, -12.7 }, { -3.5, -9.8 }, { 3.5, -9.8 }, { -3.0, -6.9 }, { 3.0, -6.9 } }
 		for _, c in COLS do
-			hb(crown, 1.0, 0.3, 1.0, c[1], 16.65, c[2], DGOLD)
-			hb(crown, 0.7, 2.1, 0.7, c[1], 17.8, c[2], MARBLE)
-			hb(crown, 1.1, 0.4, 1.1, c[1], 19.0, c[2], GOLD)
+			hb(crown, 1.0, 0.3, 1.0, c[1], 17.3, c[2], DGOLD)
+			hb(crown, 0.7, 1.7, 0.7, c[1], 18.25, c[2], MARBLE)
+			hb(crown, 1.1, 0.4, 1.1, c[1], 19.25, c[2], GOLD)
 		end
-		hb(crown, 8.0, 0.6, 1.2, 0, 19.45, -12.7, GOLD)
-		hb(crown, 7.2, 0.6, 1.2, 0, 19.45, -6.9, GOLD)
+		hb(crown, 8.0, 0.6, 1.2, 0, 19.7, -12.7, GOLD)
+		hb(crown, 7.2, 0.6, 1.2, 0, 19.7, -6.9, GOLD)
 		B:sym(function()
-			hb(crown, 1.2, 0.6, 6.9, 3.5, 19.45, -9.8, GOLD)
+			hb(crown, 1.2, 0.6, 6.9, 3.5, 19.7, -9.8, GOLD)
 		end)
-		hb(crown, 7.0, 0.5, 0.9, 0, 19.98, -12.7, MARBLE) -- frieze
-		hb(crown, 0.4, 0.2, 0.1, -2.4, 19.98, -13.17, DGOLD)
-		hb(crown, 0.4, 0.2, 0.1, 2.4, 19.98, -13.17, DGOLD)
+		hb(crown, 7.0, 0.5, 0.9, 0, 20.23, -12.7, MARBLE) -- frieze
+		hb(crown, 0.4, 0.2, 0.1, -2.4, 20.23, -13.17, DGOLD)
+		hb(crown, 0.4, 0.2, 0.1, 2.4, 20.23, -13.17, DGOLD)
 		-- crown points
 		for _, x in { -3.4, 3.4 } do
-			hspike(crown, hv(x, 19.9, -12.7), hv(x, 21.6, -12.7), 1.0, 0.8, GOLD)
-		end
-		for _, x in { -3.4, 3.4 } do
-			hspike(crown, hv(x, 19.9, -6.9), hv(x, 21.2, -6.9), 0.9, 0.7, GOLD)
+			hspike(crown, hv(x, 20.1, -12.7), hv(x, 21.8, -12.7), 1.0, 0.8, GOLD)
+			hspike(crown, hv(x, 20.0, -6.9), hv(x, 21.3, -6.9), 0.9, 0.7, GOLD)
 		end
 		-- pediment with a gem
-		hspike(crown, hv(0, 20.1, -12.75), hv(0, 22.0, -12.75), 3.0, 0.7, GOLD)
-		hb(crown, 0.7, 0.7, 0.3, 0, 20.75, -13.15, TURQ, NEON, 0, 0, 45)
+		hspike(crown, hv(0, 20.3, -12.75), hv(0, 22.1, -12.75), 3.0, 0.7, GOLD)
+		hb(crown, 0.7, 0.7, 0.3, 0, 20.95, -13.15, TURQ, NEON, 0, 0, 45)
 		-- helm wings
 		B:sym(function()
-			hspike(crown, hv(3.9, 16.6, -9.6), hv(6.4, 19.3, -6.0), 1.8, 0.45, GOLD)
-			hspike(crown, hv(3.9, 16.0, -8.6), hv(5.7, 17.2, -5.4), 1.2, 0.4, MARBLE)
+			hspike(crown, hv(3.9, 17.2, -9.6), hv(6.4, 19.8, -6.0), 1.8, 0.45, GOLD)
+			hspike(crown, hv(3.9, 16.6, -8.6), hv(5.7, 17.8, -5.4), 1.2, 0.4, MARBLE)
 		end)
 		-- crystal spire
-		hb(crown, 1.8, 3.6, 1.8, 0, 18.2, -9.8, TEAL)
-		hb(crown, 1.3, 1.8, 1.3, 0, 20.8, -9.8, LTEAL, nil, 0, 45, 0)
-		local tip = hb(crown, 0.7, 1.3, 0.7, 0, 22.3, -9.8, TURQ, { mat = "Neon", name = "CrownTip" }, 0, 45, 0)
+		hb(crown, 1.8, 3.2, 1.8, 0, 18.4, -9.8, TEAL)
+		hb(crown, 1.3, 1.6, 1.3, 0, 20.8, -9.8, LTEAL, nil, 0, 45, 0)
+		local tip = hb(crown, 0.7, 1.2, 0.7, 0, 22.2, -9.8, TURQ, { mat = "Neon", name = "CrownTip" }, 0, 45, 0)
 		B:sym(function()
-			hbeam(crown, hv(1.0, 16.4, -9.8), hv(2.0, 19.4, -10.4), 0.8, 0.8, DTEAL)
-			hb(crown, 0.45, 0.45, 0.45, 2.05, 19.6, -10.45, TURQ, NEON)
+			hbeam(crown, hv(1.0, 16.9, -9.8), hv(2.0, 19.6, -10.4), 0.8, 0.8, DTEAL)
+			hb(crown, 0.45, 0.45, 0.45, 2.05, 19.8, -10.45, TURQ, NEON)
 		end)
 		-- coral sprig + barnacle on the ruin
-		hb(crown, 0.45, 0.9, 0.45, -2.2, 20.15, -6.6, CORAL)
-		hb(crown, 0.35, 0.6, 0.35, -1.85, 20.6, -6.5, CORAL2, nil, 0, 0, -25)
-		hb(crown, 0.6, 0.5, 0.6, 2.4, 20.0, -7.0, BARN)
+		hb(crown, 0.45, 0.9, 0.45, -2.2, 20.4, -6.6, CORAL)
+		hb(crown, 0.35, 0.6, 0.35, -1.85, 20.85, -6.5, CORAL2, nil, 0, 0, -25)
+		hb(crown, 0.6, 0.5, 0.6, 2.4, 20.25, -7.0, BARN)
 		B:emitter(tip, "sparkle", { name = "CrystalSparkle", color = { "#ffffff", NGOLD, TURQ }, rate = 4 })
 		B:emitter(tip, "burst", { name = "CrownBurst", color = { "#ffffff", NGOLD, TURQ }, speed = { 12, 22 }, size = { 1.2, 0.8, 0 } })
 		B:light(tip, { name = "CrownLight", color = TURQ, brightness = 0.4, range = 14 })
 		-- the crown flash beam (hidden)
-		hb(crown, 0.9, 9.0, 0.9, 0, 27.4, -9.8, TURQ, { mat = "Neon", tr = 1, name = "CrownBeam" })
-		B:trail(crown, hv(0, 22.9, -9.8), hv(0, 21.6, -9.8), { name = "CrownTrail", color = { "#ffffff", TURQ }, life = 0.3, trans = { 0.5, 1 } })
+		hb(crown, 0.9, 9.0, 0.9, 0, 27.3, -9.8, TURQ, { mat = "Neon", tr = 1, name = "CrownBeam" })
+		B:trail(crown, hv(0, 22.8, -9.8), hv(0, 21.6, -9.8), { name = "CrownTrail", color = { "#ffffff", TURQ }, life = 0.3, trans = { 0.5, 1 } })
 
 		------------------------------------------------------------------
-		-- DORSAL: trident blade
+		-- DORSAL: tall trident blade (gold leading edge, crystal tip, two
+		-- crystal tines)
 		------------------------------------------------------------------
 		local dorsal = B:bone("Dorsal", "Body", v(0, 14.0, 2.4))
-		blk(dorsal, 1.6, 1.4, 4.6, 0, 14.6, 3.0, BLACK)
-		blk(dorsal, 1.3, 2.0, 3.6, 0, 16.2, 3.5, BLACK)
-		blk(dorsal, 1.75, 1.5, 0.5, 0, 14.6, 0.75, GOLD)
-		blk(dorsal, 1.45, 2.05, 0.5, 0, 16.2, 1.75, GOLD)
+		blk(dorsal, 1.9, 1.6, 5.8, 0, 14.7, 3.0, BLACK)
+		blk(dorsal, 1.6, 2.2, 4.6, 0, 16.6, 3.6, BLACK)
+		blk(dorsal, 2.05, 1.65, 0.6, 0, 14.7, 0.15, GOLD)
+		blk(dorsal, 1.75, 2.25, 0.6, 0, 16.6, 1.35, GOLD)
 		B:sym(function()
-			B:beam(dorsal, v(0.6, 14.9, 3.0), v(2.3, 16.5, 3.4), 0.75, 0.75, GOLD)
-			B:beam(dorsal, v(2.3, 16.2, 3.4), v(2.6, 19.0, 3.9), 0.7, 0.7, TEAL)
-			blk(dorsal, 0.45, 0.6, 0.45, 2.65, 19.35, 3.95, TURQ, NEON)
-			blk(dorsal, 0.1, 0.45, 0.45, 0.66, 16.2, 3.6, TURQ, NEON)
+			B:beam(dorsal, v(0.8, 15.2, 3.2), v(2.8, 16.9, 3.6), 0.9, 0.9, GOLD)
+			B:beam(dorsal, v(2.8, 16.6, 3.6), v(3.1, 19.6, 4.2), 0.9, 0.9, TEAL)
+			blk(dorsal, 0.55, 0.7, 0.55, 3.15, 20.0, 4.25, TURQ, NEON)
+			blk(dorsal, 0.1, 0.5, 0.5, 0.81, 16.6, 3.8, TURQ, NEON)
 		end)
-		local dtip = B:bone("DorsalTip", "Dorsal", v(0, 17.2, 3.9))
-		blk(dtip, 1.1, 2.0, 2.6, 0, 18.2, 4.0, BLACK)
-		blk(dtip, 0.9, 1.6, 1.8, 0, 19.9, 4.5, BLACK)
-		blk(dtip, 1.25, 2.05, 0.5, 0, 18.2, 2.75, GOLD)
-		blk(dtip, 1.05, 1.65, 0.5, 0, 19.9, 3.65, GOLD)
-		blk(dtip, 0.8, 1.6, 1.0, 0, 21.4, 4.9, TEAL)
-		blk(dtip, 0.5, 0.8, 0.5, 0, 22.5, 5.0, TURQ, NEON)
+		local dtip = B:bone("DorsalTip", "Dorsal", v(0, 17.6, 4.3))
+		blk(dtip, 1.35, 2.2, 3.4, 0, 18.7, 4.5, BLACK)
+		blk(dtip, 1.1, 1.8, 2.4, 0, 20.6, 5.1, BLACK)
+		blk(dtip, 1.5, 2.25, 0.6, 0, 18.7, 2.85, GOLD)
+		blk(dtip, 1.25, 1.85, 0.6, 0, 20.6, 3.95, GOLD)
+		blk(dtip, 0.9, 1.5, 1.2, 0, 22.2, 5.6, TEAL)
+		blk(dtip, 0.55, 0.8, 0.55, 0, 23.3, 5.7, TURQ, NEON)
 		B:sym(function()
-			blk(dtip, 0.1, 0.4, 0.4, 0.56, 18.4, 4.3, TURQ, NEON)
+			blk(dtip, 0.1, 0.45, 0.45, 0.7, 18.9, 4.8, TURQ, NEON)
 		end)
-		B:trail(dtip, v(0, 22.8, 5.0), v(0, 21.0, 4.9), { name = "DorsalTrail", color = { "#ffffff", TURQ }, life = 0.28, trans = { 0.5, 1 } })
+		B:trail(dtip, v(0, 23.6, 5.7), v(0, 21.6, 5.6), { name = "DorsalTrail", color = { "#ffffff", TURQ }, life = 0.28, trans = { 0.5, 1 } })
 
 		------------------------------------------------------------------
 		-- PECTORAL FINS (big paddles with gold bracers)
 		------------------------------------------------------------------
 		B:sym(function(side)
-			local FR = CFrame.new(4.9, 6.9, -3.0) * ang(0, -25, -35)
+			local FR = CFrame.new(4.9, 7.0, -3.0) * ang(0, -30, -28)
 			local fin = B:bone("Fin" .. side, "Body", FR)
-			B:block(fin, v(2.4, 1.4, 2.6), FR * CFrame.new(0.8, 0, 0), BLACK)
-			B:block(fin, v(0.7, 1.7, 3.0), FR * CFrame.new(1.9, 0, 0), GOLD)
-			B:block(fin, v(2.8, 1.0, 3.4), FR * CFrame.new(3.4, 0, 0.1), BLACK)
-			B:block(fin, v(2.4, 0.3, 2.6), FR * CFrame.new(3.4, -0.6, 0.1), BLK2)
-			local tipF = FR * CFrame.new(4.6, 0, 0)
-			local ft = B:bone("FinTip" .. side, "Fin" .. side, tipF)
-			B:block(ft, v(2.6, 0.9, 3.0), FR * CFrame.new(5.8, 0, 0.3), BLACK)
-			B:block(ft, v(1.6, 0.8, 2.2), FR * CFrame.new(7.6, 0, 0.5), BLACK)
-			B:block(ft, v(0.6, 0.85, 1.6), FR * CFrame.new(8.6, 0, 0.6), GOLD)
-			B:block(ft, v(0.4, 0.5, 0.5), FR * CFrame.new(9.05, 0, 0.6), TURQ, NEON)
-			B:trail(ft, (FR * CFrame.new(9.0, 0, -0.3)).Position, (FR * CFrame.new(9.0, 0, 1.4)).Position,
+			B:block(fin, v(2.4, 1.5, 3.0), FR * CFrame.new(0.8, 0, 0), BLACK)
+			B:block(fin, v(0.7, 1.8, 3.4), FR * CFrame.new(1.9, 0, 0), GOLD)
+			B:block(fin, v(0.75, 0.4, 3.45), FR * CFrame.new(1.9, 0.75, 0), MARBLE)
+			B:block(fin, v(3.0, 1.0, 4.2), FR * CFrame.new(3.5, 0, 0.2), BLACK)
+			B:block(fin, v(2.6, 0.3, 3.6), FR * CFrame.new(3.5, -0.6, 0.2), BLK2)
+			local ft = B:bone("FinTip" .. side, "Fin" .. side, FR * CFrame.new(4.9, 0, 0))
+			B:block(ft, v(2.6, 0.9, 4.0), FR * CFrame.new(6.2, 0, 0.5), BLACK)
+			B:block(ft, v(1.8, 0.8, 2.8), FR * CFrame.new(8.0, 0, 0.8), BLACK)
+			B:block(ft, v(0.6, 0.85, 2.0), FR * CFrame.new(9.1, 0, 0.9), GOLD)
+			B:block(ft, v(0.4, 0.5, 0.6), FR * CFrame.new(9.5, 0, 0.9), TURQ, NEON)
+			B:trail(ft, (FR * CFrame.new(9.4, 0, -0.2)).Position, (FR * CFrame.new(9.4, 0, 1.9)).Position,
 				{ name = "FinTrail" .. side, color = { "#ffffff", TURQ }, life = 0.25, trans = { 0.55, 1 } })
 		end)
 
@@ -333,54 +340,54 @@ return {
 			blk(bone, 0.6, 0.6, 0.6, 0, y + h * 0.75, z + 0.55, GOLD)
 		end
 		local t1 = B:bone("Tail1", "Body", v(0, 9.8, 6.6))
-		blk(t1, 7.6, 6.0, 5.0, 0, 9.9, 9.0, BLACK)
-		blk(t1, 6.0, 0.8, 4.6, 0, 13.25, 9.0, BLK2)
-		blk(t1, 6.0, 0.8, 4.6, 0, 6.55, 9.0, WHITE)
+		blk(t1, 7.6, 6.0, 4.4, 0, 9.9, 8.7, BLACK)
+		blk(t1, 6.0, 0.8, 4.0, 0, 13.25, 8.7, BLK2)
+		blk(t1, 6.0, 0.8, 4.0, 0, 6.55, 8.7, WHITE)
 		B:sym(function()
-			blk(t1, 0.4, 2.2, 3.4, 3.85, 8.6, 8.4, WHITE)
+			blk(t1, 0.4, 2.2, 3.0, 3.85, 8.6, 8.4, WHITE)
 		end)
-		ridge(t1, 9.0, 13.5, 1.8)
-		blk(t1, 0.5, 0.7, 0.7, 3.9, 11.6, 10.0, BARN)
-		blk(t1, 0.5, 0.45, 0.45, 3.9, 12.2, 9.3, BARN)
-		local t2 = B:bone("Tail2", "Tail1", v(0, 10.0, 11.3))
-		blk(t2, 5.8, 4.6, 4.4, 0, 10.1, 13.4, BLACK)
-		blk(t2, 4.4, 0.7, 4.0, 0, 12.7, 13.3, BLK2)
-		blk(t2, 4.4, 0.6, 4.0, 0, 7.6, 13.4, WHITE)
-		blk(t2, 6.3, 5.1, 0.8, 0, 10.1, 14.4, GOLD)
+		ridge(t1, 8.5, 13.5, 1.8)
+		blk(t1, 0.5, 0.7, 0.7, 3.9, 11.6, 9.6, BARN)
+		blk(t1, 0.5, 0.45, 0.45, 3.9, 12.2, 9.0, BARN)
+		local t2 = B:bone("Tail2", "Tail1", v(0, 10.0, 10.8))
+		blk(t2, 5.8, 4.6, 4.0, 0, 10.1, 12.7, BLACK)
+		blk(t2, 4.4, 0.7, 3.6, 0, 12.7, 12.6, BLK2)
+		blk(t2, 4.4, 0.6, 3.6, 0, 7.6, 12.7, WHITE)
+		blk(t2, 6.3, 5.1, 0.8, 0, 10.1, 13.6, GOLD)
 		B:sym(function()
-			blk(t2, 0.15, 0.5, 0.5, 3.17, 10.1, 14.4, TURQ, NEON)
+			blk(t2, 0.15, 0.5, 0.5, 3.17, 10.1, 13.6, TURQ, NEON)
 		end)
-		ridge(t2, 12.6, 12.9, 1.5)
-		local t3 = B:bone("Tail3", "Tail2", v(0, 10.1, 15.4))
-		blk(t3, 4.2, 3.2, 4.0, 0, 10.1, 17.3, BLACK)
-		blk(t3, 3.0, 0.6, 3.6, 0, 11.95, 17.2, BLK2)
-		blk(t3, 3.0, 0.5, 3.6, 0, 8.3, 17.3, WHITE)
-		blk(t3, 4.6, 3.6, 0.6, 0, 10.1, 18.6, GOLD)
-		ridge(t3, 16.6, 12.1, 1.2)
-		local fl = B:bone("Fluke", "Tail3", v(0, 10.1, 19.2))
-		blk(fl, 3.2, 1.8, 2.6, 0, 10.1, 20.3, BLACK)
-		blk(fl, 1.0, 1.5, 1.4, 0, 10.1, 22.0, TEAL)
-		blk(fl, 0.5, 0.6, 0.6, 0, 10.1, 22.95, TURQ, NEON)
-		blk(fl, 0.45, 0.9, 0.45, 0.6, 11.4, 20.0, CORAL)
-		local ffx = blk(fl, 6, 1, 3, 0, 10.1, 21, BLACK, { tr = 1, name = "FlukeFX" })
+		ridge(t2, 11.9, 12.9, 1.5)
+		local t3 = B:bone("Tail3", "Tail2", v(0, 10.1, 14.6))
+		blk(t3, 4.2, 3.2, 3.6, 0, 10.1, 16.3, BLACK)
+		blk(t3, 3.0, 0.6, 3.2, 0, 11.95, 16.2, BLK2)
+		blk(t3, 3.0, 0.5, 3.2, 0, 8.3, 16.3, WHITE)
+		blk(t3, 4.6, 3.6, 0.6, 0, 10.1, 17.5, GOLD)
+		ridge(t3, 15.7, 12.1, 1.2)
+		local fl = B:bone("Fluke", "Tail3", v(0, 10.1, 18.0))
+		blk(fl, 3.2, 1.8, 2.6, 0, 10.1, 19.1, BLACK)
+		blk(fl, 1.0, 1.5, 1.4, 0, 10.1, 20.8, TEAL)
+		blk(fl, 0.5, 0.6, 0.6, 0, 10.1, 21.75, TURQ, NEON)
+		blk(fl, 0.45, 0.9, 0.45, 0.6, 11.4, 18.8, CORAL)
+		local ffx = blk(fl, 6, 1, 3, 0, 10.1, 19.8, BLACK, { tr = 1, name = "FlukeFX" })
 		B:emitter(ffx, "burst", { name = "TailSplash", color = { "#ffffff", WATER, FOAM }, speed = { 10, 18 }, size = { 1.0, 0.7, 0 }, accel = { 0, -25, 0 }, spread = 70, life = { 0.5, 1.0 } })
 		B:sym(function(side)
-			local lobe = B:bone("Fluke" .. side, "Fluke", v(1.4, 10.1, 20.4))
-			blk(lobe, 3.0, 1.1, 3.0, 2.9, 10.1, 20.8, BLACK)
-			blk(lobe, 2.8, 1.0, 2.8, 5.4, 10.1, 21.8, BLACK)
-			blk(lobe, 2.4, 0.9, 2.4, 7.6, 10.1, 22.9, BLACK)
-			blk(lobe, 6.4, 0.3, 2.2, 5.0, 9.45, 21.7, WHITE)
-			blk(lobe, 2.6, 0.6, 0.5, 5.4, 10.1, 23.35, GOLD)
-			blk(lobe, 2.2, 0.55, 0.5, 7.6, 10.1, 24.25, GOLD)
-			blk(lobe, 1.2, 1.0, 2.0, 9.2, 10.1, 24.0, TEAL, nil, 0, -30, 0)
-			blk(lobe, 0.6, 0.6, 0.9, 9.95, 10.1, 24.85, TURQ, NEON, 0, -30, 0)
-			B:trail(lobe, v(10.1, 10.1, 25.0), v(8.4, 10.1, 24.0), { name = "FlukeTrail" .. side, color = { "#ffffff", TURQ }, life = 0.3, trans = { 0.45, 1 } })
+			local lobe = B:bone("Fluke" .. side, "Fluke", v(1.4, 10.1, 19.2))
+			blk(lobe, 3.0, 1.1, 3.0, 2.9, 10.1, 19.4, BLACK)
+			blk(lobe, 2.8, 1.0, 2.8, 5.4, 10.1, 20.0, BLACK)
+			blk(lobe, 2.4, 0.9, 2.4, 7.7, 10.1, 20.7, BLACK)
+			blk(lobe, 6.6, 0.3, 2.2, 5.2, 9.45, 20.0, WHITE)
+			blk(lobe, 2.6, 0.6, 0.5, 5.4, 10.1, 21.55, GOLD)
+			blk(lobe, 2.2, 0.55, 0.5, 7.7, 10.1, 22.0, GOLD)
+			blk(lobe, 1.2, 1.0, 2.0, 9.4, 10.1, 21.2, TEAL, nil, 0, -40, 0)
+			blk(lobe, 0.6, 0.6, 0.9, 10.2, 10.1, 21.9, TURQ, NEON, 0, -40, 0)
+			B:trail(lobe, v(10.4, 10.1, 22.1), v(8.6, 10.1, 21.4), { name = "FlukeTrail" .. side, color = { "#ffffff", TURQ }, life = 0.3, trans = { 0.45, 1 } })
 		end)
 
 		------------------------------------------------------------------
 		-- floating marble cubes + crystal shards
 		------------------------------------------------------------------
-		local ORBS = { { 11, 17, -6, 1.4, "m" }, { -12, 13, -3, 1.2, "c" }, { 10, 6, 10, 1.1, "c" }, { -10, 19, 8, 1.3, "m" }, { 0, 25, 6, 1.0, "m" } }
+		local ORBS = { { 11, 17, -6, 1.4, "m" }, { -12, 13, -3, 1.2, "c" }, { 10, 6, 10, 1.1, "c" }, { -10, 19, 8, 1.3, "m" }, { 1, 21.5, 14, 1.0, "m" } }
 		for i, o in ORBS do
 			local ob = B:bone("Orb" .. i, "Root", v(o[1], o[2], o[3]))
 			local s = o[4]
@@ -417,6 +424,7 @@ return {
 			end
 		end
 
+		LIFT = 0
 		------------------------------------------------------------------
 		-- BELLY-FLOP: splash crown columns + expanding wave ring (hidden)
 		------------------------------------------------------------------

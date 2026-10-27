@@ -80,9 +80,9 @@ return {
 		-- BODY (chest, belly, rear) + gold collar + rune plates
 		------------------------------------------------------------------
 		local body = B:bone("Body", "Root", v(0, 9.6, -1))
-		seg(body, -6, -1, 9.6, 10.4, 9.4, { trim = true })
-		seg(body, -1, 4, 9.8, 9.8, 8.8, { trim = true })
-		seg(body, 4, 7.4, 10.0, 8.2, 7.4)
+		seg(body, -6, -1, 9.8, 10.4, 8.6, { trim = true })
+		seg(body, -1, 4, 9.9, 9.6, 8.0, { trim = true })
+		seg(body, 4, 7.4, 10.1, 7.8, 6.8)
 
 		-- orichalcum collar between head and chest (gold rim + marble studs)
 		bx(body, 11.2, 7.6, 0.8, 0, 9.6, -5.6, GOLD)
@@ -104,22 +104,22 @@ return {
 			-- narwhal mottles (deep indigo patches on the flanks / back)
 			bx(body, 0.16, 0.9, 1.2, 5.24, 11.4, -3.2, DEEP)
 			bx(body, 0.16, 0.7, 0.8, 5.24, 12.2, -1.8, DEEP)
-			bx(body, 0.16, 0.8, 1.0, 4.14, 11.8, 5.6, DEEP)
-			bx(body, 1.0, 0.16, 0.9, 2.6, 14.1, -2.6, LIGHT)
+			bx(body, 0.16, 0.8, 1.0, 3.94, 11.6, 5.6, DEEP)
+			bx(body, 1.0, 0.16, 0.9, 2.6, 13.7, -2.6, LIGHT)
 			-- barnacles on the belly flank
-			bx(body, 0.5, 0.7, 0.8, 4.2, 6.2, 5.2, MARBLE2)
-			bx(body, 0.2, 0.3, 0.3, 4.46, 6.3, 5.2, DEEP)
+			bx(body, 0.5, 0.7, 0.8, 4.0, 7.4, 5.2, MARBLE2)
+			bx(body, 0.2, 0.3, 0.3, 4.26, 7.5, 5.2, DEEP)
 		end)
 
 		-- back crystal spikes (chest/rear) and flank crystal growths
 		crystals(body, {
-			{ 0, 13.9, 5.6, 1.3, 2.4, 22, 45, 0, TURQ, true },
-			{ 0, 13.9, 6.9, 0.9, 1.4, 35, 45, 0, LTURQ, false },
+			{ 0, 13.3, 5.6, 1.3, 2.4, 22, 45, 0, TURQ, true },
+			{ 0, 13.2, 6.9, 0.9, 1.4, 35, 45, 0, LTURQ, false },
 		})
 		B:sym(function()
 			crystals(body, {
-				{ 4.6, 12.0, 4.6, 1.0, 1.8, 0, 30, -40, TURQ, true },
-				{ 4.9, 11.2, 5.6, 0.7, 1.1, 10, 20, -60, LTURQ, false },
+				{ 4.3, 11.8, 4.6, 1.0, 1.8, 0, 30, -40, TURQ, true },
+				{ 4.5, 11.0, 5.6, 0.7, 1.1, 10, 20, -60, LTURQ, false },
 				{ 4.8, 12.6, -3.8, 0.8, 1.4, -15, 15, -35, LTURQ, true },
 			})
 		end)
@@ -134,19 +134,19 @@ return {
 		------------------------------------------------------------------
 		local head = B:bone("Head", "Body", v(0, 9.6, -5.6))
 		-- cranium (cross section = rounded stepped box)
-		bx(head, 10.6, 7.5, 7.6, 0, 9.9, -9.4, MAIN)
-		bx(head, 8.6, 9.5, 7.6, 0, 9.9, -9.4, MAIN)
+		bx(head, 11.4, 7.5, 7.6, 0, 9.9, -9.4, MAIN)
+		bx(head, 9.4, 9.5, 7.6, 0, 9.9, -9.4, MAIN)
 		bx(head, 8.6, 7.5, 0.8, 0, 9.9, -13.6, MAIN) -- front step (face plane z -14)
 		-- indigo back + top
-		bx(head, 10.7, 2.0, 7.4, 0, 12.7, -9.3, SHADE)
-		bx(head, 8.7, 1.2, 7.4, 0, 14.1, -9.3, SHADE)
+		bx(head, 11.5, 2.0, 7.4, 0, 12.7, -9.3, SHADE)
+		bx(head, 9.5, 1.2, 7.4, 0, 14.1, -9.3, SHADE)
 		bx(head, 6.4, 0.9, 6.4, 0, 15.05, -9.6, SHADE) -- crown step
 		bx(head, 4.2, 0.6, 4.0, 0, 15.75, -9.3, DEEP)
 		bx(head, 1.4, 0.15, 0.6, 0, 16.08, -8.4, MOUTH) -- blowhole
 		-- cream throat / underside
 		bx(head, 8.0, 1.0, 7.0, 0, 5.0, -9.0, BELLY)
-		bx(head, 10.7, 1.6, 7.0, 0, 6.85, -9.3, BELLY)
-		bx(head, 10.8, 0.3, 7.1, 0, 7.75, -9.3, GOLD) -- gold circlet line
+		bx(head, 11.5, 1.6, 7.0, 0, 6.85, -9.3, BELLY)
+		bx(head, 11.6, 0.3, 7.1, 0, 7.75, -9.3, GOLD) -- gold circlet line
 		-- MELON forehead: bulges forward over the eyes (brow ridge)
 		bx(head, 7.0, 3.4, 2.4, 0, 13.7, -14.6, MAIN)
 		bx(head, 5.0, 2.6, 1.0, 0, 13.9, -16.2, MAIN)
@@ -174,7 +174,7 @@ return {
 		-- cheeks: side bulges + cream front pads with blush (own bones: they puff)
 		B:sym(function(side)
 			local ck = B:bone("Cheek" .. side, "Head", v(4.0, 7.6, -13.5))
-			bx(ck, 1.4, 3.0, 3.6, 5.0, 7.7, -12.2, MAIN)
+			bx(ck, 1.4, 3.0, 3.6, 5.4, 7.7, -12.2, MAIN)
 			bx(ck, 2.0, 2.0, 1.4, 4.1, 7.6, -14.7, BELLY)
 			bx(ck, 1.4, 0.6, 0.1, 4.15, 7.95, -15.44, BLUSH)
 			bx(ck, 1.8, 0.9, 0.1, 4.15, 7.95, -15.5, BLUSH, { tr = 1, name = "BlushBig" .. side })
@@ -186,16 +186,21 @@ return {
 			{ 0, 15.8, -6.6, 1.0, 2.2, 30, 45, 0, LTURQ, true },
 		})
 		B:sym(function(side)
-			bx(head, 0.16, 1.0, 1.4, 5.38, 11.0, -7.4, DEEP)
-			bx(head, 0.16, 0.6, 0.8, 5.38, 10.2, -9.6, DEEP)
+			-- Atlantis medallion on each side of the head (gold rim, marble, rune)
+			bx(head, 0.3, 2.4, 2.4, 5.75, 10.4, -9.6, GOLD)
+			bx(head, 0.4, 1.8, 1.8, 5.85, 10.4, -9.6, MARBLE)
+			bx(head, 0.12, 1.0, 0.25, 6.08, 10.4, -9.6, NTURQ, NEON)
+			bx(head, 0.12, 0.25, 1.0, 6.08, 10.6, -9.6, NTURQ, NEON)
+			bx(head, 0.16, 0.9, 1.2, 5.78, 12.4, -6.8, DEEP)
+			bx(head, 0.16, 0.6, 0.8, 5.78, 8.9, -6.6, DEEP)
 			-- floppy ear-fins (puppy ears!) with gold tips
-			local EF = CFrame.new(4.9, 13.6, -9.2) * ang(0, 30, -25)
+			local EF = CFrame.new(5.2, 13.8, -9.0) * ang(0, 45, 18)
 			local ear = B:bone("Ear" .. side, "Head", EF)
-			B:block(ear, v(1.6, 0.6, 2.4), EF * CFrame.new(0.6, 0, 0), SHADE)
-			B:block(ear, v(1.6, 0.5, 2.0), EF * CFrame.new(1.9, 0, 0.4), MAIN)
-			B:block(ear, v(1.2, 0.55, 1.2), EF * CFrame.new(1.9, 0.05, 0.3), LIGHT)
-			B:block(ear, v(1.2, 0.45, 1.4), EF * CFrame.new(3.0, 0, 0.9), MAIN)
-			B:block(ear, v(0.7, 0.5, 0.9), EF * CFrame.new(3.75, 0, 1.3), GOLD)
+			B:block(ear, v(1.6, 0.8, 2.4), EF * CFrame.new(0.6, 0, 0), SHADE)
+			B:block(ear, v(1.6, 0.7, 2.2), EF * CFrame.new(1.9, 0, 0.4), MAIN)
+			B:block(ear, v(1.2, 0.75, 1.3), EF * CFrame.new(1.9, 0.05, 0.3), LIGHT)
+			B:block(ear, v(1.2, 0.6, 1.6), EF * CFrame.new(3.0, 0, 0.9), MAIN)
+			B:block(ear, v(0.7, 0.65, 1.0), EF * CFrame.new(3.75, 0, 1.3), GOLD)
 		end)
 
 		------------------------------------------------------------------
@@ -204,33 +209,33 @@ return {
 		B:sym(function(side)
 			local E = v(2.6, 10.0, -14.3)
 			local eye = B:bone("Eye" .. side, "Head", E)
-			bx(eye, 3.5, 3.0, 0.5, 2.6, 10.0, -14.3, RIM)
-			bx(eye, 2.9, 3.7, 0.5, 2.6, 10.0, -14.3, RIM)
-			bx(eye, 3.1, 2.6, 0.5, 2.6, 10.0, -14.5, EYEW, { name = "ScleraA" .. side })
-			bx(eye, 2.5, 3.3, 0.5, 2.6, 10.0, -14.52, EYEW, { name = "ScleraB" .. side })
-			local pup = B:bone("Pupil" .. side, "Eye" .. side, v(2.5, 9.85, -14.85))
-			bx(pup, 1.5, 1.9, 0.2, 2.5, 9.8, -14.86, PUPIL, { name = "PupilBig" .. side })
-			bx(pup, 0.9, 0.9, 0.1, 2.5, 9.45, -14.98, "#3350b8", { name = "Iris" .. side })
+			bx(eye, 3.5, 3.0, 0.9, 2.6, 10.0, -14.55, RIM)
+			bx(eye, 2.9, 3.7, 0.9, 2.6, 10.0, -14.55, RIM)
+			bx(eye, 3.1, 2.6, 0.9, 2.6, 10.0, -14.85, EYEW, { name = "ScleraA" .. side })
+			bx(eye, 2.5, 3.3, 0.9, 2.6, 10.0, -14.87, EYEW, { name = "ScleraB" .. side })
+			local pup = B:bone("Pupil" .. side, "Eye" .. side, v(2.5, 9.85, -15.25))
+			bx(pup, 1.5, 1.9, 0.2, 2.5, 9.8, -15.36, PUPIL, { name = "PupilBig" .. side })
+			bx(pup, 0.9, 0.9, 0.1, 2.5, 9.45, -15.48, "#3350b8", { name = "Iris" .. side })
 			-- star pupils (sparkle eyes, hidden)
-			bx(pup, 0.5, 2.0, 0.2, 2.5, 9.85, -15.0, NGOLD, { mat = "Neon", tr = 1, name = "StarA" .. side })
-			bx(pup, 2.0, 0.5, 0.2, 2.5, 9.85, -15.01, NGOLD, { mat = "Neon", tr = 1, name = "StarB" .. side })
-			bxr(pup, 0.9, 0.9, 0.2, 2.5, 9.85, -15.02, 0, 0, 45, NGOLD, { mat = "Neon", tr = 1, name = "StarC" .. side })
+			bx(pup, 0.5, 2.0, 0.2, 2.5, 9.85, -15.5, NGOLD, { mat = "Neon", tr = 1, name = "StarA" .. side })
+			bx(pup, 2.0, 0.5, 0.2, 2.5, 9.85, -15.51, NGOLD, { mat = "Neon", tr = 1, name = "StarB" .. side })
+			bxr(pup, 0.9, 0.9, 0.2, 2.5, 9.85, -15.52, 0, 0, 45, NGOLD, { mat = "Neon", tr = 1, name = "StarC" .. side })
 			-- lid: skin cover + lash line (blink) / "^" carets (happy squint)
 			local lid = B:bone("Lid" .. side, "Eye" .. side, E)
-			bx(lid, 3.6, 3.8, 0.5, 2.6, 10.0, -14.95, MAIN, { tr = 1, name = "LidSkin" .. side })
-			bx(lid, 2.8, 0.45, 0.2, 2.6, 9.6, -15.25, RIM, { tr = 1, name = "Lash" .. side })
-			bxr(lid, 1.7, 0.55, 0.2, 1.95, 10.05, -15.25, 0, 0, 35, RIM, { tr = 1, name = "CaretA" .. side })
-			bxr(lid, 1.7, 0.55, 0.2, 3.25, 10.05, -15.26, 0, 0, -35, RIM, { tr = 1, name = "CaretB" .. side })
+			bx(lid, 3.6, 3.8, 0.5, 2.6, 10.0, -15.35, MAIN, { tr = 1, name = "LidSkin" .. side })
+			bx(lid, 2.8, 0.45, 0.2, 2.6, 9.6, -15.7, RIM, { tr = 1, name = "Lash" .. side })
+			bxr(lid, 1.7, 0.55, 0.2, 1.95, 10.05, -15.7, 0, 0, 35, RIM, { tr = 1, name = "CaretA" .. side })
+			bxr(lid, 1.7, 0.55, 0.2, 3.25, 10.05, -15.71, 0, 0, -35, RIM, { tr = 1, name = "CaretB" .. side })
 			-- arched brow on the brow ridge
 			local brow = B:bone("Brow" .. side, "Head", v(2.9, 12.7, -15.9))
 			bxr(brow, 1.4, 0.6, 0.6, 2.35, 12.75, -15.95, 0, 0, -14, RIM)
 			bxr(brow, 1.4, 0.6, 0.6, 3.55, 12.65, -15.97, 0, 0, 16, RIM)
 		end)
 		-- glints: same side on both eyes (not mirrored)
-		bx("PupilR", 0.6, 0.6, 0.1, 2.1, 10.35, -15.0, "#ffffff", { mat = "Neon", name = "GlintR" })
-		bx("PupilR", 0.3, 0.3, 0.1, 2.95, 9.15, -15.0, NTURQ, { mat = "Neon", name = "Glint2R" })
-		bx("PupilL", 0.6, 0.6, 0.1, -2.9, 10.35, -15.0, "#ffffff", { mat = "Neon", name = "GlintL" })
-		bx("PupilL", 0.3, 0.3, 0.1, -2.05, 9.15, -15.0, NTURQ, { mat = "Neon", name = "Glint2L" })
+		bx("PupilR", 0.6, 0.6, 0.1, 2.1, 10.35, -15.5, "#ffffff", { mat = "Neon", name = "GlintR" })
+		bx("PupilR", 0.3, 0.3, 0.1, 2.95, 9.15, -15.5, NTURQ, { mat = "Neon", name = "Glint2R" })
+		bx("PupilL", 0.6, 0.6, 0.1, -2.9, 10.35, -15.5, "#ffffff", { mat = "Neon", name = "GlintL" })
+		bx("PupilL", 0.3, 0.3, 0.1, -2.05, 9.15, -15.5, NTURQ, { mat = "Neon", name = "Glint2L" })
 
 		------------------------------------------------------------------
 		-- JAW: ONE real hinged "D" smile (U lip, dark floor, teeth, tongue)
@@ -245,11 +250,11 @@ return {
 		B:sym(function()
 			bx(jaw, 0.3, 1.0, 4.4, 2.95, 6.1, -13.7, MOUTH)
 			-- U-stepped lower lip: middle rises toward the corners
-			bx(jaw, 1.2, 0.75, 0.6, 1.95, 5.9, -15.95, SHADE)
-			bx(jaw, 0.8, 1.15, 0.6, 2.9, 6.1, -15.75, SHADE)
+			bx(jaw, 1.2, 0.75, 0.6, 1.95, 5.9, -15.95, BELLY)
+			bx(jaw, 0.8, 1.15, 0.6, 2.9, 6.1, -15.75, BELLY)
 			bx(jaw, 0.6, 0.6, 0.45, 1.75, 6.5, -15.75, TEETH) -- lower tooth
 		end)
-		bx(jaw, 2.8, 0.55, 0.6, 0, 5.6, -16.0, SHADE)
+		bx(jaw, 2.8, 0.55, 0.6, 0, 5.6, -16.0, BELLY)
 		local tongue = B:bone("Tongue", "Jaw", v(0, 5.9, -13.0))
 		bx(tongue, 3.0, 0.5, 2.8, 0, 5.95, -14.0, TONGUE)
 		bx(tongue, 2.2, 0.45, 1.0, 0, 6.0, -15.6, TONGUE2)
@@ -333,7 +338,7 @@ return {
 		-- FLIPPERS: chunky paddles with gold + marble cuffs and crystal tips
 		------------------------------------------------------------------
 		B:sym(function(side)
-			local FR = CFrame.new(4.6, 7.2, -3.0) * ang(0, -18, -32)
+			local FR = CFrame.new(4.6, 7.6, -3.0) * ang(0, -32, -18)
 			local fp = B:bone("Flipper" .. side, "Body", FR)
 			B:block(fp, v(2.4, 1.5, 2.6), FR * CFrame.new(1.0, 0, 0), MAIN)
 			B:block(fp, v(2.0, 0.4, 2.2), FR * CFrame.new(1.0, -0.8, 0), BELLY)
@@ -416,13 +421,13 @@ return {
 			local dir = v(cos(a), sin(a), 0)
 			local p0 = v(0, 9.6, -1) + dir * 7.0
 			local p1 = v(0, 9.6, -1) + dir * (i % 2 == 0 and 12.5 or 14.5)
-			B:beam(rays, p0, p1, 0.5, 0.5, NTURQ, { mat = "Neon", tr = 1, name = "Ray" .. i })
+			B:beam(rays, p0, p1, 0.75, 0.75, NTURQ, { mat = "Neon", tr = 1, name = "Ray" .. i })
 		end
 		for k = 1, 5 do
 			local S = v(0, 16.2, -8.4)
 			local sb = B:bone("Spout" .. k, "Head", S)
-			local s = (k % 2 == 1) and 0.7 or 0.5
-			B:block(sb, v(s, s, s), CFrame.new(S), k <= 2 and WATER2 or WATER, { tr = 1, name = "SpoutP" .. k })
+			local s = (k % 2 == 1) and 1.0 or 0.75
+			B:block(sb, v(s, s, s), CFrame.new(S), k == 1 and WATER2 or "#5fd8ff", { tr = 1, name = "SpoutP" .. k })
 		end
 
 		------------------------------------------------------------------
@@ -449,15 +454,15 @@ return {
 		for i = 1, 10 do
 			local sb = B:bone("Shard" .. i, "Root", SH)
 			local col = (i % 3 == 0) and NGOLD or ((i % 3 == 1) and NTURQ or LTURQ)
-			B:block(sb, v(0.6, 1.4, 0.6), CFrame.new(SH) * ang(0, 45, 0), col, { mat = col ~= LTURQ and "Neon" or nil, tr = 1, name = "ShardP" .. i })
+			B:block(sb, v(0.9, 2.0, 0.9), CFrame.new(SH) * ang(0, 45, 0), col, { mat = col ~= LTURQ and "Neon" or nil, tr = 1, name = "ShardP" .. i })
 		end
 		local fw = B:block("Shard1", v(1, 1, 1), CFrame.new(SH), TURQ, { tr = 1, name = "FireworkFX" })
 		B:emitter(fw, "burst", { name = "Firework", color = { "#ffffff", NTURQ, NGOLD }, speed = { 14, 26 }, size = { 1.3, 0.8, 0 }, life = { 0.6, 1.2 } })
 		local SP = v(0, 2.2, -4)
 		for i = 1, 10 do
 			local sb = B:bone("Splash" .. i, "Root", SP)
-			local s = (i % 2 == 0) and 0.9 or 0.65
-			B:block(sb, v(s, s, s), CFrame.new(SP), (i % 3 == 0) and WATER2 or WATER, { tr = 1, name = "SplashP" .. i })
+			local s = (i % 2 == 0) and 1.6 or 1.1
+			B:block(sb, v(s, s, s), CFrame.new(SP), (i % 2 == 0) and WATER2 or WATER, { tr = 1, name = "SplashP" .. i })
 		end
 		local spfx = B:block("Splash1", v(4, 1, 4), CFrame.new(SP), WATER, { tr = 1, name = "SplashFX" })
 		B:emitter(spfx, "burst", { name = "SplashBurst", color = { "#ffffff", WATER, NTURQ }, speed = { 10, 20 }, size = { 1.2, 0.8, 0 }, spread = 70, accel = { 0, -25, 0 } })

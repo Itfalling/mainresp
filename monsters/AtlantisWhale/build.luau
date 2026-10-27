@@ -74,16 +74,24 @@ return {
 		B:sym(function()
 			B:block(body, v(0.12, 0.22, 12.6), cf(5.42, 5.4, -1.25), GROOVE)
 			B:block(body, v(0.12, 0.22, 12.0), cf(5.42, 5.95, -1.25), GROOVE)
-			B:block(body, v(0.22, 0.12, 11.4), cf(2.2, 3.85, -1.2), GROOVE)
 			-- light freckles on the flanks
-			B:block(body, v(0.12, 0.8, 1.6), cf(6.62, 10.2, 0.8), SPOT)
-			B:block(body, v(0.12, 0.8, 0.8), cf(6.62, 9.4, 1.2), SPOT)
-			B:block(body, v(0.12, 0.8, 1.0), cf(6.62, 10.5, -3.9), SPOT)
-			B:block(body, v(0.12, 0.6, 0.6), cf(6.25, 11.9, -2.0), SPOT)
+			-- scalloped countershade "waves" + mottled spots on the flank
+			for i, z in { -4.3, -2.3, -0.3, 1.7 } do
+				B:block(body, v(0.12, 0.7, 1.0), cf(6.62, 7.6, z), SPOT)
+				B:block(body, v(0.12, 0.5, 0.5), cf(6.62, 8.2, z + 0.25), SPOT)
+			end
+			B:block(body, v(0.12, 0.8, 0.8), cf(6.62, 10.3, -1.3), SPOT)
 			-- barnacle cluster + coral on the lower flank
 			B:block(body, v(0.6, 0.6, 0.6), cf(6.6, 7.9, 4.6), MARBLE2)
 			B:block(body, v(0.45, 0.45, 0.45), cf(6.65, 8.5, 4.1), MARBLE)
 			B:block(body, v(0.5, 0.9, 0.5), cf(6.7, 8.0, -7.2), CORAL)
+			-- orichalcum crystal cluster sprouting from each shoulder
+			B:block(body, v(1.6, 0.6, 1.6), cf(5.6, 12.75, -6.9), GOLD)
+			B:block(body, v(0.9, 2.6, 0.9), cf(5.7, 14.1, -6.9, 0, 45, -14), TURQ)
+			B:block(body, v(0.7, 1.7, 0.7), cf(6.4, 13.5, -6.2, 20, 45, -35), TURQL)
+			B:block(body, v(0.6, 1.4, 0.6), cf(5.2, 13.4, -7.7, -25, 45, 10), TURQ)
+			B:block(body, v(0.45, 0.6, 0.45), cf(5.98, 15.55, -6.9, 0, 45, -14), NT, NEON)
+			B:block(body, v(0.35, 0.45, 0.35), cf(6.95, 14.3, -5.8, 20, 45, -35), NT, NEON)
 			-- ORICHALCUM HARNESS: two gold bands with rune medallions
 			for _, z in { -5.9, 3.5 } do
 				B:block(body, v(0.5, 5.2, 1.4), cf(6.75, 9.5, z), GOLD)
@@ -103,9 +111,6 @@ return {
 		local belly = B:bone("Belly", "Body", v(0, 4.4, -1))
 		B:block(belly, v(6.2, 0.9, 9.6), cf(0, 3.65, -1.2), CREAM)
 		B:block(belly, v(4.2, 0.6, 7.0), cf(0, 3.05, -1.2), CREAM)
-		for _, x in { -1.4, 0, 1.4 } do
-			B:block(belly, v(0.25, 0.12, 6.6), cf(x, 2.7, -1.2), GROOVE)
-		end
 
 		------------------------------------------------------------------
 		-- HEAD (big cartoon head, face on the front)
@@ -129,7 +134,7 @@ return {
 		hb(10.6, 1.4, 0.3, 0, 8.3, -9.6, MOUTH2) -- back of the throat
 		-- little block teeth hanging from the upper lip
 		for _, x in { -2.1, -0.7, 0.7, 2.1 } do
-			hb(0.6, 0.55, 0.5, x, 8.55, -18.15, TOOTH)
+			hb(0.6, 0.6, 0.5, x, 8.5, -18.35, TOOTH)
 		end
 		B:sym(function()
 			hb(0.5, 0.45, 0.45, 3.4, 8.6, -17.7, TOOTH)
@@ -138,7 +143,6 @@ return {
 			hb(0.12, 0.5, 0.5, 6.32, 9.85, -9.5, DEEPB)
 			-- side freckles
 			hb(0.12, 0.6, 1.2, 6.32, 12.2, -11.0, SPOT)
-			hb(0.12, 0.6, 0.6, 6.62, 10.6, -12.4, SPOT)
 		end)
 		-- orichalcum diadem on the forehead: gold band, 3 points, turquoise gem
 		hb(5.0, 0.45, 0.5, 0, 15.75, -14.9, GOLD)
@@ -155,13 +159,13 @@ return {
 
 		-- EYES: front-facing, slightly turned out, never wrapping a corner
 		B:sym(function(side)
-			local EF = CFrame.new(3.05, 12.35, -18.0) * ang(0, -10, 0)
+			local EF = CFrame.new(3.1, 12.35, -18.15) * ang(0, -13, 0)
 			local function e(sx, sy, sz, x, y, z, col, opts, bone)
 				return B:block(bone, v(sx, sy, sz), EF * CFrame.new(x, y, z), col, opts)
 			end
 			local eye = B:bone("Eye" .. side, "Head", EF)
-			e(3.7, 3.3, 1.3, 0, 0, 0.1, BROW, nil, eye) -- dark rim (rounded = 2 crossed blocks)
-			e(2.9, 4.1, 1.3, 0, 0, 0.1, BROW, nil, eye)
+			e(3.7, 3.3, 1.3, 0, 0, 0.45, BROW, nil, eye) -- dark rim (rounded = 2 crossed blocks)
+			e(2.9, 4.1, 1.3, 0, 0, 0.45, BROW, nil, eye)
 			e(3.3, 2.9, 1.3, 0, 0, -0.2, EYEW, nil, eye) -- white
 			e(2.5, 3.7, 1.3, 0, 0, -0.21, EYEW, nil, eye)
 			local pup = B:bone("Pupil" .. side, "Eye" .. side, EF * CFrame.new(0, -0.15, -0.85))
@@ -177,8 +181,6 @@ return {
 			e(1.3, 0.4, 0.2, 0, 0.45, -1.16, BROW, HIDE("HapA" .. side), lid)
 			B:block(lid, v(1.0, 0.4, 0.2), EF * CFrame.new(-0.95, 0.0, -1.16) * ang(0, 0, 40), BROW, HIDE("HapC" .. side))
 			B:block(lid, v(1.0, 0.4, 0.2), EF * CFrame.new(0.95, 0.0, -1.16) * ang(0, 0, -40), BROW, HIDE("HapD" .. side))
-			e(3.5, 1.5, 1.5, 0, 1.25, -0.4, MAIN, HIDE("Half" .. side), lid)
-			e(3.0, 0.3, 0.2, 0, 0.5, -1.17, BROW, HIDE("HalfLash" .. side), lid)
 			-- soft lower lid under the eye
 			e(2.6, 0.45, 0.5, 0, -2.15, -0.6, SPOT, nil, eye)
 			-- gentle arched brow (2 pieces: kind, soft arch)
@@ -196,7 +198,7 @@ return {
 		end)
 		-- glints on the same side of both eyes (cartoon convention)
 		local function glint(side, x)
-			local EF = CFrame.new(side == "R" and 3.05 or -3.05, 12.35, -18.0) * ang(0, side == "R" and -10 or 10, 0)
+			local EF = CFrame.new(side == "R" and 3.1 or -3.1, 12.35, -18.15) * ang(0, side == "R" and -13 or 13, 0)
 			B:block("Pupil" .. side, v(0.75, 0.75, 0.1), EF * CFrame.new(x, 0.55, -1.06), "#ffffff", { mat = "Neon", name = "GlintA" .. side })
 			B:block("Pupil" .. side, v(0.35, 0.35, 0.1), EF * CFrame.new(-x * 0.8, -0.85, -1.06), "#ffffff", { mat = "Neon", name = "GlintB" .. side })
 		end
@@ -207,28 +209,28 @@ return {
 		for k = 1, 3 do
 			local nb = B:bone("Note" .. k, "Head", v(0, 9.5, -19.2))
 			local s = k == 2 and -1 or 1
-			B:block(nb, v(0.3, 1.3, 0.3), cf(0.25 * s, 10.0, -19.2), NG, HIDE("NoteS" .. k, NEON))
-			B:block(nb, v(0.75, 0.6, 0.3), cf(-0.05 * s, 9.4, -19.2), NG, HIDE("NoteH" .. k, NEON))
-			B:block(nb, v(0.6, 0.3, 0.3), cf(0.6 * s, 10.5, -19.2), NG, HIDE("NoteF" .. k, NEON))
+			B:block(nb, v(0.4, 1.9, 0.4), cf(0.4 * s, 10.3, -19.2), NG, HIDE("NoteS" .. k, NEON))
+			B:block(nb, v(1.1, 0.85, 0.4), cf(-0.05 * s, 9.4, -19.2), NG, HIDE("NoteH" .. k, NEON))
+			B:block(nb, v(0.9, 0.45, 0.4), cf(0.95 * s, 11.05, -19.2), NG, HIDE("NoteF" .. k, NEON))
 		end
 		-- hearts (hidden) that float up when she is happy
 		for k = 1, 3 do
 			local hx = ({ 0, 3.2, -3.2 })[k]
 			local hp = v(hx, 16.6, -14.5)
 			local hbn = B:bone("Heart" .. k, "Head", hp)
-			B:block(hbn, v(0.65, 0.65, 0.4), CFrame.new(hp + v(0.38, 0.3, 0)), BLUSH, HIDE("HeartA" .. k))
-			B:block(hbn, v(0.65, 0.65, 0.4), CFrame.new(hp + v(-0.38, 0.3, 0)), BLUSH, HIDE("HeartB" .. k))
-			B:block(hbn, v(1.4, 0.5, 0.4), CFrame.new(hp + v(0, -0.1, 0)), BLUSH, HIDE("HeartC" .. k))
-			B:block(hbn, v(0.7, 0.7, 0.42), CFrame.new(hp + v(0, -0.5, 0)) * ang(0, 0, 45), BLUSHD, HIDE("HeartD" .. k))
+			B:block(hbn, v(1.05, 1.05, 0.6), CFrame.new(hp + v(0.6, 0.5, 0)), BLUSH, HIDE("HeartA" .. k))
+			B:block(hbn, v(1.05, 1.05, 0.6), CFrame.new(hp + v(-0.6, 0.5, 0)), BLUSH, HIDE("HeartB" .. k))
+			B:block(hbn, v(2.25, 0.8, 0.6), CFrame.new(hp + v(0, -0.15, 0)), BLUSH, HIDE("HeartC" .. k))
+			B:block(hbn, v(1.15, 1.15, 0.62), CFrame.new(hp + v(0, -0.8, 0)) * ang(0, 0, 45), BLUSHD, HIDE("HeartD" .. k))
 		end
 		-- blowhole fountain (hidden water column)
 		local spout = B:bone("Spout", "Head", v(0, 15.6, -10.3))
-		B:block(spout, v(0.9, 1.6, 0.9), cf(0, 16.5, -10.3), WATERF, HIDE("SpoutA"))
-		B:block(spout, v(1.2, 1.6, 1.2), cf(0, 18.0, -10.3), WATERF, HIDE("SpoutB"))
-		B:block(spout, v(1.6, 1.2, 1.6), cf(0, 19.3, -10.3), FOAM, HIDE("SpoutC"))
-		B:block(spout, v(3.0, 0.6, 1.0), cf(0, 20.1, -10.3), FOAM, HIDE("SpoutD"))
-		B:block(spout, v(1.0, 0.6, 3.0), cf(0, 20.15, -10.3), FOAM, HIDE("SpoutE"))
-		local spoutFx = B:block(spout, v(1, 1, 1), cf(0, 19.6, -10.3), MAIN, HIDE("SpoutFX"))
+		B:block(spout, v(1.1, 2.2, 1.1), cf(0, 16.7, -10.3), WATERF, HIDE("SpoutA"))
+		B:block(spout, v(1.5, 2.2, 1.5), cf(0, 18.8, -10.3), WATERF, HIDE("SpoutB"))
+		B:block(spout, v(2.1, 1.4, 2.1), cf(0, 20.5, -10.3), FOAM, HIDE("SpoutC"))
+		B:block(spout, v(4.2, 0.7, 1.2), cf(0, 21.4, -10.3), FOAM, HIDE("SpoutD"))
+		B:block(spout, v(1.2, 0.7, 4.2), cf(0, 21.45, -10.3), FOAM, HIDE("SpoutE"))
+		local spoutFx = B:block(spout, v(1.5, 1, 1.5), cf(0, 21.2, -10.3), MAIN, HIDE("SpoutFX"))
 		B:emitter(spoutFx, "burst", { name = "SpoutSpray", color = { "#ffffff", WATERF, NS }, speed = { 5, 10 }, size = { 0.6, 0.45, 0 }, life = { 0.6, 1.2 }, spread = 70, accel = { 0, -16, 0 } })
 
 		------------------------------------------------------------------
@@ -239,7 +241,12 @@ return {
 			return B:block(jaw, v(sx, sy, sz), cf(x, y, z), col, opts)
 		end
 		jb(12.0, 1.1, 9.2, 0, 7.25, -13.7, MAIN) -- jaw base
-		jb(11.2, 0.95, 0.8, 0, 8.27, -17.9, SPOT) -- lower lip (front rim)
+		-- lower lip: stepped so the open mouth reads as a smile (low centre, high corners)
+		jb(3.6, 0.5, 0.8, 0, 8.05, -17.9, SPOT)
+		B:sym(function()
+			jb(2.0, 0.75, 0.8, 2.8, 8.17, -17.9, SPOT)
+			jb(1.8, 0.95, 0.8, 4.7, 8.27, -17.9, SPOT)
+		end)
 		jb(10.4, 0.3, 8.4, 0, 7.95, -13.5, MOUTH) -- mouth floor
 		jb(4.4, 0.45, 5.2, 0, 8.25, -14.4, TONGUE) -- tongue
 		jb(0.3, 0.1, 3.6, 0, 8.5, -14.6, TONGUED)
@@ -249,9 +256,10 @@ return {
 		for _, x in { -2.8, -1.0, 1.0, 2.8 } do
 			jb(0.3, 0.12, 6.8, x, 4.52, -13.3, GROOVE)
 		end
-		for _, x in { -2.8, -1.4, 1.4, 2.8 } do
-			jb(0.55, 0.5, 0.45, x, 8.95, -17.75, TOOTH)
-		end
+		B:sym(function()
+			jb(0.55, 0.5, 0.45, 1.3, 8.5, -17.75, TOOTH)
+			jb(0.55, 0.5, 0.45, 2.8, 8.75, -17.75, TOOTH)
+		end)
 		B:sym(function()
 			jb(0.8, 0.95, 8.6, 5.6, 8.27, -13.6, MAIN) -- side lip rims
 			jb(0.85, 0.2, 8.0, 5.6, 8.8, -13.8, SPOT)
@@ -261,7 +269,7 @@ return {
 		-- FLIPPERS: long humpback flippers with gold bracers
 		------------------------------------------------------------------
 		B:sym(function(side)
-			local F = CFrame.new(6.4, 7.8, -5.0) * ang(0, -28, -12)
+			local F = CFrame.new(6.4, 7.8, -5.0) * ang(0, -28, -10)
 			local function at(x, y, z, rz)
 				return F * CFrame.new(x, y, z) * ang(0, 0, rz or 0)
 			end
@@ -354,12 +362,12 @@ return {
 
 		-- splash crown at the slap point (Root-carried, hidden)
 		local splash = B:bone("Splash", "Root", v(0, 0, 18.5))
-		for i = 1, 8 do
-			local a = math.rad((i - 1) * 45 + 22.5)
-			local x, z = 7.5 * math.cos(a), 3.8 * math.sin(a)
+		for i = 1, 10 do
+			local a = math.rad((i - 1) * 36 + 18)
+			local x, z = 8.0 * math.cos(a), 4.5 * math.sin(a)
 			local yaw = math.deg(math.atan2(x, z))
-			local h = (i % 2 == 0) and 2.6 or 3.8
-			B:block(splash, v(0.9, h, 0.9), CFrame.new(x, 0.15, 18.5 + z) * ang(0, yaw, 0) * ang(28, 0, 0) * CFrame.new(0, h / 2, 0), i % 2 == 0 and FOAM or WATERF, HIDE("SplashCol" .. i))
+			local h = (i % 2 == 0) and 3.4 or 5.0
+			B:block(splash, v(1.4, h, 1.4), CFrame.new(x, 0.15, 18.5 + z) * ang(0, yaw, 0) * ang(30, 0, 0) * CFrame.new(0, h / 2, 0), i % 2 == 0 and FOAM or WATERF, HIDE("SplashCol" .. i))
 		end
 		local splashFx = B:block(splash, v(14, 0.6, 6), cf(0, 0.5, 18.5), MAIN, HIDE("SplashFX"))
 		B:emitter(splashFx, "burst", { name = "SplashBurst", color = { "#ffffff", NS, WATERF }, size = { 1.2, 0.8, 0 }, speed = { 10, 22 }, life = { 0.6, 1.3 }, spread = 70, accel = { 0, -20, 0 } })
@@ -519,7 +527,7 @@ return {
 		local chunkCol = { NG, NT, NG, "#ffffff", NG, NT, GOLD, NG }
 		for k = 1, 8 do
 			local cb = B:bone("Chunk" .. k, "City", v(0, 17.5, CZ))
-			B:block(cb, v(0.7, 0.7, 0.7), cf(0, 17.5, CZ), chunkCol[k], HIDE("ChunkP" .. k, chunkCol[k] ~= GOLD and NEON or nil))
+			B:block(cb, v(0.95, 0.95, 0.95), cf(0, 17.5, CZ), chunkCol[k], HIDE("ChunkP" .. k, chunkCol[k] ~= GOLD and NEON or nil))
 		end
 
 		------------------------------------------------------------------
