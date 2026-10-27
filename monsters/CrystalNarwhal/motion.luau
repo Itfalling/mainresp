@@ -43,7 +43,7 @@ local SPLASH = 5.9
 -- floor clearance: base hover lift, extra lift while big pitches swing the
 -- long tail / tusked head down, and while the little spin-hops roll the broad
 -- flippers / crystal back toward the floor
-local LIFT, TAIL_LIFT, HEAD_LIFT, ROLL_LIFT = 1.5, 8, 8, 6
+local LIFT, TAIL_LIFT, HEAD_LIFT, ROLL_LIFT = 1.25, 8, 8, 6
 
 local DROP_A = { 0, 15, 60, 75, 120, 135, 180, 195, 240, 255, 300, 315 }
 

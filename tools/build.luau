@@ -550,7 +550,7 @@ local function buildPacks(built)
 	local maxDepth = { 0, 0 }
 	for r = 1, 2 do
 		for _, b in rows[r] do
-			maxDepth[r] = math.max(maxDepth[r], b.info.mx.Z - b.info.mn.Z + 8)
+			maxDepth[r] = math.max(maxDepth[r], b.info.mx.Z - b.info.mn.Z + 16)
 		end
 	end
 	local rowZ = { -(aisle / 2 + maxDepth[1] / 2), aisle / 2 + maxDepth[2] / 2 }
@@ -560,7 +560,7 @@ local function buildPacks(built)
 		local widths = {}
 		local x = 0
 		for _, b in rows[r] do
-			local w = math.max(b.info.mx.X - b.info.mn.X, b.info.mx.Z - b.info.mn.Z) + 8
+			local w = math.max(b.info.mx.X - b.info.mn.X, b.info.mx.Z - b.info.mn.Z) + 12
 			table.insert(widths, w)
 			x += w + GAP
 		end
