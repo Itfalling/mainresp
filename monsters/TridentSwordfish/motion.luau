@@ -48,7 +48,7 @@ local BZ = {
 local BY = {
 	{ 3.0, 0 }, { 3.85, 0.7, "cubicOut" }, { SN, -0.2, "expoOut" }, { 5.05, 0.4 },
 	-- rears UP into the victory pose (lifted so the tail clears the floor as the nose tips up)
-	{ 5.35, 0.3 }, { 5.9, 3.5, "backOut" }, { 7.5, 3.1 }, { 8.3, 0, "cubicInOut" },
+	{ 5.4, 0.3 }, { 6.0, 2.6, "backOut" }, { 7.5, 2.5 }, { 8.3, 0, "cubicInOut" },
 }
 local PITCH = {
 	{ 3.0, 0 }, { 3.85, -6, "cubicOut" }, { SN, 3, "expoOut" }, { 4.35, 0 }, { 5.05, 0 },
@@ -120,7 +120,9 @@ function M.Update(t, pose, ctx)
 	------------------------------------------------------------------
 	local bob = 0.8 * wave(t, 0.5) * (1 - 0.6 * special)
 	local hop = 0.45 * L.bounce(t, 2.0) * guard
-	local by = bob + hop + L.track(c, BY) - 1.4 * squash + 0.5 * puff - 0.3 * guard
+	-- extra hop while the nose snaps up (the tail swings down before its victory curl arrives)
+	local rearHop = L.env(c, 5.55, 0.2, 0.05, 0.35, "quadOut", "sineInOut")
+	local by = bob + hop + L.track(c, BY) - 1.4 * squash + 0.5 * puff - 0.3 * guard + 1.6 * rearHop
 	local bz = L.track(c, BZ) - 2.8 * jab + 1.1 * wind
 	local bx = 0.4 * wave(t, 0.3) * swimW
 	local spin = L.track(c, ROLL)

@@ -152,7 +152,7 @@ function M.Update(t, pose, ctx)
 	local paddle = wave(t, 8 * F)
 	local clap = sin(TAU * 4 * (c - 7.1))
 	-- (+10 bias: the droopy paddles ride a little higher so downstrokes clear the floor)
-	local finZ = 10 + 24 * paddle * swimW + 45 * slam - 25 * dive + 40 * curl * (0.6 + 0.4 * sin(TAU * 4 * (c - 4.2)))
+	local finZ = 25 + 24 * paddle * swimW + 45 * slam - 25 * dive + 40 * curl * (0.6 + 0.4 * sin(TAU * 4 * (c - 4.2)))
 		+ joy * (8 + 26 * clap) + 12 * wagIdle * wave(t, 33 * F, 0.3)
 	local finY = 18 * wave(t, 8 * F, 0.25) * swimW - 55 * max(launch, dive) * (1 - curl) + 20 * fall
 	L.both(pose, "Flipper", ang(0, finY, finZ))
