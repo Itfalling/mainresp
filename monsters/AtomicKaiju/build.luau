@@ -116,17 +116,16 @@ return {
 			B:block(head, hs(v(0.3, 1.2, 3.0)), hcf(1.75, 13.6, -8.0), MOUTH)
 			-- EYE (own bone so it can pop out on the roar): a dark frame with a
 			-- glowing rectangle wrapped round the cranium's front corner, a slit
-			-- pupil on the front face and a second pupil on the side face
+			-- pupil on the front face only (a side pupil made each eye read as two)
 			local eb = B:bone("EyeBall" .. side, "Head", hp(v(2.2, 16.7, -8.7)))
 			B:block(eb, hs(v(1.4, 1.1, 1.3)), hcf(2.1, 16.7, -8.7), DARK)
 			B:block(eb, hs(v(1.0, 0.8, 1.1)), hcf(2.35, 16.7, -8.9), CYAN, { mat = "Neon", name = "Eye" .. side })
 			B:block(eb, hs(v(0.35, 0.55, 0.2)), hcf(2.1, 16.7, -9.5), PUPIL)
-			B:block(eb, hs(v(0.2, 0.55, 0.35)), hcf(2.9, 16.7, -9.0), PUPIL)
 			-- heavy stepped brow, on the grid, raised at the outer edge (angry)
 			B:block(head, hs(v(1.8, 0.5, 1.7)), hcf(2.05, 17.4, -8.75), DARK)
 			B:block(head, hs(v(0.9, 0.5, 1.5)), hcf(2.5, 17.85, -8.7), DARK)
-			-- cheek stripe + cheek frill spikes
-			B:block(head, hs(v(0.3, 0.3, 2.0)), hcf(2.55, 15.0, -7.2), CYAN, { mat = "Neon" })
+			-- cheek frill spikes (no neon cheek stripe: under the eye it read as
+			-- a second glowing mouth, beside it as a second eye)
 			B:beam(head, hp(v(2.4, 15.4, -5.6)), hp(v(4.1, 14.8, -3.8)), 1.04, 1.04, LAV)
 			B:beam(head, hp(v(2.3, 14.4, -5.9)), hp(v(3.5, 13.5, -4.4)), 0.78, 0.78, LAV)
 			-- horns: three stepped lavender segments sweeping back, cyan tip

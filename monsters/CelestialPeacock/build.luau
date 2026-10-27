@@ -74,14 +74,12 @@ return {
 			-- cheek shading + gold face stripe running back from the eye
 			B:block(head, v(0.4, 1.6, 2.4), hc(2.35, 13.3, -3.0), CREAM)
 			B:block(head, v(0.35, 0.45, 2.6), hc(2.38, 15.0, -2.6), GOLD)
-			-- BIG cartoon eye wrapped round the front corner of the head so it
-			-- reads from the front AND the side: gold rim, white, black pupils
+			-- BIG cartoon eye on the front corner of the head: gold rim, white,
+			-- ONE black pupil on the front face only (no side pupil = no double eyes)
 			B:block(head, v(1.9, 2.2, 1.6), hc(1.55, 14.7, -5.2), DGOLD)
 			B:block(head, v(1.6, 1.8, 1.4), hc(1.78, 14.7, -5.38), WHITE)
 			B:block(head, v(0.9, 1.25, 0.12), hc(1.55, 14.55, -6.1), BLACK) -- front pupil
-			B:block(head, v(0.12, 1.25, 0.8), hc(2.6, 14.55, -5.45), BLACK) -- side pupil
 			B:gem(head, v(0.35, 0.35, 0.1), hc(1.8, 14.95, -6.16), NEON, { name = "EyeShine" })
-			B:gem(head, v(0.1, 0.35, 0.35), hc(2.66, 14.95, -5.65), NEON, { name = "EyeShineSide" })
 			-- heavy gold brow, also wrapped round the corner
 			B:block(head, v(2.1, 0.5, 1.7), hc(1.6, 16.0, -5.25, 0, 0, 10), GOLD)
 			-- rosy cartoon blush (front + side)

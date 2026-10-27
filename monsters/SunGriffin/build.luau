@@ -94,10 +94,10 @@ return {
 			-- fangs hanging over the lower beak (toothy grin)
 			B:block(head, v(0.35, 0.7, 0.4), cf(1.25, 13.6, -10.4), WHITE)
 			B:block(head, v(0.35, 0.7, 0.4), cf(1.15, 13.6, -11.5), WHITE)
-			-- big wrap-around eye: neon slit, dark pupils (front + side), heavy brow
+			-- big wrap-around eye: neon slit, ONE dark pupil on the front face
+			-- (a second side pupil made each eye read as two), heavy brow
 			B:block(head, v(1.6, 1.6, 1.4), cf(1.8, 16.1, -9.1), NEON, { mat = "Neon", name = "Eye" })
 			B:block(head, v(0.5, 1.1, 0.1), cf(1.55, 16.0, -9.84), PUPIL)
-			B:block(head, v(0.15, 1.1, 0.5), cf(2.6, 16.0, -9.0), PUPIL)
 			B:block(head, v(2.2, 0.7, 1.7), cf(1.75, 17.2, -9.15, 0, 0, 14), BEAKDK)
 			-- cheek feather spike flaring back
 			B:spike(head, v(2.5, 14.6, -6.4), v(4.6, 14.0, -3.0), 1.2, 1.2, WHITE)
