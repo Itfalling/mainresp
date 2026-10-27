@@ -27,7 +27,7 @@ local F = 1 / 11
 
 local CHAIN = { "Head", "Body1", "Body2", "Tail1", "Tail2", "Tail3", "TailFan" }
 local CENTER = 2
-local AMP = { 7, 5, 9, 14, 20, 26, 32 } -- swim yaw (absolute), head -> tail
+local AMP = { 8, 5, 10, 16, 24, 30, 36 } -- swim yaw (absolute), head -> tail
 local COIL = { 24, 6, -8, -16, -22, -26, -26 } -- U-shape (abs pitch): head & tail up
 local CURL = { 34, 0, -10, -18, -24, -28, -30 } -- backflip curl (concave back)
 local STREAM = { -6, 0, 6, 10, 12, 14, 16 } -- launch: tail streams behind
@@ -44,7 +44,7 @@ local WINGS = {
 	{ "WingD", 0.24, 20, { 0, -40, -22 }, 26, 34 },
 }
 
-local DROP_A = { 10, 55, 100, 145, 190, 235, 280, 325 }
+local DROP_A = { 0, 15, 60, 75, 120, 135, 180, 195, 240, 255, 300, 315 }
 
 function M.Update(t, pose, ctx)
 	local c = t % M.Cycle
@@ -72,10 +72,10 @@ function M.Update(t, pose, ctx)
 
 	-- big root tracks
 	local jumpY = L.track(c, {
-		{ 3.0, 0 }, { 3.75, -1.7, "cubicOut" }, { 3.85, -1.8 }, { 4.35, 6.0, "cubicOut" },
-		{ 4.75, 7.2, "quadOut" }, { 5.2, 6.7, "quadIn" }, { SPLASH, -2.0, "quadIn" },
-		{ SPLASH + 0.12, -2.2, "quadOut" }, { 6.9, 0, "elasticOut" },
-		{ 7.1, 0 }, { 7.3, -0.9, "quadOut" }, { 7.7, 2.8, "backOut" }, { 8.15, 2.5 },
+		{ 3.0, 0 }, { 3.75, -2.3, "cubicOut" }, { 3.85, -2.4 }, { 4.35, 7.6, "cubicOut" },
+		{ 4.75, 9.0, "quadOut" }, { 5.2, 8.3, "quadIn" }, { SPLASH, -2.3, "quadIn" },
+		{ SPLASH + 0.12, -2.6, "quadOut" }, { 6.9, 0, "elasticOut" },
+		{ 7.1, 0 }, { 7.3, -1.1, "quadOut" }, { 7.7, 3.6, "backOut" }, { 8.15, 3.2 },
 		{ 8.45, -0.7, "quadIn" }, { 9.2, 0, "elasticOut" },
 	})
 	local flip = L.track(c, { { 4.0, 0 }, { 5.25, 360, "cubicInOut" } })
@@ -108,7 +108,7 @@ function M.Update(t, pose, ctx)
 	------------------------------------------------------------------
 	-- root: hover bob + coil / leap / backflip / splash / happy spin
 	------------------------------------------------------------------
-	local bob = 0.8 * wave(t, SW) * (1 - 0.7 * max(busyLeap, busySpin))
+	local bob = 1.1 * wave(t, SW) * (1 - 0.7 * max(busyLeap, busySpin))
 	local by = bob + jumpY
 	local bz = 1.2 * coil - 1.0 * launch
 	local roll = 6 * wave(t, SW, 0.15) * swimW + 14 * wig * sin(TAU * (wigPhase + 0.3)) + 10 * happy * sin(TAU * wagPhase * 0.5)
@@ -186,10 +186,11 @@ function M.Update(t, pose, ctx)
 	for _, b in BLINKS do
 		blink = max(blink, L.env(c, b, 0.06, 0.06, 0.1))
 	end
-	L.both(pose, "Lid", CFrame.new(0, -2.75 * blink, 0))
+	L.both(pose, "Lid", CFrame.new(0, -3.45 * blink, 0))
 	local lidTr = blink > 0.06 and 0 or 1
-	ctx.transparency("EyelidR", lidTr)
-	ctx.transparency("EyelidL", lidTr)
+	for _, n in { "EyelidR", "EyelidL", "LashR", "LashL" } do
+		ctx.transparency(n, lidTr)
+	end
 
 	------------------------------------------------------------------
 	-- halo: slow spin + bob; pops up and whirls on the burst and the spin
@@ -217,26 +218,36 @@ function M.Update(t, pose, ctx)
 	------------------------------------------------------------------
 	-- HOLY SUN RAYS at the apex (ride up with the leap, spin, fade)
 	------------------------------------------------------------------
-	local rayOn = c > APEX - 0.02 and c < APEX + 0.6
-	local ru = L.remap(c, APEX, APEX + 0.6)
+	local rayOn = c > APEX - 0.02 and c < APEX + 0.8
+	local ru = L.remap(c, APEX, APEX + 0.8)
 	pose.Rays = pa(0, by, 0, 0, 45 + 140 * ru, 0)
 	for k = 1, 8 do
-		ctx.transparency("Ray" .. k, rayOn and (0.1 + 0.9 * ru ^ 1.6) or 1)
+		ctx.transparency("Ray" .. k, rayOn and (0.9 * ru ^ 2) or 1)
 	end
 
 	------------------------------------------------------------------
 	-- SPLASH droplets: holy-water cubes burst out in a crown, arc, fade
 	------------------------------------------------------------------
-	local su = L.remap(c, SPLASH, SPLASH + 0.9)
-	local sOn = c > SPLASH and c < SPLASH + 0.9
+	local su = L.remap(c, SPLASH, SPLASH + 1.0)
+	local sOn = c > SPLASH and c < SPLASH + 1.0
 	local se = L.ease.cubicOut(su)
-	for k = 1, 8 do
-		local a = math.rad(DROP_A[k])
-		local r = (k % 2 == 0 and 8 or 11) * se
-		local y = (k % 2 == 0 and 6 or 4.5) * 4 * su * (1 - su) - 1.5 * su
-		local sp = 400 * su * (k % 2 == 0 and -1 or 1)
-		pose["Drop" .. k] = sOn and pa(sin(a) * r, y, cos(a) * r, sp, sp * 0.6, 30 * k) or CFrame.new()
-		ctx.transparency("DropPart" .. k, sOn and (su > 0.7 and (su - 0.7) / 0.3 or 0.05) or 1)
+	for k = 1, 12 do
+		local deg = DROP_A[k]
+		local a = math.rad(deg)
+		local cf
+		if k % 2 == 1 then
+			-- crown cube: shoots up and out, tumbles, falls back
+			local r = 3 + (k % 4 == 1 and 8 or 11) * se
+			local y = (k % 4 == 1 and 13 or 10) * 4 * su * (1 - su) + 1.5 * su
+			local sp = 420 * su * (k % 4 == 1 and -1 or 1)
+			cf = pa(sin(a) * r, y, cos(a) * r, sp, sp * 0.6, 30 * k)
+		else
+			-- ripple slab: skims outward low over the ground, tangent to the ring
+			local r = 3 + 11 * se
+			cf = pa(sin(a) * r, -3.6 + 0.6 * su, cos(a) * r, 0, deg, 0)
+		end
+		pose["Drop" .. k] = sOn and cf or CFrame.new()
+		ctx.transparency("DropPart" .. k, sOn and (su > 0.65 and (su - 0.65) / 0.35 or 0.0) or 1)
 	end
 
 	------------------------------------------------------------------

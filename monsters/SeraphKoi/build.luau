@@ -18,8 +18,9 @@ return {
 		local rad, cos, sin = math.rad, math.cos, math.sin
 
 		-- palette
-		local WHITE, SHADE = "#fbf8f1", "#dfe3f0" -- pearl body / cool white shade (scales, gills)
-		local FEATH = "#fff3d6" -- warm alternate feather
+		local WHITE, SHADE = "#fffbf2", "#ffe2a8" -- pearl body / pale-gold shade (scales, gills)
+		local FEATH, PURE = "#ffedc4", "#ffffff" -- warm alternate feather / pure white primaries
+		local BROW = "#9c1d16"
 		local CREAM, CREAM2 = "#f6deb0", "#ffeec8" -- belly plates
 		local ORANGE, LORANGE, DORANGE = "#ff7a1a", "#ffa043", "#d4500f" -- koi patches + dark shade
 		local RED, DRED = "#e8332a", "#b8211f"
@@ -55,7 +56,7 @@ return {
 			local d, zo = d0, 0
 			for i = 0, steps - 1 do
 				local col = i == 0 and DORANGE or (i % 2 == 1 and ORANGE or LORANGE)
-				B:block(bone, v(i == 0 and 1.2 or 0.9, 1, math.max(0.8, d)), cf(0, y + i + 0.5, z + zo), col)
+				B:block(bone, v(i == 0 and 1.6 or 1.25, 1, math.max(0.9, d)), cf(0, y + i + 0.5, z + zo), col)
 				if i < steps - 1 then
 					d *= 0.74
 					zo += 0.45
@@ -64,7 +65,7 @@ return {
 			if tip then
 				B:block(bone, v(0.55, 0.55, 0.55), cf(0, y + steps + 0.2, z + zo + 0.25), GLOW, NEON)
 			else
-				B:block(bone, v(0.75, 0.6, math.max(0.8, d * 0.7)), cf(0, y + steps + 0.25, z + zo + 0.2), GOLD)
+				B:block(bone, v(1.0, 0.6, math.max(0.9, d * 0.7)), cf(0, y + steps + 0.25, z + zo + 0.2), GOLD)
 			end
 		end
 		-- frame from a direction (local X) with feathers/rays trailing along T (local Z)
@@ -80,11 +81,11 @@ return {
 		local body1 = B:bone("Body1", "Root", v(0, 8.6, -1.0))
 		segment(body1, -5.4, 1.6, 8.6, 7.4, 7.4, ORANGE, ORANGE)
 		-- Kohaku patches (never symmetric): stepped blobs hanging off the saddle
-		flank(body1, 3.78, 9.2, -3.1, 1.8, 2.4, ORANGE)
-		flank(body1, 3.78, 8.0, -2.6, 1.0, 1.4, ORANGE)
-		flank(body1, 3.8, 9.6, 0.4, 1.2, 1.6, RED)
-		flank(body1, -3.78, 9.0, -0.2, 2.2, 2.8, RED)
-		flank(body1, -3.8, 8.0, 0.4, 1.0, 1.4, RED)
+		flank(body1, 3.78, 9.0, -3.0, 2.6, 3.4, ORANGE)
+		flank(body1, 3.8, 7.4, -2.4, 1.0, 2.0, DORANGE)
+		flank(body1, 3.8, 9.8, 0.6, 1.6, 1.8, RED)
+		flank(body1, -3.78, 8.9, -1.2, 2.8, 3.8, RED)
+		flank(body1, -3.8, 7.2, -0.8, 0.9, 2.2, DRED)
 		B:block(body1, v(2.2, 0.4, 3.0), cf(1.5, 12.5, -3.4), RED) -- top patches
 		B:block(body1, v(1.8, 0.4, 2.0), cf(-1.4, 12.5, -0.2), RED)
 		-- pixel scales on the white flanks
@@ -110,8 +111,8 @@ return {
 		------------------------------------------------------------------
 		local body2 = B:bone("Body2", "Body1", v(0, 8.7, 1.3))
 		segment(body2, 1.0, 5.4, 8.7, 6.4, 6.4, RED)
-		flank(body2, 3.28, 9.8, 3.6, 2.0, 2.2, ORANGE)
-		flank(body2, 3.3, 8.6, 4.2, 0.8, 1.2, ORANGE)
+		flank(body2, 3.28, 9.4, 3.4, 2.6, 2.6, ORANGE)
+		flank(body2, 3.3, 7.8, 3.8, 0.8, 1.6, DORANGE)
 		flank(body2, -3.28, 10.1, 2.4, 1.6, 2.6, RED)
 		flank(body2, -3.28, 8.9, 4.4, 1.2, 1.2, ORANGE)
 		B:block(body2, v(4.0, 0.6, 1.4), cf(0, 5.15, 2.6), CREAM2)
@@ -144,13 +145,19 @@ return {
 		local fan = B:bone("TailFan", "Tail3", v(0, 9.0, 12.4))
 		B:block(fan, v(1.6, 3.6, 2.4), cf(0, 9.0, 13.3), ORANGE)
 		B:block(fan, v(1.7, 1.2, 1.4), cf(0, 9.0, 14.6), GOLD)
+		-- side veil fins: give the fan tail width from the back / top (3D butterfly tail)
+		B:sym(function()
+			B:block(fan, v(2.4, 0.7, 2.0), cf(1.5, 9.0, 14.0, 0, -18, 0), ORANGE)
+			B:block(fan, v(1.9, 0.6, 1.8), cf(2.7, 9.0, 15.3, 0, -26, 0), RED)
+			B:block(fan, v(1.0, 0.75, 1.1), cf(3.5, 9.0, 16.4, 0, -26, 0), GOLD)
+		end)
 		local function lobe(name, pivotY, rows, dir)
 			local b = B:bone(name, "TailFan", v(0, pivotY, 13.6))
 			for i, r in rows do
 				local y, z0, z1, col = r[1], r[2], r[3], r[4]
-				local th = 1.15 - i * 0.06
+				local th = 1.7 - i * 0.12
 				B:block(b, v(th, 1.05, z1 - z0), cf(0, y, (z0 + z1) / 2), col)
-				B:block(b, v(th + 0.1, 0.95, 0.9), cf(0, y, z1 + 0.35), GOLD)
+				B:block(b, v(th - 0.35, 0.95, 0.9), cf(0, y, z1 + 0.35), GOLD)
 			end
 			local last = rows[#rows]
 			B:block(b, v(0.6, 0.6, 0.6), cf(0, last[1] + 0.75 * dir, last[3] + 0.4), GLOW, NEON)
@@ -181,65 +188,68 @@ return {
 		hb(head, 4.0, 0.6, 3.2, 0, 13.2, -7.8, RED) -- tancho crown patch
 		hb(head, 2.0, 0.4, 1.6, 0.6, 13.65, -7.6, RED)
 		hb(head, 6.6, 0.8, 4.6, 0, 5.3, -7.8, CREAM) -- jowl
-		hb(head, 5.6, 4.2, 1.4, 0, 8.4, -11.3, WHITE) -- snout
-		hb(head, 4.4, 0.6, 1.3, 0, 10.8, -11.2, ORANGE) -- nose patch
+		hb(head, 4.6, 4.2, 1.4, 0, 8.4, -11.3, WHITE) -- snout (narrow so the big eyes read from the front)
+		hb(head, 3.8, 0.6, 1.3, 0, 10.8, -11.2, ORANGE) -- nose patch
 		hb(head, 8.1, 1.4, 3.0, 0, 11.3, -6.6, ORANGE) -- orange saddle down the sides
-		hb(head, 4.6, 0.6, 1.2, 0, 6.1, -11.3, CREAM) -- chin step under the snout
+		hb(head, 8.3, 0.7, 2.2, 0, 10.4, -6.2, DORANGE) -- dark step under the saddle
+		hb(head, 4.0, 0.6, 1.2, 0, 6.1, -11.3, CREAM) -- chin step under the snout
 		-- forehead gem in a gold diamond setting
 		hb(head, 1.5, 1.5, 0.3, 0, 11.4, -10.7, GOLD, nil, 0, 0, 45)
 		hb(head, 0.8, 0.8, 0.3, 0, 11.4, -10.8, SKY, { mat = "Neon", name = "Gem" }, 0, 0, 45)
 
 		B:sym(function(side)
-			-- bulgy eye wrapping the front corner: white ball, glowing sky iris,
-			-- black pupils on the front and side faces, white glints
-			hb(head, 2.2, 2.8, 2.4, 3.4, 9.6, -9.9, WHITE)
-			hb(head, 1.6, 2.1, 2.0, 3.75, 9.5, -10.2, SKY, { mat = "Neon", name = "Eye" .. side })
-			hb(head, 0.9, 1.4, 0.1, 3.45, 9.3, -11.23, PUPIL)
-			hb(head, 0.1, 1.4, 0.9, 4.58, 9.3, -10.0, PUPIL)
-			hb(head, 0.45, 0.45, 0.1, 4.05, 10.1, -11.25, "#ffffff", NEON)
-			hb(head, 0.1, 0.45, 0.45, 4.6, 10.1, -10.65, "#ffffff", NEON)
-			-- arched brow (cute, raised in the middle)
-			hb(head, 2.4, 0.6, 1.0, 3.3, 11.45, -10.55, DORANGE)
-			hb(head, 1.2, 0.5, 0.9, 3.2, 11.95, -10.5, DORANGE)
+			-- BIG bulgy eye on the front corner: white block, glowing sky iris
+			-- wrapping the corner, big black pupils (front + side) and glints
+			hb(head, 2.6, 3.4, 2.4, 3.5, 9.6, -9.85, PURE)
+			hb(head, 2.0, 2.6, 2.0, 3.85, 9.45, -10.2, SKY, { mat = "Neon", name = "Eye" .. side })
+			hb(head, 1.1, 1.8, 0.12, 3.55, 9.25, -11.25, PUPIL)
+			hb(head, 0.12, 1.8, 1.1, 4.9, 9.25, -10.35, PUPIL)
+			hb(head, 0.55, 0.55, 0.1, 4.25, 10.25, -11.27, "#ffffff", NEON)
+			hb(head, 0.1, 0.55, 0.55, 4.92, 10.25, -10.85, "#ffffff", NEON)
+			-- chunky dark brow, inner end raised (kind / happy), stepped cap
+			hb(head, 2.9, 0.7, 1.0, 3.45, 11.75, -10.75, BROW, nil, 0, 0, -10)
+			hb(head, 1.4, 0.45, 0.9, 3.0, 12.25, -10.7, BROW, nil, 0, 0, -10)
 			-- blush
-			hb(head, 1.0, 0.5, 0.1, 3.4, 7.6, -10.65, BLUSH)
+			hb(head, 1.3, 0.6, 0.1, 3.3, 7.35, -10.66, BLUSH)
 			-- gill cover (own bone: flaps open on every gulp)
 			local gill = B:bone("Gill" .. side, "Head", hp(4.0, 8.6, -7.4))
 			hb(gill, 0.6, 4.6, 2.6, 4.1, 8.4, -6.2, SHADE)
 			hb(gill, 0.7, 4.0, 0.5, 4.15, 8.4, -5.0, DORANGE)
-			-- eyelid for blinks (hidden until it closes)
-			local lid = B:bone("Lid" .. side, "Head", hp(3.5, 12.0, -10.0))
-			hb(lid, 2.6, 2.4, 2.95, 3.5, 12.0, -10.0, WHITE, { tr = 1, name = "Eyelid" .. side })
+			-- eyelid + lash line for blinks (hidden until it closes)
+			local lid = B:bone("Lid" .. side, "Head", hp(3.5, 12.6, -9.95))
+			hb(lid, 3.1, 3.5, 2.9, 3.5, 12.6, -9.95, WHITE, { tr = 1, name = "Eyelid" .. side })
+			hb(lid, 3.15, 0.4, 0.25, 3.5, 11.0, -11.48, BROW, { tr = 1, name = "Lash" .. side })
 		end)
 
 		------------------------------------------------------------------
-		-- MOUTH: protruding coral "O" with lips (Mouth pushes out on a gulp,
-		-- the Jaw/lower lip drops)
+		-- MOUTH: wide coral pout with two buck teeth (Mouth pushes out on a
+		-- gulp, the Jaw / lower lip + tongue drop open)
 		------------------------------------------------------------------
 		local mouth = B:bone("Mouth", "Head", hp(0, 7.7, -11.6))
-		hb(mouth, 3.2, 0.8, 1.2, 0, 8.5, -12.6, LIP)
-		hb(mouth, 2.2, 0.3, 0.9, 0, 9.0, -12.5, LIPL)
-		hb(mouth, 1.7, 2.2, 0.4, 0, 7.25, -12.2, MOUTH)
+		hb(mouth, 3.6, 0.8, 1.1, 0, 8.75, -12.45, LIP)
+		hb(mouth, 2.4, 0.3, 0.8, 0, 9.25, -12.4, LIPL)
+		hb(mouth, 2.1, 1.9, 0.4, 0, 7.75, -12.12, MOUTH)
 		B:sym(function()
-			hb(mouth, 0.8, 2.4, 1.2, 1.2, 7.3, -12.6, LIP)
+			hb(mouth, 0.8, 1.9, 1.1, 1.4, 7.75, -12.45, LIP)
+			hb(mouth, 0.55, 0.6, 0.3, 0.42, 8.08, -12.75, "#ffffff") -- buck tooth
 		end)
 		local mouthFx = hb(mouth, 1.4, 1.2, 1.0, 0, 7.3, -13.6, WHITE, { tr = 1, name = "MouthFX" })
 		B:emitter(mouthFx, "bubble", { name = "MouthBubbles", color = { "#ffffff", SKY }, rate = 0, size = { 0.35, 0.6, 0.7 }, speed = { 2, 5 }, spread = 35, dir = "Front" })
 		-- long drooping gold barbels (2 bones each so they flop)
 		B:sym(function(side)
-			local w1 = B:bone("Whisker" .. side, "Mouth", hp(1.6, 8.2, -12.9))
-			B:beam(w1, hp(1.6, 8.2, -12.9), hp(3.4, 7.3, -13.8), 0.5, 0.5, GOLD)
-			local w2 = B:bone("WhiskerTip" .. side, "Whisker" .. side, hp(3.35, 7.35, -13.75))
-			B:beam(w2, hp(3.35, 7.35, -13.75), hp(4.4, 5.0, -13.6), 0.45, 0.45, GOLD)
-			hb(w2, 0.5, 0.5, 0.5, 4.45, 4.85, -13.6, GLOW, NEON)
+			local w1 = B:bone("Whisker" .. side, "Mouth", hp(1.7, 8.4, -12.8))
+			B:beam(w1, hp(1.7, 8.4, -12.8), hp(3.3, 7.9, -13.4), 0.5, 0.5, GOLD)
+			local w2 = B:bone("WhiskerTip" .. side, "Whisker" .. side, hp(3.25, 7.95, -13.35))
+			B:beam(w2, hp(3.25, 7.95, -13.35), hp(4.6, 5.4, -13.0), 0.45, 0.45, GOLD)
+			hb(w2, 0.55, 0.55, 0.55, 4.65, 5.25, -13.0, GLOW, NEON)
 		end)
 
 		local jaw = B:bone("Jaw", "Head", hp(0, 6.9, -11.4))
-		hb(jaw, 3.2, 0.8, 1.2, 0, 6.1, -12.6, LIP)
-		hb(jaw, 3.6, 0.9, 1.4, 0, 5.6, -11.6, CREAM)
-		hb(jaw, 1.4, 0.3, 0.9, 0, 6.55, -12.2, TONGUE)
+		hb(jaw, 3.6, 0.8, 1.1, 0, 6.5, -12.45, LIP)
+		hb(jaw, 3.6, 0.9, 1.4, 0, 5.75, -11.65, CREAM)
+		hb(jaw, 1.5, 0.35, 0.8, 0, 7.05, -12.25, TONGUE)
 		B:sym(function()
-			B:beam(jaw, hp(0.9, 5.4, -12.4), hp(1.3, 4.0, -12.9), 0.4, 0.4, DGOLD) -- chin barbel
+			B:beam(jaw, hp(0.9, 5.5, -12.4), hp(1.3, 4.1, -12.9), 0.4, 0.4, DGOLD) -- chin barbel
 		end)
 
 		------------------------------------------------------------------
@@ -287,38 +297,45 @@ return {
 				local ax = out * cos(E) + v(0, 1, 0) * sin(E)
 				local W1 = frame(root, ax, T)
 				local W2 = W1 * CFrame.new(L1, 0, 0) * ang(0, -14, 0)
-				local function feathers(bone, Fr, list)
+				-- chunky feather blocks fanning out toward the wing tip (each one
+				-- splays a little more), alternating pure white / warm cream with
+				-- stepped heights so the edge-on view shows a stepped, solid wing
+				local function feathers(bone, Fr, list, a0, da)
 					for i, f in list do
 						local len = f[2]
-						local dy = (i % 2 == 0) and 0.06 or -0.06
-						B:block(bone, v(1.5, 0.75, len), Fr * CFrame.new(f[1], dy, 1.9 + len / 2), i % 2 == 0 and FEATH or WHITE)
-						B:block(bone, v(1.4, 0.8, 1.0), Fr * CFrame.new(f[1], dy, 1.9 + len + 0.45), GOLD)
+						local dy = (i % 2 == 0) and 0.18 or -0.18
+						local F = Fr * CFrame.new(f[1], dy, 1.5) * ang(0, a0 + da * (i - 1), 0)
+						B:block(bone, v(1.6, 1.0, len), F * CFrame.new(0, 0, len / 2), i % 2 == 0 and FEATH or PURE)
+						B:block(bone, v(1.5, 1.1, 1.0), F * CFrame.new(0, 0, len + 0.45), GOLD)
 					end
 				end
 				local w1 = B:bone(name .. side, parent, W1.Position)
-				B:block(w1, v(L1 + 0.6, 1.2, 1.4), W1 * CFrame.new(L1 / 2, 0, 0), WHITE)
-				B:block(w1, v(L1, 0.7, 0.6), W1 * CFrame.new(L1 / 2 + 0.2, 0.25, -0.9), GOLD) -- leading edge
-				B:block(w1, v(L1, 0.9, 1.8), W1 * CFrame.new(L1 / 2 + 0.2, -0.05, 1.3), CREAM2) -- coverts
-				feathers(w1, W1, f1)
+				B:block(w1, v(L1 + 0.6, 1.4, 1.4), W1 * CFrame.new(L1 / 2, 0, 0), PURE)
+				B:block(w1, v(L1, 0.8, 0.7), W1 * CFrame.new(L1 / 2 + 0.2, 0.3, -0.95), GOLD) -- leading edge
+				B:block(w1, v(L1, 1.2, 1.8), W1 * CFrame.new(L1 / 2 + 0.2, -0.05, 1.3), LORANGE) -- coverts
+				-- calm sky glow strip under the coverts (lights up the shaded underside)
+				B:block(w1, v(L1 - 0.8, 0.3, 0.4), W1 * CFrame.new(L1 / 2 + 0.3, -0.75, 1.6), SKY, NEON)
+				feathers(w1, W1, f1, -8, 6)
 				local w2 = B:bone(name .. "Tip" .. side, name .. side, W2.Position)
-				B:block(w2, v(L2, 1.0, 1.2), W2 * CFrame.new(L2 / 2, 0, 0), WHITE)
-				B:block(w2, v(L2 - 0.4, 0.6, 0.55), W2 * CFrame.new(L2 / 2 - 0.1, 0.2, -0.8), GOLD)
-				B:block(w2, v(L2 - 0.3, 0.8, 1.6), W2 * CFrame.new(L2 / 2, -0.05, 1.2), CREAM2)
-				feathers(w2, W2, f2)
+				B:block(w2, v(L2, 1.2, 1.2), W2 * CFrame.new(L2 / 2, 0, 0), PURE)
+				B:block(w2, v(L2 - 0.4, 0.7, 0.6), W2 * CFrame.new(L2 / 2 - 0.1, 0.25, -0.85), GOLD)
+				B:block(w2, v(L2 - 0.3, 1.1, 1.6), W2 * CFrame.new(L2 / 2, -0.05, 1.2), LORANGE)
+				feathers(w2, W2, f2, 4, 10)
 				if neonEdge then
-					B:block(w2, v(L2 - 1.0, 0.25, 0.25), W2 * CFrame.new(L2 / 2 - 0.2, 0.55, -1.12), SKY, NEON)
+					B:block(w2, v(L2 - 1.0, 0.3, 0.3), W2 * CFrame.new(L2 / 2 - 0.2, 0.62, -1.2), SKY, NEON)
 				end
 				if trail then
 					local last = f2[#f2]
-					B:trail(w2, (W2 * CFrame.new(last[1], 0, 1.9 + last[2] + 0.9)).Position, (W2 * CFrame.new(last[1] - 1.2, 0, 1.9 + last[2] - 0.6)).Position,
+					local LF = W2 * CFrame.new(last[1], 0, 1.5) * ang(0, 4 + 10 * (#f2 - 1), 0)
+					B:trail(w2, (LF * CFrame.new(0, 0, last[2] + 0.9)).Position, (LF * CFrame.new(0, 0, last[2] - 1.4)).Position,
 						{ name = name .. "Trail" .. side, color = { "#ffffff", GLOW }, life = 0.3, trans = { 0.5, 1 } })
 				end
 			end)
 		end
 		wing("WingU", "Body1", v(2.3, 12.0, -2.0), 42, 6, 4.6, 5.4,
-			{ { 1.2, 2.8 }, { 2.8, 3.4 } }, { { 0.7, 4.0 }, { 2.1, 4.8 }, { 3.5, 5.4 }, { 5.0, 4.8 } }, true, true, v(0, -1, 0.9))
+			{ { 1.2, 3.0 }, { 2.8, 3.6 } }, { { 0.7, 4.4 }, { 2.1, 5.4 }, { 3.5, 6.2 }, { 5.0, 5.8 } }, true, true, v(0, -1, 0.5))
 		wing("WingM", "Body1", v(3.6, 10.2, -1.0), 2, 12, 4.4, 5.0,
-			{ { 1.2, 2.6 }, { 2.8, 3.2 } }, { { 0.7, 3.6 }, { 2.1, 4.3 }, { 3.5, 4.8 }, { 4.9, 4.0 } }, false, true, v(0, -1, 0.9))
+			{ { 1.2, 2.8 }, { 2.8, 3.4 } }, { { 0.7, 4.0 }, { 2.1, 4.8 }, { 3.5, 5.4 }, { 4.9, 4.8 } }, true, true, v(0, 0.3, 1))
 		wing("WingD", "Body1", v(3.6, 7.6, 0.4), -34, 24, 3.6, 4.0,
 			{ { 1.2, 2.2 }, { 2.6, 2.6 } }, { { 0.7, 2.8 }, { 2.1, 3.3 }, { 3.4, 2.8 } }, false, false, v(0, -0.4, 1))
 
@@ -343,22 +360,25 @@ return {
 		for k = 1, 8 do
 			local a = rad(math.floor((k - 1) / 2) * 90 + 45)
 			local d = (k % 2 == 1) and v(cos(a), sin(a), 0) or v(0, sin(a), cos(a))
-			local r0, r1 = 6.5, (k % 4 < 2) and 12.0 or 9.5
-			B:beam(rays, RC + d * r0, RC + d * r1, 0.8, 0.8, GLOW, { mat = "Neon", tr = 1, name = "Ray" .. k })
+			local r0, r1 = 7.0, (k % 4 < 2) and 15.0 or 12.0
+			B:beam(rays, RC + d * r0, RC + d * r1, 1.2, 1.2, GOLD, { mat = "Neon", tr = 1, name = "Ray" .. k })
 		end
 
 		------------------------------------------------------------------
 		-- SPLASH: holy-water droplet cubes (hidden) that burst out of the
 		-- splashdown, + the burst / mist emitters
 		------------------------------------------------------------------
-		local SC = v(0, 3.4, 1.0)
+		local SC = v(0, 4.6, 0.5)
 		local splashAt = B:block("Root", v(8, 0.6, 10), CFrame.new(SC), WHITE, { tr = 1, name = "SplashFX" })
 		B:emitter(splashAt, "burst", { name = "SplashBurst", color = { "#ffffff", SKY, "#3fb8ff" }, speed = { 8, 16 }, size = { 1.0, 0.7, 0 }, accel = { 0, -18, 0 }, spread = 70 })
 		B:emitter(splashAt, "dust", { name = "SplashMist", color = { "#ffffff", "#bfefff" }, size = { 2, 3.5, 4.5 }, speed = { 6, 12 } })
-		for k = 1, 8 do
+		-- odd drops: big cubes arcing up in a crown; even drops: flat ripple
+		-- slabs skimming outward (a voxel splash ring)
+		for k = 1, 12 do
 			local sb = B:bone("Drop" .. k, "Root", SC)
-			local s = k % 2 == 0 and 1.3 or 1.8
-			B:block(sb, v(s, s, s), CFrame.new(SC), k % 3 == 0 and "#ffffff" or SKY, { tr = 1, name = "DropPart" .. k })
+			local size = k % 2 == 1 and (k % 4 == 1 and v(2.4, 2.4, 2.4) or v(1.8, 1.8, 1.8)) or v(3.0, 0.6, 1.4)
+			local col = k % 4 == 1 and "#3fb8ff" or SKY
+			B:block(sb, size, CFrame.new(SC), col, { tr = 1, name = "DropPart" .. k })
 		end
 
 		------------------------------------------------------------------
