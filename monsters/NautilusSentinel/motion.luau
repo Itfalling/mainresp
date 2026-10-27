@@ -23,6 +23,7 @@ local rad, max, min, sin, cos, floor, pi, abs = math.rad, math.max, math.min, ma
 
 local SPIN0, SPIN1, POP = 4.95, 6.55, 6.55
 local TURNS = 4
+local HOVER = 0.4 -- hover a touch higher so the big moves clear the floor
 local BLINKS = { 0.9, 3.0, 3.2, 9.35 }
 local BETAS = { -112, -90, -68, -36, -21, -7, 7, 21, 36, 68, 90, 112 }
 
@@ -69,6 +70,11 @@ function M.Update(t, pose, ctx)
 		{ 4.3, 0 }, { 4.8, -1.3, "quadOut" }, { 5.05, -1.5 }, { 6.3, 4.2, "quadOut" }, { 6.75, 4.5, "quadOut" },
 		{ 7.55, 0, "quadInOut" }, { 7.72, -0.9, "quadOut" }, { 8.15, 0, "backOut" },
 	})
+	-- the anticipation sink follows the tentacle tuck so the dangling
+	-- tentacles curl up into the shell instead of dipping into the floor
+	if c > 4.3 and c < 4.85 then
+		lift *= max(0, tuck) ^ 2
+	end
 	local hop = 0.8 * L.env(c, 8.0, 0.2, 0.0, 0.3, "quadOut", "bounceOut")
 	local bob = 0.5 * wave(t, 0.4) + 0.25 * wave(t, 0.8, 0.2) * idleW
 	-- look track (deg, + = monster's left) shared by shell, head and pupils
@@ -87,7 +93,7 @@ function M.Update(t, pose, ctx)
 	local rockX = (4 * wave(t, 0.4, 0.25) + 2 * wave(t, 0.2)) * (1 - spinE) - 8 * L.env(c, 4.3, 0.4, 0.2, 0.3) + 6 * flare
 	local rockZ = 3 * wave(t, 0.3) * (1 - spinE)
 	local shellYaw = spinYaw + 0.3 * look + 8 * wave(t, 0.1) * idleW
-	pose.Shell = CFrame.new(0, bob + lift + hop, 0)
+	pose.Shell = CFrame.new(0, HOVER + bob + lift + hop, 0)
 		* CFrame.Angles(rad(rockX + wobX), 0, rad(rockZ + wobZ))
 		* CFrame.Angles(0, rad(shellYaw), 0)
 
