@@ -81,8 +81,8 @@ function M.Update(t, pose, ctx)
 	-- root (Body2): hover bob, rear back, CHARGE, SLAM drop, swagger arc
 	------------------------------------------------------------------
 	local bz = tr(c, {
-		{ 2.9, 0 }, { 3.85, 4.0, "cubicOut" }, { 4.05, 4.3 }, { SLAM, -9.0, "quadIn" },
-		{ 4.6, -9.6, "cubicOut" }, { 5.9, -9.4 }, { 7.5, 0, "sineInOut" },
+		{ 2.9, 0 }, { 3.85, 3.5, "cubicOut" }, { 4.05, 3.8 }, { SLAM, -6.5, "quadIn" },
+		{ 4.6, -7.0, "cubicOut" }, { 5.9, -6.8 }, { 7.5, 0, "sineInOut" },
 	})
 	local by = tr(c, {
 		{ 2.9, 0 }, { 3.85, 1.6, "cubicOut" }, { 4.05, 1.8 }, { 4.3, 0.4, "quadIn" }, { SLAM, -2.1, "quadIn" },
@@ -90,8 +90,8 @@ function M.Update(t, pose, ctx)
 		{ 6.6, 0.6, "sineInOut" }, { 7.5, 0, "sineInOut" },
 	})
 	local bp = tr(c, {
-		{ 2.9, 0 }, { 3.85, 16, "cubicOut" }, { 4.05, 18 }, { 4.28, -2, "quadIn" }, { SLAM, -20, "quadIn" },
-		{ 4.62, -11, "backOut" }, { 5.6, -11 }, { POUND, -17, "quadIn" }, { 5.95, -8, "backOut" },
+		{ 2.9, 0 }, { 3.85, 16, "cubicOut" }, { 4.05, 18 }, { 4.28, -2, "quadIn" }, { SLAM, -16, "quadIn" },
+		{ 4.62, -6, "backOut" }, { 5.6, -6 }, { POUND, -12, "quadIn" }, { 5.95, -4, "backOut" },
 		{ 6.6, 4, "sineInOut" }, { 7.5, 0, "sineInOut" },
 	})
 	local u = L.ease.sineInOut(L.clamp01(L.remap(c, 5.9, 7.5)))
@@ -120,11 +120,11 @@ function M.Update(t, pose, ctx)
 	end
 	-- the hammerhead sweep: the head scans side to side (grumpy, suspicious)
 	yaw[1] += (18 * wave(t, 0.3, 0.1) + 6 * wave(t, 0.7, 0.4)) * idleW + 6 * shake
-	pitch[1] += (4 * wave(t, 1.0, 0.2)) * idleW + 14 * pre - 26 * butt
+	pitch[1] += (4 * wave(t, 1.0, 0.2)) * idleW + 14 * pre - 14 * butt
 	-- signature head pitch: rear up, SLAM down, pound, chin up smug
 	pitch[1] += tr(c, {
-		{ 2.9, 0 }, { 3.85, 18, "cubicOut" }, { 4.05, 20 }, { 4.28, 0, "quadIn" }, { SLAM, -30, "expoIn" },
-		{ 4.6, -18, "backOut" }, { 5.6, -18 }, { POUND, -30, "quadIn" }, { 5.95, -10, "backOut" },
+		{ 2.9, 0 }, { 3.85, 18, "cubicOut" }, { 4.05, 20 }, { 4.28, 0, "quadIn" }, { SLAM, -26, "expoIn" },
+		{ 4.6, 6, "backOut" }, { 5.6, 6 }, { POUND, -24, "quadIn" }, { 5.95, 4, "backOut" },
 		{ 6.5, 0, "sineInOut" }, { 7.7, 0 },
 	}) + 20 * smug
 	pitch[1] += 8 * thrash * sin(2 * pi * thrPhase * 2)

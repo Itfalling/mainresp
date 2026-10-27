@@ -91,6 +91,8 @@ function M.Update(t, pose, ctx)
 	end
 	local guard = max(L.env(c, 1.4, 0.25, 0.55, 0.3), L.env(c, 9.3, 0.2, 0.3, 0.2))
 	local puff = L.env(c, 2.15, 0.2, 0.35, 0.25, "backOut", "cubicInOut")
+	-- hot-headed "GRRR!": teeth chatter, head shake, angry gill huff
+	local grr = L.env(c, 8.0, 0.12, 0.45, 0.2, "backOut", "quadIn")
 
 	------------------------------------------------------------------
 	-- absolute heading / pitch along the body
@@ -109,8 +111,8 @@ function M.Update(t, pose, ctx)
 		pitch[i] = 3 * sin(TAU * (SWIM * t - 0.1 * k + 0.25)) * swimW + coil * COIL_PITCH[i] + victory * VIC[i]
 	end
 	-- idle: sizing up the opponent, nod into every jab, chin up on the puff
-	yaw[1] += (7 * L.noise(t, 3.3, 0.4) + 4 * wave(t, 0.2, 0.3)) * idleW
-	pitch[1] += (3 * wave(t, 1.0, 0.1)) * idleW - 7 * jab + 4 * wind + 10 * puff - 4 * guard
+	yaw[1] += (7 * L.noise(t, 3.3, 0.4) + 4 * wave(t, 0.2, 0.3)) * idleW + 9 * grr * wave(c, 7.0)
+	pitch[1] += (3 * wave(t, 1.0, 0.1)) * idleW - 12 * jab + 6 * wind + 10 * puff - 4 * guard - 5 * grr
 
 	------------------------------------------------------------------
 	-- root (Body1): hover bob, jabs, guard bounce, lunge, spin, victory
@@ -118,7 +120,7 @@ function M.Update(t, pose, ctx)
 	local bob = 0.8 * wave(t, 0.5) * (1 - 0.6 * special)
 	local hop = 0.45 * L.bounce(t, 2.0) * guard
 	local by = bob + hop + L.track(c, BY) - 0.9 * squash + 0.5 * puff - 0.3 * guard
-	local bz = L.track(c, BZ) - 1.8 * jab + 0.6 * wind
+	local bz = L.track(c, BZ) - 2.8 * jab + 1.1 * wind
 	local bx = 0.4 * wave(t, 0.3) * swimW
 	local spin = L.track(c, ROLL)
 	local roll = 5 * wave(t, SWIM, 0.15) * swimW + spin + 6 * guard * wave(t, 2.0)
@@ -131,7 +133,7 @@ function M.Update(t, pose, ctx)
 	end
 
 	-- trident: thrusts out of the collar on the lunge and every jab
-	pose.Bill = pa(0, 0, -1.0 * thrust - 0.6 * jab + 0.3 * wind, 0, 0, 0)
+	pose.Bill = pa(0, 0, -1.2 * thrust - 1.3 * jab + 0.4 * wind, 0, 0, 0)
 	-- knightly flourishes: brandish wiggle in the guard, a full 360 TWIRL on
 	-- the chest-puff and another one to start the victory pose
 	local twirl = L.track(c, { { 2.1, 0 }, { 2.6, 360, "backOut" } }) + L.track(c, { { 5.8, 0 }, { 6.3, 360, "backOut" } })
@@ -142,9 +144,10 @@ function M.Update(t, pose, ctx)
 	------------------------------------------------------------------
 	local jawX = -(16 * jab + 32 * thrust + 30 * shout + 8 * puff) - 10 * spinE * L.wave01(c, 4.0)
 	jawX -= 6 * victory * (1 - shout) -- confident open smirk while posing
+	jawX -= 14 * grr * L.wave01(c, 9.0) -- chattering grit
 	pose.Jaw = ang(jawX, 0, 0)
 
-	local browZ = 4 * wave(t, 0.7) * idleW + 10 * jab + 12 * coil + 8 * lungeE - 16 * victory - 6 * puff
+	local browZ = 4 * wave(t, 0.7) * idleW + 10 * jab + 12 * coil + 8 * lungeE - 16 * victory - 6 * puff + 10 * grr
 	local browY = -0.15 * (jab + coil) + 0.3 * victory + 0.2 * puff + 0.08 * wave(t, 1.4) * idleW
 	L.both(pose, "Brow", pa(0, browY, 0, 0, 0, browZ))
 
@@ -283,6 +286,9 @@ function M.Update(t, pose, ctx)
 	if ctx.crossed(6.0) then
 		ctx.emit("VictorySparkle", 40)
 		ctx.emit("CrystalFlash", 30)
+	end
+	if ctx.crossed(8.1) then
+		ctx.emit("BubbleBurst", 10)
 	end
 	for _, j in JABS do
 		if ctx.crossed(j + 0.06) then

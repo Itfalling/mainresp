@@ -25,7 +25,7 @@ return {
 		local GOLD, DGOLD = "#e9b53c", "#b07d1e"
 		local LIP, LIPD, MOUTH = "#ff8a8a", "#e2606a", "#2a0f1a"
 		local BLUSH, BLUSHD = "#ff9db5", "#f0668c"
-		local PUPIL, EYEW = "#10141c", "#ffffff"
+		local PUPIL, EYEW, BROW = "#10141c", "#ffffff", "#0c3634"
 		local BUBC, SWEAT = "#c9f6ff", "#9fe8ff"
 		local TURQ, NGOLD = "#3ff0e0", "#ffe27a" -- the two small neon accents
 		local NEON = { mat = "Neon" }
@@ -129,7 +129,7 @@ return {
 			B:block(lid, v(2.85, 0.35, 0.3), at(1.55, 0.85, -4.81), DEEP, { tr = 1, name = "HalfLash" .. side })
 			-- worried brow (inner end raised)
 			local brow = B:bone("Brow" .. side, "Face", rp(1.55, 2.6, -3.9))
-			B:block(brow, v(2.3, 0.55, 1.3), at(1.55, 2.65, -3.8, 0, 0, -18), DEEP)
+			B:block(brow, v(2.4, 0.6, 1.0), at(1.6, 2.7, -3.95, 0, 0, -22), BROW)
 		end)
 		-- turquoise glints (same side on both eyes, so not mirrored)
 		B:block("PupilR", v(0.45, 0.45, 0.1), at(1.85, 0.95, -4.6), TURQ, { mat = "Neon", name = "GlintR" })
@@ -202,7 +202,7 @@ return {
 		------------------------------------------------------------------
 		-- CROWN: little tilted marble Ionic capital with a rune tile
 		------------------------------------------------------------------
-		local CR = CFrame.new(rp(0, 3.8, -0.2)) * ang(0, 0, -9)
+		local CR = CFrame.new(rp(0, 4.0, -0.2)) * ang(0, 0, -9)
 		local crown = B:bone("Crown", "Top", CR)
 		local function cb(sx, sy, sz, x, y, z, col, opts, rz)
 			return B:block(crown, v(sx, sy, sz), CR * CFrame.new(x, y, z) * ang(0, 0, rz or 0), col, opts)
@@ -226,8 +226,6 @@ return {
 		cb(0.4, 0.7, 0.4, 1.1, 2.45, 0.5, "#ff7a5c")
 		cb(0.35, 0.5, 0.35, 1.4, 2.85, 0.5, "#ff9a6e", nil, -30)
 		cb(0.3, 0.45, 0.3, 0.85, 2.9, 0.5, "#ff7a5c", nil, 25)
-		cb(0.3, 1.0, 0.3, -1.85, 0.75, -0.6, "#3fae6a")
-		cb(0.3, 0.6, 0.3, -1.95, 0.0, -0.6, "#2f8f55", nil, 15)
 		local gem = cb(0.55, 0.55, 0.55, 0, 2.45, 0, TURQ, { mat = "Neon", name = "CrownGem" }, 45)
 		B:emitter(gem, "sparkle", { name = "Sparkle", color = { "#ffffff", NGOLD, TURQ }, rate = 3 })
 
@@ -236,41 +234,37 @@ return {
 		-- {name, parent, rel pos (right side), dir, mirrored}
 		------------------------------------------------------------------
 		local SPINES = {
-			{ "SpTopA", "Top", { 1.6, 3.8, 1.4 }, { 0.35, 1, 0.3 }, true },
-			{ "SpTopB", "Top", { 1.6, 3.8, -1.3 }, { 0.35, 1, -0.3 }, true },
-			{ "SpEdgeU", "Body", { 2.85, 2.85, 0.5 }, { 1, 1, 0 }, true },
-			{ "SpEdgeD", "Body", { 2.85, -2.85, 0.5 }, { 1, -1, 0 }, true },
-			{ "SpEdgeB", "Body", { 2.85, 0.4, 2.85 }, { 1, 0, 1 }, true },
-			{ "SpBack", "Body", { 0, 2.85, 2.85 }, { 0, 1, 1 }, false },
-			{ "SpChin", "Body", { 0, -2.85, -2.85 }, { 0, -1, -1 }, false },
-			{ "SpSideA", "Side", { 3.8, 1.9, 0.7 }, { 1, 0.3, 0 }, true },
-			{ "SpSideB", "Side", { 3.8, -1.7, 0.5 }, { 1, -0.3, 0 }, true },
-			{ "SpSideC", "Side", { 3.8, 0.1, 1.9 }, { 1, 0, 0.35 }, true },
-			{ "SpRearU", "Rear", { 1.7, 1.6, 3.8 }, { 0.3, 0.3, 1 }, true },
-			{ "SpRearD", "Rear", { 1.7, -1.6, 3.8 }, { 0.3, -0.3, 1 }, true },
-			{ "SpBellyA", "Belly", { 1.5, -3.8, -0.8 }, { 0.3, -1, -0.2 }, true },
-			{ "SpBellyB", "Belly", { 0, -3.8, 1.3 }, { 0, -1, 0.3 }, false },
+			{ "SpTopA", "Top", { 1.9, 3.55, 1.6 }, { 0.45, 1, 0.4 }, true },
+			{ "SpTopB", "Top", { 1.9, 3.55, -1.7 }, { 0.45, 1, -0.45 }, true },
+			{ "SpEdgeU", "Body", { 2.75, 2.75, -0.2 }, { 1, 1, 0 }, true },
+			{ "SpEdgeD", "Body", { 2.75, -2.75, 0.3 }, { 1, -1, 0 }, true },
+			{ "SpEdgeB", "Body", { 2.75, 0.6, 2.75 }, { 1, 0, 1 }, true },
+			{ "SpCorner", "Body", { 2.45, 2.45, 2.45 }, { 1, 1, 1 }, true },
+			{ "SpChin", "Body", { 0, -2.75, -2.75 }, { 0, -1, -1 }, false },
+			{ "SpSideA", "Side", { 3.9, 1.0, -0.6 }, { 1, 0.35, -0.1 }, true },
+			{ "SpSideB", "Side", { 3.9, -1.1, 0.8 }, { 1, -0.35, 0.1 }, true },
+			{ "SpSideC", "Side", { 3.5, 0.6, 2.0 }, { 1, 0.1, 0.6 }, true },
+			{ "SpRearU", "Rear", { 1.35, 1.3, 3.9 }, { 0.35, 0.35, 1 }, true },
+			{ "SpRearD", "Rear", { 1.35, -1.3, 3.9 }, { 0.35, -0.35, 1 }, true },
+			{ "SpBellyA", "Belly", { 1.4, -3.9, 0.6 }, { 0.35, -1, 0.1 }, true },
+			{ "SpBellyB", "Belly", { 0, -3.9, -0.9 }, { 0, -1, -0.3 }, false },
 		}
-		local GLOWTIP = { SpTopA = true, SpTopB = true, SpBack = true, SpEdgeU = true }
-		local function spine(name, parent, p, d, key)
+		-- stepped spine: chunky gold base + a pale tip (they POP out on the puff)
+		local function spine(name, parent, p, d)
 			local base = rp(p[1], p[2], p[3])
 			local dir = v(d[1], d[2], d[3]).Unit
 			local b = B:bone(name, parent, base)
-			B:beam(b, base - dir * 1.0, base + dir * 0.55, 0.7, 0.7, GOLD)
-			if GLOWTIP[key] then
-				B:beam(b, base + dir * 0.5, base + dir * 1.0, 0.4, 0.4, NGOLD, NEON)
-			else
-				B:beam(b, base + dir * 0.5, base + dir * 1.0, 0.4, 0.4, "#ffe9a6")
-			end
+			B:beam(b, base - dir * 0.9, base + dir * 0.45, 0.75, 0.75, GOLD)
+			B:beam(b, base + dir * 0.4, base + dir * 1.0, 0.4, 0.4, "#fff1c2")
 		end
 		for _, s in SPINES do
 			if s[5] then
 				B:sym(function(side)
 					local parent = s[2] == "Side" and ("Side" .. side) or s[2]
-					spine(s[1] .. side, parent, s[3], s[4], s[1])
+					spine(s[1] .. side, parent, s[3], s[4])
 				end)
 			else
-				spine(s[1], s[2], s[3], s[4], s[1])
+				spine(s[1], s[2], s[3], s[4])
 			end
 		end
 
