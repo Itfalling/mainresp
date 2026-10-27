@@ -126,7 +126,8 @@ return {
 		do
 			local rr = r(0)
 			B:block(shell, v(W + 0.5, rr * 0.2 + 0.8, 0.7), frameAt(240, rr * 0.9 + 0.4) * CFrame.new(0, 0, 0.1), GOLD)
-			B:block(shell, v(2.4, 0.3, 0.4), frameAt(240, rr + 0.95) * CFrame.new(0, 0, 0.1), TURQ, NEON)
+			-- (no glowing bar on this lip: it sat right under the little "o"
+			-- mouth and read as a second, glowing mouth)
 			local ru = r(SPAN)
 			B:block(shell, v(W + 1.0, ru * 0.6 + 0.6, 0.8), frameAt(-60, ru * 0.7 + 0.3) * CFrame.new(0, 0, -0.1), BRONZE)
 		end
