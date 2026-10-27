@@ -1,111 +1,80 @@
 --!nocheck
--- Atlantis Sky Whale motion. Personality: GENTLE, MOTHERLY GUARDIAN.
--- Always: slow hovering swim, fluke strokes rippling down the tail, flipper
--- strokes, breathing belly, blinks (lid blocks drop) + pupil glances, waterfalls, seaweed,
--- tiny city fish circling her, crystal cubes orbiting.
--- IDLE GAGS (0 - 9 s)
---   0.3  HUM SONG: calm half-squint, brows up, "la-la-la" mouth, head sways,
---        gold music notes float out of her mouth
---   2.8  PAT THE CITY: leans left, her right flipper slides up her flank,
---        stands beside the city and flops its hand over the wall: pat-pat-pat
---        (city jolts, towers hop, sparkles), proud squint + gold eyes, a heart
---   4.8  BLOWHOLE FOUNTAIN: puffs her jowls, brows down, PFOOSH a
---        tall water column with a foam crown + raining droplets shoots out of
---        the blowhole, gold-flash eyes, giggles
---   6.4  FISH BOOP: a city fish swims up and boops her nose -> pupils lock forward,
---        brows up, "o" mouth, then a giggle, happy wiggle, flipper clap,
---        and two hearts
--- SIGNATURE "RISING ATLANTIS" (9 - 19.6 s)
---   9.0  DEEP BREATH: sinks + crouches nose-down, belly swells, cheeks
---        puff, eyes shut, flippers fold, tail curls up
---  10.3  RISE / BREACH: launches up with a huge tail down-stroke, nose up
---        30 deg, flippers flare, mouth wide open "AAAH", eyes flash gold
---  11.4  SPIRE BEAM + HALO: the crystal spire charges, a beam of light shoots
---        into the sky, a halo of rays spins round the tip, she sings
---  12.4  CITY RISES: the four towers rise out of the city one by one with
---        overshoot, golden firework chunks launch and burst
---  13.3  TWIRL: a full 360 pirouette with a bank, flippers out like a dancer
---  14.9  FLUKE SLAP: tail lifts high (nose dips), WHIPS down, a giant splash
---        crown erupts under the flukes, squash, city jolts, laughing
---  16.6  PROUD HAPPY SETTLE: calm squint, three hearts, flipper
---        claps, a proud bow, towers sink home, a last contented hum
+-- Atlantis Sky Whale motion. Personality: GENTLE, KIND, MOTHERLY GUARDIAN.
+-- Always: slow vertical whale stroke down the body chain, hover bob, flipper
+-- paddling, waterfalls flowing, seaweed swaying, spire crystal turning,
+-- cubes tumbling, a little clownfish friend circling her, blinks.
+-- Idle gags:
+--   0.15  HUMMING: eyes half closed, head sways, "mmm" mouth, music notes
+--   2.5   GLANCES BACK at her city (head + pupils), raises her right flipper
+--         and PATS it three times (city hops, sparkles), proud little smile
+--   4.7   BLOWHOLE FOUNTAIN: squash, whoosh! water column + droplets
+--   12.4  FISH BOOP: the clownfish swims up and boops her nose (13.05): she
+--         goes cross-eyed, jolts "oh!", giggles, a heart pops up
+--   14.3  HAPPY WIGGLE: rolls side to side, tail wags, flippers flap
+-- Signature "RISING ATLANTIS" (6.0 - 12.0):
+--   6.0   DEEP BREATH: sinks, nose lifts, eyes close, flippers spread back
+--   6.9   RISE / BREACH: surges ~6.5 studs up nose-first, flippers flare
+--   7.4   SPIRE BEAM: beam of light + a halo of golden rays around the spire
+--   7.8   the four CITY TOWERS RISE one by one with golden FIREWORKS
+--   8.6   PIROUETTE: a full 360 turn in the air, flippers out like a dancer
+--   9.5   TAIL SLAP: tail lifts, nose dips ... 10.05 SLAM: splash crown,
+--         squash, beam snaps off
+--   10.3  PROUD HAPPY SETTLE: glides down, happy squint, big smile, claps,
+--         towers sink back (11.0)
 local L = require(script.Parent.AnimLib)
 local ang, pa, wave = L.ang, L.pa, L.wave
 
 local M = {}
-M.Cycle = 20
+M.Cycle = 16
 
-local sin, cos, pi, max, min, abs, clamp = math.sin, math.cos, math.pi, math.max, math.min, math.abs, math.clamp
+local sin, cos, pi, max, min, abs, atan2 = math.sin, math.cos, math.pi, math.max, math.min, math.abs, math.atan2
 local TAU = 2 * pi
-local F = 1 / 20 -- whole cycles per loop
 
--- signature beats
-local BREATH, LAUNCH, BEAM, TOWERS, SPIN0, SPIN1, WIND, SLAP, SETTLE = 9.0, 10.3, 11.4, 12.4, 13.3, 14.9, 14.9, 15.85, 16.6
+local CHAIN = { "Head", "Body", "Body2", "Tail1", "Tail2", "Tail3", "Fluke" }
+local CENTER = 2
+local SWIM = 0.375 -- 6 strokes per loop
+local AMP = { 2.5, 2, 4, 7, 11, 15, 20 } -- vertical stroke, head -> flukes
+local BREACH_BEND = { -6, 0, -5, -9, -11, -11, -9 } -- tail curls up as she rises
+local SLAP_BEND = { 0, 0, 7, 13, 17, 21, 25 } -- + = tail down (slam), - = lift
+local SPIN_LAG = { 0, 0, 5, 10, 15, 20, 26 } -- tail trails in the pirouette
+local WIG = { 6, 0, 6, 10, 14, 18, 22 } -- happy wag (yaw)
 
--- pat pose (right flipper standing beside the city, hand flopped over the wall)
-local PAT_X, PAT_Y, PAT_Z, PAT_T, PAT_H, PAT_LIFT = 40, 215, 90, 10, -75, -70
+local BLINKS = { 4.45, 5.95, 12.15, 15.85 }
+local SLAM = 10.05
+local BOOP = 13.05
 
-local function env(c, s, a, h, r, ei, eo)
-	return L.env(c, s, a, h, r, ei, eo)
-end
-
--- window progress helper: u in [0,1] inside [s, s+d], nil outside
-local function win(c, s, d)
-	local u = (c - s) / d
-	if u >= 0 and u <= 1 then
-		return u
-	end
-	return nil
-end
-
--- the body's vertical offset (also used by the fish so they stay with her)
-local function riseAt(c)
-	return L.track(c, {
-		{ BREATH, 0 }, { 9.9, -0.9, "quadInOut" }, { LAUNCH, -1.15, "sineInOut" },
-		{ 10.85, 6.4, "cubicOut" }, { 11.25, 5.5, "quadInOut" }, { 12.3, 5.9, "sineInOut" },
-		{ 13.3, 5.6, "sineInOut" }, { 14.2, 6.5, "sineInOut" }, { WIND, 6.2, "sineInOut" },
-		{ 15.5, 4.2, "quadInOut" }, { SLAP, 1.2, "quadIn" }, { 16.05, 0.5, "quadOut" },
-		{ 16.6, 2.0, "quadOut" }, { 17.3, 0.6, "quadInOut" }, { 18.2, 1.0, "sineInOut" }, { 19.6, 0, "sineInOut" },
-	})
-end
-
-local FISH = {
-	-- rest pos (body space), orbit freq (cycles/loop), phase, height, dir
-	{ Vector3.new(9.0, 17.0, -8.0), 2, 0.0, 17.0, 1 },
-	{ Vector3.new(-9.5, 18.0, 4.0), 3, 0.35, 18.2, -1 },
-	{ Vector3.new(8.5, 16.5, 10.0), 2, 0.55, 16.4, 1 },
+local BY = {
+	{ 6.0, 0 }, { 6.85, -1.2, "sineInOut" }, { 7.5, 6.5, "backOut" }, { 8.6, 6.0, "sineInOut" },
+	{ 9.5, 5.0, "sineInOut" }, { 9.9, 5.4, "quadOut" }, { SLAM, 3.2, "expoIn" }, { 10.3, 3.0 },
+	{ 11.0, 0.6, "cubicInOut" }, { 11.45, -0.5, "quadIn" }, { 11.9, 0, "backOut" },
 }
-local BOOP = Vector3.new(0, 9.9, -22.3)
-
-local function fishPos(k, t, c)
-	local f = FISH[k]
-	-- extra lap during the signature (seamless: adds exactly one lap)
-	local extra = L.track(c, { { BREATH, 0 }, { 19.4, 1, "sineInOut" } })
-	local th = TAU * (f[2] * F * t + f[3] + extra) * f[5]
-	local p = Vector3.new(10.5 * sin(th), f[4] + 1.0 * sin(th * 2 + k), -1 + 20.5 * cos(th))
-	if k == 1 then
-		local w = env(c, 6.3, 0.7, 0.75, 0.9, "cubicInOut", "cubicInOut")
-		if w > 0 then
-			-- the boop: a little bump into her nose at 7.05
-			local bump = env(c, 6.95, 0.1, 0.02, 0.25, "quadIn", "backOut")
-			local hover = BOOP + Vector3.new(0.3 * sin(TAU * 1.5 * c), 0.25 * sin(TAU * 1.1 * c), -0.9 + 0.9 * bump)
-			p = p:Lerp(hover, w)
-		end
-	end
-	return p
-end
-
-local ORBS = {
-	{ Vector3.new(13.5, 15.0, -10), 0.0, 13.0, 16.5 },
-	{ Vector3.new(-14, 12.0, -5), 0.22, 14.0, 18.5 },
-	{ Vector3.new(13, 10.0, 8), 0.45, 13.5, 15.5 },
-	{ Vector3.new(-12, 19.0, 8), 0.63, 12.5, 21.0 },
-	{ Vector3.new(-8, 21.0, -14), 0.82, 14.5, 19.5 },
+local PITCH = {
+	{ 6.0, 0 }, { 6.8, 8, "sineInOut" }, { 6.95, 2, "quadIn" }, { 7.5, 26, "backOut" },
+	{ 8.3, 20 }, { 8.7, 4, "cubicInOut" }, { 9.5, 4 }, { 9.9, -10, "cubicOut" },
+	{ SLAM, 10, "expoIn" }, { 10.3, 2, "quadOut" }, { 10.8, -4, "sineInOut" }, { 11.5, 0, "sineInOut" },
+}
+local SLAPK = {
+	{ 9.5, 0 }, { 9.9, -1, "cubicOut" }, { SLAM, 1, "expoIn" }, { 10.2, 1 },
+	{ 10.5, -0.3, "quadOut" }, { 10.8, 0.15, "sineInOut" }, { 11.1, 0, "sineInOut" },
 }
 
--- note / heart start times
-local NOTES = { { 0.55, 1.2, 1.85 }, { 17.85, 18.3 } }
-local HEARTS = { { 4.05, 16.85 }, { 7.45, 17.2 }, { 7.75, 17.55 } }
+-- firework chunk directions (city frame)
+local CHUNK_DIR = {
+	{ 1.0, 1.2, -0.4 }, { -1.0, 1.3, -0.3 }, { 0.5, 1.6, 0.8 }, { -0.6, 1.5, 0.7 },
+	{ 1.3, 0.8, 0.5 }, { -1.3, 0.9, 0.4 }, { 0.3, 1.8, -0.9 }, { -0.4, 1.4, -1.1 },
+}
+local FO = Vector3.new(0, 16.5, -12.0) -- fish rest pivot
+local NOTES = { { 0.35, 1.85 }, { 0.95, 2.45 } }
+
+local function bodyBob(t, special)
+	return 0.7 * wave(t, 0.25) * (1 - 0.6 * special)
+end
+
+-- the little fish's orbit around the whale (2 laps per loop)
+local function orbit(c)
+	local ph = TAU * 2 * c / M.Cycle
+	return Vector3.new(11 * sin(ph), 17 + 1.2 * sin(2 * ph), 3 - 13 * cos(ph))
+end
 
 function M.Update(t, pose, ctx)
 	local c = t % M.Cycle
@@ -113,408 +82,272 @@ function M.Update(t, pose, ctx)
 	------------------------------------------------------------------
 	-- envelopes
 	------------------------------------------------------------------
-	local busy = env(c, 8.9, 0.4, 10.0, 0.6)
-	local idleW = 1 - busy
-	local hum = env(c, 0.3, 0.3, 1.9, 0.35)
-	local la = 0.5 - 0.5 * cos(TAU * 1.5 * (c - 0.3))
-	local peek = env(c, 2.8, 0.45, 1.3, 0.5, "backOut", "cubicInOut")
-	local pat = env(c, 2.85, 0.4, 1.25, 0.45, "backOut", "cubicInOut")
-	-- three little taps on the city wall (contact at 3.3 / 3.65 / 4.0)
-	local tapU = clamp((c - 3.3) / 1.05, 0, 1)
-	local tapLift = (c > 3.3 and c < 4.35) and sin(pi * 3 * tapU) ^ 2 or 0
-	local tapHit = 0
-	for _, h in { 3.3, 3.65, 4.0 } do
-		tapHit = max(tapHit, env(c, h, 0.03, 0.03, 0.2, "quadOut", "quadOut"))
+	local hum = L.env(c, 0.15, 0.35, 1.5, 0.4)
+	local glance = L.env(c, 2.5, 0.35, 1.25, 0.4, "backOut", "cubicInOut")
+	local patArm = L.env(c, 2.75, 0.35, 0.95, 0.4, "backOut", "cubicInOut")
+	local patBeat = 0
+	for _, p in { 3.15, 3.45, 3.75 } do
+		patBeat += L.env(c, p, 0.08, 0.02, 0.15, "quadIn", "quadOut")
 	end
-	local proud = env(c, 3.85, 0.15, 0.6, 0.25)
-	local puff = env(c, 4.8, 0.4, 0.15, 0.08, "quadOut", "expoIn")
-	local spout = env(c, 5.3, 0.15, 0.6, 0.45, "backOut", "quadIn")
-	local giggleA = env(c, 5.45, 0.1, 0.7, 0.3)
-	local boopApp = env(c, 6.4, 0.5, 0.15, 0.1)
-	local boop = env(c, 7.0, 0.06, 0.35, 0.25, "backOut", "quadInOut")
-	local giggleB = env(c, 7.35, 0.12, 0.75, 0.35)
-	local clapI = env(c, 7.5, 0.15, 0.5, 0.25)
+	local fAnt = L.env(c, 4.7, 0.25, 0.05, 0.12, "quadOut", "expoIn")
+	local fSpout = L.env(c, 5.0, 0.12, 0.45, 0.35, "backOut", "quadIn")
+	local breath = L.env(c, 6.0, 0.8, 0.1, 0.15, "sineInOut", "expoIn")
+	local breach = L.env(c, 6.9, 0.5, 1.4, 0.5, "backOut", "cubicInOut")
+	local beam = L.env(c, 7.4, 0.15, 2.5, 0.2)
+	local spinE = L.env(c, 8.6, 0.2, 0.55, 0.25)
+	local slapK = L.track(c, SLAPK)
+	local lift = max(0, -slapK)
+	local squash = L.env(c, SLAM, 0.04, 0.05, 0.55, "linear", "elasticOut")
+	local proud = L.env(c, 10.3, 0.3, 1.5, 0.6, "backOut", "cubicInOut")
+	local fishIn = L.env(c, 12.4, 0.6, 0.35, 0.7, "sineInOut", "sineInOut")
+	local crossEye = L.env(c, 12.65, 0.3, 0.6, 0.3)
+	local jolt = L.env(c, BOOP, 0.06, 0.12, 0.45, "expoOut", "cubicInOut")
+	local giggle = L.env(c, 13.2, 0.15, 0.75, 0.3)
+	local wiggle = L.env(c, 14.3, 0.25, 0.85, 0.45)
+	local special = L.env(c, 5.95, 0.15, 6.0, 0.4)
+	local idleW = 1 - special
+	local swimW = 1 - 0.6 * max(breath, breach, spinE) - 0.5 * proud - 0.4 * hum
 
-	local breath = env(c, BREATH, 0.9, 0.3, 0.25, "quadInOut", "quadIn")
-	local launch = env(c, LAUNCH, 0.4, 2.6, 0.6, "backOut", "sineInOut")
-	local sing = env(c, 10.6, 0.3, 2.6, 0.4)
-	local beam = env(c, BEAM, 0.25, 2.2, 0.3, "expoOut", "quadIn")
-	local haloOn = env(c, BEAM + 0.1, 0.3, 2.4, 0.3, "backOut", "quadIn")
-	local spinU = L.track(c, { { SPIN0, 0 }, { SPIN1, 1, "cubicInOut" } })
-	local spinning = env(c, SPIN0, 0.3, 1.0, 0.3)
-	local wind = env(c, WIND, 0.6, 0.05, 0.3, "quadInOut", "quadIn")
-	local impact = env(c, SLAP, 0.04, 0.2, 0.6, "quadOut", "quadInOut")
-	local laugh = env(c, SLAP + 0.05, 0.1, 0.9, 0.4)
-	local settle = env(c, SETTLE, 0.3, 2.3, 0.6)
-	local bow = env(c, 17.6, 0.45, 0.35, 0.5, "quadInOut", "quadInOut")
-	local hum2 = env(c, 17.9, 0.3, 1.2, 0.4)
-	local clapS = env(c, 16.8, 0.15, 0.85, 0.3)
+	local happyEyes = max(0.6 * proud, 0.55 * wiggle, 0.5 * giggle, 0.55 * spinE, 0.35 * glance * (1 - patBeat))
 
 	------------------------------------------------------------------
-	-- BODY
+	-- body chain: absolute pitch / yaw per segment
 	------------------------------------------------------------------
-	local bob = 0.6 * wave(t, 4 * F) + 0.2 * wave(t, 9 * F, 0.3)
-	local rise = riseAt(c)
-	local wiggle = giggleB * sin(TAU * 3 * (c - 7.35)) + 0.6 * giggleA * sin(TAU * 4 * (c - 5.45))
-		+ 0.7 * laugh * sin(TAU * 3 * (c - SLAP))
-	local by = bob * (1 - 0.7 * busy) + rise - 0.5 * puff + 0.6 * spout + 0.35 * abs(wiggle)
-	local bz = L.track(c, { { LAUNCH, 0 }, { 10.9, -1.6, "cubicOut" }, { 13.0, 0, "sineInOut" } })
-		+ 0.6 * boop
-	local pitchSig = L.track(c, {
-		{ BREATH, 0 }, { 9.9, -7, "quadInOut" }, { LAUNCH, -9, "sineInOut" }, { 10.75, 30, "backOut" },
-		{ 11.3, 22, "quadInOut" }, { 12.4, 13, "sineInOut" }, { SPIN0, 9, "sineInOut" }, { WIND, 3, "sineInOut" },
-		{ 15.5, -12, "quadInOut" }, { SLAP, 11, "quadIn" }, { 16.2, -3, "quadOut" }, { 16.7, 3, "quadInOut" },
-		{ 17.4, 0, "quadInOut" }, { 19.6, 0 },
-	})
-	local pitch = pitchSig + 2.5 * wave(t, 4 * F, 0.25) * idleW - 4 * puff + 1 * spout - 3 * bow
-	local yaw = 360 * spinU + (4 * wave(t, 2 * F, 0.25) + 3 * L.noise(t, 2.2, 0.3)) * idleW + 8 * peek
-	local roll = 3 * wave(t, 2 * F) * idleW + 9 * wiggle + 6 * peek + 22 * sin(pi * spinU) * spinning
-		+ 4 * sin(TAU * 0.9 * (c - LAUNCH)) * env(c, 11.0, 0.3, 1.8, 0.4)
-	pose.Body = pa(0, by, bz, pitch, yaw, roll)
-
-	-- belly breathing / deep breath swell
-	pose.Belly = CFrame.new(0, -0.15 * wave(t, 4 * F, 0.5) * idleW - 0.75 * breath - 0.35 * puff, 0)
-
-	------------------------------------------------------------------
-	-- HEAD + JAW (ONE mouth)
-	------------------------------------------------------------------
-	local hp = 2 * wave(t, 4 * F, 0.4) * idleW + 3 * hum * sin(TAU * 0.75 * (c - 0.3)) + 9 * peek
-		- 4 * puff - 2 * spout + 7 * boop - 4 * boopApp + 10 * breath + 8 * launch + 3 * sing * sin(TAU * 1.2 * c)
-		- 6 * wind + 6 * impact - 14 * bow + 4 * settle
-	local hy = 5 * L.noise(t, 4.4, 0.25) * idleW + 6 * peek + 3 * wave(t, 3 * F) * idleW
-		+ 6 * giggleB * sin(TAU * 1.5 * (c - 7.35))
-	local hr = 7 * hum * sin(TAU * 0.75 * (c - 0.3)) - 9 * peek + 4 * wiggle + 8 * sing * sin(TAU * 0.6 * (c - 10.6))
-		+ 6 * hum2 * sin(TAU * 0.75 * (c - 17.9))
-	pose.Head = pa(0, 0, 0, hp, hy, hr)
-
-	local open = 5 * (1 - puff) * (1 - breath)
-		+ 16 * hum * la + 8 * proud + 6 * peek
-		+ 5 * giggleA * abs(sin(TAU * 5 * c))
-		+ 12 * boop + 6 * giggleB + 6 * giggleB * abs(sin(TAU * 4.5 * c))
-		+ 18 * env(c, BREATH, 0.2, 0.05, 0.4)
-		+ 22 * launch * (1 - 0.15 * spinning) + 4 * sing * sin(TAU * 6 * c)
-		+ 6 * wind
-		+ 18 * laugh + 8 * laugh * abs(sin(TAU * 4 * c))
-		+ 10 * settle + 10 * hum2 * L.wave01(c, 1.5, 0.5)
-	-- (the jaw is long now, so the same beats need less angle for a big gape)
-	pose.Jaw = ang(-min(0.75 * open, 30), 0, 0)
-
-	------------------------------------------------------------------
-	-- EYES / LIDS / PUPILS / BROWS / JOWLS (original-20 style: side-set
-	-- glowing eyes; expressions come from the lid, brow ridge and jaw)
-	------------------------------------------------------------------
-	local blink = 0
-	for _, b in { 2.6, 6.3, 8.75, 19.75 } do
-		blink = max(blink, env(c, b, 0.06, 0.06, 0.1))
+	local wigPh = 2.5 * (c - 14.3)
+	local yaw, pitch = {}, {}
+	for i = 1, #CHAIN do
+		local k = i - 1
+		pitch[i] = AMP[i] * sin(TAU * (SWIM * t - 0.11 * k)) * swimW
+			+ breach * BREACH_BEND[i] + slapK * SLAP_BEND[i]
+		yaw[i] = 2 * sin(TAU * (0.125 * t - 0.08 * k)) * idleW
+			- spinE * SPIN_LAG[i]
+			+ wiggle * WIG[i] * sin(TAU * (wigPh - 0.12 * k))
 	end
-	-- "happy" = a calm, cool half-squint (no googly arcs)
-	local happy = max(proud, env(c, 0.45, 0.1, 0.95, 0.1), env(c, 17.95, 0.1, 1.2, 0.1), env(c, 4.95, 0.1, 0.4, 0.1), env(c, 7.45, 0.1, 0.65, 0.1),
-		env(c, SLAP, 0.05, 0.55, 0.1), env(c, SETTLE + 0.1, 0.1, 1.5, 0.1))
-	local shut = max(blink, env(c, 9.2, 0.1, 0.9, 0.1))
-	-- power moments: the eyes flash orichalcum gold
-	local gold = max(env(c, 10.6, 0.1, 4.1, 0.1), env(c, 5.45, 0.1, 0.6, 0.1), env(c, 3.4, 0.1, 0.4, 0.1)) > 0.5
-	local lidDown = max(shut, 0.42 * happy)
-	L.both(pose, "Lid", CFrame.new(0, -1.3 * lidDown, 0))
+	-- head: humming sway, glance back, breach joy, boop jolt, giggle
+	yaw[1] += 6 * hum * sin(TAU * 0.9 * (c - 0.15)) - 26 * glance + 7 * giggle * sin(TAU * 3 * (c - 13.2))
+	pitch[1] += 3 * wave(t, 0.5, 0.1) * idleW + 7 * glance - 5 * patBeat + 10 * breach - 6 * breath
+		+ 12 * jolt - 4 * fAnt + 8 * fSpout + 6 * proud - 6 * lift + 4 * hum * wave(c, 0.9, 0.25)
+
+	------------------------------------------------------------------
+	-- root (Body)
+	------------------------------------------------------------------
+	local bob = bodyBob(t, special)
+	local by = bob + L.track(c, BY) - 1.0 * fAnt + 0.6 * fSpout - 1.5 * squash
+		+ 0.35 * L.bounce(c, 2.5) * wiggle + 0.25 * patBeat
+	local spin = L.track(c, { { 8.6, 0 }, { 9.5, 360, "cubicInOut" } })
+	if c > 9.5 then spin = 0 end
+	local bp = pitch[CENTER] + L.track(c, PITCH) - 5 * fAnt + 4 * fSpout + 3 * wave(t, 0.25, 0.2) * idleW
+		- 3 * jolt
+	local byaw = yaw[CENTER] + spin + 6 * wiggle * sin(TAU * 1.25 * (c - 14.3))
+	local roll = 3 * wave(t, 0.25, 0.1) * idleW + 4 * hum * sin(TAU * 0.9 * (c - 0.15) + 0.6)
+		- 6 * glance + 8 * wiggle * sin(TAU * wigPh) + 5 * giggle * sin(TAU * 3 * (c - 13.25))
+		+ 6 * proud * sin(TAU * 1.5 * (c - 10.3))
+	pose.Body = pa(0.3 * wave(t, 0.125), by, 0.5 * jolt, bp, byaw, roll)
+
+	pose.Head = pa(0, 0, 0.35 * jolt, pitch[1] - pitch[2], yaw[1] - yaw[2], 4 * hum * sin(TAU * 0.9 * (c - 0.3)) - 7 * glance)
+	for i = CENTER + 1, #CHAIN do
+		pose[CHAIN[i]] = ang(pitch[i] - pitch[i - 1], yaw[i] - yaw[i - 1], 0)
+	end
+
+	------------------------------------------------------------------
+	-- face
+	------------------------------------------------------------------
+	-- jaw: "mmm" hum, "whee!" on the breach, proud smile, "oh!", giggles
+	local jawX = -(4 + 6 * L.wave01(c, 2.2)) * hum
+		- 16 * breach - 18 * proud - 14 * jolt
+		- (8 + 10 * L.wave01(c, 5.0)) * giggle - 10 * wiggle - 6 * glance * (1 - patArm) - 8 * fSpout
+	pose.Jaw = ang(min(0, jawX), 0, 0)
+
+	-- lids: content half-close while humming, closed for the breath,
+	-- happy squints, blinks; wide open on the boop
+	local close = max(0.45 * hum, breath, happyEyes)
+	for _, b in BLINKS do
+		close = max(close, L.env(c, b, 0.06, 0.06, 0.1))
+	end
+	close = max(close, L.env(c, BOOP + 0.25, 0.05, 0.05, 0.1)) -- blink after the boop
+	close = close * (1 - jolt)
+	pose.LidR = CFrame.new(0, -3.05 * close, 0)
+	pose.LidL = CFrame.new(0, -3.05 * close, 0)
+	local lidTr = close > 0.04 and 0 or 1
 	for _, s in { "R", "L" } do
-		ctx.transparency("Lid" .. s, lidDown > 0.04 and 0 or 1)
-		ctx.transparency("GoldEye" .. s, gold and 0 or 1)
+		ctx.transparency("Eyelid" .. s, lidTr)
+		ctx.transparency("Lash" .. s, lidTr)
 	end
-	local pop = max(boop, 0.8 * launch * (1 - spinning), 0.5 * spout)
-	L.both(pose, "Eye", CFrame.new(0.12 * pop, 0.05 * pop, 0))
 
-	-- pupils (on the outer face): glance forward / back, look back at the
-	-- city, lock forward on the fish at the boop, up-and-back at the beam
-	local dart = clamp(3 * sin(TAU * 3 * F * t), -1, 1) * 0.3
-	local pz = (dart + 0.1 * L.noise(t, 5.1, 2)) * idleW + 1.0 * peek * (1 - proud) + 0.5 * beam
-	local py = 0.06 * L.noise(t, 8.2, 2) * idleW + 0.15 * hum + 0.2 * peek * (1 - proud) + 0.2 * beam
-	local cross = max(boopApp, boop) * (1 - giggleB)
-	pz = pz * (1 - cross) - 0.4 * cross
-	py = py * (1 - cross) - 0.18 * cross
-	pz += 0.4 * sin(TAU * 1.0 * (c - SPIN0)) * spinning
-	L.both(pose, "Pupil", CFrame.new(0, clamp(py, -0.2, 0.2), clamp(pz, -0.4, 1.3)))
+	-- pupils: idle drift, glance back to the right, cross-eyed at the fish
+	local px = 0.08 * L.noise(t, 1.7, 0.3) + 0.3 * glance
+	local py = 0.06 * L.noise(t, 4.2, 0.3) + 0.25 * glance + 0.15 * breach
+	pose.PupilR = CFrame.new(px - 0.32 * crossEye, py - 0.15 * crossEye, 0)
+	pose.PupilL = CFrame.new(px + 0.32 * crossEye, py - 0.15 * crossEye, 0)
 
-	-- brow ridge: raise + front edge up = surprise / wonder, front edge down = focus
-	local surprise = max(boop * (1 - giggleB), 0.8 * launch * (1 - spinning))
-	local browUp = 0.12 * wave(t, 4 * F, 0.1) * idleW + 0.5 * surprise + 0.25 * hum + 0.25 * proud
-		- 0.3 * breath - 0.2 * puff + 0.2 * settle + 0.2 * giggleB
-	local browPitch = 5 * hum + 12 * surprise - 12 * breath - 9 * puff + 4 * settle - 6 * wind + 3 * wave(t, 4 * F, 0.3) * idleW
-	L.both(pose, "Brow", pa(0, browUp, 0, browPitch, 0, 0))
-
-	-- jowls puff out (fountain / deep breath) and push up when she smiles
-	local cheekOut = 0.7 * puff + 0.6 * breath + 0.12 * L.wave01(t, 4 * F) * idleW + 0.25 * max(giggleB, laugh, proud)
-	L.both(pose, "Cheek", CFrame.new(0.5 * cheekOut, 0.3 * max(proud, giggleB, laugh, settle, happy), 0))
+	local browUp = 0.45 * jolt + 0.3 * breath + 0.25 * breach + 0.2 * proud + 0.15 * hum + 0.2 * crossEye
+	local browZ = -6 * breath + 8 * jolt + 4 * wave(t, 0.5) * idleW - 5 * proud + 4 * glance
+	L.both(pose, "Brow", pa(0, browUp, 0, 0, 0, browZ))
 
 	------------------------------------------------------------------
-	-- FLIPPERS: slow strokes, pat the city, claps, flare, dance, fold
+	-- flippers (right side; model axes): +Z raise / flare, +Y sweep forward
 	------------------------------------------------------------------
-	local stroke = wave(t, 4 * F)
-	local clap = max(clapI, clapS)
-	local clapBeat = clap * abs(sin(TAU * 2.2 * (c - (clapI > clapS and 7.5 or 16.8))))
-	local function fin(isRight)
-		local z = 12 * stroke * idleW + 70 * launch * (1 - spinning) + 45 * spinning - 8 * breath + 20 * clap
-			+ 10 * wiggle + 15 * spout
-		local y = 4 * wave(t, 4 * F, 0.25) * idleW - 28 * breath + 38 * clapBeat + 10 * clap - 10 * launch
-		local x = 10 * wave(t, 4 * F, 0.3) * idleW + 8 * launch + 20 * spinning * sin(TAU * 1.0 * (c - SPIN0))
-		local tz = 15 * wave(t, 4 * F, -0.15) * idleW + 25 * launch * sin(TAU * 1.0 * (c - LAUNCH)) - 15 * breath + 25 * clapBeat
-		local lift = 0
-		local hz = 0.5 * tz
-		if isRight then
-			-- the right flipper slides up her flank, stands up beside the city and
-			-- flops its hand over the wall: pat, pat, pat
-			local k = 1 - pat
-			x, y, z, tz = x * k + PAT_X * pat, y * k + PAT_Y * pat, z * k + PAT_Z * pat, tz * k + PAT_T * pat
-			hz = hz * k + pat * (PAT_H - PAT_LIFT * tapLift)
-			lift = 2.6 * pat + 0.5 * tapLift
-			z += 12 * tapLift * pat
-		else
-			-- the other flipper lifts a little as she leans, for balance
-			z += 16 * peek
-		end
-		return CFrame.new(0, lift, 0) * ang(x, y, z), ang(0, 6 * stroke * idleW + 15 * clapBeat, tz + 10 * impact), ang(0, 0, hz)
-	end
-	local fR, tR, hR = fin(true)
-	local fL, tL, hL = fin(false)
-	pose.FinR, pose.FinL = fR, L.mirror(fL)
-	pose.FinTipR, pose.FinTipL = tR, L.mirror(tL)
-	pose.FinHandR, pose.FinHandL = hR, L.mirror(hL)
+	local pad = wave(t, SWIM)
+	local idleZ = 10 * pad * swimW
+	local idleY = 8 * wave(t, SWIM, 0.25) * swimW
+	local clap = proud * L.wave01(c, 3.0, 0.75)
+	local flap = wiggle * (18 + 18 * sin(TAU * 3 * (c - 14.3))) + giggle * (6 + 10 * sin(TAU * 4 * (c - 13.2)))
+	local commonZ = idleZ + 25 * breath + 55 * breach + 40 * spinE - 25 * lift + 30 * proud + flap
+	local commonY = idleY - 35 * breath + 10 * breach + 45 * proud + 30 * clap
+	local tipZ = 14 * wave(t, SWIM, -0.15) * swimW + 20 * breach + 15 * spinE + 0.6 * flap
+	-- right flipper also does the PAT
+	local rZ = commonZ + 125 * patArm - 10 * patBeat
+	local rY = commonY - 30 * patArm
+	pose.FinR = ang(0, rY, rZ)
+	pose.FinL = L.mirror(ang(0, commonY, commonZ))
+	pose.FinTipR = ang(0, 0, tipZ - 30 * patArm - 22 * patBeat)
+	pose.FinTipL = L.mirror(ang(0, 0, tipZ))
 
 	------------------------------------------------------------------
-	-- TAIL: whale strokes (vertical) + signature curls / slap
+	-- city: hops on the pats, rattles on the slam; towers rise
 	------------------------------------------------------------------
-	local function curl(cc)
-		return L.track(cc, {
-			{ BREATH, 0 }, { 9.9, -16, "quadInOut" }, { LAUNCH, -20, "sineInOut" }, { 10.6, 13, "quadIn" },
-			{ 10.95, -9, "quadOut" }, { 11.4, 4, "quadInOut" }, { 12.3, 0, "sineInOut" },
-			{ WIND, 0 }, { 15.5, -32, "quadInOut" }, { SLAP, 21, "expoIn" }, { 16.0, 15, "quadOut" },
-			{ 16.3, -9, "quadInOut" }, { 16.7, 5, "quadInOut" }, { 17.2, -2, "quadInOut" }, { 17.8, 0, "quadInOut" },
-		})
-	end
-	local W = { 0.75, 0.95, 1.05, 1.2 }
-	local NAMES = { "Tail1", "Tail2", "Tail3", "Fluke" }
+	pose.City = pa(0, 0.25 * patBeat + 0.3 * squash, 0, 2.5 * squash * sin(TAU * 6 * (c - SLAM)), 0, 2 * squash * sin(TAU * 5 * (c - SLAM)))
 	for i = 1, 4 do
-		local swim = (6 + 3 * i) * wave(t, 4 * F, -0.12 * i) * (1 - 0.6 * busy)
-		local cu = curl(c - 0.05 * (i - 1)) * W[i]
-		local yawT = (3 + i) * wave(t, 2 * F, -0.1 * i) * idleW + (10 + 4 * i) * spinning * sin(TAU * 0.8 * (c - SPIN0 - 0.1 * i))
-			+ 4 * i * wiggle * 0.5 + 6 * i * peek * 0.4
-		pose[NAMES[i]] = ang(swim + cu, yawT, 0)
+		local t0 = 7.8 + 0.15 * (i - 1)
+		local t1 = 11.0 + 0.12 * (i - 1)
+		local rise = L.track(c, { { t0, 0 }, { t0 + 0.35, 1, "backOut" }, { t1, 1 }, { t1 + 0.6, 0, "cubicInOut" } })
+		local wob = 0.06 * sin(TAU * (0.5 * t + 0.25 * i))
+		pose["Tower" .. i] = pa(0, 2.2 * rise + wob, 0, 0, 0, 3 * squash * sin(TAU * 4 * (c - SLAM) + i))
 	end
+	pose.Spire = pa(0, 0.12 * wave(t, 0.5) + 0.5 * beam, 0, 0, (40 * t) % 360, 0)
+	pose.Halo = ang(0, -((40 * t) % 360), 90 * c)
 
-	------------------------------------------------------------------
-	-- CITY: jolts, tower rise, spire, halo, beam, fireworks, water
-	------------------------------------------------------------------
-	local cityJolt = -0.35 * impact + 0.25 * env(c, SLAP + 0.15, 0.15, 0.05, 0.5, "quadOut", "bounceOut")
-	cityJolt += -0.3 * tapHit
-	pose.City = pa(0, cityJolt + 0.12 * env(c, TOWERS, 0.1, 1.0, 0.4) * sin(TAU * 9 * c), 0,
-		-1.5 * impact, 0, 1.5 * wiggle * 0.3 - 1.2 * tapHit)
-	for i = 1, 4 do
-		local s = TOWERS + 0.14 * (i - 1)
-		local up = L.track(c, { { s, 0 }, { s + 0.4, 3.2, "backOut" }, { 18.5 + 0.1 * i, 3.0 }, { 19.3 + 0.1 * i, 0, "cubicInOut" } })
-		local wob = env(c, s, 0.4, 2.0, 0.5) * sin(TAU * (2 * c + i * 0.25))
-		local spinT = L.track(c, { { s + 0.2, 0 }, { s + 0.9, 360, "cubicOut" } })
-		local hop = 0.7 * env(c, 3.36 + 0.05 * i, 0.08, 0.02, 0.25, "quadOut", "bounceOut")
-			+ 0.6 * env(c, 3.71 + 0.05 * i, 0.08, 0.02, 0.25, "quadOut", "bounceOut")
-			+ 0.8 * env(c, 4.06 + 0.05 * i, 0.08, 0.02, 0.3, "quadOut", "bounceOut")
-		pose["Tower" .. i] = pa(0, up + hop + 0.05 * wave(t, 4 * F, i * 0.2), 0, 3 * wob, spinT, 3 * wob)
-	end
-	local spireUp = env(c, BEAM - 0.4, 0.4, 2.3, 0.5, "backOut", "quadInOut")
-	pose.Spire = pa(0, 0.9 * spireUp + 0.1 * wave(t, 4 * F), 0, 0, 90 * spireUp + 720 * L.track(c, { { BEAM, 0 }, { 14.1, 1, "sineInOut" } }), 0)
-	pose.Halo = ang(0, 220 * c, 0) * CFrame.new(0, 0, 0)
-	local rayT = haloOn > 0.15 and (0.1 + 0.2 * (1 - haloOn)) or 1
+	-- spire beam + halo of rays
+	local beamOn = beam > 0.05
+	ctx.transparency("Beam", beamOn and (0.3 + 0.12 * L.wave01(c, 6.0) + 0.6 * (1 - beam)) or 1)
 	for i = 1, 8 do
-		ctx.transparency("Ray" .. i, rayT)
-	end
-	local flick = 0.08 * sin(TAU * 13 * c)
-	ctx.transparency("BeamCore", beam > 0.1 and (0.1 + 0.6 * (1 - beam) + flick) or 1)
-	ctx.transparency("BeamGlow", beam > 0.1 and (0.55 + 0.35 * (1 - beam) + flick) or 1)
-	ctx.enable("SpireCharge", c > 10.8 and c < 13.9)
-	ctx.light("SpireLight", min(2, 0.4 + 1.6 * max(beam, 0.6 * spireUp)))
-	ctx.light("TempleLight", min(1.5, 0.5 + 0.3 * wave(t, 8 * F) + 0.9 * env(c, TOWERS, 0.2, 1.4, 0.6)))
-
-	-- firework chunks: launched one after another, burst at the top
-	for k = 1, 6 do
-		local s = TOWERS + 0.15 + 0.16 * (k - 1)
-		local u = win(c, s, 1.0)
-		local a = TAU * (k / 6) + 0.4
-		if u then
-			local r = 3.2 * u
-			pose["Chunk" .. k] = pa(r * cos(a), 15 * u - 6 * u * u, r * sin(a), 300 * u, 200 * u, 0)
-			ctx.transparency("ChunkP" .. k, u > 0.85 and 0.6 or 0)
-		else
-			pose["Chunk" .. k] = CFrame.new()
-			ctx.transparency("ChunkP" .. k, 1)
-		end
+		local on = c > 7.45 + 0.05 * i and c < 10.1
+		ctx.transparency("Ray" .. i, on and (0.15 + 0.85 * L.remap(c, 9.9, 10.1)) or 1)
 	end
 
-	-- waterfalls + seaweed
-	pose.FallFlow = CFrame.new(0, -3.2 * L.saw(t, 20 * F), 0)
-	for i = 1, 3 do
-		pose["Weed" .. i] = ang(10 * wave(t, 6 * F, i * 0.3) - 12 * impact, 0, 12 * wave(t, 4 * F, i * 0.21) + 8 * wiggle)
+	-- firework chunks
+	local fp = L.remap(c, 7.9, 8.8)
+	local chunkOn = c > 7.9 and c < 8.8
+	local fe = L.ease.cubicOut(fp)
+	for k = 1, 8 do
+		local d = CHUNK_DIR[k]
+		local r = 7 * fe
+		local s = 480 * fp * (k % 2 == 0 and -1 or 1)
+		pose["Chunk" .. k] = chunkOn and pa(d[1] * r, d[2] * r - 6 * fp * fp, d[3] * r, s, s * 0.7, 40 * k) or CFrame.new()
+		ctx.transparency("ChunkPart" .. k, chunkOn and (fp > 0.7 and (fp - 0.7) / 0.3 or 0) or 1)
 	end
 
 	------------------------------------------------------------------
 	-- blowhole fountain
 	------------------------------------------------------------------
-	-- the column shoots up out of the blowhole (it starts hidden inside the head)
-	local h = spout
-	local gush = 0.35 * sin(TAU * 5 * c) * h
-	pose.Spout = pa(0.12 * sin(TAU * 4 * c) * h, -8.6 * (1 - h) + gush, 0, 0, 90 * c, 0)
-	local sv = spout > 0.04
-	ctx.transparency("SpoutA", sv and 0.05 or 1)
-	ctx.transparency("SpoutB", (sv and h > 0.25) and 0.1 or 1)
-	ctx.transparency("SpoutS", (sv and h > 0.25) and 0.25 or 1)
-	ctx.transparency("SpoutC", (sv and h > 0.45) and 0 or 1)
-	ctx.transparency("SpoutD", (sv and h > 0.7) and 0 or 1)
-	ctx.transparency("SpoutE", (sv and h > 0.7) and 0 or 1)
-	-- droplets rain down around the crown
-	local du = win(c, 5.5, 1.0)
-	if du then
-		pose.SpoutDrops = pa(0, 1.2 * du - 7 * du * du + 8.6 * (1 - h), 0, 0, 160 * du, 0)
-	else
-		pose.SpoutDrops = CFrame.new()
-	end
-	for k = 1, 4 do
-		ctx.transparency("Drop" .. k, (du and du < 0.9) and (du > 0.7 and 0.4 or 0) or 1)
+	local spOn = fSpout > 0.03
+	pose.Spout = pa(0, -3.0 * (1 - fSpout), 0, 0, 30 * c, 4 * sin(TAU * 3 * c))
+	for k = 1, 6 do
+		ctx.transparency("Spout" .. k, spOn and (k >= 5 and 0.15 or 0.3) or 1)
 	end
 
 	------------------------------------------------------------------
-	-- music notes + hearts (popping props)
+	-- splash crown on the tail slam
 	------------------------------------------------------------------
-	for k = 1, 3 do
-		local cfk, tr = CFrame.new(), 1
-		for _, list in NOTES do
-			local s = list[k]
-			local u = s and win(c, s, 1.5)
-			if u then
-				local side = (k == 2) and -1 or 1
-				cfk = pa(side * (3.2 + 5.0 * u) + 0.5 * sin(TAU * 1.5 * u), 0.2 + 5.5 * u, -0.6 - 1.0 * u, 0, 0, 18 * sin(TAU * 2 * u))
-				tr = u < 0.08 and 0.5 or (u > 0.8 and 0.5 or 0)
-			end
-		end
-		pose["Note" .. k] = cfk
-		ctx.transparency("NoteS" .. k, tr)
-		ctx.transparency("NoteH" .. k, tr)
-		ctx.transparency("NoteF" .. k, tr)
+	local sp = L.remap(c, SLAM, SLAM + 0.85)
+	local splashOn = c > SLAM and c < SLAM + 0.85
+	pose.Splash = pa(0, -1.2 + 2.4 * L.ease.cubicOut(sp), 0, 0, 25 * sp, 0)
+	for i = 0, 9 do
+		ctx.transparency("SplashP" .. i, splashOn and (0.2 + 0.8 * max(0, (sp - 0.45) / 0.55)) or 1)
 	end
-	for k = 1, 3 do
-		local cfk, tr = CFrame.new(), 1
-		for _, s in HEARTS[k] do
-			local u = win(c, s, 1.7)
-			if u then
-				local pop2 = L.ease.backOut(min(1, u * 5))
-				cfk = pa(0.6 * sin(TAU * 1.2 * u + k), -1.2 + 1.2 * pop2 + 4.5 * u, 0, 0, 25 * sin(TAU * u), 12 * sin(TAU * 1.5 * u))
-				tr = u > 0.85 and 0.5 or 0
-			end
-		end
-		pose["Heart" .. k] = cfk
-		for _, n in { "A", "B", "C", "D" } do
-			ctx.transparency("Heart" .. n .. k, tr)
+
+	------------------------------------------------------------------
+	-- music notes while humming
+	------------------------------------------------------------------
+	for k, n in NOTES do
+		local p = L.remap(c, n[1], n[2])
+		local on = c > n[1] and c < n[2]
+		local dir = k == 1 and 1 or -1
+		pose["Note" .. k] = pa(dir * 0.8 * sin(TAU * 1.2 * p), -2.2 + 4.2 * p, -0.3 * p, 0, 0, dir * 18 * sin(TAU * 1.5 * p))
+		local tr = on and max(0, 1 - p / 0.12, (p - 0.75) / 0.25) or 1
+		for j = 1, 3 do
+			ctx.transparency("Note" .. k .. "f" .. j, tr)
+			ctx.transparency("Note" .. k .. "b" .. j, tr)
 		end
 	end
 
 	------------------------------------------------------------------
-	-- splash crown under the flukes
+	-- the clownfish friend: circles her, swims in to BOOP her nose
 	------------------------------------------------------------------
-	local su = win(c, SLAP, 1.1)
-	if su then
-		pose.Splash = CFrame.new(0, 2.6 * L.ease.cubicOut(min(1, su * 1.6)), 0)
-	else
-		pose.Splash = CFrame.new()
-	end
-	for i = 1, 8 do
-		local trs = 1
-		if su then
-			local d = (i % 2) * 0.06
-			trs = (su > d) and (su < 0.55 and 0.15 or (su < 0.8 and 0.45 or 0.75)) or 1
-		end
-		ctx.transparency("SplashCol" .. i, trs)
+	local o1 = orbit(c)
+	local o2 = orbit(c + 0.05)
+	local oyaw = math.deg(atan2(-(o2.X - o1.X), -(o2.Z - o1.Z)))
+	local noseP = Vector3.new(0, 8.8 + bob, -10.4)
+	local fpos = o1 + (noseP - o1) * fishIn + Vector3.new(0, 0.4 * jolt, -1.6 * jolt)
+	local dYaw = ((180 - oyaw + 180) % 360) - 180
+	local fyaw = oyaw + dYaw * fishIn + 18 * sin(TAU * 4 * t)
+	local fo = fpos - FO
+	pose.Fish = pa(fo.X, fo.Y + 0.2 * sin(TAU * 1.5 * t), fo.Z, 0, fyaw, 0)
+
+	-- heart pops after the boop
+	local hpg = L.remap(c, 13.25, 14.4)
+	local heartOn = c > 13.25 and c < 14.4
+	local hpop = L.ease.backOut(L.remap(c, 13.25, 13.5))
+	pose.Heart = pa(0.5 * sin(TAU * hpg), -1.0 + 1.0 * hpop + 2.2 * hpg, 0, 0, 0, 12 * sin(TAU * 2 * hpg))
+	local htr = heartOn and max(0, (hpg - 0.7) / 0.3) or 1
+	for j = 1, 4 do
+		ctx.transparency("HeartP" .. j, htr)
 	end
 
 	------------------------------------------------------------------
-	-- tiny city fish (body space)
+	-- secondary: waterfalls, seaweed, floating cubes
 	------------------------------------------------------------------
-	for k = 1, 3 do
-		local p = fishPos(k, t, c)
-		local p2 = fishPos(k, t + 0.05, c + 0.05)
-		local d = p2 - p
-		local hd = Vector3.new(d.X, 0, d.Z)
-		local yawF
-		if k == 1 then
-			local w = env(c, 6.3, 0.7, 0.75, 0.9, "cubicInOut", "cubicInOut")
-			if hd.Magnitude < 1e-4 then
-				hd = Vector3.new(0, 0, -1)
-			end
-			hd = hd.Unit:Lerp(Vector3.new(0, 0, 1), w)
-		end
-		if hd.Magnitude < 1e-4 then
-			hd = Vector3.new(0, 0, -1)
-		end
-		yawF = math.deg(math.atan2(-hd.X, -hd.Z))
-		local rest = FISH[k][1]
-		pose["Fish" .. k] = pa(p.X - rest.X, p.Y - rest.Y, p.Z - rest.Z, 0, yawF + 15 * sin(TAU * 3 * c + k), 0)
+	local flowY = -2.3 * L.saw(t, 0.8)
+	pose.FlowR = CFrame.new(0, flowY, 0)
+	pose.FlowL = CFrame.new(0, flowY, 0)
+	for i = 1, 2 do
+		local w = 10 * sin(TAU * (0.6 * t + 0.3 * i)) + 14 * breach + 18 * squash * sin(TAU * 3 * (c - SLAM))
+		pose["Weed" .. i .. "a"] = ang(w * 0.5, 0, 8 * sin(TAU * (0.4 * t + 0.2 * i)))
+		pose["Weed" .. i .. "b"] = ang(w, 0, 12 * sin(TAU * (0.4 * t + 0.2 * i - 0.15)))
+	end
+	for i = 1, 6 do
+		local ph = i * 0.17
+		local dir = i % 2 == 0 and -1 or 1
+		local out = 2.0 * spinE + 1.5 * squash + 1.0 * breach
+		local dx = 0.8 * wave(t, 0.2, ph) + out * dir
+		local dy = 1.0 * wave(t, 0.4, ph + 0.3) + 2.5 * breach
+		local dz = 0.8 * wave(t, 0.2, ph + 0.25)
+		pose["Orb" .. i] = pa(dx, dy, dz, 60 * t * dir + 30 * i, 90 * t, 35 + 20 * i)
 	end
 
 	------------------------------------------------------------------
-	-- orbiting cubes (pushed out during the signature)
+	-- lights + bursts on the beats
 	------------------------------------------------------------------
-	local flung = env(c, LAUNCH, 0.5, 4.5, 1.5, "backOut", "sineInOut")
-	for i, o in ORBS do
-		local th = TAU * (F * t + o[2])
-		local r = o[3] + 4 * flung
-		-- cubes swing up and over when they pass in front of her face
-		local front = max(0, -sin(th)) ^ 2
-		local target = Vector3.new(r * cos(th), o[4] + 1.0 * wave(t, 3 * F, i * 0.2) + 3 * flung + 4 * front, 1.7 * r * sin(th))
-		local d = target - o[1]
-		local s = i % 2 == 0 and -1 or 1
-		pose["Orb" .. i] = pa(d.X, d.Y, d.Z, 360 * 2 * F * t * s + 30 * i, 360 * 3 * F * t, 25 * i)
+	local fwFlash = 0
+	for i = 0, 3 do
+		fwFlash = max(fwFlash, L.env(c, 7.85 + 0.15 * i, 0.04, 0.05, 0.25))
 	end
+	ctx.light("SpireLight", min(1.5, 0.5 + 0.9 * beam + 0.3 * breath))
+	ctx.light("FireworkLight", min(1.5, 1.3 * fwFlash + 0.8 * L.env(c, 10.4, 0.05, 0.1, 0.4)))
 
-	------------------------------------------------------------------
-	-- effects on the beats
-	------------------------------------------------------------------
-	for _, h in { 3.3, 3.65, 4.0 } do
-		if ctx.crossed(h) then
-			ctx.emit("CitySparkle", 14)
-		end
+	for _, p in { 3.17, 3.47, 3.77 } do
+		if ctx.crossed(p) then ctx.emit("AmbientSparkle", 6) end
 	end
-	if ctx.crossed(5.35) then
-		ctx.emit("SpoutSpray", 35)
+	if ctx.crossed(5.02) then ctx.emit("SpoutBurst", 30) end
+	if ctx.crossed(5.3) then ctx.emit("SpoutBurst", 15) end
+	if ctx.crossed(6.95) then ctx.emit("AmbientBubbles", 25) end
+	if ctx.crossed(7.42) then
+		ctx.emit("SpireSparkle", 25)
+		ctx.emit("Fireworks", 15)
 	end
-	if ctx.crossed(5.8) then
-		ctx.emit("SpoutSpray", 20)
-		ctx.emit("CitySparkle", 12)
+	for i = 0, 3 do
+		if ctx.crossed(7.86 + 0.15 * i) then ctx.emit("Fireworks", 22) end
 	end
-	if ctx.crossed(7.02) then
-		ctx.emit("CitySparkle", 8)
+	if ctx.crossed(8.62) then ctx.emit("AmbientSparkle", 15) end
+	if ctx.crossed(SLAM + 0.01) then
+		ctx.emit("SplashBurst", 60)
+		ctx.emit("AmbientBubbles", 20)
 	end
-	if ctx.crossed(LAUNCH + 0.25) then
-		ctx.emit("SplashMist", 25)
-		ctx.emit("SplashBurst", 30)
-		ctx.emit("AmbientBubbles", 30)
-	end
-	if ctx.crossed(BEAM + 0.05) then
-		ctx.emit("BeamBurst", 60)
-	end
-	if ctx.crossed(BEAM + 1.2) then
-		ctx.emit("BeamBurst", 30)
-	end
-	for _, tt in { 13.0, 13.25, 13.5, 13.75 } do
-		if ctx.crossed(tt) then
-			ctx.emit("Fireworks", 28)
-		end
-	end
-	if ctx.crossed(SPIN1 - 0.6) then
-		ctx.emit("CitySparkle", 15)
-	end
-	if ctx.crossed(SLAP) then
-		ctx.emit("SplashBurst", 90)
-		ctx.emit("SplashMist", 40)
-	end
-	if ctx.crossed(SLAP + 0.3) then
-		ctx.emit("SplashBurst", 35)
-	end
-	if ctx.crossed(17.0) then
-		ctx.emit("CitySparkle", 15)
-	end
+	if ctx.crossed(10.42) then ctx.emit("Fireworks", 30) end
+	if ctx.crossed(11.0) then ctx.emit("SpoutBurst", 12) end
+	if ctx.crossed(BOOP + 0.01) then ctx.emit("BoopBurst", 25) end
+	if ctx.crossed(13.3) then ctx.emit("BoopBurst", 10) end
+	if ctx.crossed(14.5) then ctx.emit("AmbientSparkle", 10) end
 end
 
 return M
