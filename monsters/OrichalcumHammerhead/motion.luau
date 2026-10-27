@@ -85,8 +85,8 @@ function M.Update(t, pose, ctx)
 		{ 4.6, -7.0, "cubicOut" }, { 5.9, -6.8 }, { 7.5, 0, "sineInOut" },
 	})
 	local by = tr(c, {
-		{ 2.9, 0 }, { 3.85, 1.6, "cubicOut" }, { 4.05, 1.8 }, { 4.3, 0.4, "quadIn" }, { SLAM, 1.4, "quadIn" },
-		{ 4.62, -0.3, "backOut" }, { 5.6, -0.4 }, { POUND, 1.5, "quadIn" }, { 5.95, -0.2, "backOut" },
+		{ 2.9, 0 }, { 3.85, 1.6, "cubicOut" }, { 4.05, 1.8 }, { 4.3, 0.4, "quadIn" }, { SLAM, 1.9, "quadIn" },
+		{ 4.62, -0.3, "backOut" }, { 5.6, 0.1 }, { POUND, 1.8, "quadIn" }, { 5.95, -0.2, "backOut" },
 		{ 6.6, 0.6, "sineInOut" }, { 7.5, 0, "sineInOut" },
 	})
 	local bp = tr(c, {

@@ -214,7 +214,7 @@ function M.Update(t, pose, ctx)
 		local y = 165 * hide - 25 * startle + 10 * wave(t, 5 * F, side) * idleW
 		local z = fl + 50 * startle + 25 * Pc + 10 * hide + 20 * eep + 30 * pfft
 		local x = 12 * hide
-		local tipY = 98 * hide + 12 * wave(t, 40 * F, 0.15) * (1 - hide) - 20 * Pc
+		local tipY = 52 * hide + 12 * wave(t, 40 * F, 0.15) * (1 - hide) - 20 * Pc
 		-- hide: the fins swing to the front AND drop down so they cover the
 		-- mouth + cheeks while the big worried eyes peek out over the top
 		return pa(0.4 * hide, -2.0 * hide, 0, x, y, z), ang(0, tipY, 10 * wave(t, 40 * F, 0.2))
