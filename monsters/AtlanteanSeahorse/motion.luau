@@ -164,7 +164,7 @@ function M.Update(t, pose, ctx)
 	ctx.transparency("LidFillL", clL > 0.15 and 0 or 1)
 	-- brows: right flat + low, left arched up (smug); right squeezes on the wink
 	local browR = pa(0, -0.05 - 0.2 * r.wink + 0.15 * wide - 0.15 * antic, 0, 0, 0, -4 - 8 * r.wink)
-	local browL = pa(0, 0.25 + 0.08 * wave(t, 2 / 9) * idleW + 0.1 * r.wink + 0.15 * wide - 0.15 * antic, 0, 0, 0, 18 + 4 * r.wink)
+	local browL = pa(0, 0.25 + 0.08 * wave(t, 2 / 9) * idleW + 0.1 * r.wink + 0.15 * wide - 0.15 * antic, 0, 0, 0, 15 + 4 * r.wink)
 	L.both(pose, "Brow", browR, browL)
 	local oMouth = max(r.inhale, r.blow, 0.9 * r.puff) > 0.2
 	ctx.transparency("MouthO", oMouth and 0 or 1)
