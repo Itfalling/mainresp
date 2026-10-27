@@ -6,10 +6,12 @@
 -- IDLE GAGS (0 - 9 s)
 --   0.3  HUM SONG: half-lidded dreamy eyes, "la-la-la" mouth, head sways,
 --        gold music notes float out of her mouth
---   2.8  PEEK AT HER CITY: turns her head, looks up/back, raises a flipper
---        and pats her city, proud ^ ^ eyes, blush, a heart pops up
+--   2.8  PAT THE CITY: leans left, her right flipper slides up her flank,
+--        stands beside the city and flops its hand over the wall: pat-pat-pat
+--        (city jolts, towers hop, sparkles), proud ^ ^ eyes, blush, a heart
 --   4.8  BLOWHOLE FOUNTAIN: puffs her cheeks, squeezes her eyes, PFOOSH a
---        water column + spray out of the blowhole, sparkly eyes, giggles
+--        tall water column with a foam crown + raining droplets shoots out of
+--        the forehead blowhole (tilted forward so it reads from the front), sparkly eyes, giggles
 --   6.4  FISH BOOP: a city fish swims up and boops her nose -> cross-eyed,
 --        brows up, "o" mouth, then a giggle, happy wiggle, flipper clap,
 --        blush lines and two hearts
@@ -466,7 +468,9 @@ function M.Update(t, pose, ctx)
 	for i, o in ORBS do
 		local th = TAU * (F * t + o[2])
 		local r = o[3] + 4 * flung
-		local target = Vector3.new(r * cos(th), o[4] + 1.0 * wave(t, 3 * F, i * 0.2) + 3 * flung, 1.6 * r * sin(th))
+		-- cubes swing up and over when they pass in front of her face
+		local front = max(0, -sin(th)) ^ 2
+		local target = Vector3.new(r * cos(th), o[4] + 1.0 * wave(t, 3 * F, i * 0.2) + 3 * flung + 4 * front, 1.7 * r * sin(th))
 		local d = target - o[1]
 		local s = i % 2 == 0 and -1 or 1
 		pose["Orb" .. i] = pa(d.X, d.Y, d.Z, 360 * 2 * F * t * s + 30 * i, 360 * 3 * F * t, 25 * i)

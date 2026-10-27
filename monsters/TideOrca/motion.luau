@@ -279,12 +279,19 @@ function M.Update(t, pose, ctx)
 	-- the BOW flourish: right fin shoots up and twirls (courtly hand-roll),
 	-- then sweeps grandly across the chest; left fin flings up and back;
 	-- on the way up both fins flare out in a "ta-da!"
-	local bRz = track(c, { { BOW, 0 }, { BOW + 0.35, 105, "backOut" }, { BOWEND, 92, "sineInOut" }, { BOWEND + 0.35, 45, "backOut" }, { 13.75, 0, "quadInOut" } })
-	local bRy = track(c, { { BOW, 0 }, { BOW + 0.35, 45, "backOut" }, { BOWEND, 30, "sineInOut" }, { BOWEND + 0.35, -15, "backOut" }, { 13.75, 0, "quadInOut" } })
-	local twirl = L.env(c, BOW + 0.25, 0.15, BOWEND - BOW - 0.5, 0.2)
-	local bRx = 60 * twirl * sin(TAU * 2.2 * (c - BOW - 0.25))
-	local bLz = track(c, { { BOW, 0 }, { BOW + 0.45, 75, "backOut" }, { BOWEND, 62 }, { BOWEND + 0.35, 55, "backOut" }, { 13.75, 0, "quadInOut" } })
-	local bLy = track(c, { { BOW, 0 }, { BOW + 0.45, -50, "backOut" }, { BOWEND, -40 }, { BOWEND + 0.35, -10, "backOut" }, { 13.75, 0, "quadInOut" } })
+	-- (fin local axes: +Z raises the fin, -Y swings it forward / under)
+	-- right fin: shoots up high beside the head and does a twirling
+	-- courtly hand-roll all through the bow; left fin tucks across the
+	-- belly; on the way back up BOTH fins fling up: "ta-da!"
+	local bRz = track(c, { { BOW, 0 }, { BOW + 0.35, 110, "backOut" }, { BOWEND, 95, "sineInOut" }, { BOWEND + 0.35, 90, "backOut" }, { 13.75, 0, "quadInOut" } })
+	local bRy = track(c, { { BOW, 0 }, { BOW + 0.35, 35, "backOut" }, { BOWEND, 20, "sineInOut" }, { BOWEND + 0.35, 30, "backOut" }, { 13.75, 0, "quadInOut" } })
+	local twirl = L.env(c, BOW + 0.25, 0.15, BOWEND - BOW - 0.45, 0.2)
+	local rollPh = TAU * 1.8 * (c - BOW - 0.25)
+	local bRx = 75 * twirl * sin(rollPh)
+	bRz += 16 * twirl * cos(rollPh)
+	bRy += 16 * twirl * sin(rollPh)
+	local bLz = track(c, { { BOW, 0 }, { BOW + 0.4, -15, "backOut" }, { BOWEND, -15 }, { BOWEND + 0.35, 90, "backOut" }, { 13.75, 0, "quadInOut" } })
+	local bLy = track(c, { { BOW, 0 }, { BOW + 0.4, -55, "backOut" }, { BOWEND, -50 }, { BOWEND + 0.35, 30, "backOut" }, { 13.75, 0, "quadInOut" } })
 	local function fin(side, ph, bowArm)
 		local z = 14 * paddle * idleW + 25 * lunge + 15 * windL + 20 * cackle * sin(TAU * 4 * c + ph)
 			+ 30 * giggle * sin(TAU * 7 * c + ph) + 20 * tease * sin(TAU * 2 * c + ph)
