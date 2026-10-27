@@ -199,7 +199,7 @@ function M.Update(t, pose, ctx)
 		for j = 1, 3 do
 			local ph = -0.13 * j - 0.083 * k
 			local rx = 10 * wave(t, 0.8, ph) * wigA * (0.7 + 0.25 * j)
-			local rz = 7 * wave(t, 0.6, ph * 0.8 + 0.3) * wigA * (0.6 + 0.3 * j)
+			local rz = 7 * wave(t, 0.6, ph * 0.8 + 0.3) * wigA * (0.6 + 0.3 * j) * (0.35 + 0.65 * outer)
 			-- tuck in (curl under), flare out wide, dizzy dangle, happy wave
 			rx += (j == 1 and -38 or (j == 2 and -30 or -45)) * tuck - 12 * peekTuck
 			rx += (j == 1 and (10 + 60 * outer) or (j == 2 and 12 + 10 * outer or 40)) * flare

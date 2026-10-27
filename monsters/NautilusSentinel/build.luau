@@ -280,10 +280,10 @@ return {
 		local starRing = B:bone("StarRing", "Head", v(0, 14.6, -4.2))
 		for i = 1, 4 do
 			local a = rad(90 * i + 20)
-			local sp = v(cos(a) * 2.9, 14.6 + (i % 2) * 0.35, -4.2 + sin(a) * 2.4)
-			B:block(starRing, v(0.9, 0.9, 0.9), CFrame.new(sp) * ang(45, 45, 0), GOLD, { tr = 1, name = "Star" .. i .. "a" })
-			B:block(starRing, v(1.25, 0.35, 0.35), CFrame.new(sp) * ang(0, 0, 45), "#fff2a8", { tr = 1, name = "Star" .. i .. "b" })
-			B:block(starRing, v(0.35, 1.25, 0.35), CFrame.new(sp) * ang(0, 0, 45), "#fff2a8", { tr = 1, name = "Star" .. i .. "c" })
+			local sp = v(cos(a) * 3.3, 14.8 + (i % 2) * 0.4, -4.2 + sin(a) * 2.8)
+			B:block(starRing, v(1.2, 1.2, 1.2), CFrame.new(sp) * ang(45, 45, 0), GOLD, { tr = 1, name = "Star" .. i .. "a" })
+			B:block(starRing, v(1.9, 0.5, 0.5), CFrame.new(sp) * ang(0, 0, 45), "#fff2a8", { tr = 1, name = "Star" .. i .. "b" })
+			B:block(starRing, v(0.5, 1.9, 0.5), CFrame.new(sp) * ang(0, 0, 45), "#fff2a8", { tr = 1, name = "Star" .. i .. "c" })
 		end
 
 		-- SIPHON (bubbles)
@@ -311,7 +311,7 @@ return {
 				or CC + v(-sin(rad(beta)) * 2.45, 0.15, -cos(rad(beta)) * 1.5)
 			local poker = k == 6 or k == 7
 			local lens = poker and { 1.9, 1.8, 1.5 } or (front and { 1.7, 1.5, 1.2 } or { 1.6, 1.5, 1.3 })
-			local th = front and { 12, 16, 62 } or { 58, 22, 50 }
+			local th = front and { 10, 12, 36 } or { 58, 22, 50 }
 			local wid = { 1.15, 0.9, 0.7 }
 			local p = base
 			local parent = "Head"
