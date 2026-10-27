@@ -140,11 +140,11 @@ function M.Update(t, pose, ctx)
 		- 3 * jolt
 	local byaw = yaw[CENTER] + spin + 6 * wiggle * sin(TAU * 1.25 * (c - 14.3))
 	local roll = 3 * wave(t, 0.25, 0.1) * idleW + 4 * hum * sin(TAU * 0.9 * (c - 0.15) + 0.6)
-		- 6 * glance + 8 * wiggle * sin(TAU * wigPh) + 5 * giggle * sin(TAU * 3 * (c - 13.25))
+		+ 9 * glance + 8 * wiggle * sin(TAU * wigPh) + 5 * giggle * sin(TAU * 3 * (c - 13.25))
 		+ 6 * proud * sin(TAU * 1.5 * (c - 10.3))
 	pose.Body = pa(0.3 * wave(t, 0.125), by, 0.5 * jolt, bp, byaw, roll)
 
-	pose.Head = pa(0, 0, 0.35 * jolt, pitch[1] - pitch[2], yaw[1] - yaw[2], 4 * hum * sin(TAU * 0.9 * (c - 0.3)) - 7 * glance)
+	pose.Head = pa(0, 0, 0.35 * jolt, pitch[1] - pitch[2], yaw[1] - yaw[2], 4 * hum * sin(TAU * 0.9 * (c - 0.3)) - 12 * glance)
 	for i = CENTER + 1, #CHAIN do
 		pose[CHAIN[i]] = ang(pitch[i] - pitch[i - 1], yaw[i] - yaw[i - 1], 0)
 	end
@@ -196,23 +196,30 @@ function M.Update(t, pose, ctx)
 	local commonY = idleY - 35 * breath + 10 * breach + 45 * proud + 30 * clap
 	local tipZ = 14 * wave(t, SWIM, -0.15) * swimW + 20 * breach + 15 * spinE + 0.6 * flap
 	-- right flipper also does the PAT
-	local rZ = commonZ + 118 * patArm - 10 * patBeat
-	local rY = commonY - 30 * patArm
-	pose.FinR = pa(-0.2 * patArm, 2.2 * patArm, 0, 0, rY, rZ)
+	-- (raised up and out beside the city so it reads from every side; it
+	-- flicks out, then the tip curls in and pats the front-right tower x3)
+	local patUp = 0
+	for _, p in { 3.0, 3.3, 3.6 } do
+		patUp += L.env(c, p, 0.1, 0.0, 0.05, "quadOut", "quadIn")
+	end
+	local rZ = commonZ + 96 * patArm + 14 * patUp
+	local rY = commonY * (1 - patArm)
+	pose.FinR = pa(-0.2 * patArm, 1.0 * patArm, 0, -38 * patArm, rY, rZ)
 	pose.FinL = L.mirror(ang(0, commonY, commonZ))
-	pose.FinTipR = ang(0, 0, tipZ - 25 * patArm - 22 * patBeat)
+	pose.FinTipR = ang(0, 0, tipZ + 30 * patBeat - 16 * patUp)
 	pose.FinTipL = L.mirror(ang(0, 0, tipZ))
 
 	------------------------------------------------------------------
 	-- city: hops on the pats, rattles on the slam; towers rise
 	------------------------------------------------------------------
-	pose.City = pa(0, 0.25 * patBeat + 0.3 * squash, 0, 2.5 * squash * sin(TAU * 6 * (c - SLAM)), 0, 2 * squash * sin(TAU * 5 * (c - SLAM)))
+	pose.City = pa(0, 0.45 * patBeat + 0.3 * squash, 0, 2.5 * squash * sin(TAU * 6 * (c - SLAM)), 0, 2 * squash * sin(TAU * 5 * (c - SLAM)))
 	for i = 1, 4 do
 		local t0 = 7.8 + 0.15 * (i - 1)
 		local t1 = 11.0 + 0.12 * (i - 1)
 		local rise = L.track(c, { { t0, 0 }, { t0 + 0.35, 1, "backOut" }, { t1, 1 }, { t1 + 0.6, 0, "cubicInOut" } })
 		local wob = 0.06 * sin(TAU * (0.5 * t + 0.25 * i))
-		pose["Tower" .. i] = pa(0, 2.2 * rise + wob, 0, 0, 0, 3 * squash * sin(TAU * 4 * (c - SLAM) + i))
+		local hop = (i == 1 and 0.55 or 0.2) * patBeat -- the patted tower boings
+		pose["Tower" .. i] = pa(0, 2.2 * rise + wob + hop, 0, 0, 0, 3 * squash * sin(TAU * 4 * (c - SLAM) + i))
 	end
 	pose.Spire = pa(0, 0.12 * wave(t, 0.5) + 0.5 * beam, 0, 0, (40 * t) % 360, 0)
 	pose.Halo = ang(0, -((40 * t) % 360), 90 * c)
@@ -328,7 +335,10 @@ function M.Update(t, pose, ctx)
 	ctx.light("FireworkLight", min(1.5, 1.3 * fwFlash + 0.8 * L.env(c, 10.4, 0.05, 0.1, 0.4)))
 
 	for _, p in { 3.17, 3.47, 3.77 } do
-		if ctx.crossed(p) then ctx.emit("AmbientSparkle", 6) end
+		if ctx.crossed(p) then
+			ctx.emit("AmbientSparkle", 6)
+			ctx.emit("SpireSparkle", 8)
+		end
 	end
 	if ctx.crossed(5.02) then ctx.emit("SpoutBurst", 30) end
 	if ctx.crossed(5.3) then ctx.emit("SpoutBurst", 15) end

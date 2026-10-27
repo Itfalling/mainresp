@@ -4,8 +4,8 @@
 -- Atlantean Pufferfish: a compact, chunky, stepped-voxel whale with a BIG
 -- blunt cartoon head whose front is one readable face (two big corner eyes:
 -- dark socket rim, white block, glowing sky iris, one pupil + glint, soft
--- kind brows, little lashes; rosy blush; one gentle smile with a tidy comb of
--- cream baleen plates; cream lower jaw with throat pleats) and a gold tiara.
+-- kind brows, little lashes; rosy blush; one gentle smile with a soft fringe
+-- of slim blue-grey baleen tucked under the lip; cream lower jaw with throat pleats) and a gold tiara.
 -- All the richness lives on the BODY: ocean-blue hull with dark back and
 -- cream pleated belly, bronze/gold harness collar and rune-engraved armour
 -- plates, barnacles, humpback flippers with gold bracers, ridged tail and
@@ -36,7 +36,7 @@ return {
 		local WATER, WATERL = "#3fc9da", "#a8ecff"
 		local SEA, SEA_L, CORAL = "#3f9a3c", "#86d65a", "#ff7a5c"
 		local WHITE, PUPIL, MOUTH, TONGUE = "#ffffff", "#0d1020", "#2a0d18", "#ff7f8f"
-		local PINK, BALEEN, BROW = "#ff9db5", "#e6dbc0", "#13284f"
+		local PINK, BALEEN, BROW = "#ff9db5", "#adc3e0", "#13284f"
 		local TURQ, SKY, GOLDN = "#3ff0e0", "#3cc6ff", "#ffe27a" -- small neon accents
 		local NEON = { mat = "Neon" }
 
@@ -171,16 +171,29 @@ return {
 		B:block(head, v(6.8, 0.5, 5.2), cf(0, 13.8, -5.6), DARK) -- crown cap
 		B:block(head, v(9.7, 1.4, 2.6), cf(0, 12.0, -4.3), DARK) -- dark back band
 		B:block(head, v(8.9, 0.5, 2.0), cf(0, 13.2, -4.2), DARK)
-		B:block(head, v(0.6, 0.12, 0.6), cf(-1.6, 14.1, -6.6), SPOT)
-		B:block(head, v(0.5, 0.12, 0.5), cf(2.0, 14.1, -5.1), SPOT)
+		-- crown of the head: a gold ridge plate from the tiara back to the
+		-- blowhole with rune dots, flanked by pale whale freckles
+		B:block(head, v(1.0, 0.6, 1.1), cf(0, 13.85, -8.65), GOLD) -- step up from the tiara
+		B:block(head, v(1.0, 0.3, 3.4), cf(0, 14.15, -6.45), GOLD)
+		B:block(head, v(0.5, 0.12, 2.8), cf(0, 14.33, -6.45), DGOLD)
+		B:block(head, v(0.32, 0.14, 0.32), cf(0, 14.42, -7.5), TURQ, NEON)
+		B:block(head, v(0.32, 0.14, 0.32), cf(0, 14.42, -5.6), TURQ, NEON)
+		B:sym(function()
+			B:block(head, v(0.7, 0.12, 0.7), cf(1.9, 14.1, -7.6), SPOT)
+			B:block(head, v(0.5, 0.12, 0.5), cf(2.7, 14.1, -6.3), SPOT)
+			B:block(head, v(0.4, 0.12, 0.4), cf(1.6, 14.1, -5.3), SPOT)
+		end)
 		B:block(head, v(9.2, 0.8, 6.0), cf(0, 7.3, -6.1), MAIN) -- upper lip
 		B:block(head, v(7.8, 1.7, 1.2), cf(0, 7.65, -9.9), "#5c9be3") -- chubby lighter muzzle (one step out)
 		B:block(head, v(7.8, 0.3, 5.4), cf(0, 6.6, -6.2), MOUTH) -- palate
 		-- the gentle smile: dark mouth slot with a tidy comb of baleen plates
 		B:block(head, v(4.8, 0.7, 0.4), cf(0, 6.75, -10.35), MOUTH)
-		for _, x in { -1.6, -0.8, 0, 0.8, 1.6 } do
-			B:block(head, v(0.42, 0.36, 0.2), cf(x, 6.92, -10.6), BALEEN)
+		-- soft baleen: four slim, muted blue-grey slats hanging from under
+		-- a little upper-lip overhang (they read as a fringe, not teeth)
+		for _, x in { -1.35, -0.45, 0.45, 1.35 } do
+			B:block(head, v(0.24, 0.42, 0.12), cf(x, 6.82, -10.6), BALEEN)
 		end
+		B:block(head, v(4.4, 0.24, 0.3), cf(0, 7.0, -10.66), "#5c9be3") -- lip overhang
 		-- gold tiara with a turquoise gem on the forehead
 		B:block(head, v(5.6, 0.45, 0.35), cf(0, 13.0, -9.15), GOLD)
 		B:block(head, v(1.3, 1.3, 0.3), cf(0, 13.55, -9.2, 0, 0, 45), GOLD)
@@ -208,7 +221,7 @@ return {
 			-- BIG eye on the front corner: dark socket rim, white block, glowing
 			-- sky iris, ONE pupil + glint on the front face only
 			B:block(head, v(3.3, 3.6, 0.2), cf(3.3, 10.3, -9.4), NAVY)
-			B:block(head, v(2.8, 3.2, 2.2), cf(3.4, 10.3, -8.45), WHITE)
+			B:block(head, v(2.9, 3.2, 2.2), cf(3.4, 10.3, -8.45), WHITE) -- wraps the corner (proud of the cheek, no z-fight)
 			B:block(head, v(1.9, 2.4, 1.4), cf(3.25, 10.2, -9.0), SKY, { mat = "Neon", name = "Eye" .. side })
 			local pup = B:bone("Pupil" .. side, "Head", v(3.2, 10.05, -9.76))
 			B:block(pup, v(1.05, 1.6, 0.12), cf(3.2, 10.05, -9.76), PUPIL)
