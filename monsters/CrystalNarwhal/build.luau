@@ -1,16 +1,20 @@
 --!nocheck
--- Crystal Narwhal: a hyper, cheerful Atlantis narwhal, stud-built in the Void
--- Leviathan voxel style. A curved "banana" body: a smaller stepped melon head,
--- a big humped chest carrying a ruined marble crystal SHRINE (columns, gold
--- frieze, crystals erupting through the roof), then a tail that steps down and
--- curls up into horizontal flukes. Pale blue-grey with a darker back saddle,
--- a few big narwhal mottles, white stepped belly/keel, gold orichalcum trims,
--- marble rune cuffs and rune tiles, a row of crystal dorsal spikes and crystal
--- growths on the flanks. Long twisted turquoise-crystal + gold spiral tusk in a
--- marble/gold Atlantis collar. Big happy face: sparkly eyes with star glints,
--- a real hinged "D" smile (white teeth, pink tongue), rosy cheeks.
--- Hidden VFX (tusk beam, star rays, crystal shards, splash cubes, bubble cubes,
--- happy-squint "^ ^" eyes, blink lids) are revealed by the motion.
+-- Crystal Narwhal (Legendary, Atlantis) - a HYPER & CHEERFUL puppy of a narwhal.
+-- Rebuilt from scratch around a sculpted cartoon HEAD: a stepped melon
+-- forehead that overhangs two big sparkly eyes (white, dark rim, big pupil,
+-- neon glints) with arched brows, round cheek pads with blush, a short
+-- stepped snout and ONE real hinged jaw: a happy "D" smile with a dark
+-- interior, a pink tongue (own bone for "bleps"), four clean upper teeth and
+-- two lower ones, U-stepped lower lip and upturned corners.
+-- Periwinkle body with an indigo back, cream belly, narwhal mottles, gold
+-- orichalcum collar and rune plates. On the forehead sits a stepped marble
+-- Atlantis ring holding the long twisted turquoise-crystal tusk wrapped in a
+-- gold spiral, with a little gold ring orbiting it. On the back: a ruined
+-- marble shrine (columns, broken lintel) with a crystal cluster bursting out.
+-- Crystal spikes run down the back to stepped flukes.
+-- Hidden extras for the motion: blink lids, "^ ^" happy-squint carets, star
+-- pupils, a wink, hearts, blowhole spout cubes, the tusk beam, crystal rays,
+-- firework shards and splash water cubes.
 return {
 	DisplayName = "Crystal Narwhal",
 	Rarity = "Legendary",
@@ -20,398 +24,442 @@ return {
 		local rad, cos, sin = math.rad, math.cos, math.sin
 
 		-- palette
-		local BODY, DARK, DEEP = "#9fc3d9", "#5f87a3", "#46697f" -- pale blue-grey / dark back / deepest
-		local FLECK = "#c9e1ee" -- pale mottles on the dark back
-		local WHITE, CREAM = "#f4f8fb", "#dfeaf1" -- belly
-		local GOLD, DGOLD = "#f2c14e", "#c98d26" -- orichalcum
-		local MARBLE, MARBLE2 = "#f3efe6", "#d9d1c1"
-		local TURQ, LTURQ, DTEAL = "#2ec4b6", "#86ece2", "#17878f" -- crystal
-		local MOUTH, TONGUE, TONGUE2 = "#2a1020", "#ff7fa8", "#ffa9c6"
-		local PUPIL, BLUSH, BROW = "#0f2232", "#ff9fc0", "#3e5d75"
-		local CORAL, CORAL2 = "#ff8a6e", "#ffb199"
-		local NTURQ, NGOLD = "#3ff0e0", "#ffe27a" -- the two (small) neon accents
+		local MAIN, SHADE, DEEP, LIGHT = "#a3a9ff", "#6c70e0", "#4743ad", "#cfd3ff"
+		local BELLY, BELLY2 = "#f7f2ea", "#ddd3c2"
+		local GOLD, DGOLD = "#f2c14e", "#c98d26"
+		local MARBLE, MARBLE2 = "#f4f0e8", "#d4ccbb"
+		local TURQ, LTURQ, DTEAL = "#2ec4b6", "#8af0e6", "#15858c"
+		local MOUTH, TONGUE, TONGUE2 = "#2a0f22", "#ff6f9a", "#ffa3c0"
+		local TEETH, EYEW, PUPIL, RIM = "#ffffff", "#ffffff", "#141b3d", "#26206b"
+		local BLUSH, CORAL, WEED = "#ff8fb5", "#ff7a5c", "#3fae6a"
+		local WATER, WATER2 = "#8fe6ff", "#d9f8ff"
+		local NTURQ, NGOLD = "#3ff0e0", "#ffe27a" -- the two small neon accents
 		local NEON = { mat = "Neon" }
 
-		------------------------------------------------------------------
-		-- helpers
-		------------------------------------------------------------------
-		-- stepped body segment (octagon-ish voxel profile from the side AND the
-		-- front): pale core, dark top cap + deep ridge, white belly cap + cream
-		-- keel, dark saddle band on the upper sides, white belly band, and a thin
-		-- gold orichalcum trim line under the saddle.
-		local function segment(bone, z0, z1, yc, w, h, o)
+		local function bx(bone, sx, sy, sz, x, y, z, col, opts)
+			return B:block(bone, v(sx, sy, sz), cf(x, y, z), col, opts)
+		end
+		local function bxr(bone, sx, sy, sz, x, y, z, rx, ry, rz, col, opts)
+			return B:block(bone, v(sx, sy, sz), cf(x, y, z, rx, ry, rz), col, opts)
+		end
+
+		-- stepped body segment: rounded-octagon voxel profile, colour blocked
+		-- (cream belly, periwinkle flank, indigo saddle + back, deep ridge)
+		local function seg(bone, z0, z1, yc, w, h, o)
 			o = o or {}
-			local len, zc = z1 - z0, (z0 + z1) / 2
-			local ch = h - 2
-			B:block(bone, v(w, ch, len), cf(0, yc, zc), BODY)
-			B:block(bone, v(w - 2, 1.0, len - 0.4), cf(0, yc + ch / 2 + 0.5, zc), DARK)
-			B:block(bone, v(w - 2, 1.0, len - 0.4), cf(0, yc - ch / 2 - 0.5, zc), WHITE)
-			if not o.noRidge then
-				B:block(bone, v(w - 4.4, 0.6, len - 1.2), cf(0, yc + h / 2 + 0.3, zc), DEEP)
-			end
-			if not o.noKeel then
-				B:block(bone, v(w - 4.4, 0.6, len - 1.2), cf(0, yc - h / 2 - 0.3, zc), CREAM)
-			end
-			local sh = ch * 0.36
-			local sy = yc + ch / 2 - sh / 2
-			B:block(bone, v(w + 0.5, sh, len - 0.2), cf(0, sy, zc), DARK)
-			B:block(bone, v(w + 0.4, 1.0, len - 0.3), cf(0, yc - ch / 2 + 0.5, zc), WHITE)
-			if not o.noTrim then
-				B:block(bone, v(w + 0.6, 0.3, len - 0.1), cf(0, sy - sh / 2 - 0.05, zc), GOLD)
-			end
+			local L, zc = z1 - z0, (z0 + z1) / 2
+			local y0, y1 = yc - h / 2, yc + h / 2
+			local inner = h - 2
+			local bh = inner * 0.36
+			local sh = inner * 0.3
+			local mh = inner - bh - sh
+			bx(bone, w - 2, 1, L, 0, y0 + 0.5, zc, BELLY)
+			bx(bone, w, bh, L, 0, y0 + 1 + bh / 2, zc, BELLY)
+			bx(bone, w, mh, L, 0, y0 + 1 + bh + mh / 2, zc, MAIN)
+			bx(bone, w, sh, L, 0, y1 - 1 - sh / 2, zc, SHADE)
+			bx(bone, w - 2, 1, L, 0, y1 - 0.5, zc, SHADE)
+			if not o.noRidge then bx(bone, w - 4.4, 0.5, L - 0.8, 0, y1 + 0.25, zc, DEEP) end
+			if not o.noKeel then bx(bone, w - 4.4, 0.5, L - 0.8, 0, y0 - 0.25, zc, BELLY2) end
+			if o.trim then bx(bone, w + 0.12, 0.3, L - 0.3, 0, y0 + 1 + bh, zc, GOLD) end
 		end
-		-- thin colour-block mottle on a side face
-		local function spot(bone, x, y, z, sy, sz, col)
-			B:block(bone, v(0.16, sy, sz), cf(x, y, z), col)
-		end
-		-- flipper / fluke frame: local X along `ax`, local Z toward T
-		local function frame(pos, ax, T)
-			ax = ax.Unit
-			local fz = (T - ax * T:Dot(ax)).Unit
-			return CFrame.fromMatrix(pos, ax, fz:Cross(ax), fz)
-		end
-		-- crystal cluster: tilted turquoise blocks with an optional neon tip
-		-- {x, y, z, width, height, rx, ry, rz, colour, neonTip}
-		local function crystals(bone, base, list)
+
+		-- crystal cluster: {x,y,z, width, height, rx,ry,rz, colour, neonTip}
+		local function crystals(bone, list)
 			for _, c in list do
 				local s, hgt = c[4], c[5]
-				local C = CFrame.new(base + v(c[1], c[2], c[3])) * ang(c[6], c[7], c[8])
+				local C = CFrame.new(v(c[1], c[2], c[3])) * ang(c[6], c[7], c[8])
 				B:block(bone, v(s, hgt, s), C * CFrame.new(0, hgt / 2, 0), c[9])
+				B:block(bone, v(s * 0.62, hgt * 0.35, s * 0.62), C * CFrame.new(0, hgt + hgt * 0.15, 0), c[9] == TURQ and LTURQ or TURQ)
 				if c[10] then
-					B:block(bone, v(s * 0.55, 0.5, s * 0.55), C * CFrame.new(0, hgt + 0.2, 0), NTURQ, NEON)
+					B:block(bone, v(s * 0.36, s * 0.36, s * 0.36), C * CFrame.new(0, hgt * 1.36, 0), NTURQ, NEON)
 				end
 			end
 		end
-		-- dorsal crystal spike: leaning back, stepped (base block + lighter tip)
-		local function dspike(bone, y, z, s, hgt, lean, neon)
-			local C = CFrame.new(0, y, z) * ang(lean, 45, 0)
-			B:block(bone, v(s, hgt, s), C * CFrame.new(0, hgt / 2, 0), TURQ)
-			B:block(bone, v(s * 0.6, hgt * 0.45, s * 0.6), C * CFrame.new(0, hgt + hgt * 0.18, 0), neon and NTURQ or LTURQ, neon and NEON or nil)
-		end
 
 		------------------------------------------------------------------
-		-- BODY1: big humped chest (swim chain centre)
+		-- BODY (chest, belly, rear) + gold collar + rune plates
 		------------------------------------------------------------------
-		local body1 = B:bone("Body1", "Root", v(0, 8, -1.5))
-		segment(body1, -4.6, 1.2, 8.2, 10.0, 9.8)
-		-- marble neck cuff with gold rims + rune dots (Atlantis band)
-		B:block(body1, v(10.3, 8.0, 0.9), cf(0, 8.2, -4.0), MARBLE)
-		B:block(body1, v(8.3, 9.9, 0.9), cf(0, 8.2, -4.0), MARBLE)
-		B:block(body1, v(10.45, 8.15, 0.3), cf(0, 8.2, -3.45), GOLD)
-		-- big narwhal mottles (few, bold)
+		local body = B:bone("Body", "Root", v(0, 9.6, -1))
+		seg(body, -6, -1, 9.6, 10.4, 9.4, { trim = true })
+		seg(body, -1, 4, 9.8, 9.8, 8.8, { trim = true })
+		seg(body, 4, 7.4, 10.0, 8.2, 7.4)
+
+		-- orichalcum collar between head and chest (gold rim + marble studs)
+		bx(body, 11.2, 7.6, 0.8, 0, 9.6, -5.6, GOLD)
+		bx(body, 9.0, 10.0, 0.8, 0, 9.6, -5.6, GOLD)
+		bx(body, 9.6, 8.8, 0.9, 0, 9.6, -5.62, DGOLD)
 		B:sym(function()
-			spot(body1, 5.1, 7.0, -2.5, 1.4, 1.6, DEEP)
-			spot(body1, 5.1, 5.75, -1.2, 0.8, 1.0, DARK)
-			spot(body1, 5.3, 11.0, -0.6, 0.8, 1.2, FLECK)
-			-- carved marble rune tile with a gold frame and a glowing glyph
-			B:block(body1, v(0.3, 2.0, 2.0), cf(5.1, 7.3, 0.0), MARBLE)
-			B:block(body1, v(0.2, 2.3, 2.3), cf(5.04, 7.3, 0.0), DGOLD)
-			B:block(body1, v(0.14, 1.1, 0.3), cf(5.28, 7.3, 0.0), NTURQ, NEON)
-			B:block(body1, v(0.14, 0.3, 0.9), cf(5.28, 7.6, 0.0), NTURQ, NEON)
-			-- crystal growths bursting out of the flanks
-			crystals(body1, v(4.7, 10.4, -2.2), {
-				{ 0, 0, 0, 1.0, 2.4, 12, 25, -42, TURQ, true },
-				{ 0.1, -0.5, 1.1, 0.7, 1.5, -18, 0, -62, LTURQ, false },
+			bx(body, 0.6, 1.6, 1.4, 5.65, 10.2, -5.6, MARBLE)
+			bx(body, 0.2, 0.6, 0.6, 5.98, 10.2, -5.6, NTURQ, NEON)
+		end)
+		bx(body, 1.6, 0.6, 1.4, 0, 14.65, -5.6, MARBLE)
+
+		-- rune plates on the flanks (marble, gold frame, neon glyph)
+		B:sym(function()
+			bx(body, 0.3, 3.6, 4.0, 4.97, 9.4, 1.5, GOLD)
+			bx(body, 0.4, 3.0, 3.4, 5.08, 9.4, 1.5, MARBLE)
+			bx(body, 0.12, 1.8, 0.3, 5.32, 9.4, 1.5, NTURQ, NEON)
+			bx(body, 0.12, 0.3, 1.6, 5.32, 9.9, 1.5, NTURQ, NEON)
+			bx(body, 0.12, 0.3, 0.9, 5.32, 8.8, 1.85, NTURQ, NEON)
+			-- narwhal mottles (deep indigo patches on the flanks / back)
+			bx(body, 0.16, 0.9, 1.2, 5.24, 11.4, -3.2, DEEP)
+			bx(body, 0.16, 0.7, 0.8, 5.24, 12.2, -1.8, DEEP)
+			bx(body, 0.16, 0.8, 1.0, 4.14, 11.8, 5.6, DEEP)
+			bx(body, 1.0, 0.16, 0.9, 2.6, 14.1, -2.6, LIGHT)
+			-- barnacles on the belly flank
+			bx(body, 0.5, 0.7, 0.8, 4.2, 6.2, 5.2, MARBLE2)
+			bx(body, 0.2, 0.3, 0.3, 4.46, 6.3, 5.2, DEEP)
+		end)
+
+		-- back crystal spikes (chest/rear) and flank crystal growths
+		crystals(body, {
+			{ 0, 13.9, 5.6, 1.3, 2.4, 22, 45, 0, TURQ, true },
+			{ 0, 13.9, 6.9, 0.9, 1.4, 35, 45, 0, LTURQ, false },
+		})
+		B:sym(function()
+			crystals(body, {
+				{ 4.6, 12.0, 4.6, 1.0, 1.8, 0, 30, -40, TURQ, true },
+				{ 4.9, 11.2, 5.6, 0.7, 1.1, 10, 20, -60, LTURQ, false },
+				{ 4.8, 12.6, -3.8, 0.8, 1.4, -15, 15, -35, LTURQ, true },
 			})
 		end)
-		-- stepped white belly scales
-		B:block(body1, v(4.6, 0.6, 1.5), cf(0, 2.5, -3.0), CREAM)
-		B:block(body1, v(5.0, 0.6, 1.5), cf(0, 2.45, -1.4), WHITE)
-		B:block(body1, v(4.4, 0.6, 1.4), cf(0, 2.5, 0.1), CREAM)
 
-		-- ATLANTIS CRYSTAL SHRINE on the hump: stepped base, 4 marble columns,
-		-- gold frieze, stepped roof, crystals glowing inside + erupting on top
-		local SZ = -1.7
-		B:block(body1, v(4.6, 0.4, 4.6), cf(0, 13.9, SZ), DGOLD)
-		B:block(body1, v(4.0, 0.5, 4.0), cf(0, 14.35, SZ), MARBLE2)
-		for _, q in { { 1, 1 }, { -1, 1 }, { 1, -1 }, { -1, -1 } } do
-			B:block(body1, v(0.7, 1.7, 0.7), cf(1.45 * q[1], 15.4, SZ + 1.45 * q[2]), MARBLE)
-		end
-		B:block(body1, v(4.2, 0.35, 4.2), cf(0, 16.4, SZ), GOLD)
-		B:block(body1, v(4.6, 0.5, 4.6), cf(0, 16.8, SZ), MARBLE)
-		B:block(body1, v(3.2, 0.4, 3.2), cf(0, 17.2, SZ), MARBLE2)
-		B:block(body1, v(1.4, 1.8, 1.4), cf(0, 15.4, SZ) * ang(0, 45, 0), TURQ)
-		B:block(body1, v(0.7, 0.7, 0.7), cf(0, 15.6, SZ) * ang(0, 45, 0) * CFrame.new(0, 0, -0.55), NTURQ, NEON)
-		crystals(body1, v(0, 17.35, SZ), {
-			{ 0, 0, 0, 1.2, 2.6, 0, 45, 6, TURQ, true },
-			{ 0.8, 0, 0.6, 0.8, 1.7, 10, 20, -30, LTURQ, false },
-			{ -0.8, 0, -0.5, 0.75, 1.5, -14, 0, 28, DTEAL, true },
-		})
-		-- coral tuft + barnacles on the ruin base
-		B:block(body1, v(0.5, 0.9, 0.5), cf(2.2, 14.3, SZ - 2.0), CORAL)
-		B:block(body1, v(0.4, 0.6, 0.4), cf(2.55, 14.6, SZ - 1.6) * ang(0, 0, -25), CORAL2)
-		B:block(body1, v(0.7, 0.4, 0.7), cf(-3.6, 13.25, 0.3), MARBLE2)
-
-		local fx = B:block(body1, v(8, 7, 9), cf(0, 8, -1), BODY, { tr = 1, name = "BodyFX" })
-		B:emitter(fx, "sparkle", { name = "AmbientSparkle", color = { "#ffffff", NTURQ, NGOLD }, rate = 4 })
-		B:emitter(fx, "burst", { name = "ShardBurst", color = { "#ffffff", NTURQ, LTURQ }, speed = { 12, 22 }, size = { 1.2, 0.8, 0 }, life = { 0.5, 1.1 } })
-		B:light(fx, { name = "GlowLight", color = NTURQ, brightness = 0.01, range = 18 })
+		-- ambient effects carrier
+		local fx = bx(body, 5, 5, 5, 0, 10, 0, MAIN, { tr = 1, name = "BodyFX" })
+		B:emitter(fx, "bubble", { name = "AmbientBubbles", color = { "#ffffff", WATER }, rate = 2.5, size = { 0.25, 0.45, 0.55 } })
+		B:emitter(fx, "burst", { name = "GiggleBurst", color = { "#ffffff", BLUSH, NGOLD }, speed = { 6, 12 }, size = { 0.8, 0.5, 0 } })
 
 		------------------------------------------------------------------
-		-- HEAD: stepped melon head with a big happy cartoon face
+		-- HEAD: sculpted cartoon head (melon, brow ridge, cheeks, muzzle)
 		------------------------------------------------------------------
-		local head = B:bone("Head", "Body1", v(0, 8, -3.8))
-		B:block(head, v(9.0, 6.8, 5.8), cf(0, 8.0, -6.5), BODY) -- core
-		B:block(head, v(7.2, 0.9, 6.4), cf(0, 11.85, -7.2), DARK) -- top cap
-		B:block(head, v(5.0, 0.5, 4.4), cf(0, 12.5, -7.0), DEEP) -- melon ridge
-		B:block(head, v(7.2, 0.8, 5.0), cf(0, 4.2, -6.3), WHITE) -- under cap
-		B:block(head, v(9.5, 2.3, 5.6), cf(0, 10.25, -6.5), DARK) -- dark saddle
-		B:block(head, v(9.4, 1.0, 5.6), cf(0, 5.1, -6.5), WHITE) -- belly band
-		B:block(head, v(9.6, 0.3, 5.7), cf(0, 8.95, -6.5), GOLD) -- gold trim line
-		B:block(head, v(8.2, 4.6, 1.4), cf(0, 9.3, -10.1), BODY) -- face / melon slab
-		B:block(head, v(6.4, 0.6, 0.6), cf(0, 11.75, -10.75), DARK) -- forehead step
-		-- cheeks framing the mouth, with a stepped chin under them
+		local head = B:bone("Head", "Body", v(0, 9.6, -5.6))
+		-- cranium (cross section = rounded stepped box)
+		bx(head, 10.6, 7.5, 7.6, 0, 9.9, -9.4, MAIN)
+		bx(head, 8.6, 9.5, 7.6, 0, 9.9, -9.4, MAIN)
+		bx(head, 8.6, 7.5, 0.8, 0, 9.9, -13.6, MAIN) -- front step (face plane z -14)
+		-- indigo back + top
+		bx(head, 10.7, 2.0, 7.4, 0, 12.7, -9.3, SHADE)
+		bx(head, 8.7, 1.2, 7.4, 0, 14.1, -9.3, SHADE)
+		bx(head, 6.4, 0.9, 6.4, 0, 15.05, -9.6, SHADE) -- crown step
+		bx(head, 4.2, 0.6, 4.0, 0, 15.75, -9.3, DEEP)
+		bx(head, 1.4, 0.15, 0.6, 0, 16.08, -8.4, MOUTH) -- blowhole
+		-- cream throat / underside
+		bx(head, 8.0, 1.0, 7.0, 0, 5.0, -9.0, BELLY)
+		bx(head, 10.7, 1.6, 7.0, 0, 6.85, -9.3, BELLY)
+		bx(head, 10.8, 0.3, 7.1, 0, 7.75, -9.3, GOLD) -- gold circlet line
+		-- MELON forehead: bulges forward over the eyes (brow ridge)
+		bx(head, 7.0, 3.4, 2.4, 0, 13.7, -14.6, MAIN)
+		bx(head, 5.0, 2.6, 1.0, 0, 13.9, -16.2, MAIN)
+		bx(head, 3.0, 1.6, 0.6, 0, 14.1, -16.9, LIGHT)
+		bx(head, 6.6, 0.5, 2.2, 0, 15.45, -14.4, SHADE)
+		bx(head, 7.1, 0.4, 2.5, 0, 12.05, -14.6, LIGHT) -- brow ridge
+		-- nose bridge, cream puppy MUZZLE (snout + cheek pads)
+		bx(head, 1.6, 3.4, 1.4, 0, 10.2, -14.6, MAIN)
+		bx(head, 6.6, 2.0, 2.4, 0, 7.6, -15.3, BELLY) -- upper muzzle
+		bx(head, 2.4, 0.7, 1.8, 0, 8.9, -15.5, BELLY) -- snout top step
+		bx(head, 1.2, 0.35, 0.12, 0, 8.3, -16.55, BELLY2) -- muzzle crease
+		bx(head, 6.7, 0.3, 2.45, 0, 6.7, -15.3, SHADE) -- upper lip line
+		-- mouth cavity on the head: dark roof, back wall, side walls
+		bx(head, 6.0, 0.3, 4.4, 0, 6.45, -13.9, MOUTH)
+		bx(head, 6.0, 2.8, 0.4, 0, 5.3, -11.7, MOUTH)
 		B:sym(function()
-			B:block(head, v(1.9, 2.8, 1.4), cf(3.6, 5.8, -10.0), BODY)
-			B:block(head, v(1.5, 0.6, 1.2), cf(3.5, 4.1, -9.9), WHITE)
-			B:block(head, v(1.0, 0.6, 0.12), cf(3.6, 6.4, -10.74), BLUSH)
-			spot(head, 4.8, 10.4, -5.6, 0.9, 1.2, FLECK)
-			spot(head, 4.56, 6.8, -7.2, 1.0, 1.2, DEEP)
+			bx(head, 0.3, 2.2, 4.2, 2.95, 5.5, -13.8, MOUTH)
+			-- upturned smile corners tucked under the cheeks
+			bxr(head, 0.55, 1.2, 0.7, 3.45, 6.65, -15.45, 0, 0, 32, MOUTH)
 		end)
-		-- mouth interior + top teeth + curled-up smile corners
-		B:block(head, v(5.4, 3.6, 0.4), cf(0, 5.4, -9.6), MOUTH)
-		for _, tx in { -1.6, -0.5, 0.5, 1.6 } do
-			B:block(head, v(0.8, 0.7, 0.5), cf(tx, 6.7, -10.15), "#ffffff")
+		-- four clean upper teeth
+		for _, x in { -1.65, -0.55, 0.55, 1.65 } do
+			bx(head, 0.85, 0.8, 0.5, x, 6.2, -16.05, TEETH)
 		end
-		B:sym(function()
-			B:block(head, v(0.5, 0.8, 0.12), cf(2.95, 7.3, -10.84), MOUTH)
-			B:block(head, v(0.45, 0.45, 0.12), cf(3.3, 7.8, -10.84), MOUTH)
-		end)
-		-- little crystal crest on the melon (behind the tusk collar)
-		dspike(head, 12.7, -8.0, 0.8, 1.4, 35, false)
-		dspike(head, 12.7, -6.5, 0.95, 1.9, 35, true)
-		-- blowhole (bubbles puff out of it)
-		B:block(head, v(1.2, 0.2, 0.7), cf(0, 12.36, -4.4), MOUTH)
-		local blow = B:block(head, v(1, 0.6, 0.6), cf(0, 12.8, -4.4), BODY, { tr = 1, name = "BlowFX" })
-		B:emitter(blow, "bubble", { name = "BlowBubbles", color = { "#ffffff", LTURQ }, rate = 0, size = { 0.35, 0.6, 0.7 }, speed = { 3, 6 }, spread = 25 })
-
-		-- EYES: big white blocks, neon turquoise iris, dark pupil, sparkly
-		-- glints + a spinning star sparkle
+		-- cheeks: side bulges + cream front pads with blush (own bones: they puff)
 		B:sym(function(side)
-			local ex, ey, ez = 2.75, 9.1, -11.0
-			B:block(head, v(2.6, 3.0, 1.0), cf(ex, ey, ez), "#ffffff")
-			B:block(head, v(1.9, 2.3, 0.12), cf(ex, ey - 0.05, ez - 0.55), NTURQ, { mat = "Neon", name = "Iris" .. side })
-			B:block(head, v(0.12, 2.2, 0.8), cf(ex + 1.33, ey - 0.05, ez), NTURQ, NEON)
-			B:block(head, v(1.0, 1.4, 0.1), cf(ex - 0.2, ey - 0.15, ez - 0.63), PUPIL)
-			B:block(head, v(0.6, 0.6, 0.1), cf(ex + 0.35, ey + 0.55, ez - 0.69), "#ffffff", NEON)
-			B:block(head, v(0.35, 0.35, 0.1), cf(ex - 0.45, ey - 0.65, ez - 0.69), "#ffffff", NEON)
-			-- arched happy brows (raised)
-			B:block(head, v(1.4, 0.5, 0.5), cf(ex, 11.15, -11.0), BROW)
-			B:block(head, v(0.7, 0.5, 0.5), cf(ex + 1.0, 10.85, -11.02), BROW)
-			B:block(head, v(0.7, 0.5, 0.5), cf(ex - 1.0, 10.85, -11.02), BROW)
-			-- blink lid / happy squint cover (hidden until used)
-			B:block(head, v(2.8, 3.2, 1.8), cf(ex, ey, ez + 0.04), BODY, { tr = 1, name = "Lid" .. side })
-			B:block(head, v(2.4, 0.4, 0.12), cf(ex, ey - 0.4, ez - 0.95), BROW, { tr = 1, name = "BlinkLine" .. side })
-			-- "^" happy squint arcs
-			B:block(head, v(1.5, 0.5, 0.12), cf(ex - 0.55, ey + 0.05, ez - 0.95) * ang(0, 0, 35), BROW, { tr = 1, name = "HappyA" .. side })
-			B:block(head, v(1.5, 0.5, 0.12), cf(ex + 0.55, ey + 0.05, ez - 0.95) * ang(0, 0, -35), BROW, { tr = 1, name = "HappyB" .. side })
-			-- star sparkle in the eye (spins + twinkles)
-			local sp = B:bone("EyeStar" .. side, "Head", v(ex + 0.95, ey + 1.1, ez - 0.72))
-			B:block(sp, v(0.95, 0.22, 0.1), cf(ex + 0.95, ey + 1.1, ez - 0.74), "#ffffff", { mat = "Neon", name = "StarA" .. side })
-			B:block(sp, v(0.22, 0.95, 0.1), cf(ex + 0.95, ey + 1.1, ez - 0.75), "#ffffff", { mat = "Neon", name = "StarB" .. side })
+			local ck = B:bone("Cheek" .. side, "Head", v(4.0, 7.6, -13.5))
+			bx(ck, 1.4, 3.0, 3.6, 5.0, 7.7, -12.2, MAIN)
+			bx(ck, 2.0, 2.0, 1.4, 4.1, 7.6, -14.7, BELLY)
+			bx(ck, 1.4, 0.6, 0.1, 4.15, 7.95, -15.44, BLUSH)
+			bx(ck, 1.8, 0.9, 0.1, 4.15, 7.95, -15.5, BLUSH, { tr = 1, name = "BlushBig" .. side })
+		end)
+		-- head crystals (little crown behind the melon) + head mottles
+		crystals(head, {
+			{ 1.7, 15.3, -7.0, 0.9, 1.6, 25, 45, -20, TURQ, true },
+			{ -1.7, 15.3, -7.0, 0.9, 1.6, 25, 45, 20, TURQ, true },
+			{ 0, 15.8, -6.6, 1.0, 2.2, 30, 45, 0, LTURQ, true },
+		})
+		B:sym(function(side)
+			bx(head, 0.16, 1.0, 1.4, 5.38, 11.0, -7.4, DEEP)
+			bx(head, 0.16, 0.6, 0.8, 5.38, 10.2, -9.6, DEEP)
+			-- floppy ear-fins (puppy ears!) with gold tips
+			local EF = CFrame.new(4.9, 13.6, -9.2) * ang(0, 30, -25)
+			local ear = B:bone("Ear" .. side, "Head", EF)
+			B:block(ear, v(1.6, 0.6, 2.4), EF * CFrame.new(0.6, 0, 0), SHADE)
+			B:block(ear, v(1.6, 0.5, 2.0), EF * CFrame.new(1.9, 0, 0.4), MAIN)
+			B:block(ear, v(1.2, 0.55, 1.2), EF * CFrame.new(1.9, 0.05, 0.3), LIGHT)
+			B:block(ear, v(1.2, 0.45, 1.4), EF * CFrame.new(3.0, 0, 0.9), MAIN)
+			B:block(ear, v(0.7, 0.5, 0.9), EF * CFrame.new(3.75, 0, 1.3), GOLD)
 		end)
 
-		-- JAW: hinged lower jaw whose stepped lip makes the "D" smile, with a
-		-- pink tongue. Opens (-X) for laughs.
-		local jaw = B:bone("Jaw", "Head", v(0, 5.0, -7.2))
-		B:block(jaw, v(5.2, 1.0, 3.4), cf(0, 4.3, -9.0), WHITE)
-		B:block(jaw, v(4.0, 0.5, 2.4), cf(0, 3.57, -9.2), BODY)
-		B:block(jaw, v(2.0, 0.5, 1.8), cf(0, 4.95, -9.8), TONGUE)
-		B:block(jaw, v(0.8, 0.2, 0.8), cf(0, 5.25, -10.2), TONGUE2)
+		------------------------------------------------------------------
+		-- EYES: big sparkly googly eyes (front face only - no wrap)
+		------------------------------------------------------------------
+		B:sym(function(side)
+			local E = v(2.6, 10.0, -14.3)
+			local eye = B:bone("Eye" .. side, "Head", E)
+			bx(eye, 3.5, 3.0, 0.5, 2.6, 10.0, -14.3, RIM)
+			bx(eye, 2.9, 3.7, 0.5, 2.6, 10.0, -14.3, RIM)
+			bx(eye, 3.1, 2.6, 0.5, 2.6, 10.0, -14.5, EYEW, { name = "ScleraA" .. side })
+			bx(eye, 2.5, 3.3, 0.5, 2.6, 10.0, -14.52, EYEW, { name = "ScleraB" .. side })
+			local pup = B:bone("Pupil" .. side, "Eye" .. side, v(2.5, 9.85, -14.85))
+			bx(pup, 1.5, 1.9, 0.2, 2.5, 9.8, -14.86, PUPIL, { name = "PupilBig" .. side })
+			bx(pup, 0.9, 0.9, 0.1, 2.5, 9.45, -14.98, "#3350b8", { name = "Iris" .. side })
+			-- star pupils (sparkle eyes, hidden)
+			bx(pup, 0.5, 2.0, 0.2, 2.5, 9.85, -15.0, NGOLD, { mat = "Neon", tr = 1, name = "StarA" .. side })
+			bx(pup, 2.0, 0.5, 0.2, 2.5, 9.85, -15.01, NGOLD, { mat = "Neon", tr = 1, name = "StarB" .. side })
+			bxr(pup, 0.9, 0.9, 0.2, 2.5, 9.85, -15.02, 0, 0, 45, NGOLD, { mat = "Neon", tr = 1, name = "StarC" .. side })
+			-- lid: skin cover + lash line (blink) / "^" carets (happy squint)
+			local lid = B:bone("Lid" .. side, "Eye" .. side, E)
+			bx(lid, 3.6, 3.8, 0.5, 2.6, 10.0, -14.95, MAIN, { tr = 1, name = "LidSkin" .. side })
+			bx(lid, 2.8, 0.45, 0.2, 2.6, 9.6, -15.25, RIM, { tr = 1, name = "Lash" .. side })
+			bxr(lid, 1.7, 0.55, 0.2, 1.95, 10.05, -15.25, 0, 0, 35, RIM, { tr = 1, name = "CaretA" .. side })
+			bxr(lid, 1.7, 0.55, 0.2, 3.25, 10.05, -15.26, 0, 0, -35, RIM, { tr = 1, name = "CaretB" .. side })
+			-- arched brow on the brow ridge
+			local brow = B:bone("Brow" .. side, "Head", v(2.9, 12.7, -15.9))
+			bxr(brow, 1.4, 0.6, 0.6, 2.35, 12.75, -15.95, 0, 0, -14, RIM)
+			bxr(brow, 1.4, 0.6, 0.6, 3.55, 12.65, -15.97, 0, 0, 16, RIM)
+		end)
+		-- glints: same side on both eyes (not mirrored)
+		bx("PupilR", 0.6, 0.6, 0.1, 2.1, 10.35, -15.0, "#ffffff", { mat = "Neon", name = "GlintR" })
+		bx("PupilR", 0.3, 0.3, 0.1, 2.95, 9.15, -15.0, NTURQ, { mat = "Neon", name = "Glint2R" })
+		bx("PupilL", 0.6, 0.6, 0.1, -2.9, 10.35, -15.0, "#ffffff", { mat = "Neon", name = "GlintL" })
+		bx("PupilL", 0.3, 0.3, 0.1, -2.05, 9.15, -15.0, NTURQ, { mat = "Neon", name = "Glint2L" })
+
+		------------------------------------------------------------------
+		-- JAW: ONE real hinged "D" smile (U lip, dark floor, teeth, tongue)
+		------------------------------------------------------------------
+		local jaw = B:bone("Jaw", "Head", v(0, 6.3, -11.4))
+		bx(jaw, 6.2, 1.6, 5.0, 0, 4.85, -13.7, MAIN)
+		bx(jaw, 4.8, 0.8, 4.6, 0, 3.75, -13.9, BELLY) -- rounded chin underside
+		bx(jaw, 4.4, 1.5, 0.5, 0, 4.75, -16.35, BELLY) -- chin front
+		bx(jaw, 2.8, 0.6, 0.5, 0, 3.75, -16.3, BELLY)
+		bx(jaw, 5.6, 0.3, 4.6, 0, 5.65, -13.6, MOUTH) -- floor
+		bx(jaw, 5.6, 1.4, 0.3, 0, 6.2, -11.6, MOUTH) -- back
 		B:sym(function()
-			B:block(jaw, v(0.9, 1.1, 0.8), cf(2.2, 5.3, -10.3), WHITE)
-			B:block(jaw, v(0.8, 0.5, 0.8), cf(1.35, 4.95, -10.3), WHITE)
+			bx(jaw, 0.3, 1.0, 4.4, 2.95, 6.1, -13.7, MOUTH)
+			-- U-stepped lower lip: middle rises toward the corners
+			bx(jaw, 1.2, 0.75, 0.6, 1.95, 5.9, -15.95, SHADE)
+			bx(jaw, 0.8, 1.15, 0.6, 2.9, 6.1, -15.75, SHADE)
+			bx(jaw, 0.6, 0.6, 0.45, 1.75, 6.5, -15.75, TEETH) -- lower tooth
 		end)
+		bx(jaw, 2.8, 0.55, 0.6, 0, 5.6, -16.0, SHADE)
+		local tongue = B:bone("Tongue", "Jaw", v(0, 5.9, -13.0))
+		bx(tongue, 3.0, 0.5, 2.8, 0, 5.95, -14.0, TONGUE)
+		bx(tongue, 2.2, 0.45, 1.0, 0, 6.0, -15.6, TONGUE2)
+		bx(tongue, 0.25, 0.1, 1.6, 0, 6.22, -14.4, "#e0507c")
+		local mfx = bx(jaw, 1.5, 1, 1, 0, 6, -15.5, MOUTH, { tr = 1, name = "MouthFX" })
+		B:emitter(mfx, "bubble", { name = "Giggles", color = { "#ffffff", WATER }, rate = 0, size = { 0.4, 0.6, 0.7 }, speed = { 4, 8 }, spread = 35, dir = "Front", life = { 0.8, 1.4 } })
 
 		------------------------------------------------------------------
-		-- TUSK: twisted spiral of stacked crystal blocks + gold rune bands,
-		-- spinning inside a marble Atlantis collar on the forehead
+		-- TUSK: marble Atlantis ring + twisted crystal tusk with gold spiral
 		------------------------------------------------------------------
-		local TB = v(0, 11.3, -10.9)
-		local tdir = v(0, sin(rad(15)), -cos(rad(15)))
-		local TF = CFrame.fromMatrix(TB, v(1, 0, 0), v(0, cos(rad(15)), sin(rad(15))), -tdir) -- local -Z along the tusk
-		local CC = TF * CFrame.new(0, 0, -0.2) * ang(90, 0, 0)
-		B:ring(head, CC, 1.6, 8, v(1.4, 1.0, 0.9), MARBLE)
-		B:ring(head, CC * CFrame.new(0, 0.6, 0) * ang(0, 22.5, 0), 1.8, 8, v(1.5, 0.45, 0.8), GOLD)
+		local TB = v(0, 14.1, -17.1)
+		local TF = CFrame.new(TB) * ang(27, 0, 0) -- local -Z runs up the tusk
+		-- marble ring collar (on the head)
+		B:block(head, v(3.0, 3.0, 0.6), TF * CFrame.new(0, 0, 0.3), MARBLE2)
+		local RF = TF * CFrame.new(0, 0, -0.35) * ang(90, 0, 0)
+		B:ring(head, RF, 1.3, 8, v(1.1, 1.0, 0.9), MARBLE)
 		for k = 0, 3 do
-			B:block(head, v(0.32, 0.4, 0.12), CC * ang(0, k * 90, 0) * CFrame.new(0, 0, -2.08), NTURQ, NEON)
+			local a = rad(45 + k * 90)
+			B:block(head, v(0.45, 0.45, 0.3), TF * CFrame.new(1.3 * cos(a), 1.3 * sin(a), -0.85), GOLD)
+			local b2 = rad(k * 90)
+			B:block(head, v(0.3, 0.3, 0.2), TF * CFrame.new(1.3 * cos(b2), 1.3 * sin(b2), -0.83), NTURQ, NEON)
 		end
 		local tusk = B:bone("Tusk", "Head", TF)
-		local N, STEP = 13, 0.78
+		local LEN, N = 10.6, 9
+		B:block(tusk, v(1.7, 1.7, 0.5), TF * CFrame.new(0, 0, -0.6), GOLD) -- gold base band
 		for i = 0, N - 1 do
-			local s = 2.1 - i * 0.1
-			local z = -(0.5 + i * STEP)
-			local band = (i == 2 or i == 6 or i == 10)
-			if band then
-				B:block(tusk, v(s + 0.25, s + 0.25, 0.55), TF * CFrame.new(0, 0, z) * ang(0, 0, i * 25), GOLD)
-				B:block(tusk, v(0.2, 0.28, 0.28), TF * CFrame.new(0, 0, z) * ang(0, 0, i * 25) * CFrame.new((s + 0.25) / 2 + 0.05, 0, 0), NGOLD, NEON)
+			local d0 = 0.2 + i * LEN / N
+			local w = 1.45 - i * 0.11
+			local sc = TF * CFrame.new(0, 0, -(d0 + LEN / N / 2)) * ang(0, 0, i * 20)
+			B:block(tusk, v(w, w, LEN / N + 0.05), sc, (i % 2 == 0) and TURQ or LTURQ)
+			-- gold spiral groove: one strip per segment, winding round the tusk
+			local a = rad(i * 62)
+			B:block(tusk, v(0.36, 0.36, LEN / N + 0.1), TF * CFrame.new((w / 2) * cos(a), (w / 2) * sin(a), -(d0 + LEN / N / 2)) * ang(0, 0, i * 62), GOLD)
+		end
+		local tipD = 0.2 + LEN
+		B:block(tusk, v(0.5, 0.5, 0.9), TF * CFrame.new(0, 0, -(tipD + 0.4)), NTURQ, NEON)
+		B:block(tusk, v(0.3, 0.3, 0.6), TF * CFrame.new(0, 0, -(tipD + 1.05)), "#ffffff", NEON)
+		local tipP = (TF * CFrame.new(0, 0, -(tipD + 1.0))).Position
+		B:trail(tusk, (TF * CFrame.new(0.4, 0, -(tipD + 0.6))).Position, (TF * CFrame.new(-0.4, 0, -(tipD + 0.6))).Position,
+			{ name = "TuskTrail", color = { "#ffffff", NTURQ }, life = 0.3, trans = { 0.3, 1 } })
+		local tfx = B:block(tusk, v(0.8, 0.8, 0.8), CFrame.new(tipP), TURQ, { tr = 1, name = "TuskFX" })
+		B:light(tfx, { name = "TuskLight", color = NTURQ, brightness = 0.4, range = 12 })
+		B:emitter(tfx, "spark", { name = "TuskSparks", color = { "#ffffff", NTURQ }, rate = 0 })
+		-- hidden tusk beam (revealed during the spin)
+		B:block(tusk, v(0.7, 0.7, 10), TF * CFrame.new(0, 0, -(tipD + 6.0)), "#ffffff", { mat = "Neon", tr = 1, name = "BeamCore" })
+		B:block(tusk, v(1.4, 1.4, 9.6), TF * CFrame.new(0, 0, -(tipD + 5.8)), NTURQ, { mat = "Neon", tr = 1, name = "BeamGlow" })
+		B:block(tusk, v(2.0, 2.0, 0.5), TF * CFrame.new(0, 0, -(tipD + 1.6)), NTURQ, { mat = "Neon", tr = 1, name = "BeamRing" })
+		-- little orichalcum ring orbiting the tusk
+		local ring = B:bone("TuskRing", "Tusk", TF * CFrame.new(0, 0, -5.5))
+		B:ring(ring, TF * CFrame.new(0, 0, -5.5) * ang(90, 0, 0), 1.15, 6, v(0.75, 0.35, 0.35), GOLD)
+		B:block(ring, v(0.3, 0.3, 0.3), TF * CFrame.new(0, 1.2, -5.5), NGOLD, NEON)
+		B:block(ring, v(0.3, 0.3, 0.3), TF * CFrame.new(0, -1.2, -5.5), NGOLD, NEON)
+		------------------------------------------------------------------
+		-- TAIL: stepped segments -> horizontal stepped flukes
+		------------------------------------------------------------------
+		local t1 = B:bone("Tail1", "Body", v(0, 10.2, 7.2))
+		seg(t1, 7.2, 10.2, 10.3, 6.4, 5.8)
+		crystals(t1, { { 0, 13.4, 8.6, 1.0, 1.8, 30, 45, 0, TURQ, true } })
+		local t2 = B:bone("Tail2", "Tail1", v(0, 10.5, 10.0))
+		seg(t2, 10.0, 12.6, 10.6, 4.8, 4.4)
+		bx(t2, 5.0, 0.3, 0.6, 0, 10.6, 10.4, GOLD) -- gold tail band
+		bx(t2, 4.0, 4.6, 0.6, 0, 10.6, 10.4, GOLD)
+		crystals(t2, { { 0, 12.9, 11.6, 0.8, 1.3, 30, 45, 0, LTURQ, true } })
+		local t3 = B:bone("Tail3", "Tail2", v(0, 10.7, 12.4))
+		seg(t3, 12.4, 14.4, 10.8, 3.2, 3.2, { noRidge = true, noKeel = true })
+		local fl = B:bone("Fluke", "Tail3", v(0, 10.8, 14.2))
+		bx(fl, 2.6, 1.6, 1.8, 0, 10.8, 15.0, SHADE)
+		bx(fl, 1.0, 0.9, 1.0, 0, 10.8, 16.1, DEEP)
+		B:sym(function(side)
+			local lobe = B:bone("Lobe" .. side, "Fluke", v(1.0, 10.8, 15.0))
+			bx(lobe, 3.0, 0.9, 2.6, 2.3, 10.8, 15.6, SHADE)
+			bx(lobe, 2.7, 0.8, 2.4, 4.6, 10.8, 16.4, MAIN)
+			bx(lobe, 2.0, 0.7, 2.0, 6.4, 10.8, 17.3, MAIN)
+			bx(lobe, 1.2, 0.6, 1.4, 7.6, 10.8, 18.1, LIGHT)
+			bx(lobe, 3.6, 0.95, 0.4, 4.2, 10.8, 17.65, GOLD) -- gold trailing edge
+			bx(lobe, 0.5, 0.5, 0.5, 8.2, 10.8, 18.7, NTURQ, NEON)
+			B:trail(lobe, v(8.2, 11.1, 18.7), v(8.2, 10.5, 18.7), { name = "FlukeTrail" .. side, color = { "#ffffff", NTURQ }, life = 0.25, trans = { 0.5, 1 } })
+		end)
+
+		------------------------------------------------------------------
+		-- FLIPPERS: chunky paddles with gold + marble cuffs and crystal tips
+		------------------------------------------------------------------
+		B:sym(function(side)
+			local FR = CFrame.new(4.6, 7.2, -3.0) * ang(0, -18, -32)
+			local fp = B:bone("Flipper" .. side, "Body", FR)
+			B:block(fp, v(2.4, 1.5, 2.6), FR * CFrame.new(1.0, 0, 0), MAIN)
+			B:block(fp, v(2.0, 0.4, 2.2), FR * CFrame.new(1.0, -0.8, 0), BELLY)
+			B:block(fp, v(0.5, 1.8, 2.8), FR * CFrame.new(1.9, 0, 0), GOLD)
+			B:block(fp, v(0.4, 1.6, 2.7), FR * CFrame.new(2.35, 0, 0), MARBLE)
+			B:block(fp, v(0.12, 0.4, 0.4), FR * CFrame.new(2.35, 0.82, 0), NTURQ, NEON)
+			local tf = FR * CFrame.new(2.4, 0, 0)
+			local tip = B:bone("FlipperTip" .. side, "Flipper" .. side, tf)
+			B:block(tip, v(2.4, 1.1, 2.6), FR * CFrame.new(3.6, 0, 0.2), MAIN)
+			B:block(tip, v(2.0, 0.3, 2.2), FR * CFrame.new(3.6, -0.6, 0.2), BELLY)
+			B:block(tip, v(1.8, 0.9, 2.0), FR * CFrame.new(5.4, 0, 0.6), SHADE)
+			B:block(tip, v(1.2, 0.7, 1.3), FR * CFrame.new(6.7, 0, 1.0), LIGHT)
+			B:block(tip, v(0.45, 0.45, 0.45), FR * CFrame.new(7.4, 0, 1.3), NTURQ, NEON)
+			B:trail(tip, (FR * CFrame.new(7.4, 0.3, 1.3)).Position, (FR * CFrame.new(7.4, -0.3, 1.3)).Position,
+				{ name = "FlipTrail" .. side, color = { "#ffffff", NTURQ }, life = 0.2, trans = { 0.55, 1 } })
+		end)
+
+		------------------------------------------------------------------
+		-- SHRINE: little ruined marble temple with a crystal heart
+		------------------------------------------------------------------
+		local shrine = B:bone("Shrine", "Body", v(0, 14.4, 1.2))
+		bx(shrine, 7.4, 0.4, 6.2, 0, 14.45, 1.2, GOLD)
+		bx(shrine, 7.0, 0.8, 5.8, 0, 15.05, 1.2, MARBLE)
+		bx(shrine, 5.6, 0.7, 4.6, 0, 15.8, 1.2, MARBLE2)
+		bx(shrine, 1.2, 0.5, 0.1, 0, 15.05, -1.75, DTEAL)
+		bx(shrine, 0.6, 0.15, 0.1, 0, 15.15, -1.82, NTURQ, NEON)
+		bx(shrine, 0.15, 0.4, 0.1, 0, 15.0, -1.82, NTURQ, NEON)
+		-- columns: {x, z, shaft height, broken}
+		local COLS = { { 2.1, -0.5, 2.8 }, { -2.1, -0.5, 2.8 }, { -2.1, 2.9, 2.8 }, { 2.1, 2.9, 1.3, true } }
+		for _, c in COLS do
+			local x, z, hgt = c[1], c[2], c[3]
+			bx(shrine, 1.2, 0.4, 1.2, x, 16.35, z, MARBLE)
+			bx(shrine, 0.85, hgt, 0.85, x, 16.55 + hgt / 2, z, MARBLE)
+			bx(shrine, 0.2, hgt - 0.2, 0.1, x, 16.55 + hgt / 2, z - 0.45, MARBLE2)
+			if c[4] then
+				bxr(shrine, 0.85, 0.7, 0.85, x + 0.15, 16.55 + hgt + 0.25, z, 0, 20, 18, MARBLE2)
 			else
-				B:block(tusk, v(s, s, STEP + 0.12), TF * CFrame.new(0, 0, z) * ang(0, 0, i * 25), (i % 2 == 0) and TURQ or LTURQ)
-				-- gold helix ridge winding up the tusk
-				B:block(tusk, v(0.32, 0.32, STEP), TF * CFrame.new(0, 0, z) * ang(0, 0, i * 25 + 45) * CFrame.new(s * 0.62, 0, 0), DGOLD)
+				bx(shrine, 1.35, 0.45, 1.35, x, 16.55 + hgt + 0.22, z, MARBLE)
+				bx(shrine, 1.0, 0.2, 1.0, x, 16.55 + hgt - 0.05, z, GOLD)
 			end
 		end
-		local tipZ = -(0.5 + (N - 1) * STEP) - 0.75
-		B:block(tusk, v(0.55, 0.55, 0.7), TF * CFrame.new(0, 0, tipZ) * ang(0, 0, 45), LTURQ)
-		local tip = B:block(tusk, v(0.4, 0.4, 0.6), TF * CFrame.new(0, 0, tipZ - 0.55) * ang(0, 0, 45), NTURQ, { mat = "Neon", name = "TuskTip" })
-		B:emitter(tip, "sparkle", { name = "TuskSparkle", color = { "#ffffff", NTURQ, NGOLD }, rate = 3, size = { 0.15, 0.5, 0 } })
-		B:light(tip, { name = "TuskLight", color = NTURQ, brightness = 0.4, range = 9 })
-		B:trail(tusk, (TF * CFrame.new(0.3, 0, tipZ)).Position, (TF * CFrame.new(-0.3, 0, tipZ + 1.2)).Position, { name = "TuskTrail", color = { "#ffffff", NTURQ }, life = 0.3, trans = { 0.4, 1 } })
-		-- hidden beam + spinning star rays (revealed by the Crystal Breach)
-		B:block(tusk, v(0.7, 0.7, 9), TF * CFrame.new(0, 0, tipZ - 5.0) * ang(0, 0, 45), NTURQ, { mat = "Neon", tr = 1, name = "TuskBeam" })
-		for k = 1, 6 do
-			local R = TF * CFrame.new(0, 0, -6.0) * ang(0, 0, k * 60)
-			B:block(tusk, v(0.45, 3.6, 0.45), R * CFrame.new(0, 3.0, 0), k % 2 == 0 and NGOLD or NTURQ, { mat = "Neon", tr = 1, name = "Ray" .. k })
+		-- front lintel with rune frieze, broken back fragment
+		bx(shrine, 5.6, 0.7, 1.5, 0, 20.0, -0.5, MARBLE)
+		bx(shrine, 5.7, 0.25, 1.55, 0, 19.55, -0.5, GOLD)
+		bx(shrine, 0.9, 0.4, 0.1, 0, 20.0, -1.27, DTEAL)
+		bx(shrine, 0.5, 0.12, 0.1, 0, 20.05, -1.33, NTURQ, NEON)
+		bxr(shrine, 2.4, 0.6, 1.3, -1.3, 20.05, 2.9, 0, 8, -10, MARBLE)
+		bx(shrine, 1.6, 0.25, 1.35, -1.5, 19.6, 2.9, GOLD)
+		-- coral sprig + seaweed on the ruin
+		bx(shrine, 0.5, 0.9, 0.5, 2.8, 16.55, 3.2, CORAL)
+		bxr(shrine, 0.35, 0.6, 0.35, 3.05, 17.2, 3.2, 0, 0, -25, CORAL)
+		bxr(shrine, 0.35, 1.2, 0.35, -3.0, 16.6, 0.2, 0, 0, 12, WEED)
+		bxr(shrine, 0.3, 0.8, 0.3, -3.2, 17.5, 0.2, 0, 0, 25, WEED)
+		-- crystal heart bursting out of the ruin (own bone: it pulses)
+		local sc = B:bone("ShrineCrystal", "Shrine", v(0, 16.0, 1.2))
+		crystals(sc, {
+			{ 0, 15.9, 1.3, 1.6, 3.4, 0, 45, 0, TURQ, true },
+			{ 0.9, 15.9, 1.9, 1.0, 2.2, 18, 30, -22, LTURQ, true },
+			{ -0.9, 15.9, 1.7, 1.0, 2.4, -10, 60, 24, TURQ, true },
+			{ 0.2, 15.9, 0.3, 0.7, 1.4, -28, 20, -8, LTURQ, false },
+		})
+		local cfx = bx(sc, 1.2, 1.2, 1.2, 0, 18.5, 1.3, TURQ, { tr = 1, name = "ShrineFX" })
+		B:emitter(cfx, "sparkle", { name = "Sparkle", color = { "#ffffff", NGOLD, NTURQ }, rate = 4 })
+		B:light(cfx, { name = "ShrineLight", color = NTURQ, brightness = 0.5, range = 12 })
+
+		------------------------------------------------------------------
+		-- hidden props: hearts (giggle), crystal rays, blowhole spout cubes
+		------------------------------------------------------------------
+		B:sym(function(side)
+			local H = v(5.6, 15.8, -12.5)
+			local hb = B:bone("Heart" .. side, "Head", H)
+			bx(hb, 0.7, 0.7, 0.4, 5.25, 16.15, -12.5, BLUSH, { tr = 1, name = "HeartA" .. side })
+			bx(hb, 0.7, 0.7, 0.4, 5.95, 16.15, -12.5, BLUSH, { tr = 1, name = "HeartB" .. side })
+			bx(hb, 1.4, 0.6, 0.4, 5.6, 15.7, -12.5, BLUSH, { tr = 1, name = "HeartC" .. side })
+			bx(hb, 0.6, 0.5, 0.4, 5.6, 15.2, -12.5, BLUSH, { tr = 1, name = "HeartD" .. side })
+		end)
+		local rays = B:bone("Rays", "Body", v(0, 9.6, -1))
+		for i = 1, 8 do
+			local a = rad((i - 1) * 45 + 22.5)
+			local dir = v(cos(a), sin(a), 0)
+			local p0 = v(0, 9.6, -1) + dir * 7.0
+			local p1 = v(0, 9.6, -1) + dir * (i % 2 == 0 and 12.5 or 14.5)
+			B:beam(rays, p0, p1, 0.5, 0.5, NTURQ, { mat = "Neon", tr = 1, name = "Ray" .. i })
+		end
+		for k = 1, 5 do
+			local S = v(0, 16.2, -8.4)
+			local sb = B:bone("Spout" .. k, "Head", S)
+			local s = (k % 2 == 1) and 0.7 or 0.5
+			B:block(sb, v(s, s, s), CFrame.new(S), k <= 2 and WATER2 or WATER, { tr = 1, name = "SpoutP" .. k })
 		end
 
 		------------------------------------------------------------------
-		-- BODY2 + TAIL chain (steps down and curls up)
+		-- floating orbiting cubes (marble w/ gold band, crystal cubes)
 		------------------------------------------------------------------
-		local body2 = B:bone("Body2", "Body1", v(0, 8.3, 1.0))
-		segment(body2, 0.8, 5.0, 8.3, 8.6, 8.2)
-		B:sym(function()
-			spot(body2, 4.38, 6.9, 3.2, 1.2, 1.4, DEEP)
-			spot(body2, 4.6, 10.6, 2.2, 0.7, 1.0, FLECK)
-			crystals(body2, v(4.0, 10.6, 3.4), {
-				{ 0, 0, 0, 0.7, 1.6, 20, 20, -50, TURQ, false },
-			})
-		end)
-		dspike(body2, 12.9, 1.9, 1.05, 2.4, 32, true)
-		dspike(body2, 12.9, 3.2, 0.9, 2.0, 34, false)
-		dspike(body2, 12.9, 4.4, 0.8, 1.6, 36, true)
-		B:block(body2, v(0.6, 0.35, 0.6), cf(-2.2, 12.5, 1.8), MARBLE2)
-
-		local tail1 = B:bone("Tail1", "Body2", v(0, 8.8, 4.6))
-		segment(tail1, 4.4, 7.8, 8.8, 6.6, 6.2, { noRidge = true, noTrim = true })
-		-- marble rune cuff with gold rims (Atlantis orichalcum band)
-		B:block(tail1, v(7.3, 6.5, 1.0), cf(0, 8.8, 6.0), MARBLE)
-		B:block(tail1, v(7.45, 6.65, 0.3), cf(0, 8.8, 5.35), GOLD)
-		B:block(tail1, v(7.45, 6.65, 0.3), cf(0, 8.8, 6.65), GOLD)
-		B:sym(function()
-			B:block(tail1, v(0.12, 0.6, 0.4), cf(3.68, 8.8, 6.0), NTURQ, NEON)
-			spot(tail1, 3.38, 8.4, 7.2, 0.8, 0.8, DEEP)
-		end)
-		B:block(tail1, v(0.4, 0.12, 0.6), cf(0, 12.08, 6.0), NTURQ, NEON)
-		dspike(tail1, 11.6, 7.2, 0.8, 1.6, 38, false)
-
-		local tail2 = B:bone("Tail2", "Tail1", v(0, 9.3, 7.6))
-		segment(tail2, 7.4, 10.0, 9.3, 4.6, 4.4, { noRidge = true, noKeel = true })
-		dspike(tail2, 11.3, 8.8, 0.7, 1.3, 40, true)
-
-		local tail3 = B:bone("Tail3", "Tail2", v(0, 9.7, 9.8))
-		B:block(tail3, v(2.6, 3.0, 2.2), cf(0, 9.7, 10.7), BODY)
-		B:block(tail3, v(1.6, 0.5, 2.0), cf(0, 11.4, 10.7), DARK)
-		B:block(tail3, v(1.6, 0.5, 2.0), cf(0, 8.0, 10.7), WHITE)
-		B:block(tail3, v(2.8, 0.5, 0.6), cf(0, 9.7, 11.4), GOLD)
-		dspike(tail3, 11.5, 10.6, 0.55, 1.0, 45, false)
-
-		------------------------------------------------------------------
-		-- FLUKES: horizontal stepped lobes with a gold orichalcum band
-		------------------------------------------------------------------
-		local FY = 9.9
-		local fluke = B:bone("Fluke", "Tail3", v(0, FY, 11.4))
-		B:block(fluke, v(2.6, 1.2, 2.2), cf(0, FY, 12.6), BODY)
-		B:block(fluke, v(1.8, 1.3, 0.8), cf(0, FY, 13.6), DARK)
-		B:block(fluke, v(2.8, 1.35, 0.5), cf(0, FY, 12.0), DGOLD)
-		B:sym(function(side)
-			local lob = B:bone("FlukeLobe" .. side, "Fluke", v(1.2, FY, 12.4))
-			local rows = {
-				{ 2.0, 1.6, 11.6, 14.2, DARK, 1.0 }, { 3.5, 1.6, 12.0, 14.9, BODY, 0.9 },
-				{ 5.0, 1.6, 12.6, 15.5, DARK, 0.8 }, { 6.4, 1.3, 13.4, 16.0, BODY, 0.7 },
-				{ 7.5, 1.0, 14.4, 16.5, DARK, 0.6 },
-			}
-			for _, r in rows do
-				B:block(lob, v(r[2], r[6], r[4] - r[3]), cf(r[1], FY, (r[3] + r[4]) / 2), r[5])
-				B:block(lob, v(r[2] - 0.2, r[6] - 0.1, 0.6), cf(r[1], FY, r[4] + 0.25), WHITE) -- pale trailing edge
-			end
-			-- gold orichalcum band across the lobe, with a rune dot
-			B:block(lob, v(5.0, 1.12, 0.8), cf(3.7, FY, 13.9), GOLD)
-			B:block(lob, v(0.4, 0.12, 0.4), cf(3.7, FY + 0.6, 13.9), NTURQ, NEON)
-			-- crystal spikes on the lobe tips
-			B:beam(lob, v(6.9, FY, 15.6), v(9.0, FY + 0.3, 18.2), 0.7, 0.7, TURQ)
-			B:beam(lob, v(4.9, FY, 15.8), v(5.6, FY + 0.2, 17.9), 0.55, 0.55, LTURQ)
-			B:block(lob, v(0.6, 0.6, 0.6), cf(9.1, FY + 0.3, 18.35) * ang(0, 45, 0), NTURQ, NEON)
-			B:trail(lob, v(8.9, FY, 18.0), v(7.0, FY, 16.0), { name = "FlukeTrail" .. side, color = { "#ffffff", NTURQ }, life = 0.28, trans = { 0.45, 1 } })
-		end)
-
-		------------------------------------------------------------------
-		-- FLIPPERS: broad stepped paddles with gold orichalcum bands
-		------------------------------------------------------------------
-		B:sym(function(side)
-			local F = frame(v(4.9, 5.4, -2.6), v(0.82, -0.35, 0.45), v(0, 0, 1))
-			local f1 = B:bone("Flipper" .. side, "Body1", F.Position)
-			B:block(f1, v(3.0, 1.1, 3.0), F * CFrame.new(1.0, 0, 0.5), BODY)
-			B:block(f1, v(2.2, 0.3, 2.2), F * CFrame.new(1.1, 0.6, 0.4), DARK)
-			B:block(f1, v(0.7, 1.25, 3.2), F * CFrame.new(2.3, 0, 0.5), GOLD)
-			B:block(f1, v(0.25, 0.25, 0.4), F * CFrame.new(2.3, 0.68, 0.1), NGOLD, NEON)
-			local f2 = B:bone("FlipperTip" .. side, "Flipper" .. side, (F * CFrame.new(2.5, 0, 0)).Position)
-			B:block(f2, v(2.4, 0.95, 3.2), F * CFrame.new(3.7, 0, 0.8), BODY)
-			B:block(f2, v(2.4, 0.75, 1.0), F * CFrame.new(3.7, -0.03, 2.85), WHITE)
-			B:block(f2, v(1.4, 0.3, 1.2), F * CFrame.new(3.5, 0.55, 0.5), FLECK)
-			B:block(f2, v(0.55, 1.05, 3.6), F * CFrame.new(5.0, 0, 1.1), DGOLD)
-			B:block(f2, v(1.6, 0.8, 2.6), F * CFrame.new(6.0, 0, 1.3), BODY)
-			B:block(f2, v(1.6, 0.6, 0.9), F * CFrame.new(6.0, -0.02, 3.0), WHITE)
-			B:block(f2, v(1.1, 0.7, 1.8), F * CFrame.new(7.3, 0, 1.9), BODY)
-			B:block(f2, v(0.7, 0.55, 1.0), F * CFrame.new(8.1, 0, 2.3), WHITE)
-			B:block(f2, v(0.45, 0.4, 0.45), F * CFrame.new(8.55, 0, 2.6), NTURQ, NEON)
-			B:beam(f2, (F * CFrame.new(6.4, 0.35, 0.3)).Position, (F * CFrame.new(8.9, 0.5, 0.6)).Position, 0.55, 0.55, TURQ)
-			B:trail(f2, (F * CFrame.new(8.3, 0, 2.2)).Position, (F * CFrame.new(7.6, 0, 3.2)).Position, { name = "FlipperTrail" .. side, color = { "#ffffff", NTURQ }, life = 0.22, trans = { 0.5, 1 } })
-		end)
-
-		------------------------------------------------------------------
-		-- Floating cubes: orichalcum crystal cubes + marble ruin cubes
-		------------------------------------------------------------------
-		local orbs = {
-			{ 11.0, 13.5, -6.0, 1.6, true }, { -11.5, 10.5, -3.0, 1.4, false }, { 10.5, 6.5, 7.0, 1.3, false },
-			{ -10.0, 14.5, 6.0, 1.6, true }, { 1.5, 19.0, 5.5, 1.2, true },
-		}
-		for i, o in orbs do
+		local ORBS = { { 9.5, 15.5, -6, 1.4, 1 }, { -9.0, 13.0, -2.0, 1.2, 2 }, { 8.2, 7.0, 6.5, 1.0, 2 }, { -8.0, 17.0, 6.0, 1.1, 1 }, { 0.5, 20.5, -12.0, 0.9, 2 } }
+		for i, o in ORBS do
 			local ob = B:bone("Orb" .. i, "Root", v(o[1], o[2], o[3]))
 			local s = o[4]
-			if o[5] then
-				B:block(ob, v(s, s, s), cf(o[1], o[2], o[3]) * ang(0, 45, 0), TURQ)
-				B:block(ob, v(s * 0.6, s + 0.1, s * 0.6), cf(o[1], o[2], o[3]) * ang(0, 45, 0), LTURQ)
-				B:block(ob, v(s * 0.35, s * 0.35, s * 0.35), cf(o[1], o[2] + s * 0.62, o[3]), NTURQ, NEON)
+			if o[5] == 1 then
+				bx(ob, s, s, s, o[1], o[2], o[3], MARBLE)
+				bx(ob, s + 0.1, s * 0.25, s + 0.1, o[1], o[2] + s * 0.2, o[3], GOLD)
+				bx(ob, 0.3, 0.3, 0.1, o[1], o[2] - s * 0.15, o[3] - s / 2 - 0.03, NTURQ, NEON)
 			else
-				B:block(ob, v(s, s, s), cf(o[1], o[2], o[3]), MARBLE)
-				B:block(ob, v(s + 0.1, s * 0.28, s + 0.1), cf(o[1], o[2] + s * 0.32, o[3]), GOLD)
-				B:block(ob, v(s * 0.3, s * 0.3, 0.12), cf(o[1], o[2] - 0.1, o[3] - s / 2 - 0.02), NTURQ, NEON)
+				bx(ob, s, s, s, o[1], o[2], o[3], TURQ)
+				bx(ob, s * 0.5, s * 0.5, s + 0.06, o[1], o[2], o[3], LTURQ)
 			end
 		end
 
 		------------------------------------------------------------------
-		-- CRYSTAL SHARDS (hidden) that burst out at the top of the breach
+		-- Crystal Breach VFX: firework shards (apex) + splash water cubes
 		------------------------------------------------------------------
-		local SH = v(0, 8, -1.5)
-		for k = 1, 10 do
-			local sb = B:bone("Shard" .. k, "Root", SH)
-			local big = k % 3 == 1
-			B:block(sb, big and v(1.2, 2.2, 1.2) or v(0.9, 1.5, 0.9), CFrame.new(SH) * ang(0, 45, 0), k % 2 == 0 and LTURQ or TURQ, { tr = 1, name = "ShardPart" .. k })
+		local SH = v(0, 21, -3)
+		for i = 1, 10 do
+			local sb = B:bone("Shard" .. i, "Root", SH)
+			local col = (i % 3 == 0) and NGOLD or ((i % 3 == 1) and NTURQ or LTURQ)
+			B:block(sb, v(0.6, 1.4, 0.6), CFrame.new(SH) * ang(0, 45, 0), col, { mat = col ~= LTURQ and "Neon" or nil, tr = 1, name = "ShardP" .. i })
 		end
-
-		------------------------------------------------------------------
-		-- SPLASH: water cubes + ripple slabs (hidden) and the burst emitters
-		------------------------------------------------------------------
-		local SC = v(0, 4.0, 0.5)
-		local splashAt = B:block("Root", v(8, 0.6, 10), CFrame.new(SC), WHITE, { tr = 1, name = "SplashFX" })
-		B:emitter(splashAt, "burst", { name = "SplashBurst", color = { "#ffffff", "#9feaff", NTURQ }, speed = { 10, 20 }, size = { 1.4, 1.0, 0 }, accel = { 0, -18, 0 }, spread = 70 })
-		B:emitter(splashAt, "dust", { name = "SplashMist", color = { "#ffffff", "#bfefff" }, size = { 2.5, 4, 5 }, speed = { 6, 12 } })
-		B:emitter(splashAt, "bubble", { name = "BubbleBurst", color = { "#ffffff", LTURQ, NTURQ }, rate = 0, size = { 0.5, 0.8, 0.9 }, speed = { 4, 9 }, spread = 80, life = { 1.2, 2.2 } })
-		for k = 1, 12 do
-			local sb = B:bone("Drop" .. k, "Root", SC)
-			local size = k % 2 == 1 and (k % 4 == 1 and v(2.4, 2.4, 2.4) or v(1.8, 1.8, 1.8)) or v(3.6, 0.7, 1.6)
-			local col = k % 4 == 1 and "#7fd8f0" or (k % 2 == 0 and "#e6fbff" or "#bdf1ff")
-			B:block(sb, size, CFrame.new(SC), col, { tr = 1, name = "DropPart" .. k })
+		local fw = B:block("Shard1", v(1, 1, 1), CFrame.new(SH), TURQ, { tr = 1, name = "FireworkFX" })
+		B:emitter(fw, "burst", { name = "Firework", color = { "#ffffff", NTURQ, NGOLD }, speed = { 14, 26 }, size = { 1.3, 0.8, 0 }, life = { 0.6, 1.2 } })
+		local SP = v(0, 2.2, -4)
+		for i = 1, 10 do
+			local sb = B:bone("Splash" .. i, "Root", SP)
+			local s = (i % 2 == 0) and 0.9 or 0.65
+			B:block(sb, v(s, s, s), CFrame.new(SP), (i % 3 == 0) and WATER2 or WATER, { tr = 1, name = "SplashP" .. i })
 		end
-
-		------------------------------------------------------------------
-		-- voxel bubbles that puff out of the blowhole (hidden)
-		------------------------------------------------------------------
-		local BC = v(0, 12.9, -4.4)
-		for k = 1, 3 do
-			local bb = B:bone("Bubble" .. k, "Root", BC)
-			local s = k == 2 and 0.8 or 0.6
-			B:block(bb, v(s, s, s), CFrame.new(BC), "#d8f6ff", { tr = 1, name = "BubblePart" .. k })
-		end
+		local spfx = B:block("Splash1", v(4, 1, 4), CFrame.new(SP), WATER, { tr = 1, name = "SplashFX" })
+		B:emitter(spfx, "burst", { name = "SplashBurst", color = { "#ffffff", WATER, NTURQ }, speed = { 10, 20 }, size = { 1.2, 0.8, 0 }, spread = 70, accel = { 0, -25, 0 } })
 	end,
 }
