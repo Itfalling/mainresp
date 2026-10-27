@@ -100,10 +100,20 @@ function M.Update(t, pose, ctx)
 
 	-- blinks + determined brows during the rear, squint on the stomp
 	local blink = L.env(t % 3.4, 3.0, 0.06, 0.05, 0.1)
-	local lidDrop = -1.7 * blink * (1 - neigh) - 0.45 * impact
 	local wink = L.env(c, 0.78, 0.07, 0.4, 0.15) -- sassy wink during the hair flip
 	local browTilt = ang(0, 0, 16 * rear + 10 * crouch)
-	L.both(pose, "Lid", CFrame.new(0, lidDrop - 1.6 * wink, 0) * browTilt, CFrame.new(0, lidDrop + 0.3 * toss, 0) * browTilt)
+	-- right lid also closes for the wink (same full drop as a blink, never more)
+	local closeL = blink * (1 - neigh)
+	local closeR = max(closeL, wink)
+	local squint = -0.45 * impact
+	L.both(pose, "Lid", CFrame.new(0, -1.7 * closeR + squint, 0) * browTilt, CFrame.new(0, -1.7 * closeL + squint + 0.3 * toss, 0) * browTilt)
+	-- lids + lash lines are hidden at rest; shown only once mostly closed
+	local trR = closeR > 0.7 and 0 or 1
+	local trL = closeL > 0.7 and 0 or 1
+	ctx.transparency("EyelidR", trR)
+	ctx.transparency("LashR", trR)
+	ctx.transparency("EyelidL", trL)
+	ctx.transparency("LashL", trL)
 
 	-- ears: little flicks, pinned back while rearing
 	local flick = L.env(t % 4.3, 3.9, 0.08, 0.05, 0.15)

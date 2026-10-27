@@ -136,8 +136,10 @@ return {
 		B:sym(function(side)
 			local lid = B:bone("Lid" .. side, "Head", H(1.5, 3.3, -3.3))
 			B:block(lid, hs(1.95, 0.6, 1.5), hcf(1.5, 3.3, -3.35), DEEP) -- heavy brow
-			B:block(lid, hs(1.95, 1.9, 0.3), hcf(1.5, 3.05, -4.12), WHITE, { tr = 1, name = "Eyelid" .. side })
-			B:block(lid, hs(2.05, 0.3, 0.35), hcf(1.5, 2.15, -4.15), DEEP, { tr = 1, name = "Lash" .. side })
+			-- sized/placed so the full 1.7-stud blink drop covers the whole eye
+			-- (sclera, iris, pupil, shine), lash line on the lid's bottom edge
+			B:block(lid, hs(1.95, 2.4, 0.3), hcf(1.5, 3.51, -4.12), WHITE, { tr = 1, name = "Eyelid" .. side })
+			B:block(lid, hs(2.05, 0.3, 0.35), hcf(1.5, 2.31, -4.15), DEEP, { tr = 1, name = "Lash" .. side })
 		end)
 
 		-- ears: stepped voxel triangles with a pink inner block

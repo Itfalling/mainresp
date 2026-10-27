@@ -134,7 +134,12 @@ function M.Update(t, pose, ctx)
 	-- blinks (lids drop over the eyes); squeeze during the slam impact
 	local blink = math.max(L.env(t % 3.1, 2.7, 0.06, 0.06, 0.1), L.env(t % 7.3, 4.0, 0.06, 0.06, 0.1))
 	local lid = math.max(blink * (1 - roar), 0.6 * impact)
-	L.both(pose, "Lid", CFrame.new(0, -1.0 * lid, 0))
+	-- 1.15 studs of drop puts the lid fully over the neon eye, pupil and glint
+	L.both(pose, "Lid", CFrame.new(0, -1.15 * lid, 0))
+	-- lids are hidden at rest; show them only while closing / closed
+	local lidTr = lid > 0.15 and 0 or 1
+	ctx.transparency("EyelidR", lidTr)
+	ctx.transparency("EyelidL", lidTr)
 
 	-- ARMS -----------------------------------------------------------------
 	local function armPose(lift, hitK, ph)

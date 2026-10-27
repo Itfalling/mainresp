@@ -174,7 +174,14 @@ function M.Update(t, pose, ctx)
 	-- BLINK (cartoon eyelids) + squeeze shut on the landing
 	local blink = env(t % 3.1, 2.75, 0.06, 0.06, 0.1)
 	local squeeze = env(c, 4.26, 0.04, 0.12, 0.15)
-	L.both(pose, "Lid", CFrame.new(0, -2.45 * max(blink * idleW, squeeze), 0))
+	local close = max(blink * idleW, squeeze)
+	L.both(pose, "Lid", CFrame.new(0, -2.45 * close, 0))
+	-- lids + lash lines are hidden at rest; shown only while closing / closed
+	local lidTr = close > 0.15 and 0 or 1
+	for _, side in { "R", "L" } do
+		ctx.transparency("Eyelid" .. side, lidTr)
+		ctx.transparency("Lash" .. side, lidTr)
+	end
 
 	-- ARMS: swing opposite the feet, flap on bounce
 	local swing = 28 * wad * idleW
