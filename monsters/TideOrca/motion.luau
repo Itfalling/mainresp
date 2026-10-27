@@ -121,15 +121,15 @@ function M.Update(t, pose, ctx)
 	-- signature translation + rotation tracks
 	local sy = track(c, {
 		{ WIND, 0 }, { WIND + 0.35, 4.5, "cubicOut" }, { DIVE, 4.5 }, { DIVE + 0.4, 3.6, "quadIn" },
-		{ BREACH, 3.6 }, { BREACH + 0.4, 12.5, "cubicOut" }, { APEX, 13.5, "quadOut" }, { FALL, 13.5, "sineInOut" },
-		{ SPLAT, -1.4, "quadIn" }, { SPLAT + 0.15, -1.1, "quadOut" }, { SPLAT + 0.45, 1.2, "quadOut" }, { SPLAT + 0.75, 0.2, "quadInOut" },
+		{ BREACH, 3.6 }, { BREACH + 0.4, 10.5, "cubicOut" }, { APEX, 11.5, "quadOut" }, { FALL, 11.5, "sineInOut" },
+		{ SPLAT, -1.1, "quadIn" }, { SPLAT + 0.15, -0.8, "quadOut" }, { SPLAT + 0.45, 1.2, "quadOut" }, { SPLAT + 0.75, 0.2, "quadInOut" },
 		{ LIFT1, 0.2 }, { LIFT1 + 0.3, 0.8, "quadOut" }, { SLAP1, -0.4, "quadIn" }, { SLAP1 + 0.2, 0.4, "quadOut" },
 		{ SLAP2, -0.6, "quadIn" }, { SLAP2 + 0.25, 0.4, "quadOut" }, { BOW, 0, "quadInOut" }, { BOW + 0.4, 1.4, "backOut" },
 		{ BOWEND, 1.4 }, { BOWEND + 0.4, 1.2, "backOut" }, { 13.6, 0, "quadInOut" },
 	})
 	local sp = track(c, {
 		{ WIND, 0 }, { WIND + 0.35, 18, "cubicOut" }, { DIVE, 18 }, { DIVE + 0.35, -26, "backIn" }, { BREACH, -26 },
-		{ BREACH + 0.45, 62, "cubicOut" }, { APEX, 66, "quadOut" }, { FALL, 70, "sineInOut" }, { SPLAT - 0.1, -8, "quadIn" },
+		{ BREACH + 0.45, 58, "cubicOut" }, { APEX, 62, "quadOut" }, { FALL, 66, "sineInOut" }, { SPLAT - 0.1, -8, "quadIn" },
 		{ SPLAT + 0.12, -3, "quadOut" }, { SPLAT + 0.5, 4, "quadInOut" }, { LIFT1, 0, "quadInOut" },
 		{ LIFT1 + 0.3, -5, "quadOut" }, { SLAP1, 4, "quadIn" }, { SLAP1 + 0.2, -4, "quadOut" }, { SLAP2, 6, "quadIn" },
 		{ SLAP2 + 0.3, 0, "quadOut" }, { BOW, 0 }, { BOW + 0.4, -8, "backOut" }, { BOWEND, -8 }, { BOWEND + 0.45, 3, "backOut" },
@@ -189,7 +189,7 @@ function M.Update(t, pose, ctx)
 	py += -0.25 * windL + 0.35 * inhale + 0.35 * flash - 0.3 * bow
 	px += 0.35 * tease * sin(TAU * 1.2 * (c - 4.1))
 	-- breach: roll the eyes round with the spin
-	local sw = L.env(c, BREACH, 0.15, APEX - BREACH - 0.2, 0.2)
+	local sw = L.env(c, BREACH - 0.05, 0.15, APEX - BREACH - 0.15, 0.2)
 	px += 0.45 * sw * cos(TAU * 2.2 * (c - BREACH))
 	py += 0.4 * sw * sin(TAU * 2.2 * (c - BREACH))
 	pose.PupilR = CFrame.new(px, py, 0)
@@ -223,6 +223,8 @@ function M.Update(t, pose, ctx)
 	end
 	if (c > 11.0 and c < 11.6) then stateR, stateL = "half", "half" end -- smug after the slaps
 	setEye(ctx, "R", stateR)
+	pose.LidR = CFrame.new(0, stateR == "closed" and -0.1 or 0, 0)
+	pose.LidL = CFrame.new(0, stateL == "closed" and -0.1 or 0, 0)
 	setEye(ctx, "L", stateL)
 
 	-- brows: R is the cocked one; L lowers into the smirk
@@ -278,9 +280,9 @@ function M.Update(t, pose, ctx)
 		local z = 14 * paddle * idleW + 25 * lunge + 15 * windL + 20 * cackle * sin(TAU * 4 * c + ph)
 			+ 30 * giggle * sin(TAU * 7 * c + ph) + 20 * tease * sin(TAU * 2 * c + ph)
 			+ 20 * wind * (1 - tuck) - 30 * tuck + 45 * splay - 25 * squash + 25 * slapHit
-			+ (bowArm and -10 * bow or 25 * bow)
-		local x = 10 * paddle * idleW + 20 * lunge - 25 * tuck + 20 * splay + (bowArm and 55 * bow or 0)
-		local y = -15 * tuck + (bowArm and 45 * bow or 0) - 10 * lunge
+			+ (bowArm and 55 * bow or 25 * bow)
+		local x = 10 * paddle * idleW + 20 * lunge - 25 * tuck + 20 * splay + (bowArm and 65 * bow or 0)
+		local y = -15 * tuck + (bowArm and 30 * bow or 0) - 10 * lunge
 		local tipZ = 12 * wave(t, 8 * F, 0.3) * idleW + 15 * squash + 18 * splay * sin(TAU * 5 * c)
 			+ 10 * giggle * sin(TAU * 7 * c + 1) - 15 * tuck
 		return ang(x, y, z), ang(0, 0, tipZ)
@@ -293,8 +295,8 @@ function M.Update(t, pose, ctx)
 	------------------------------------------------------------------
 	-- DORSAL (follow-through) + MEDALLION swing
 	------------------------------------------------------------------
-	local dsw = 5 * wave(t, 5 * F, 0.2) * idleW + 10 * giggle * sin(TAU * 7 * c - 0.8) + 8 * wob * sin(TAU * 2.5 * (c - SPLAT) - 1)
-	pose.Dorsal = ang(-6 * lunge + 8 * squash - 10 * sw, 0, dsw)
+	local dsw = 6 * wave(t, 5 * F, 0.2) * idleW + 14 * giggle * sin(TAU * 7 * c - 0.8) + 8 * wob * sin(TAU * 2.5 * (c - SPLAT) - 1)
+	pose.Dorsal = ang(-12 * lunge + 18 * squash - 16 * sw + 8 * slapHit, 0, 1.4 * dsw)
 	pose.DorsalTip = ang(-10 * lunge + 18 * squash - 18 * sw + 6 * slapHit, 0, 1.6 * dsw + 6 * wave(t, 5 * F, -0.1) * idleW)
 	local mSw = 14 * wave(t, 8 * F, 0.6) * idleW + 30 * lunge - 25 * windL + 20 * giggle * sin(TAU * 7 * c - 1)
 		+ 70 * squash + 40 * splay + 25 * tuck + 30 * cackle * sin(TAU * 4 * c - 1) - 20 * bow
@@ -307,7 +309,7 @@ function M.Update(t, pose, ctx)
 	------------------------------------------------------------------
 	local ch = L.chain(t, 8 * F, 0.09, 1)
 	local strokeA = idleW
-	local tailLift = -14 * wind * (1 - tuck) + 10 * tuck - 18 * sw - 22 * squash + 12 * splay
+	local tailLift = -14 * wind * (1 - tuck) + 10 * tuck * (1 - sw) - 30 * sw - 22 * squash + 12 * splay
 		- 30 * slapLift + 22 * slapHit - 8 * bow + 10 * windL - 8 * lunge
 	local tWag = 10 * giggle * sin(TAU * 7 * c) + 6 * tease * sin(TAU * 2.4 * (c - 4.1))
 	pose.Tail1 = ang(6 * ch(0) * strokeA + 0.6 * tailLift, tWag, 0)
@@ -340,7 +342,7 @@ function M.Update(t, pose, ctx)
 		local cfk = CFrame.new()
 		if u > 0 and u < 1 then
 			local e = L.ease.quadOut(u)
-			cfk = pa(0.8 * sin(k * 1.7) * u, 18 * u - 19 * u * u, -26 * u, 45 * k * u, 90 * u, 0)
+			cfk = pa(0.8 * sin(k * 1.7) * u, 16 * u - 21 * u * u, -34 * u, 45 * k * u, 90 * u, 0)
 			tr = u > 0.85 and 0.6 or 0.15
 		end
 		pose["Squirt" .. k] = cfk
@@ -399,6 +401,7 @@ function M.Update(t, pose, ctx)
 		pose["Wave" .. i] = pa(9 * sin(a) * ws, 0.25 * sin(TAU * (2 * wl + i / 8)), 15 * cos(a) * ws, 0, 0, 0)
 		ctx.transparency("WaveP" .. i, wv and (wl < 0.6 and 0.2 or 0.6) or 1)
 	end
+	pose.SplashFX = CFrame.new(0, 0.5 * squash, 0)
 	ctx.light("SplashLight", 0.01 + 1.3 * L.env(c, SPLAT, 0.05, 0.1, 0.6))
 
 	------------------------------------------------------------------

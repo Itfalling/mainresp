@@ -63,8 +63,8 @@ return {
 		blk(body, 5.6, 0.25, 1.8, 0, 14.25, 5.7, GREY) -- saddle patch
 		B:sym(function()
 			blk(body, 0.4, 2.2, 6.6, 5.15, 6.7, -2.6, WHITE) -- white belly sweep
-			blk(body, 0.4, 2.6, 3.4, 4.65, 7.7, 4.8, WHITE) -- rear flank patch
-			blk(body, 0.4, 1.4, 2.0, 4.65, 9.6, 5.6, WHITE)
+			blk(body, 0.4, 2.6, 3.6, 4.65, 7.4, 4.0, WHITE) -- rear flank sweep
+			blk(body, 0.4, 1.6, 1.6, 4.65, 9.4, 5.1, WHITE)
 			-- marble shoulder shield with gold frame + glyph
 			blk(body, 0.5, 3.0, 4.0, 5.35, 10.3, -2.6, MARBLE)
 			blk(body, 0.6, 0.5, 4.6, 5.4, 12.0, -2.6, GOLD)
@@ -169,32 +169,32 @@ return {
 		-- are the big expressive BROWS. Pupils live on the front face only.
 		B:sym(function(side)
 			local eye = B:bone("Eye" .. side, "Head", hv(2.7, 12.2, -14.8))
-			hb(eye, 3.4, 2.8, 1.1, 2.7, 12.2, -14.75, WHITE) -- stepped round white
-			hb(eye, 2.8, 3.4, 1.1, 2.7, 12.2, -14.76, WHITE)
-			hb(eye, 3.0, 0.3, 1.0, 2.7, 10.55, -14.7, WSHADE) -- lower lid shade
-			local pup = B:bone("Pupil" .. side, "Eye" .. side, hv(2.7, 12.1, -15.35))
-			hb(pup, 1.4, 1.8, 0.2, 2.7, 12.1, -15.38, PUPIL, { name = "PupilBig" .. side })
-			hb(pup, 0.7, 0.8, 0.2, 2.7, 12.15, -15.39, PUPIL, { tr = 1, name = "PupilSmall" .. side })
+			hb(eye, 3.4, 2.8, 1.8, 2.7, 12.2, -15.1, WHITE) -- stepped round white
+			hb(eye, 2.8, 3.4, 1.8, 2.7, 12.2, -15.11, WHITE)
+			hb(eye, 3.0, 0.3, 1.7, 2.7, 10.55, -15.05, WSHADE) -- lower lid shade
+			local pup = B:bone("Pupil" .. side, "Eye" .. side, hv(2.7, 12.1, -16.0))
+			hb(pup, 1.4, 1.8, 0.2, 2.7, 12.1, -16.05, PUPIL, { name = "PupilBig" .. side })
+			hb(pup, 0.7, 0.8, 0.2, 2.7, 12.15, -16.06, PUPIL, { tr = 1, name = "PupilSmall" .. side })
 			-- lids (hidden): black lid, happy-closed "^" and a smug half-lid
-			local lid = B:bone("Lid" .. side, "Eye" .. side, hv(2.7, 14.0, -15.5))
-			hb(lid, 3.5, 3.6, 0.3, 2.7, 12.2, -15.5, BLACK, { tr = 1, name = "Lid" .. side })
-			hb(lid, 1.9, 0.5, 0.2, 1.95, 12.1, -15.7, WHITE, { tr = 1, name = "LidA" .. side }, 0, 0, 28)
-			hb(lid, 1.9, 0.5, 0.2, 3.45, 12.1, -15.7, WHITE, { tr = 1, name = "LidB" .. side }, 0, 0, -28)
-			hb(lid, 3.5, 1.9, 0.3, 2.7, 13.1, -15.5, BLACK, { tr = 1, name = "HalfLid" .. side })
-			hb(lid, 3.4, 0.35, 0.2, 2.7, 12.2, -15.7, BLK2, { tr = 1, name = "HalfLash" .. side })
+			local lid = B:bone("Lid" .. side, "Eye" .. side, hv(2.7, 14.0, -16.15))
+			hb(lid, 3.5, 3.6, 0.3, 2.7, 12.2, -16.15, BLACK, { tr = 1, name = "Lid" .. side })
+			hb(lid, 1.9, 0.5, 0.2, 1.95, 12.1, -16.35, WHITE, { tr = 1, name = "LidA" .. side }, 0, 0, 28)
+			hb(lid, 1.9, 0.5, 0.2, 3.45, 12.1, -16.35, WHITE, { tr = 1, name = "LidB" .. side }, 0, 0, -28)
+			hb(lid, 3.5, 1.9, 0.3, 2.7, 13.1, -16.15, BLACK, { tr = 1, name = "HalfLid" .. side })
+			hb(lid, 3.4, 0.35, 0.2, 2.7, 12.2, -16.35, BLK2, { tr = 1, name = "HalfLash" .. side })
 			-- the white orca eye patch = a big chunky brow
 			local brow = B:bone("Brow" .. side, "Head", hv(2.7, 14.85, -14.7))
-			hb(brow, 3.6, 0.9, 0.8, 2.6, 14.85, -14.65, WHITE)
-			hb(brow, 1.6, 0.8, 0.75, 4.1, 15.2, -14.6, WHITE)
+			hb(brow, 3.6, 0.9, 1.4, 2.6, 14.85, -14.95, WHITE)
+			hb(brow, 1.6, 0.8, 1.3, 4.1, 15.2, -14.9, WHITE)
 			hb(brow, 0.6, 0.6, 2.0, 4.65, 15.1, -13.6, WHITE)
 			-- laughing tears (hidden)
-			local tear = B:bone("Tear" .. side, "Head", hv(4.4, 11.0, -15.3))
-			hb(tear, 0.55, 0.7, 0.4, 4.4, 11.0, -15.3, WATER, { tr = 1, name = "TearA" .. side })
-			hb(tear, 0.35, 0.35, 0.35, 4.4, 11.5, -15.3, WATER, { tr = 1, name = "TearB" .. side }, 0, 0, 45)
+			local tear = B:bone("Tear" .. side, "Head", hv(4.4, 11.0, -15.9))
+			hb(tear, 0.55, 0.7, 0.4, 4.4, 11.0, -15.9, WATER, { tr = 1, name = "TearA" .. side })
+			hb(tear, 0.35, 0.35, 0.35, 4.4, 11.5, -15.9, WATER, { tr = 1, name = "TearB" .. side }, 0, 0, 45)
 		end)
 		-- glints (same side on both eyes, not mirrored)
-		hb("PupilR", 0.5, 0.5, 0.1, 3.05, 12.55, -15.52, TURQ, { mat = "Neon", name = "GlintR" })
-		hb("PupilL", 0.5, 0.5, 0.1, -2.35, 12.55, -15.52, TURQ, { mat = "Neon", name = "GlintL" })
+		hb("PupilR", 0.5, 0.5, 0.1, 3.05, 12.55, -16.15, TURQ, { mat = "Neon", name = "GlintR" })
+		hb("PupilL", 0.5, 0.5, 0.1, -2.35, 12.55, -16.15, TURQ, { mat = "Neon", name = "GlintL" })
 		-- wink star (hidden), pops next to the left eye
 		local star = B:bone("Star", "Head", hv(-5.6, 14.6, -15.2))
 		hb(star, 1.6, 0.4, 0.3, -5.6, 14.6, -15.2, NGOLD, { mat = "Neon", tr = 1, name = "StarA" })
@@ -344,7 +344,8 @@ return {
 		blk(t1, 6.0, 0.8, 4.0, 0, 13.25, 8.7, BLK2)
 		blk(t1, 6.0, 0.8, 4.0, 0, 6.55, 8.7, WHITE)
 		B:sym(function()
-			blk(t1, 0.4, 2.2, 3.0, 3.85, 8.6, 8.4, WHITE)
+			blk(t1, 0.4, 3.0, 2.4, 3.85, 9.0, 7.8, WHITE)
+			blk(t1, 0.4, 1.8, 1.8, 3.85, 9.9, 9.8, WHITE)
 		end)
 		ridge(t1, 8.5, 13.5, 1.8)
 		blk(t1, 0.5, 0.7, 0.7, 3.9, 11.6, 9.6, BARN)
@@ -373,15 +374,15 @@ return {
 		B:emitter(ffx, "burst", { name = "TailSplash", color = { "#ffffff", WATER, FOAM }, speed = { 10, 18 }, size = { 1.0, 0.7, 0 }, accel = { 0, -25, 0 }, spread = 70, life = { 0.5, 1.0 } })
 		B:sym(function(side)
 			local lobe = B:bone("Fluke" .. side, "Fluke", v(1.4, 10.1, 19.2))
-			blk(lobe, 3.0, 1.1, 3.0, 2.9, 10.1, 19.4, BLACK)
-			blk(lobe, 2.8, 1.0, 2.8, 5.4, 10.1, 20.0, BLACK)
-			blk(lobe, 2.4, 0.9, 2.4, 7.7, 10.1, 20.7, BLACK)
-			blk(lobe, 6.6, 0.3, 2.2, 5.2, 9.45, 20.0, WHITE)
-			blk(lobe, 2.6, 0.6, 0.5, 5.4, 10.1, 21.55, GOLD)
-			blk(lobe, 2.2, 0.55, 0.5, 7.7, 10.1, 22.0, GOLD)
-			blk(lobe, 1.2, 1.0, 2.0, 9.4, 10.1, 21.2, TEAL, nil, 0, -40, 0)
-			blk(lobe, 0.6, 0.6, 0.9, 10.2, 10.1, 21.9, TURQ, NEON, 0, -40, 0)
-			B:trail(lobe, v(10.4, 10.1, 22.1), v(8.6, 10.1, 21.4), { name = "FlukeTrail" .. side, color = { "#ffffff", TURQ }, life = 0.3, trans = { 0.45, 1 } })
+			blk(lobe, 3.2, 1.4, 3.4, 2.9, 10.1, 19.5, BLACK)
+			blk(lobe, 3.0, 1.3, 3.2, 5.6, 10.1, 20.1, BLACK)
+			blk(lobe, 2.6, 1.1, 2.8, 8.0, 10.1, 20.9, BLACK)
+			blk(lobe, 7.2, 0.3, 2.6, 5.4, 9.3, 20.1, WHITE)
+			blk(lobe, 2.8, 0.7, 0.5, 5.6, 10.1, 21.8, GOLD)
+			blk(lobe, 2.4, 0.6, 0.5, 8.0, 10.1, 22.4, GOLD)
+			blk(lobe, 1.4, 1.2, 2.4, 9.8, 10.1, 21.5, TEAL, nil, 0, -40, 0)
+			blk(lobe, 0.7, 0.7, 1.0, 10.75, 10.1, 22.4, TURQ, NEON, 0, -40, 0)
+			B:trail(lobe, v(11.0, 10.1, 22.7), v(9.0, 10.1, 21.8), { name = "FlukeTrail" .. side, color = { "#ffffff", TURQ }, life = 0.3, trans = { 0.45, 1 } })
 		end)
 
 		------------------------------------------------------------------
