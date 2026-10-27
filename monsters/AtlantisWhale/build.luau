@@ -5,13 +5,14 @@
 -- goofy - she hums songs, peeks back at her city, pats it with a flipper,
 -- spouts fountains from her blowhole and giggles when the city fish boop her.
 --
--- FACE (one pair of eyes, ONE mouth): a rounded dome head with a broad gentle
--- forehead; kind medium-small eyes set out toward the sides of the face
--- (big dark pupil in a sky iris, glints, a soft lid resting over the top,
--- arched brows close above), puffy rosy cheeks, and ONE small hinged smile
--- tucked between the jowls: pink tongue and a neat comb of slim cream
--- baleen plates along the upper lip (no fangs).
--- Hidden faces: blink lids, happy ^ ^ arcs, sparkle stars, big blush.
+-- HEAD (original-20 style, ONE eye per side, ONE mouth): a long chunky
+-- stepped whale head (high crown behind the eyes stepping down to a long
+-- rostrum), darker caps, pale lip bands, one long mouth line that curls up
+-- under the eye, a neat comb of cream baleen plates hanging from the upper
+-- jaw, a deep lower jaw with cream throat grooves. Side-set glowing sky
+-- eyes on dark socket bumps (one pupil on the outer face), heavy brow
+-- ridges, slide-down lids (blinks / calm squints), jowl pads, gold diadem.
+-- Power moments: the eyes flash orichalcum gold.
 --
 -- BODY: stepped ocean-blue hull (dark back, light countershade band, cream
 -- pleated belly), two gold orichalcum harness bands with rune medallions,
@@ -87,7 +88,7 @@ return {
 			-- barnacle cluster + coral on the lower flank
 			B:block(body, v(0.6, 0.6, 0.6), cf(6.4, 7.9, 4.6), MARBLE2)
 			B:block(body, v(0.45, 0.45, 0.45), cf(6.45, 8.5, 4.1), MARBLE)
-			B:block(body, v(0.5, 0.9, 0.5), cf(6.5, 8.0, -7.6), CORAL)
+			B:block(body, v(0.5, 0.9, 0.5), cf(6.5, 8.0, 0.6), CORAL)
 			-- orichalcum crystal cluster sprouting from each shoulder
 			B:block(body, v(1.6, 0.6, 1.6), cf(5.6, 12.75, -6.9), GOLD)
 			B:block(body, v(0.9, 2.6, 0.9), cf(5.7, 14.1, -6.9, 0, 45, -14), TURQ)
@@ -116,126 +117,127 @@ return {
 		B:block(belly, v(4.2, 0.6, 7.0), cf(0, 3.05, -1.2), CREAM)
 
 		------------------------------------------------------------------
-		-- HEAD: rounded cartoon whale head. Profile steps back like a dome
-		-- (crown -> melon -> brow plateau -> face -> soft snout), the face
-		-- sits in the middle of a broad gentle forehead, the jowls wrap the
-		-- sides so the ONE mouth is a small smile between them.
+		-- HEAD: long chunky stepped whale head (original-20 style). Four
+		-- sections step down toward the rostrum (S1 back -> S4 nose), each
+		-- with a darker cap on top and a pale upper-lip band underneath, so
+		-- the side profile reads as a proper whale: high crown behind the
+		-- eyes, long sloping rostrum, one long mouth line, a deep lower jaw
+		-- with cream throat grooves. ONE eye per side sits on a dark socket
+		-- bump on the side wall just above the mouth corner (glowing sky
+		-- rectangle, ONE dark pupil on the outer face, heavy brow ridge).
 		------------------------------------------------------------------
 		local head = B:bone("Head", "Body", v(0, 10, -7.6))
 		local function hb(sx, sy, sz, x, y, z, col, opts, rx, ry, rz)
 			return B:block(head, v(sx, sy, sz), cf(x, y, z, rx or 0, ry or 0, rz or 0), col, opts)
 		end
-		hb(11.6, 5.4, 2.4, 0, 11.5, -7.6, MAIN) -- neck plug
-		-- skull stepped like a dome (front view: 13.4 / 12.6 / 11.8 / 10.6 / 8.8 / 6.4)
-		hb(12.6, 3.8, 8.8, 0, 10.7, -12.2, MAIN) -- lower skull
-		hb(13.4, 2.4, 6.0, 0, 10.2, -13.2, MAIN) -- round cheek bulge
-		hb(11.8, 1.3, 8.4, 0, 13.2, -12.1, MAIN) -- upper skull
-		hb(10.6, 1.0, 8.0, 0, 14.3, -12.0, DARK)
-		hb(8.8, 0.9, 7.4, 0, 15.2, -12.2, DARK) -- forehead melon
-		hb(6.4, 0.6, 6.0, 0, 15.9, -11.6, DEEPB) -- melon crown
-		hb(10.6, 4.4, 1.2, 0, 11.0, -17.1, MAIN) -- face front (y 8.8..13.2)
-		hb(12.0, 2.8, 0.5, 0, 10.9, -16.75, MAIN) -- rounded face corners
-		hb(9.4, 1.1, 2.0, 0, 13.75, -16.2, MAIN) -- brow plateau (steps back = round forehead)
-		hb(7.2, 1.5, 1.2, 0, 9.55, -18.1, MAIN) -- soft snout / upper lip
-		hb(5.4, 0.9, 0.45, 0, 9.5, -18.9, MAIN) -- rounded snout tip
-		hb(6.2, 0.3, 5.8, 0, 8.72, -15.4, MOUTH) -- palate (mouth roof)
-		hb(6.4, 1.6, 0.3, 0, 8.0, -12.85, MOUTH2) -- back of the throat
-		hb(6.8, 3.6, 4.0, 0, 6.95, -10.7, CREAM) -- throat behind the jaw hinge
-		B:sym(function()
-			hb(0.4, 1.4, 3.8, 6.85, 10.2, -13.2, SPOT) -- light round cheek
-			-- orichalcum temple plate with a rune
-			hb(0.3, 1.1, 3.4, 6.4, 12.05, -12.0, GOLD)
-			hb(0.2, 0.7, 1.2, 6.6, 12.05, -12.0, TEAL)
-			-- jowls: wrap the sides of the small mouth (light countershade underneath)
-			hb(2.9, 2.0, 9.2, 4.8, 7.9, -13.6, MAIN)
-			hb(2.6, 0.9, 8.6, 4.7, 6.5, -13.5, SPOT)
-			-- smile dimple curling up at the end of the smile
-			hb(0.22, 0.75, 0.1, 3.5, 9.15, -18.74, DEEPB, nil, 0, 0, -28)
-		end)
-		-- BALEEN: a neat comb of slim cream plates hanging from the upper lip
-		-- (a subtle row at rest, clearly visible when she sings / laughs)
-		for i = 0, 10 do
-			local x = -2.75 + i * 0.55
-			hb(0.28, 0.6, 0.3, x, 8.5, -18.15, i % 2 == 0 and BALEEN or BALEEN2)
+		hb(11.8, 5.6, 2.6, 0, 11.3, -8.0, MAIN) -- neck plug (into the hull)
+		-- skull sections: {width, top y, z0, z1, cap width, cap h}
+		local LIPY = 8.6
+		local SECT = {
+			{ 12.4, 13.2, -7.7, -12.6, 11.4, 0.9 },
+			{ 11.0, 12.4, -12.4, -16.4, 9.8, 0.8 },
+			{ 9.2, 11.6, -16.2, -19.4, 7.8, 0.6 },
+			{ 7.0, 10.8, -19.2, -21.2, 5.2, 0.5 },
+		}
+		for i, s in SECT do
+			local w, top, z0, z1 = s[1], s[2], s[3], s[4]
+			local zc, len = (z0 + z1) / 2, z0 - z1
+			hb(w, top - LIPY, len, 0, (top + LIPY) / 2, zc, MAIN)
+			hb(s[5], s[6], len - 0.1 - (i == 1 and 0.2 or 0), 0, top + s[6] / 2 - 0.05, zc - (i == 1 and 0.1 or 0), DARK)
+			-- pale upper-lip band (from the mouth corner forward)
+			local lz0 = i == 1 and -10.6 or z0
+			local lz1 = i == 4 and z1 - 0.05 or z1
+			hb(w + 0.1, 0.7, lz0 - lz1, 0, LIPY + 0.35, (lz0 + lz1) / 2, SPOT)
 		end
-		B:sym(function()
-			for k, z in { -17.35, -16.55, -15.75 } do
-				hb(0.3, 0.6, 0.28, 2.85, 8.5, z, k % 2 == 0 and BALEEN or BALEEN2)
-			end
-		end)
+		hb(8.0, 0.5, 4.2, 0, 14.3, -9.8, DEEPB) -- crown ridge behind the blowholes
+		-- mouth roof (dark) between the baleen rows
+		hb(10.4, 0.25, 5.8, 0, 8.5, -13.5, MOUTH)
+		hb(8.2, 0.25, 3.0, 0, 8.5, -17.9, MOUTH)
+		hb(6.0, 0.25, 1.8, 0, 8.5, -20.2, MOUTH)
+		hb(9.0, 1.6, 0.3, 0, 7.8, -10.45, MOUTH2) -- back of the throat
+		-- cream throat behind the jaw hinge + grooves
+		hb(10.4, 3.0, 3.4, 0, 7.0, -8.6, CREAM)
+		-- Atlantis barnacles on the rostrum
+		hb(0.8, 0.4, 0.8, 1.7, 12.25, -17.0, MARBLE2)
+		hb(0.6, 0.35, 0.6, -2.1, 11.15, -19.9, MARBLE)
 		-- orichalcum diadem on the forehead: gold band, 3 points, turquoise gem
-		hb(5.4, 0.45, 0.5, 0, 15.85, -15.05, GOLD)
-		hb(1.2, 1.0, 0.5, 0, 16.5, -15.05, GOLD)
-		hb(0.7, 0.75, 0.3, 0, 16.5, -15.35, TEAL)
-		hb(0.35, 0.4, 0.15, 0, 16.55, -15.55, NT, NEON)
+		hb(5.4, 0.45, 0.5, 0, 13.35, -16.05, GOLD)
+		hb(1.2, 1.0, 0.5, 0, 13.8, -16.05, GOLD)
+		hb(0.7, 0.75, 0.3, 0, 13.8, -16.35, TEAL)
+		hb(0.35, 0.4, 0.15, 0, 13.85, -16.55, NT, NEON)
 		B:sym(function()
-			hb(0.6, 0.6, 0.5, 1.7, 16.25, -15.05, GOLD)
-			hb(0.3, 0.3, 0.2, 1.7, 16.65, -15.05, NG, NEON)
+			hb(0.6, 0.6, 0.5, 1.7, 13.55, -16.05, GOLD)
+			hb(0.3, 0.3, 0.2, 1.7, 13.95, -16.05, NG, NEON)
+			-- upturned mouth corner (the long mouth line curls up under the eye)
+			hb(0.12, 1.1, 0.35, 6.24, 9.15, -10.45, DEEPB)
 		end)
 		-- blowholes (the fountain comes out here)
-		hb(0.5, 0.2, 1.0, 0.45, 16.22, -12.6, MOUTH2)
-		hb(0.5, 0.2, 1.0, -0.45, 16.22, -12.6, MOUTH2)
+		local SP = -11.0
+		hb(0.5, 0.2, 1.0, 0.45, 14.6, SP, MOUTH2)
+		hb(0.5, 0.2, 1.0, -0.45, 14.6, SP, MOUTH2)
 
-		-- EYES: kind, medium-small, set out toward the sides of the face,
-		-- slightly turned out. Big dark pupil, glints, a soft upper lid
-		-- resting over the top of the eye, a gentle brow close above.
-		local EX, EY, EZ, EYAW = 3.5, 11.8, -17.7, -15
-		B:sym(function(side)
-			local EF = CFrame.new(EX, EY, EZ) * ang(0, EYAW, 0)
-			local function e(sx, sy, sz, x, y, z, col, opts, bone)
-				return B:block(bone, v(sx, sy, sz), EF * CFrame.new(x, y, z), col, opts)
+		-- BALEEN: a neat comb of cream plates hanging from the upper jaw all
+		-- along the mouth line (a thin fringe at rest, a full comb when open)
+		local bi = 0
+		local function plate(x, z, across)
+			bi += 1
+			local col = bi % 2 == 0 and BALEEN or BALEEN2
+			if across then
+				hb(0.3, 1.0, 0.8, x, 8.1, z, col)
+			else
+				hb(0.9, 1.0, 0.3, x, 8.1, z, col)
 			end
-			local eye = B:bone("Eye" .. side, "Head", EF)
-			e(2.95, 3.0, 0.8, 0, 0, 0.0, DEEPB, nil, eye) -- dark socket rim
-			e(2.65, 2.45, 0.8, 0, 0, -0.2, EYEW, nil, eye) -- white (rounded = 2 crossed blocks)
-			e(2.15, 2.8, 0.8, 0, 0, -0.21, EYEW, nil, eye)
-			local pup = B:bone("Pupil" .. side, "Eye" .. side, EF * CFrame.new(0, -0.1, -0.7))
-			e(1.7, 1.9, 0.15, 0, -0.1, -0.66, IRIS, nil, pup)
-			e(1.2, 1.45, 0.15, 0, -0.12, -0.72, PUPIL, nil, pup)
-			-- hidden sparkle star in the eye (excited / proud moments)
-			e(0.25, 1.15, 0.1, 0, -0.1, -0.9, NG, HIDE("StarA" .. side, NEON), pup)
-			e(1.15, 0.25, 0.1, 0, -0.1, -0.9, NG, HIDE("StarB" .. side, NEON), pup)
-			-- lids: soft resting upper lid (always), blink lid + lash, happy ^ ^ arcs
-			local lid = B:bone("Lid" .. side, "Eye" .. side, EF)
-			e(3.0, 0.6, 0.5, 0, 1.3, -0.75, MAIN, { name = "LidTop" .. side }, lid)
-			e(2.6, 0.2, 0.1, 0, 0.95, -0.9, BROW, { name = "LidLine" .. side }, lid)
-			e(3.0, 3.05, 0.5, 0, 0, -0.78, MAIN, HIDE("Lid" .. side), lid)
-			e(2.4, 0.3, 0.1, 0, -0.3, -1.08, BROW, HIDE("Lash" .. side), lid)
-			e(1.0, 0.35, 0.1, 0, 0.4, -1.08, BROW, HIDE("HapA" .. side), lid)
-			B:block(lid, v(0.85, 0.35, 0.1), EF * CFrame.new(-0.72, 0.05, -1.08) * ang(0, 0, 40), BROW, HIDE("HapC" .. side))
-			B:block(lid, v(0.85, 0.35, 0.1), EF * CFrame.new(0.72, 0.05, -1.08) * ang(0, 0, -40), BROW, HIDE("HapD" .. side))
-			-- soft lower lid under the eye
-			e(2.4, 0.45, 0.5, 0, -1.45, -0.6, SPOT, nil, eye)
-			-- gentle arched brow, close above the eye
-			local brow = B:bone("Brow" .. side, "Head", v(EX, 13.95, -17.6))
-			B:block(brow, v(1.45, 0.5, 0.6), cf(EX - 0.62, 13.9, -17.5, 0, 0, 12), BROW)
-			B:block(brow, v(1.45, 0.5, 0.6), cf(EX + 0.68, 13.92, -17.4, 0, 0, -14), BROW)
-			-- puffy rosy cheek beside the smile
-			local CX, CY = 4.7, 9.65
-			local ck = B:bone("Cheek" .. side, "Head", v(CX, CY, -18.0))
-			B:block(ck, v(1.9, 1.3, 1.0), cf(CX, CY, -18.0), SPOT)
-			B:block(ck, v(1.3, 0.55, 0.1), cf(CX, CY, -18.55), BLUSH)
-			B:block(ck, v(1.7, 0.9, 0.1), cf(CX, CY, -18.6), BLUSH, HIDE("BlushBig" .. side))
-			for k = 1, 3 do
-				B:block(ck, v(0.12, 0.6, 0.1), cf(CX - 0.6 + k * 0.3, CY, -18.66, 0, 0, -25), BLUSHD, HIDE("BlushLine" .. side .. k))
-			end
-		end)
-		-- glints on the same side of both eyes (cartoon convention)
-		local function glint(side, x)
-			local EF = CFrame.new(side == "R" and EX or -EX, EY, EZ) * ang(0, side == "R" and EYAW or -EYAW, 0)
-			B:block("Pupil" .. side, v(0.55, 0.55, 0.1), EF * CFrame.new(x, 0.32, -0.84), "#ffffff", { mat = "Neon", name = "GlintA" .. side })
-			B:block("Pupil" .. side, v(0.28, 0.28, 0.1), EF * CFrame.new(-x * 0.8, -0.6, -0.84), "#ffffff", { mat = "Neon", name = "GlintB" .. side })
 		end
-		glint("R", 0.3)
-		glint("L", 0.3)
+		B:sym(function()
+			for _, z in { -11.0, -11.65, -12.3 } do
+				plate(5.3, z)
+			end
+			for _, z in { -12.95, -13.6, -14.25, -14.9, -15.55, -16.2 } do
+				plate(4.6, z)
+			end
+			for _, z in { -16.85, -17.5, -18.15, -18.8 } do
+				plate(3.7, z)
+			end
+			plate(2.9, -19.5)
+			plate(2.9, -20.1)
+		end)
+		for k = 0, 8 do
+			plate(-2.4 + k * 0.6, -20.6, true)
+		end
+
+		-- EYES (one per side, on the side wall above the mouth corner)
+		local EX, EY, EZ = 6.75, 10.5, -12.25
+		B:sym(function(side)
+			-- dark socket bump (sticks out of the head so it reads from the front)
+			hb(1.5, 2.2, 3.2, 6.45, EY - 0.05, -11.9, DEEPB)
+			local eye = B:bone("Eye" .. side, "Head", v(EX, EY, EZ))
+			B:block(eye, v(1.2, 1.3, 2.6), cf(EX, EY, EZ), NS, { mat = "Neon", name = "EyeGlow" .. side })
+			B:block(eye, v(1.25, 1.36, 2.66), cf(EX, EY, EZ), NG, HIDE("GoldEye" .. side, NEON))
+			-- ONE dark pupil on the outer face, toward the front (looks ahead)
+			local pup = B:bone("Pupil" .. side, "Eye" .. side, v(7.4, EY - 0.05, EZ - 0.5))
+			B:block(pup, v(0.1, 0.9, 0.75), cf(7.4, EY - 0.05, EZ - 0.5), PUPIL)
+			B:block(pup, v(0.1, 0.3, 0.3), cf(7.43, EY + 0.2, EZ - 0.3), "#ffffff", { mat = "Neon", name = "Glint" .. side })
+			-- eyelid: hidden inside the brow, slides down for blinks / squints
+			local lid = B:bone("Lid" .. side, "Eye" .. side, v(EX, EY + 1.35, EZ))
+			B:block(lid, v(1.4, 1.4, 2.75), cf(EX + 0.1, EY + 1.35, EZ - 0.02), MAIN, HIDE("Lid" .. side))
+			-- heavy stepped brow ridge overhanging the eye
+			local brow = B:bone("Brow" .. side, "Head", v(6.6, EY + 0.9, -11.9))
+			B:block(brow, v(1.9, 0.9, 3.6), cf(6.75, EY + 1.05, -12.1, -6, 0, 0), BROW)
+			B:block(brow, v(1.3, 0.6, 2.4), cf(6.35, EY + 1.65, -11.5), DARK)
+			-- dark stripe running forward from the brow along the snout
+			hb(0.12, 0.5, 3.4, 5.52, EY + 0.95, -14.75, DARK)
+			-- jowl pad behind the mouth corner (puffs out / pushes up in a smile)
+			local ck = B:bone("Cheek" .. side, "Head", v(6.2, 8.9, -9.2))
+			B:block(ck, v(0.5, 1.3, 2.4), cf(6.35, 9.25, -9.2), SPOT)
+		end)
 
 		-- music notes (hidden) that float out of her mouth while she hums
 		for k = 1, 3 do
-			local nb = B:bone("Note" .. k, "Head", v(0, 9.5, -19.2))
+			local nb = B:bone("Note" .. k, "Head", v(0, 9.2, -21.8))
 			local s = k == 2 and -1 or 1
-			B:block(nb, v(0.4, 1.9, 0.4), cf(0.4 * s, 10.3, -19.2), NG, HIDE("NoteS" .. k, NEON))
-			B:block(nb, v(1.1, 0.85, 0.4), cf(-0.05 * s, 9.4, -19.2), NG, HIDE("NoteH" .. k, NEON))
-			B:block(nb, v(0.9, 0.45, 0.4), cf(0.95 * s, 11.05, -19.2), NG, HIDE("NoteF" .. k, NEON))
+			B:block(nb, v(0.4, 1.9, 0.4), cf(0.4 * s, 10.0, -21.8), NG, HIDE("NoteS" .. k, NEON))
+			B:block(nb, v(1.1, 0.85, 0.4), cf(-0.05 * s, 9.1, -21.8), NG, HIDE("NoteH" .. k, NEON))
+			B:block(nb, v(0.9, 0.45, 0.4), cf(0.95 * s, 10.75, -21.8), NG, HIDE("NoteF" .. k, NEON))
 		end
 		-- hearts (hidden) that float up when she is happy
 		for k = 1, 3 do
@@ -248,46 +250,59 @@ return {
 			B:block(hbn, v(1.15, 1.15, 0.62), CFrame.new(hp + v(0, -0.8, 0)) * ang(0, 0, 45), BLUSHD, HIDE("HeartD" .. k))
 		end
 		-- blowhole fountain (hidden water column)
-		local SP = -12.6
-		local spout = B:bone("Spout", "Head", v(0, 16.2, SP))
-		B:block(spout, v(1.8, 3.6, 1.8), cf(0, 18.0, SP), WATER, HIDE("SpoutA"))
-		B:block(spout, v(2.5, 4.0, 2.5), cf(0, 21.6, SP), WATERF, HIDE("SpoutB"))
-		B:block(spout, v(0.5, 7.2, 0.2), cf(0, 20.2, SP - 1.3), NS, HIDE("SpoutS", NEON))
-		B:block(spout, v(3.6, 1.8, 3.6), cf(0, 24.3, SP), FOAM, HIDE("SpoutC"))
-		B:block(spout, v(7.6, 1.0, 1.8), cf(0, 24.6, SP), FOAM, HIDE("SpoutD"))
-		B:block(spout, v(1.8, 1.0, 7.6), cf(0, 24.65, SP), FOAM, HIDE("SpoutE"))
+		local SY = 14.6 - 16.2 -- shift of the fountain vs. its original design height
+		local spout = B:bone("Spout", "Head", v(0, 16.2 + SY, SP))
+		B:block(spout, v(1.8, 3.6, 1.8), cf(0, 18.0 + SY, SP), WATER, HIDE("SpoutA"))
+		B:block(spout, v(2.5, 4.0, 2.5), cf(0, 21.6 + SY, SP), WATERF, HIDE("SpoutB"))
+		B:block(spout, v(0.5, 7.2, 0.2), cf(0, 20.2 + SY, SP - 1.3), NS, HIDE("SpoutS", NEON))
+		B:block(spout, v(3.6, 1.8, 3.6), cf(0, 24.3 + SY, SP), FOAM, HIDE("SpoutC"))
+		B:block(spout, v(7.6, 1.0, 1.8), cf(0, 24.6 + SY, SP), FOAM, HIDE("SpoutD"))
+		B:block(spout, v(1.8, 1.0, 7.6), cf(0, 24.65 + SY, SP), FOAM, HIDE("SpoutE"))
 		-- droplets that fly off the crown and fall
-		local drops = B:bone("SpoutDrops", "Spout", v(0, 24.6, SP))
+		local drops = B:bone("SpoutDrops", "Spout", v(0, 24.6 + SY, SP))
 		for k, o in { { 4.3, 0 }, { -4.3, 0 }, { 0, 4.3 }, { 0, -4.3 } } do
-			B:block(drops, v(1.1, 1.1, 1.1), cf(o[1], 24.2, SP + o[2], 0, 45, 0), k % 2 == 0 and WATERF or FOAM, HIDE("Drop" .. k))
+			B:block(drops, v(1.1, 1.1, 1.1), cf(o[1], 24.2 + SY, SP + o[2], 0, 45, 0), k % 2 == 0 and WATERF or FOAM, HIDE("Drop" .. k))
 		end
-		local spoutFx = B:block(spout, v(1.5, 1, 1.5), cf(0, 24.6, SP), MAIN, HIDE("SpoutFX"))
+		local spoutFx = B:block(spout, v(1.5, 1, 1.5), cf(0, 24.6 + SY, SP), MAIN, HIDE("SpoutFX"))
 		B:emitter(spoutFx, "burst", { name = "SpoutSpray", color = { "#ffffff", WATERF, NS }, speed = { 5, 10 }, size = { 0.6, 0.45, 0 }, life = { 0.6, 1.2 }, spread = 70, accel = { 0, -16, 0 } })
 
 		------------------------------------------------------------------
-		-- JAW: the ONE mouth - a small gentle smile between the jowls
-		-- (hinge at the back of the mouth)
+		-- JAW: the ONE mouth - a long deep whale jaw (hinge under the eye)
+		-- pale lower-lip band on top, dark mouth floor + tongue inside,
+		-- cream throat grooves underneath and along the lower sides
 		------------------------------------------------------------------
-		local jaw = B:bone("Jaw", "Head", v(0, 8.75, -12.6))
+		local jaw = B:bone("Jaw", "Head", v(0, 8.55, -10.6))
 		local function jb(sx, sy, sz, x, y, z, col, opts)
 			return B:block(jaw, v(sx, sy, sz), cf(x, y, z), col, opts)
 		end
-		jb(6.6, 1.1, 5.2, 0, 7.25, -15.3, MAIN) -- jaw base (well inside the head width)
-		jb(5.4, 1.1, 0.7, 0, 7.25, -18.2, MAIN) -- rounded front of the jaw
-		-- lower lip: stepped so it reads as a smile (low centre, high corners)
-		jb(2.4, 0.5, 0.7, 0, 8.05, -18.15, SPOT)
+		-- {width, bottom y, z0, z1, cream width}
+		local JS = {
+			{ 11.8, 5.8, -10.0, -14.2, 10.6 },
+			{ 10.4, 6.1, -14.0, -17.8, 9.2 },
+			{ 8.4, 6.5, -17.6, -20.6, 7.2 },
+			{ 6.2, 6.8, -20.4, -21.4, nil },
+		}
+		for i, s in JS do
+			local w, y0, z0, z1 = s[1], s[2], s[3], s[4]
+			local zc, len = (z0 + z1) / 2, z0 - z1
+			jb(w, 8.5 - y0, len, 0, (8.5 + y0) / 2, zc, MAIN)
+			jb(w + 0.1, 0.55, len + (i == 4 and 0.05 or 0), 0, 8.32, zc - (i == 4 and 0.025 or 0), SPOT) -- lower lip
+			if s[5] then
+				jb(w - 1.6, 0.16, len - 0.05, 0, 8.52, zc, MOUTH) -- mouth floor
+				jb(s[5], 0.5, len + 0.1, 0, y0 - 0.2, zc, CREAM) -- throat pleats
+			end
+		end
+		jb(4.4, 0.25, 5.0, 0, 8.66, -14.2, TONGUE)
+		jb(0.25, 0.1, 3.4, 0, 8.8, -14.6, TONGUED)
+		-- groove lines underneath + along the lower sides (ventral pleats)
+		for _, x in { -3.4, -1.2, 1.2, 3.4 } do
+			jb(0.3, 0.1, 4.1, x, 5.36, -12.1, GROOVE)
+		end
 		B:sym(function()
-			jb(1.5, 0.7, 0.7, 1.95, 8.15, -18.1, SPOT)
-			jb(0.7, 0.95, 0.7, 3.0, 8.25, -17.95, SPOT)
+			jb(0.1, 0.16, 4.0, 5.92, 6.55, -12.1, GROOVE)
+			jb(0.1, 0.16, 4.0, 5.92, 7.15, -12.1, GROOVE)
+			jb(0.1, 0.16, 3.6, 5.22, 6.85, -15.9, GROOVE)
 		end)
-		jb(6.0, 0.3, 5.2, 0, 7.95, -15.3, MOUTH) -- mouth floor
-		jb(3.0, 0.45, 3.4, 0, 8.2, -15.8, TONGUE) -- tongue
-		jb(0.25, 0.1, 2.4, 0, 8.45, -16.0, TONGUED)
-		-- pleated cream throat, stepping into a rounded chin
-		jb(6.4, 1.0, 5.4, 0, 6.2, -15.3, CREAM)
-		jb(4.8, 0.6, 4.2, 0, 5.4, -14.8, CREAM)
-		jb(0.3, 0.12, 3.6, 1.2, 5.07, -14.8, GROOVE)
-		jb(0.3, 0.12, 3.6, -1.2, 5.07, -14.8, GROOVE)
 
 		------------------------------------------------------------------
 		-- FLIPPERS: long humpback flippers with gold bracers

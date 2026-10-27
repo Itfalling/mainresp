@@ -1,25 +1,25 @@
 --!nocheck
 -- Atlantis Sky Whale motion. Personality: GENTLE, MOTHERLY GUARDIAN.
 -- Always: slow hovering swim, fluke strokes rippling down the tail, flipper
--- strokes, breathing belly, blinks + pupil darts, waterfalls, seaweed,
+-- strokes, breathing belly, blinks (lid blocks drop) + pupil glances, waterfalls, seaweed,
 -- tiny city fish circling her, crystal cubes orbiting.
 -- IDLE GAGS (0 - 9 s)
---   0.3  HUM SONG: half-lidded dreamy eyes, "la-la-la" mouth, head sways,
+--   0.3  HUM SONG: calm half-squint, brows up, "la-la-la" mouth, head sways,
 --        gold music notes float out of her mouth
 --   2.8  PAT THE CITY: leans left, her right flipper slides up her flank,
 --        stands beside the city and flops its hand over the wall: pat-pat-pat
---        (city jolts, towers hop, sparkles), proud ^ ^ eyes, blush, a heart
---   4.8  BLOWHOLE FOUNTAIN: puffs her cheeks, squeezes her eyes, PFOOSH a
+--        (city jolts, towers hop, sparkles), proud squint + gold eyes, a heart
+--   4.8  BLOWHOLE FOUNTAIN: puffs her jowls, brows down, PFOOSH a
 --        tall water column with a foam crown + raining droplets shoots out of
---        the forehead blowhole (tilted forward so it reads from the front), sparkly eyes, giggles
---   6.4  FISH BOOP: a city fish swims up and boops her nose -> cross-eyed,
+--        the blowhole, gold-flash eyes, giggles
+--   6.4  FISH BOOP: a city fish swims up and boops her nose -> pupils lock forward,
 --        brows up, "o" mouth, then a giggle, happy wiggle, flipper clap,
---        blush lines and two hearts
+--        and two hearts
 -- SIGNATURE "RISING ATLANTIS" (9 - 19.6 s)
 --   9.0  DEEP BREATH: sinks + crouches nose-down, belly swells, cheeks
 --        puff, eyes shut, flippers fold, tail curls up
 --  10.3  RISE / BREACH: launches up with a huge tail down-stroke, nose up
---        30 deg, flippers flare, mouth wide open "AAAH", sparkle-star eyes
+--        30 deg, flippers flare, mouth wide open "AAAH", eyes flash gold
 --  11.4  SPIRE BEAM + HALO: the crystal spire charges, a beam of light shoots
 --        into the sky, a halo of rays spins round the tip, she sings
 --  12.4  CITY RISES: the four towers rise out of the city one by one with
@@ -27,7 +27,7 @@
 --  13.3  TWIRL: a full 360 pirouette with a bank, flippers out like a dancer
 --  14.9  FLUKE SLAP: tail lifts high (nose dips), WHIPS down, a giant splash
 --        crown erupts under the flukes, squash, city jolts, laughing
---  16.6  PROUD HAPPY SETTLE: ^ ^ eyes, big blush, three hearts, flipper
+--  16.6  PROUD HAPPY SETTLE: calm squint, three hearts, flipper
 --        claps, a proud bow, towers sink home, a last contented hum
 local L = require(script.Parent.AnimLib)
 local ang, pa, wave = L.ang, L.pa, L.wave
@@ -75,7 +75,7 @@ local FISH = {
 	{ Vector3.new(-9.5, 18.0, 4.0), 3, 0.35, 18.2, -1 },
 	{ Vector3.new(8.5, 16.5, 10.0), 2, 0.55, 16.4, 1 },
 }
-local BOOP = Vector3.new(0, 10.7, -19.55)
+local BOOP = Vector3.new(0, 9.9, -22.3)
 
 local function fishPos(k, t, c)
 	local f = FISH[k]
@@ -187,7 +187,7 @@ function M.Update(t, pose, ctx)
 		+ 6 * hum2 * sin(TAU * 0.75 * (c - 17.9))
 	pose.Head = pa(0, 0, 0, hp, hy, hr)
 
-	local open = 9 * (1 - puff) * (1 - breath)
+	local open = 5 * (1 - puff) * (1 - breath)
 		+ 16 * hum * la + 8 * proud + 6 * peek
 		+ 5 * giggleA * abs(sin(TAU * 5 * c))
 		+ 12 * boop + 6 * giggleB + 6 * giggleB * abs(sin(TAU * 4.5 * c))
@@ -196,62 +196,53 @@ function M.Update(t, pose, ctx)
 		+ 6 * wind
 		+ 18 * laugh + 8 * laugh * abs(sin(TAU * 4 * c))
 		+ 10 * settle + 10 * hum2 * L.wave01(c, 1.5, 0.5)
-	pose.Jaw = ang(-min(open, 38), 0, 0)
+	-- (the jaw is long now, so the same beats need less angle for a big gape)
+	pose.Jaw = ang(-min(0.75 * open, 30), 0, 0)
 
 	------------------------------------------------------------------
-	-- EYES / LIDS / PUPILS / BROWS / CHEEKS
+	-- EYES / LIDS / PUPILS / BROWS / JOWLS (original-20 style: side-set
+	-- glowing eyes; expressions come from the lid, brow ridge and jaw)
 	------------------------------------------------------------------
 	local blink = 0
 	for _, b in { 2.6, 6.3, 8.75, 19.75 } do
 		blink = max(blink, env(c, b, 0.06, 0.06, 0.1))
 	end
+	-- "happy" = a calm, cool half-squint (no googly arcs)
 	local happy = max(proud, env(c, 0.45, 0.1, 0.95, 0.1), env(c, 17.95, 0.1, 1.2, 0.1), env(c, 4.95, 0.1, 0.4, 0.1), env(c, 7.45, 0.1, 0.65, 0.1),
 		env(c, SLAP, 0.05, 0.55, 0.1), env(c, SETTLE + 0.1, 0.1, 1.5, 0.1))
 	local shut = max(blink, env(c, 9.2, 0.1, 0.9, 0.1))
-	local stars = env(c, 10.6, 0.1, 4.1, 0.1) > 0.5 or env(c, 5.45, 0.1, 0.6, 0.1) > 0.5 or env(c, 3.4, 0.1, 0.4, 0.1) > 0.5
-	local closed = happy > 0.5 or shut > 0.5
+	-- power moments: the eyes flash orichalcum gold
+	local gold = max(env(c, 10.6, 0.1, 4.1, 0.1), env(c, 5.45, 0.1, 0.6, 0.1), env(c, 3.4, 0.1, 0.4, 0.1)) > 0.5
+	local lidDown = max(shut, 0.42 * happy)
+	L.both(pose, "Lid", CFrame.new(0, -1.3 * lidDown, 0))
 	for _, s in { "R", "L" } do
-		ctx.transparency("Lid" .. s, closed and 0 or 1)
-		ctx.transparency("Lash" .. s, (shut > 0.5 and happy <= 0.5) and 0 or 1)
-		local h = (happy > 0.5) and 0 or 1
-		ctx.transparency("HapA" .. s, h)
-		ctx.transparency("HapC" .. s, h)
-		ctx.transparency("HapD" .. s, h)
-		ctx.transparency("StarA" .. s, stars and 0 or 1)
-		ctx.transparency("StarB" .. s, stars and 0 or 1)
+		ctx.transparency("Lid" .. s, lidDown > 0.04 and 0 or 1)
+		ctx.transparency("GoldEye" .. s, gold and 0 or 1)
 	end
 	local pop = max(boop, 0.8 * launch * (1 - spinning), 0.5 * spout)
-	L.both(pose, "Eye", pa(0, 0.1 * pop, -0.35 * pop, 0, 0, 3 * wiggle))
-	L.both(pose, "Lid", CFrame.new(0, -0.05 * happy, 0))
+	L.both(pose, "Eye", CFrame.new(0.12 * pop, 0.05 * pop, 0))
 
-	-- pupils: gentle glances, dreamy up while humming, look back at the city,
-	-- cross-eyed at the boop, up at the beam
-	local dart = clamp(3 * sin(TAU * 3 * F * t), -1, 1) * 0.28
-	local px = (dart + 0.06 * L.noise(t, 5.1, 2)) * idleW + 0.42 * peek * (1 - proud)
-	local py = (-0.05 + 0.05 * L.noise(t, 8.2, 2)) * idleW + 0.3 * hum + 0.38 * peek * (1 - proud) + 0.4 * beam
+	-- pupils (on the outer face): glance forward / back, look back at the
+	-- city, lock forward on the fish at the boop, up-and-back at the beam
+	local dart = clamp(3 * sin(TAU * 3 * F * t), -1, 1) * 0.3
+	local pz = (dart + 0.1 * L.noise(t, 5.1, 2)) * idleW + 1.0 * peek * (1 - proud) + 0.5 * beam
+	local py = 0.06 * L.noise(t, 8.2, 2) * idleW + 0.15 * hum + 0.2 * peek * (1 - proud) + 0.2 * beam
 	local cross = max(boopApp, boop) * (1 - giggleB)
-	px = px * (1 - cross) - 0.5 * cross
-	py = py * (1 - cross) - 0.42 * cross
-	px += 0.3 * sin(TAU * 1.0 * (c - SPIN0)) * spinning
-	-- (scaled to the smaller, kinder eyes so the iris stays inside the white)
-	L.both(pose, "Pupil", CFrame.new(0.55 * px, 0.55 * py, 0))
+	pz = pz * (1 - cross) - 0.4 * cross
+	py = py * (1 - cross) - 0.18 * cross
+	pz += 0.4 * sin(TAU * 1.0 * (c - SPIN0)) * spinning
+	L.both(pose, "Pupil", CFrame.new(0, clamp(py, -0.2, 0.2), clamp(pz, -0.4, 1.3)))
 
+	-- brow ridge: raise + front edge up = surprise / wonder, front edge down = focus
 	local surprise = max(boop * (1 - giggleB), 0.8 * launch * (1 - spinning))
-	local browUp = 0.15 * wave(t, 4 * F, 0.1) * idleW + 0.6 * surprise + 0.3 * hum + 0.35 * proud
-		- 0.35 * breath - 0.2 * puff + 0.3 * settle + 0.25 * giggleB
-	local browRoll = -6 * hum - 10 * surprise + 10 * breath + 8 * puff - 6 * settle + 3 * wave(t, 4 * F, 0.3) * idleW
-	L.both(pose, "Brow", pa(0, browUp, 0, 0, 0, browRoll))
+	local browUp = 0.12 * wave(t, 4 * F, 0.1) * idleW + 0.5 * surprise + 0.25 * hum + 0.25 * proud
+		- 0.3 * breath - 0.2 * puff + 0.2 * settle + 0.2 * giggleB
+	local browPitch = 5 * hum + 12 * surprise - 12 * breath - 9 * puff + 4 * settle - 6 * wind + 3 * wave(t, 4 * F, 0.3) * idleW
+	L.both(pose, "Brow", pa(0, browUp, 0, browPitch, 0, 0))
 
+	-- jowls puff out (fountain / deep breath) and push up when she smiles
 	local cheekOut = 0.7 * puff + 0.6 * breath + 0.12 * L.wave01(t, 4 * F) * idleW + 0.25 * max(giggleB, laugh, proud)
-	L.both(pose, "Cheek", pa(0.45 * cheekOut, 0.25 * max(proud, giggleB, laugh, settle), -0.45 * cheekOut, 0, 0, 0))
-	local blush = max(proud, giggleB, settle, laugh, puff) > 0.4
-	local lines = max(giggleB, env(c, 3.9, 0.1, 0.5, 0.1), env(c, 16.9, 0.1, 1.2, 0.1)) > 0.4
-	for _, s in { "R", "L" } do
-		ctx.transparency("BlushBig" .. s, blush and 0 or 1)
-		for k = 1, 3 do
-			ctx.transparency("BlushLine" .. s .. k, lines and 0 or 1)
-		end
-	end
+	L.both(pose, "Cheek", CFrame.new(0.5 * cheekOut, 0.3 * max(proud, giggleB, laugh, settle, happy), 0))
 
 	------------------------------------------------------------------
 	-- FLIPPERS: slow strokes, pat the city, claps, flare, dance, fold
