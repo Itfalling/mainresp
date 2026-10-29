@@ -103,11 +103,12 @@ return {
 				local lo = B:bone("Shin" .. k .. side, "Leg" .. k .. side, K)
 				B:beam(lo, K, F + v(0, 0.45, 0) - d * 0.1, 1.2, 1.2, ROOT)
 				B:beam(lo, K + d * 0.2 + v(0, -0.6, 0), F + v(0, 0.6, 0) - d * 0.05, 1.3, 0.5, ROOT_DK) -- bark band
-				-- splayed root toes on the ground
-				B:block(lo, v(1.35, 0.55, 1.35), CFrame.new(F + v(0, -0.05, 0)) * CFrame.Angles(0, -rad(a), 0), ROOT_DK)
-				B:spike(lo, F + v(0, -0.1, 0), F + d * 1.2 + v(0, -0.1, 0), 0.6, 0.4, ROOT_TIP)
+				-- splayed root toes on the ground (own bone: the IK keeps them flat)
+				local ft = B:bone("Foot" .. k .. side, "Shin" .. k .. side, F)
+				B:block(ft, v(1.35, 0.55, 1.35), CFrame.new(F + v(0, -0.05, 0)) * CFrame.Angles(0, -rad(a), 0), ROOT_DK)
+				B:spike(ft, F + v(0, -0.1, 0), F + d * 1.2 + v(0, -0.1, 0), 0.6, 0.4, ROOT_TIP)
 				local sd = v(d.Z, 0, -d.X)
-				B:spike(lo, F + v(0, -0.1, 0), F + d * 0.6 + sd * 0.9 + v(0, -0.1, 0), 0.45, 0.35, ROOT_TIP)
+				B:spike(ft, F + v(0, -0.1, 0), F + d * 0.6 + sd * 0.9 + v(0, -0.1, 0), 0.45, 0.35, ROOT_TIP)
 			end
 		end)
 
@@ -127,8 +128,7 @@ return {
 		B:block(n3, v(2.0, 1.3, 2.0), cf(0, 8.65, 0.35), GREEN)
 		B:block(n3, v(2.2, 0.3, 2.2), cf(0, 9.25, 0.45), GREEN_LT)
 		-- a little leaf sprouting off the back of the stem
-		local sprout = B:bone("Sprout", "Neck2", v(0, 7.3, 1.4))
-		leaf(sprout, v(0, 7.3, 1.4), 180, 2.6, 1.4, 40, GREEN_DK)
+		leaf(n2, v(0, 7.3, 1.4), 180, 2.6, 1.4, 40, GREEN_DK)
 
 		------------------------------------------------------------------
 		-- ARMS: winged petiole + big leaf hand with three leafy fingers
@@ -165,7 +165,8 @@ return {
 		------------------------------------------------------------------
 		local head = B:bone("Head", "Neck3", v(0, 9.0, 0.2))
 		B:block(head, v(3.6, 2.2, 1.8), cf(0, 10.0, 0.9), GREEN_DK) -- hinge / midrib
-		B:block(head, v(5.6, 1.3, 0.3), cf(0, 10.0, -0.05), INSIDE_DK) -- deep red back of the trap
+		B:block(head, v(5.6, 2.6, 0.3), cf(0, 9.55, -0.05), INSIDE_DK) -- deep red back of the trap (throat)
+		B:block(head, v(4.4, 0.4, 2.0), cf(0, 8.45, 0.9), INSIDE_DK) -- gullet floor (hides the stem top)
 		B:block(head, v(6.4, 0.9, 5.8), cf(0, 10.75, -2.4), GREEN) -- U1
 		B:block(head, v(7.2, 0.8, 3.4), cf(0, 10.75, -2.4), GREEN) -- U1 middle bulge
 		B:block(head, v(6.6, 0.3, 6.0), cf(0, 10.36, -2.4), RIM) -- red lip rim
@@ -218,7 +219,7 @@ return {
 		B:block(head, v(0.25, 1.1, 0.25), CFrame.new(AM + v(0.25, 0, 0)) * P.ang(0, 0, -20), "#ff2b2b", { tr = 1, name = "AngryMark2" })
 		B:block(head, v(1.1, 0.25, 0.25), CFrame.new(AM + v(0, 0.25, 0)) * P.ang(0, 0, 10), "#ff2b2b", { tr = 1, name = "AngryMark3" })
 		B:block(head, v(1.1, 0.25, 0.25), CFrame.new(AM + v(0, -0.25, 0)) * P.ang(0, 0, -10), "#ff2b2b", { tr = 1, name = "AngryMark4" })
-		local sweat = B:bone("Sweat", "Head", v(-3.3, 11.9, -2.8))
+		local sweat = head
 		B:block(sweat, v(0.55, 0.8, 0.55), cf(-3.3, 11.8, -2.8), "#8fdcff", { tr = 1, name = "SweatDrop1" })
 		B:block(sweat, v(0.35, 0.4, 0.35), cf(-3.3, 12.35, -2.8), "#c9f0ff", { tr = 1, name = "SweatDrop2" })
 

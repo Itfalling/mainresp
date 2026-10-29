@@ -144,7 +144,7 @@ local function apply(pose, ctx, q, t)
 		ctx.transparency("LidL", 0)
 	end
 	L.both(pose, "Eye", CFrame.new(0, 0.04 * q.eyePop, -0.22 * q.eyePop))
-	ctx.light("EyeLight", clamp(0.5 + q.eyeGlow, 0, 1.8))
+	ctx.light("EyeLight", clamp(0.3 + 0.8 * q.eyeGlow, 0, 1.4))
 	if q.mouthGlow > 0.02 then
 		ctx.transparency("MouthGlow", 1 - clamp(q.mouthGlow, 0, 0.85))
 	end
@@ -456,6 +456,8 @@ local function alert(t, pose, ctx)
 	q.popR = 14 * wave(t, 3) * pop
 	-- hat flies off and comes back down
 	q.hatUp = hatFly
+	q.hatZ = 0.75 * hatFly
+	q.hatX = -0.3 * hatFly
 	q.hatSpin = hatSpin
 	q.hatP = 18 * star
 	q.flop = 2.5
@@ -463,7 +465,7 @@ local function alert(t, pose, ctx)
 	q.brimDroop = -10 * jump
 	q.orbOut = 1.4 * star + 0.4 * wild
 	-- fork: shaken high, then levelled forward
-	q.forkW = ang(0, 0, -10 * star) * ang(-75 * ready, 0, 0)
+	q.forkW = ang(0, 0, -38 * star) * ang(-75 * ready, 0, 0)
 	q.forkK = math.max(ready, 0.6 * star)
 
 	apply(pose, ctx, q, t)
@@ -635,7 +637,7 @@ local function catch(t, pose, ctx)
 	local hatY = track(t, { { 0.18, 0 }, { 0.55, 2.2, "quadOut" }, { 1.25, 2.4 }, { 1.62, 0, "quadIn" } })
 	local hatSpin = track(t, { { 0.18, 0 }, { 1.62, 1440, "sineInOut" } })
 	local landHat = env(t, 1.62, 0.04, 0.05, 0.3, "quadOut", "backOut")
-	local proud = env(t, 1.6, 0.12, 0.12, 0.25, "backOut", "sineInOut")
+	local proud = env(t, 1.55, 0.1, 0.1, 0.22, "backOut", "sineInOut")
 
 	-- kick beat: which foot kicks and how much
 	local beat = (t - 0.16) / 0.32
@@ -679,7 +681,7 @@ local function catch(t, pose, ctx)
 	q.flopHz = 1 / 0.16
 	q.orbOut = 0.6 * jig
 	q.forkW = ang(0, 0, -10)
-	q.forkK = jig
+	q.forkK = math.max(jig, proud)
 
 	apply(pose, ctx, q, t)
 
@@ -722,7 +724,7 @@ local function giveUp(t, pose, ctx)
 	q.footL = q.footL + V(0, 0.45 * popUp, 0)
 	q.toeR = 30 * heap - 10 * liftR
 	q.toeL = 25 * heap - 10 * liftL
-	q.chestP = -6 * shock - 38 * heap + 3 * breath + 12 * popUp - 8 * tantrum
+	q.chestP = -6 * shock - 26 * heap + 3 * breath + 12 * popUp - 8 * tantrum
 	q.chestR = 10 * heap
 	-- arms flop out to the sides on the ground, fist shaking in the tantrum
 	q.armR = V(-6 * shock, 0, 30 * heap + 60 * popUp) + V(25, 0, 15) * tantrum
@@ -733,8 +735,8 @@ local function giveUp(t, pose, ctx)
 	q.foreL = V(0, 0, -25 * heap) + V(70 + 15 * shakeFist, 0, 0) * tantrum
 	q.handL = V(0, 0, -30 * heap)
 	-- head: shocked jerk back, then droops to the side, hat slides over the eyes
-	q.headP = 14 * shock - 26 * heap + 18 * popUp - 10 * tantrum
-	q.headR = 30 * heap + 4 * breath + 10 * tantrum * wave(t, 7)
+	q.headP = 14 * shock - 8 * heap + 18 * popUp + 4 * tantrum
+	q.headR = 36 * heap + 4 * breath + 10 * tantrum * wave(t, 7)
 	q.headY = 15 * heap
 	q.jaw = 22 * shock + 10 * heap + 30 * popUp + (12 + 14 * (0.5 + 0.5 * wave(t, 10))) * tantrum
 	q.eyePop = 0.8 * shock + 0.5 * popUp
@@ -744,7 +746,7 @@ local function giveUp(t, pose, ctx)
 	q.lid = 0.62 * slump
 	q.mouthGlow = 0.6 * tantrum
 	q.angry = t > 1.75 and t < 2.45
-	q.hatP = -24 * heap
+	q.hatP = -15 * heap
 	q.hatUp = -0.28 * heap + 1.0 * popUp
 	q.hatZ = -0.25 * heap
 	q.hatSpin = 90 * popUp

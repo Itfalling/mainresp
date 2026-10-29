@@ -18,7 +18,15 @@ local M = {}
 M.Props = {
 	AngerMark1 = 1, AngerMark2 = 1, AngerMark3 = 1, AngerMark4 = 1,
 	Berry = 1, BerryLeaf = 1, EyelidR = 1, EyelidL = 1,
+	BallCover1 = 1, BallCover2 = 1, BallCover3 = 1, BallCover4 = 1, BallCover5 = 1, BallCover6 = 1,
 }
+local function covers(ctx, k)
+	if k > 0.6 then
+		for i = 1, 6 do
+			ctx.transparency("BallCover" .. i, 0)
+		end
+	end
+end
 
 local max, sin, rad, pi, clamp = math.max, math.sin, math.rad, math.pi, math.clamp
 local env, track, remap = L.env, L.track, L.remap
@@ -30,7 +38,7 @@ end
 -- rig constants (model space, must match build.luau)
 ------------------------------------------------------------------------
 local BP = Vector3.new(0, 4.0, 0.6) -- Body pivot
-local Q = Vector3.new(0, 1.4, -0.3) -- ball centre in Body-local space
+local Q = Vector3.new(0, 1.0, 0.2) -- ball centre in Body-local space
 local LEGS = {
 	{ "Arm", "Paw", Vector3.new(2.7, 2.6, -2.3) },
 	{ "Leg", "Foot", Vector3.new(2.9, 2.6, 2.6) },
@@ -38,12 +46,12 @@ local LEGS = {
 -- curled-ball "radius" (centre height that keeps the lowest point on the
 -- floor) for every 5 degrees of forward roll, measured from the curled pose
 local DBALL = {
-	4.58, 4.73, 4.88, 4.99, 5.06, 5.10, 5.11, 5.11, 5.08, 5.01, 4.91, 4.77, 4.60, 4.34, 4.32, 4.32, 4.29, 4.23,
+	6.03, 6.01, 6.03, 6.03, 6.02, 5.96, 5.89, 5.78, 5.65, 5.48, 5.27, 5.03, 4.82, 4.53, 4.32, 4.32, 4.29, 4.23,
 	4.13, 4.24, 4.35, 4.42, 4.46, 4.48, 4.48, 4.46, 4.41, 4.32, 4.21, 4.19, 4.47, 4.70, 4.90, 5.06, 5.20, 5.31,
 	5.40, 5.43, 5.43, 5.42, 5.38, 5.30, 5.19, 4.99, 4.80, 4.64, 4.79, 4.89, 4.98, 5.01, 5.02, 5.01, 4.98, 4.92,
-	4.82, 4.64, 4.61, 4.67, 4.70, 4.71, 4.93, 5.08, 5.20, 5.28, 5.32, 5.32, 5.32, 5.29, 5.22, 5.11, 4.97, 4.79,
+	4.82, 4.64, 4.61, 4.67, 4.70, 4.88, 5.15, 5.33, 5.49, 5.71, 5.90, 6.05, 6.18, 6.23, 6.24, 6.24, 6.21, 6.14,
 }
-local BALL_R = 4.78 -- mean rolling radius
+local BALL_R = 5.05 -- mean rolling radius
 local function dBall(roll)
 	local r = (roll % 360) / 5
 	local i = math.floor(r)
@@ -136,8 +144,8 @@ local function curl(pose, k, extraBristle)
 	local function mix(name, target)
 		pose[name] = (pose[name] or CFrame.new()):Lerp(target, k)
 	end
-	mix("Front", ang(-70, 0, 0))
-	mix("Rump", ang(70, 0, 0))
+	mix("Front", ang(-45, 0, 0))
+	mix("Rump", ang(45, 0, 0))
 	mix("Head", pa(0, 1.8, 6.6, -10, 0, 0))
 	local c, s = quillCF(0.5 + (extraBristle or 0))
 	for _, g in { "F", "M", "R" } do
@@ -235,6 +243,7 @@ local function idle(t, pose, ctx)
 	local c = t % IDLE_LEN
 	if CAL then
 		shock(pose, ctx, c, -9, 0)
+		covers(ctx, 1)
 		curl(pose, 1, 0)
 		pose.Body = CFrame.new(-BP) * CFrame.new(0, 8, BP.Z + Q.Z) * CFrame.Angles(rad(-36 * c), 0, 0) * CFrame.new(-Q)
 		return
@@ -266,7 +275,7 @@ local function idle(t, pose, ctx)
 
 	-- body (standing)
 	local by = 0.12 * breathe - 0.35 * dip + 0.25 * flick - 0.3 * gulp + 0.3 * yawn + 0.2 * ah2 - 0.6 * choo
-		- 0.9 * crouch - 1.1 * land + 0.2 * proud
+		- 0.9 * crouch - 0.75 * land + 0.2 * proud
 	local bz = -0.3 * dip + 0.35 * yawn - 0.5 * choo + 0.4 * ah2
 	local bp = -4 * dip + 8 * flick - 3 * gulp + 10 * yawn + 6 * ah1 + 9 * ah2 - 12 * choo - 6 * crouch + 6 * land
 		+ 6 * proud + 1.5 * breathe
@@ -314,6 +323,7 @@ local function idle(t, pose, ctx)
 		local bt = ballT(roll, jitter, 0.35 * rev, 3.2 * hop)
 		pose.Body = stand:Lerp(bt, k)
 		curl(pose, k, 0.25 * rev)
+		covers(ctx, k)
 	elseif c >= SPIN_B and c < SPIN_LAND then
 		local roll = dashRoll(c)
 		pose.Body = CFrame.new(-BP) * CFrame.new(0, BP.Y + Q.Y + 3.2 * hop, BP.Z + Q.Z) * CFrame.Angles(rad(-roll), 0, 0) * CFrame.new(-Q)
@@ -385,7 +395,7 @@ local function alert(t, pose, ctx)
 	local rage = (c > BOOM and 1 or 0) * settle
 	local rumble = crouch * wave(t, 18)
 
-	local by = 0.3 * take - 1.0 * crouch + 1.6 * jump - 0.5 * (hitR + hitL) - 0.5 * ready
+	local by = 0.3 * take - 0.7 * crouch + 1.6 * jump - 0.5 * (hitR + hitL) - 0.5 * ready
 	local bp = 6 * take - 8 * crouch + 10 * boom * settle + 6 * stompR + 6 * stompL - 4 * ready
 	local broll = 1.5 * rumble - 7 * stompR + 7 * stompL
 	local stand = pa(0.1 * rumble, by, 0.4 * crouch, bp, 0, broll)
@@ -434,6 +444,7 @@ local function chase(t, pose, ctx)
 	local roll = 360 * c / CHASE_LEN
 	pose.Body = ballT(roll, 0, 0, 0)
 	curl(pose, 1, 0)
+	covers(ctx, 1)
 	orbs(pose, t, 1 / CHASE_LEN, 400, 0.5, 1.0)
 	shock(pose, ctx, c, -9, 0)
 	for _, at in { 0.0, 0.225, 0.45, 0.675 } do
@@ -473,6 +484,7 @@ local function attack(t, pose, ctx)
 	if k > 0 then
 		pose.Body = stand:Lerp(ballT(roll, 0, z, up + 0.9 * impact), k)
 		curl(pose, k, 0.9 * impact)
+		covers(ctx, k)
 	end
 	anger(ctx, pose, t, true)
 	orbs(pose, t, 1, 120, -1.5 * impact, 0)

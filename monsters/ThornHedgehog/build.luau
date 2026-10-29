@@ -50,6 +50,18 @@ return {
 		B:block(front, v(5.8, 2.4, 0.6), cf(0, 3.0, -3.75), CREAM)
 		B:block(front, v(4.0, 1.0, 0.5), cf(0, 1.9, -3.95), TAN)
 
+		-- hidden thorny belly plates: only shown while curled into the ball so
+		-- the rolling ball is spiky all the way round (props)
+		B:block(body, v(7.0, 0.7, 5.6), cf(0, 0.95, 0.5), VINE1, { tr = 1, name = "BallCover1" })
+		B:block(body, v(5.2, 0.6, 3.8), cf(0, 0.35, 0.5), VINE2, { tr = 1, name = "BallCover2" })
+		local bc = 2
+		for _, p in { { 2.2, -1.2 }, { -2.2, -1.2 }, { 2.2, 2.2 }, { -2.2, 2.2 } } do
+			bc += 1
+			local base = v(p[1], 0.5, p[2])
+			local dir = v(p[1] * 0.18, -1, p[2] * 0.12 + 0.35).Unit
+			B:block(body, v(0.7, 0.7, 1.1), CFrame.lookAt(base + dir * 0.35, base + dir * 2), THORN, { tr = 1, name = "BallCover" .. bc })
+		end
+
 		-- stepped dome layers, split into the three slices
 		local layers = {
 			{ 3.7, 5.0, VINE0 },

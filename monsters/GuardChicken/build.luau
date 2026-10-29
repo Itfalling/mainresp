@@ -196,9 +196,9 @@ return {
 		-- carrot-sprout cockade tucked in the band (garden guard!)
 		local CK = HC * CFrame.new(-0.82, 0.32, 0.1)
 		B:block(helmet, v(0.3, 0.4, 0.3), CK, ORANGE)
-		B:beam(helmet, (CK * CFrame.new(0, 0.15, 0)).Position, (CK * CFrame.new(-0.15, 0.6, 0)).Position, 0.18, 0.18, GREEN)
+		B:beam(helmet, (CK * CFrame.new(0, 0.15, 0)).Position, (CK * CFrame.new(-0.2, 0.45, 0)).Position, 0.18, 0.18, GREEN)
 		B:beam(helmet, (CK * CFrame.new(0, 0.15, 0)).Position, (CK * CFrame.new(-0.45, 0.4, 0.05)).Position, 0.16, 0.16, DGREEN)
-		B:beam(helmet, (CK * CFrame.new(0, 0.15, 0)).Position, (CK * CFrame.new(0.1, 0.55, 0.2)).Position, 0.16, 0.16, GREEN)
+		B:beam(helmet, (CK * CFrame.new(0, 0.15, 0)).Position, (CK * CFrame.new(0.1, 0.42, 0.2)).Position, 0.16, 0.16, GREEN)
 		local steam = B:block(helmet, v(1.0, 0.4, 1.0), HC * CFrame.new(0, 0.8, 0), WHITE, { tr = 1, name = "SteamFX" })
 		B:emitter(steam, "smoke", {
 			name = "SteamPuff", rate = 0, color = { "#ffffff", "#e8e8e8" }, size = { 0.4, 1.0, 1.4 },

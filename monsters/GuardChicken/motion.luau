@@ -575,7 +575,7 @@ local function giveup(t, pose, ctx)
 	local kick = wave(t, 6)
 	local b = {
 		x = 0.06 * kick * tant,
-		y = -0.15 * slump - 0.25 * flop + 0.7 * hop + 0.04 * abs(kick) * tant,
+		y = -0.15 * slump - 0.08 * flop + 0.7 * hop + 0.04 * abs(kick) * tant,
 		z = 0.7 * flop,
 		p = -8 * slump + 74 * flop + 6 * huff * wave(t, 4),
 		yaw = 8 * kick * tant,

@@ -81,6 +81,7 @@ local ORB_DIR = { 1, -1, 1, -1 }
 local ORB_XZ = { { 10.5, -3.0 }, { -10.5, -1.5 }, { 8.5, 7.0 }, { -8.5, 5.5 } }
 local SHOCK_N = 10
 local NOCURL = { 0, 0, 0, 0, 0 }
+local ABD_LIFT = -5 -- carried a touch higher than the build pose (hover clearance)
 
 local function rig(pose, t, ctx, q)
 	setmetatable(q, ZERO)
@@ -146,7 +147,7 @@ local function rig(pose, t, ctx, q)
 	for i = 1, 4 do
 		local w = q.abdW * wave(t, q.abdHz, -0.12 * i)
 		local yw = q.abdYaw * wave(t, q.abdYHz, -0.1 * i)
-		pose["Abd" .. i] = ang(q.abdP * (i == 1 and 1.2 or 1) + w + curl[i], yw, 0)
+		pose["Abd" .. i] = ang(q.abdP * (i == 1 and 1.2 or 1) + w + curl[i] + (i == 1 and ABD_LIFT or 0), yw, 0)
 	end
 	pose.Stinger = ang(q.sting + q.abdW * 1.4 * wave(t, q.abdHz, -0.6) + curl[5], 0, 0)
 	local glow = clamp01(q.glow)
@@ -227,7 +228,7 @@ local function idle(t, pose, ctx)
 	local pulse = wave(t, 1.0)
 
 	-- BODY
-	q.y = 0.45 * bob + 0.6 * sal + 1.1 * hup - 0.9 * crouch + 1.3 * rise - 0.9 * slam
+	q.y = 0.45 * bob + 0.6 * sal + 1.1 * hup - 0.5 * crouch + 1.3 * rise - 0.9 * slam
 	q.p = pulse + 6 * sal - 8 * crouch + 4 * twirl - 10 * slam + 6 * flare
 	q.yw = 0.55 * scan + 10 * pol - 12 * twirl
 	q.r = 3 * sway * calm + 4 * twirl
@@ -263,7 +264,7 @@ local function idle(t, pose, ctx)
 	-- ARMS
 	local fistR = FI + V(0, 0.15 * bob, 0)
 	fistR = lerpV(fistR, PRESENT_R, pol)
-	fistR = lerpV(fistR, FI + V(0, -0.8, 1.0), crouch * (1 - twirl))
+	fistR = lerpV(fistR, FI + V(0, 0.4, 1.0), crouch * (1 - twirl))
 	fistR = lerpV(fistR, TWIRL, twirl)
 	fistR = fistR + V(0, -0.6 * slam, -0.5 * flare)
 	q.fistR = fistR
@@ -280,7 +281,7 @@ local function idle(t, pose, ctx)
 	local sp = CFrame.new():Lerp(SPEAR_FLAT, pol)
 	sp = sp * ang(-spin * twirl, 0, 0)
 	q.spear = ang(0, 0, 0) * sp
-	q.slide = 1.25 * twirl
+	q.slide = 1.5 * twirl
 	q.spearLight = 1.4 * gleam + 0.6 * twirl * (spin > 1 and spin < 719 and 1 or 0) + 1.2 * flare
 
 	-- LEGS: dangle + kick on the hup, tuck for the show-off
@@ -369,7 +370,7 @@ local function alert(t, pose, ctx)
 	q.legZ = 20 * cry + 8 * shock
 	q.shinX = -10 * shock + 12 * crouch - 10 * cry
 
-	q.abdP = 4 * crouch - 14 * charge + 3 * crouch * wave(t, 13)
+	q.abdP = 4 * crouch - 14 * charge - 12 * shock + 3 * crouch * wave(t, 13)
 	q.abdW = 2
 	q.abdHz = 2
 	q.sting = -32 * charge
@@ -547,7 +548,7 @@ local function catch(t, pose, ctx)
 	local pump = tri * max(0, wave(c, 2.5))
 	local laugh = tri * wave(t, 9)
 
-	q.y = 0.45 * wave(t, 0.5) - 0.8 * crouch + 2.8 * rise
+	q.y = 0.45 * wave(t, 0.5) - 0.4 * crouch + 2.8 * rise
 	q.p = -8 * crouch + 10 * tri
 	q.yw = 360 * loopK
 	q.r = 15 * sin(pi * loopK)
@@ -563,7 +564,7 @@ local function catch(t, pose, ctx)
 	q.wSweep = 10 * rise
 	q.wRaise = 6 + 12 * rise
 
-	q.fistR = lerpV(FI, CRY_R, tri)
+	q.fistR = lerpV(FI + V(0, 0.8 * crouch, 0), CRY_R, tri)
 	q.poleR = tri > 0.01 and V(1, -0.3, 0.3) or nil
 	q.fistL = lerpV(FI, CRY_L + V(0, 0.8 * pump, 0), tri)
 	q.poleL = tri > 0.01 and V(1, -0.2, 0.3) or nil
@@ -637,7 +638,7 @@ local function giveUp(t, pose, ctx)
 
 	q.fistR = FI + V(0, 1.2 * tant * max(0, wave(t, 5)) - 0.9 * droop, 0.6 * droop)
 	q.spear = ang(-20 * droop, 0, 4 * tant * wave(t, 5))
-	q.spearBody = 0
+	q.spearBody = 1
 	q.fistL = lerpV(FI, V(4.4, 12.4 + 0.6 * wave(t, 8), -4.4), tant) + V(0, -1.0 * droop, 1.0 * droop)
 	q.poleL = tant > 0.01 and V(1, -0.3, 0.3) or nil
 
@@ -646,12 +647,12 @@ local function giveUp(t, pose, ctx)
 	q.legZ = 12 * tant - 4 * droop
 	q.shinX = 10 * droop
 
-	q.abdP = -6 * inLoop - 26 * fold + 3 * droop
+	q.abdP = -6 * inLoop - 26 * fold - 4 * tant
 	q.abdW = 3
 	q.abdHz = 2
 	q.abdYaw = 14 * tant
 	q.abdYHz = 6
-	q.sting = 10 * droop - 30 * fold
+	q.sting = 6 * droop - 30 * fold
 	q.glow = 0.4 * inLoop
 
 	q.orbYaw = 360 * loopK

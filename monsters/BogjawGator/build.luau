@@ -213,7 +213,7 @@ return {
 			{ 0.55, -0.7, 0.6, 0.25 }, { 0.7, -0.55, 0.25, 0.6 },
 		}
 		for i, q in veins do
-			B:block(mark, v(q[3], q[4], 0.3), MP * CFrame.new(q[1], q[2], 0), RED, { tr = 1, name = "AngryMark" .. i })
+			B:block(mark, v(q[3] * 1.45, q[4] * 1.45, 0.35), MP * CFrame.new(q[1] * 1.45, q[2] * 1.45, 0), RED, { tr = 1, name = "AngryMark" .. i })
 		end
 
 		-- sleepy Zzz (prop)

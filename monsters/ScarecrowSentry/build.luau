@@ -73,7 +73,7 @@ return {
 		B:block(rope, v(0.3, 0.2, 0.3), cf(0.74, 3.68, -1.05), STRAW_D)
 		-- straw poking out under the belt (sides + back)
 		B:sym(function()
-			tuft(hips, v(1.15, 4.3, 0.25), { v(1.85, 3.8, 0.45), v(1.75, 4.05, 0.85), v(1.8, 3.6, 0.0) })
+			tuft(hips, v(1.15, 4.3, 0.25), { v(1.85, 3.8, 0.45), v(1.75, 4.05, 0.85) })
 		end)
 		tuft(hips, v(0, 4.3, 0.75), { v(0.35, 3.85, 1.35), v(-0.3, 3.8, 1.35) })
 
@@ -94,7 +94,6 @@ return {
 			local foot = B:bone("Foot" .. side, "Shin" .. side, v(0.65, 0.6, 0))
 			B:block(foot, v(0.4, 0.45, 0.4), cf(0.65, 0.58, 0), WOOD)
 			B:block(foot, v(0.82, 0.4, 1.3), cf(0.65, 0.2, -0.15), WOOD)
-			B:block(foot, v(0.84, 0.08, 1.0), cf(0.65, 0.32, -0.2), WOOD_D)
 			B:block(foot, v(0.7, 0.3, 0.45), cf(0.65, 0.15, -1.0), WOOD_D)
 			local fx = B:block(foot, v(0.8, 0.1, 1.2), cf(0.65, 0.05, -0.2), WOOD, { tr = 1, name = "FootFX" .. side })
 			B:emitter(fx, "dust", {
@@ -122,8 +121,7 @@ return {
 			-- collar points
 			B:block(chest, v(0.6, 0.14, 0.55), cf(0.42, 6.74, -0.55, 0, 0, -18), PLAID_D)
 			-- collar straw
-			tuft(chest, v(0.8, 6.7, -0.2), { v(1.65, 6.95, -0.55), v(1.55, 7.15, -0.1) })
-			tuft(chest, v(0.7, 6.7, 0.45), { v(1.4, 7.0, 0.95), v(0.9, 7.1, 1.15) })
+			tuft(chest, v(0.75, 6.7, 0.1), { v(1.65, 6.95, -0.45), v(1.55, 7.15, 0.2), v(1.3, 7.0, 0.95) })
 		end)
 		tuft(chest, v(0, 6.7, 0.55), { v(0.15, 7.1, 1.35), v(-0.25, 6.95, 1.3) })
 		-- back plaid + crossed straps
@@ -174,12 +172,11 @@ return {
 		end)
 		-- side patch (right) with stitches
 		B:block(head, v(0.08, 0.75, 0.75), cf(1.6, 8.45, 0.45), PATCH_S)
-		ticks(head, v(1.65, 8.85, 0.45), v(1.65, 8.05, 0.45), 3, v(0.06, 0.1, 0.3))
+		ticks(head, v(1.65, 8.82, 0.45), v(1.65, 8.08, 0.45), 2, v(0.06, 0.1, 0.3))
 		-- back seam + burlap texture squares
 		B:block(head, v(0.12, 1.55, 0.06), cf(0, 8.2, 1.22), STITCH)
-		ticks(head, v(0, 8.75, 1.24), v(0, 7.65, 1.24), 3, v(0.38, 0.08, 0.05))
+		ticks(head, v(0, 8.6, 1.24), v(0, 7.8, 1.24), 2, v(0.38, 0.08, 0.05))
 		B:block(head, v(0.8, 0.6, 0.06), cf(-0.8, 8.6, 1.22), BURLAP_D)
-		B:block(head, v(0.6, 0.5, 0.06), cf(0.85, 7.75, 1.22), BURLAP_L)
 		-- mouth: dark interior seen through the jagged gap, grin corners curling up
 		B:block(head, v(2.5, 0.55, 1.2), cf(0, 7.22, -0.75), MOUTH)
 		B:block(head, v(2.3, 0.4, 0.04), cf(0, 7.28, -1.355), EYE, { mat = "Neon", tr = 1, name = "MouthGlow" })
@@ -199,9 +196,9 @@ return {
 			name = "Sneeze", color = { STRAW_L, STRAW, "#f4ead2" }, size = { 0.45, 0.35, 0 }, speed = { 7, 13 },
 			life = { 0.4, 0.8 }, spread = 25, accel = { 0, -10, 0 }, dir = "Front", drag = 2,
 		})
-		local efx = B:block(head, v(2.0, 0.6, 0.3), cf(0, 8.3, -1.8), BURLAP, { tr = 1, name = "EyeFX" })
+		local efx = B:block(head, v(2.0, 0.6, 0.3), cf(0, 8.4, -3.0), BURLAP, { tr = 1, name = "EyeFX" })
 		B:emitter(efx, "burst", { name = "EyeEmbers", color = { "#fff2c0", EYE }, size = { 0.3, 0.2, 0 }, speed = { 2, 5 }, life = { 0.4, 0.8 }, accel = { 0, 4, 0 } })
-		B:light(efx, { name = "EyeLight", color = EYE, brightness = 0.5, range = 8 })
+		B:light(efx, { name = "EyeLight", color = EYE, brightness = 0.3, range = 9 })
 		-- anger mark (prop): a red pinwheel cross beside the hat crown
 		local AM = v(1.25, 9.55, -1.25)
 		local marks = {
@@ -257,8 +254,7 @@ return {
 		-- straw "hair" poking out under the hat brim
 		local hair = B:bone("Hair", "Head", v(0, 8.9, 0.3))
 		B:sym(function()
-			tuft(hair, v(1.35, 8.85, 0.2), { v(2.0, 8.35, 0.4), v(1.95, 8.6, -0.25), v(1.85, 8.15, 0.85) })
-			tuft(hair, v(1.0, 8.85, 1.0), { v(1.4, 8.25, 1.6) })
+			tuft(hair, v(1.3, 8.85, 0.4), { v(2.0, 8.35, 0.4), v(1.95, 8.6, -0.25), v(1.6, 8.2, 1.4) })
 		end)
 		tuft(hair, v(0, 8.85, 1.1), { v(0.25, 8.1, 1.75), v(-0.3, 8.2, 1.7) })
 
@@ -307,7 +303,7 @@ return {
 			B:beam(fore, E + v(0, 0.15, 0), v(2.27, 3.8, 0), 0.76, 0.76, PLAID)
 			B:beam(fore, v(2.08, 4.35, 0), v(2.13, 4.15, 0), 0.8, 0.8, PLAID_D)
 			B:beam(fore, v(2.24, 3.88, 0), v(2.29, 3.66, 0), 0.92, 0.92, PLAID_D)
-			tuft(fore, v(2.28, 3.68, 0), { v(2.85, 3.45, 0.2), v(1.85, 3.4, 0.3), v(2.45, 3.35, 0.55) })
+			tuft(fore, v(2.28, 3.68, 0), { v(2.85, 3.45, 0.2), v(1.9, 3.4, 0.4) })
 			B:block(fore, v(0.32, 0.4, 0.32), cf(2.3, 3.5, 0), WOOD)
 			local hand = B:bone("Hand" .. side, "Forearm" .. side, H)
 			B:block(hand, v(0.55, 0.45, 0.55), cf(2.32, 3.2, 0.05), WOOD_D)
@@ -330,7 +326,6 @@ return {
 				local G = v(2.35, 3.2, -0.4)
 				local fork = B:bone("Fork", "HandR", G)
 				B:beam(fork, v(2.35, 0.7, -0.4), v(2.35, 6.45, -0.4), 0.32, 0.32, WOOD)
-				B:block(fork, v(0.4, 0.22, 0.4), cf(2.35, 1.5, -0.4), WOOD_D)
 				B:block(fork, v(0.4, 0.22, 0.4), cf(2.35, 5.6, -0.4), WOOD_D)
 				B:block(fork, v(0.42, 0.28, 0.42), cf(2.35, 0.7, -0.4), METAL_D)
 				B:block(fork, v(0.5, 0.5, 0.5), cf(2.35, 6.5, -0.4), METAL)

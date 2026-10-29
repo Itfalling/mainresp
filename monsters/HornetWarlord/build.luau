@@ -152,12 +152,12 @@ return {
 			if side == "R" then
 				-- the honey-dipped stinger lance (own bone at the fist)
 				local sp = B:bone("Spear", "ForeR", v(4.4, 8.4, -5.1))
-				B:beam(sp, v(4.4, 2.6, -5.1), v(4.4, 13.6, -5.1), 0.6, 0.6, BLK2)
-				for _, y in { 4.0, 7.0, 10.0, 12.4 } do
+				B:beam(sp, v(4.4, 3.4, -5.1), v(4.4, 13.6, -5.1), 0.6, 0.6, BLK2)
+				for _, y in { 4.7, 7.0, 10.0, 12.4 } do
 					B:block(sp, v(0.8, 0.35, 0.8), cf(4.4, y, -5.1), GOLD)
 				end
-				B:block(sp, v(0.9, 0.6, 0.9), cf(4.4, 2.5, -5.1), DGOLD) -- butt cap
-				B:block(sp, v(0.5, 0.5, 0.5), cf(4.4, 2.0, -5.1), GOLD)
+				B:block(sp, v(0.9, 0.6, 0.9), cf(4.4, 3.3, -5.1), DGOLD) -- butt cap
+				B:block(sp, v(0.5, 0.5, 0.5), cf(4.4, 2.8, -5.1), GOLD)
 				B:block(sp, v(1.1, 0.8, 1.1), cf(4.4, 13.6, -5.1), DGOLD) -- socket
 				-- honey dip: amber blobs + drips over the socket
 				B:block(sp, v(1.4, 0.5, 1.4), cf(4.4, 13.9, -5.1), HONEY)

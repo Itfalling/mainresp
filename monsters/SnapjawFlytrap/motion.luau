@@ -76,17 +76,16 @@ local function solve(potW, k, T)
 	local cur = R1:VectorToWorldSpace(G.l0)
 	local want = (G.H + dh * D - Kn).Unit
 	local Rw = rmin(cur, want)
-	return R1, R1:Inverse() * Rw * R1
+	-- foot: undo the pot + leg rotation so the root toes stay flat
+	local footT = (potW.Rotation * Rw * R1):Inverse()
+	return R1, R1:Inverse() * Rw * R1, footT
 end
 
 -- tripod gait: ph in [0,1) -> (dz, dy); stance first half (foot slides back)
 local function gait(ph, S, lift)
 	ph = ph % 1
 	if ph < 0.5 then
-		-- planted; the root tip rolls up a touch at the stride extremes so the
-		-- tilted toe block never digs into the ground
-		local x = ph / 0.5 * 2 - 1
-		return -S / 2 + S * (ph / 0.5), 0.06 * S * x * x
+		return -S / 2 + S * (ph / 0.5), 0
 	end
 	local s = (ph - 0.5) / 0.5
 	return S / 2 - S * E.sineInOut(s), lift * sin(pi * s)
@@ -126,11 +125,11 @@ local function apply(t, pose, ctx, P)
 	for k = 1, 3 do
 		local G = LEG[k]
 		local oR = P.feet.R[k]
-		local u, s = solve(potW, k, G.F + PLANT + oR)
-		pose["Leg" .. k .. "R"], pose["Shin" .. k .. "R"] = u, s
+		local u, s, f = solve(potW, k, G.F + PLANT + oR)
+		pose["Leg" .. k .. "R"], pose["Shin" .. k .. "R"], pose["Foot" .. k .. "R"] = u, s, f
 		local oL = P.feet.L[k]
-		local um, sm = solve(potWm, k, G.F + PLANT + Vector3.new(-oL.X, oL.Y, oL.Z))
-		pose["Leg" .. k .. "L"], pose["Shin" .. k .. "L"] = L.mirror(um), L.mirror(sm)
+		local um, sm, fm = solve(potWm, k, G.F + PLANT + Vector3.new(-oL.X, oL.Y, oL.Z))
+		pose["Leg" .. k .. "L"], pose["Shin" .. k .. "L"], pose["Foot" .. k .. "L"] = L.mirror(um), L.mirror(sm), L.mirror(fm)
 	end
 
 	-- NECK chain + HEAD
@@ -162,7 +161,6 @@ local function apply(t, pose, ctx, P)
 	ctx.transparency("EyelidL", lidTr)
 	ctx.transparency("LashR", lidTr)
 	ctx.transparency("LashL", lidTr)
-	pose.Sweat = CFrame.new(0, -P.sweat, 0)
 
 	-- ARMS
 	L.both(pose, "Arm", ang(P.armR[1], P.armR[2], P.armR[3]), ang(P.armL[1], P.armL[2], P.armL[3]))
@@ -177,7 +175,6 @@ local function apply(t, pose, ctx, P)
 		pose["Leaf" .. i .. "L"] = L.mirror(CFrame.fromAxisAngle(ax, rad(fL + 3 * wave(t, 0.5, i * 0.2 + 0.5))))
 	end
 	pose.LeafB = ang(-(P.flare + P.flutter * wave(t, 2, 0.4)) - 3 * wave(t, 0.5, 0.7), 0, 0)
-	pose.Sprout = ang(-8 * wave(t, 1, 0.2) - P.flare * 0.5, 10 * wave(t, 0.5), 0)
 
 	-- FLOATING LEAF CUBES
 	pose.Orbit = ang(0, 18 * wave(t, 0.25), 0)
