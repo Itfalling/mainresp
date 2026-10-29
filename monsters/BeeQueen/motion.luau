@@ -263,7 +263,7 @@ local function idle(t, pose, ctx)
 	local calm = 1 - max(insp, wv, fix, show)
 
 	-- BODY
-	q.y += -0.3 * crouch + 1.2 * rise + 0.3 * wv
+	q.y += -0.2 * crouch + 1.2 * rise + 0.3 * wv
 	q.p += 7 * crouch - 4 * twirl + 6 * strike - 4 * insp - 4 * lick
 	q.yw = 0.3 * scan - 8 * insp + 10 * wv + spin
 	q.r = 3 * wave(t, 0.25) * calm + 5 * wv - 4 * insp - 6 * slip
@@ -641,7 +641,7 @@ local function giveUp(t, pose, ctx)
 	local stomp = max(0, wave(t, 5))
 	local stompL = max(0, wave(t, 5, 0.5))
 
-	q.y += -0.35 * tan * (stomp + stompL) * 0.6 - 0.25 * pout
+	q.y += -0.2 * tan * (stomp + stompL) * 0.6 - 0.1 * pout
 	q.p += -6 * tan + 3 * pout
 	q.yw = 18 * pout
 	q.r = 5 * tan * wave(t, 5)
