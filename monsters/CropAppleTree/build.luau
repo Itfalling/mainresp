@@ -61,7 +61,6 @@ return {
 			{ -4.2, 1.15, 0.3 }, { 1.6, 0.6, 5.5 } } do
 			B:block(soil, v(0.3, 0.6, 0.3), cf(t[1], t[2] + 0.28, t[3]), TUFT, SOIL)
 			B:block(soil, v(0.25, 0.85, 0.25), cf(t[1] + 0.28, t[2] + 0.4, t[3] + 0.1), TUFTL, SOIL)
-			B:block(soil, v(0.25, 0.5, 0.25), cf(t[1] - 0.2, t[2] + 0.25, t[3] + 0.25), TUFTL, SOIL)
 		end
 
 		------------------------------------------------------------------
@@ -151,11 +150,13 @@ return {
 		leaf(v(5.2, 1.8, 8.6), v(0, 16.51, 0), LEAFD)
 
 		-- puffy stepped leaf clusters: dark underside, two-tone body, light cap
-		local function puff(a, r, y, s, body, top)
+		local function puff(a, r, y, s, body, top, under)
 			local rad = math.rad(a)
 			local x, z = math.cos(rad) * r, math.sin(rad) * r
 			body = body or LEAF
-			leaf(v(s * 0.74, s * 0.24, s * 0.74), v(x, y - s * 0.36, z), LEAFD) -- dark underside
+			if under ~= false then
+				leaf(v(s * 0.74, s * 0.24, s * 0.74), v(x, y - s * 0.36, z), LEAFD) -- dark underside
+			end
 			leaf(v(s, s * 0.52, s * 0.7), v(x, y, z), body)
 			leaf(v(s * 0.7, s * 0.52 + 0.04, s), v(x, y, z), body)
 			leaf(v(s * 0.68, s * 0.24, s * 0.68), v(x, y + s * 0.36, z), top or LEAFL) -- light cap
@@ -171,10 +172,10 @@ return {
 		end
 		-- upper ring
 		for i = 0, 4 do
-			puff(i * 72 + 20, 3.5, 16.3 + (i % 2) * 0.4, 3.8, i % 2 == 0 and LEAFL or LEAF, LEAFH)
+			puff(i * 72 + 20, 3.5, 16.3 + (i % 2) * 0.4, 3.8, i % 2 == 0 and LEAFL or LEAF, LEAFH, false)
 		end
 		-- crown
-		puff(0, 0, 17.6, 3.6, LEAFL, LEAFH)
+		puff(0, 0, 17.6, 3.6, LEAFL, LEAFH, false)
 
 		-- farthest canopy surface along a horizontal ray from the trunk axis
 		local function surface(a, y)
@@ -220,7 +221,7 @@ return {
 			pb(v(0.9, 0.3, 0.9), 0, 0.55, 0, REDL)
 			pb(v(0.85, 0.3, 0.85), 0, -0.55, 0, DRED)
 			if opts.neon then
-				B:gem(bone, v(0.3, 0.3, 0.06) * s, base * CFrame.new(-0.3 * s, 0.18 * s, -0.64 * s), NEONSHINE, { name = "AppleGlint" })
+				B:gem(bone, v(0.38, 0.38, 0.06) * s, base * CFrame.new(-0.3 * s, 0.18 * s, -0.64 * s), NEONSHINE, { name = "AppleGlint" })
 			else
 				pb(v(0.3, 0.3, 0.06), -0.3, 0.18, -0.64, SHINE)
 			end
@@ -237,9 +238,9 @@ return {
 		end
 		-- {angle, y, neon}
 		local APPLES = {
-			{ -95, 13.4, true }, { -60, 15.3 }, { -128, 12.2 }, { -20, 12.4 }, { -150, 15.6 },
+			{ -95, 13.4, true }, { -60, 15.3 }, { -128, 12.2 }, { 0, 14.4 }, { -150, 15.6 },
 			{ 10, 15.6 }, { 35, 13.0, true }, { 70, 15.4 }, { 100, 12.4 }, { 140, 13.4 },
-			{ 175, 15.8 }, { 205, 12.6, true }, { 240, 14.2 }, { 300, 12.2 }, { -75, 11.4 }, { 160, 11.6 },
+			{ 180, 14.6 }, { 205, 12.6, true }, { 240, 14.2 }, { 300, 12.2 }, { -75, 11.4 }, { 160, 11.6 },
 			{ -110, 16.6 }, { 55, 11.4, true },
 		}
 		local S = 1.05

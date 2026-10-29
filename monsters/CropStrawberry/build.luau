@@ -46,7 +46,6 @@ return {
 		-- soil fill + clods
 		B:block(soil, v(6.0, 0.4, 6.0), cf(0, 0.8, 0), DIRT, S)
 		B:block(soil, v(0.8, 0.3, 0.7), cf(2.3, 1.05, -2.3), DIRT_DK, S)
-		B:block(soil, v(0.6, 0.25, 0.6), cf(-2.4, 1.03, 2.2), DIRT_DK, S)
 		B:block(soil, v(0.5, 0.25, 0.45), cf(-2.35, 1.03, -2.4), "#a39787", S)
 
 		------------------------------------------------------------------
@@ -172,7 +171,6 @@ return {
 		B:block(crop, v(0.75, 0.25, 2.9), cf(0, 6.7 + HY, HZ), CAP)
 		B:block(crop, v(1.8, 0.3, 1.8), cf(0, 6.75 + HY, HZ, 0, 45, 0), CAP_DK)
 		B:block(crop, v(0.4, 0.55, 0.4), cf(0.05, 7.1 + HY, HZ), CAP_DK)
-		B:block(crop, v(0.55, 0.2, 0.25), cf(0.28, 7.33 + HY, HZ), CAP)
 
 		------------------------------------------------------------------
 		-- Secret bling: neon pink sparkle stars, floating mini berries, FX

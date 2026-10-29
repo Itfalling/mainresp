@@ -159,7 +159,7 @@ return {
 		------------------------------------------------------------------
 		-- BABY MELON
 		------------------------------------------------------------------
-		local BX, BZ = -5.0, 3.3
+		local BX, BZ = 0.1, -3.4
 		box(crop, BX - 0.8, 0.95, BZ - 0.55, BX + 0.8, 1.35, BZ + 0.55, LIGHTS)
 		box(crop, BX - 1.15, 1.3, BZ - 0.8, BX + 1.15, 1.85, BZ + 0.8, DARK)
 		box(crop, BX - 0.95, 1.3, BZ - 0.95, BX + 0.95, 1.85, BZ + 0.95, DARK)
@@ -188,10 +188,10 @@ return {
 		end
 		leaf(5.6, 3.4, -120, 8, 0.95) -- back-right, off the stem end
 		leaf(-5.6, 0.4, 95, 6, 0.85) -- left
-		leaf(1.0, 4.6, 180, 10, 0.75) -- small one at the back
+		leaf(-2.4, 4.3, 180, 10, 0.8) -- small one at the back-left
 
 		-- vines from the stem end along the ground
-		box(crop, -3.2, 1.05, 2.9, -1.9, 1.35, 3.2, VINE) -- to the baby melon
+		box(crop, 1.45, 1.05, -3.55, 2.2, 1.35, -3.25, VINE) -- baby melon's vine
 		box(crop, -2.6, 1.05, -0.6, -2.3, 1.35, 0.6, VINE)
 		local function tendril(x, z, yaw, s)
 			local F = cf(x, 1.25, z, 0, yaw, 0)

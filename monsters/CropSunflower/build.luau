@@ -30,25 +30,25 @@ return {
 		------------------------------------------------------------------
 		local soil = B:bone("Soil", "Root", v(0, 0, 0))
 		local S = { name = "Soil" }
-		B:block(soil, v(6.0, 0.45, 4.6), cf(0, 0.22, 0.3), DIRT_DK, S)
-		B:block(soil, v(4.6, 0.45, 6.0), cf(0, 0.22, 0.3), DIRT_DK, S)
-		B:block(soil, v(4.6, 0.4, 3.4), cf(0, 0.62, 0.3), DIRT, S)
-		B:block(soil, v(3.4, 0.4, 4.6), cf(0, 0.62, 0.3), DIRT, S)
+		B:block(soil, v(7.0, 0.45, 5.4), cf(0, 0.22, 0.3), DIRT_DK, S)
+		B:block(soil, v(5.4, 0.45, 7.0), cf(0, 0.22, 0.3), DIRT_DK, S)
+		B:block(soil, v(5.2, 0.4, 3.8), cf(0, 0.62, 0.3), DIRT, S)
+		B:block(soil, v(3.8, 0.4, 5.2), cf(0, 0.62, 0.3), DIRT, S)
 		B:block(soil, v(2.6, 0.2, 2.6), cf(0, 0.9, 0.5), DIRT_LT, S)
-		B:block(soil, v(0.6, 0.35, 0.6), cf(2.1, 0.6, -1.5), DIRT_DK, S)
-		B:block(soil, v(0.5, 0.3, 0.5), cf(-2.2, 0.55, 1.6), DIRT_LT, S)
+		B:block(soil, v(0.6, 0.35, 0.6), cf(2.3, 0.6, -1.7), DIRT_DK, S)
+		B:block(soil, v(0.5, 0.3, 0.5), cf(-2.6, 0.55, 1.9), DIRT_LT, S)
 		B:block(soil, v(0.45, 0.3, 0.45), cf(-1.3, 0.9, -1.1), DIRT_DK, S)
-		B:block(soil, v(0.5, 0.3, 0.4), cf(2.5, 0.5, 1.4), "#a9a39a", S)
+		B:block(soil, v(0.5, 0.3, 0.4), cf(2.9, 0.5, 1.6), "#a9a39a", S)
 
 		------------------------------------------------------------------
 		-- Stem: stepped segments with node rings
 		------------------------------------------------------------------
 		local crop = B:bone("Crop", "Root", v(0, 0.9, 0.5))
 		local SEGS = { -- {x, z, y0, y1, width}
-			{ 0.0, 0.6, 0.8, 3.3, 1.4 },
-			{ 0.1, 0.65, 3.2, 5.7, 1.3 },
-			{ 0.0, 0.75, 5.6, 8.1, 1.2 },
-			{ -0.05, 0.9, 8.0, 9.6, 1.1 },
+			{ 0.0, 0.6, 0.8, 3.3, 1.7 },
+			{ 0.1, 0.65, 3.2, 5.7, 1.5 },
+			{ 0.0, 0.75, 5.6, 8.1, 1.4 },
+			{ -0.05, 0.9, 8.0, 9.6, 1.25 },
 		}
 		for i, sg in SEGS do
 			local h, y = sg[4] - sg[3], (sg[3] + sg[4]) / 2
@@ -80,10 +80,10 @@ return {
 				z -= r[2] * s
 			end
 		end
-		leaf(v(-0.6, 2.5, 0.6), 265, 1.15, 22)
-		leaf(v(0.6, 3.5, 0.65), 80, 1.1, 22)
-		leaf(v(0.5, 5.9, 0.8), 120, 0.9, 26)
-		leaf(v(-0.4, 7.0, 0.9), 215, 0.8, 30)
+		leaf(v(-0.6, 2.4, 0.6), 262, 1.4, 20)
+		leaf(v(0.6, 3.4, 0.65), 82, 1.35, 20)
+		leaf(v(0.5, 5.8, 0.85), 125, 1.1, 24)
+		leaf(v(-0.4, 6.9, 0.95), 220, 1.0, 28)
 
 		------------------------------------------------------------------
 		-- Flower head: faces -Z, tilted 15 deg up. Local XY = disc plane.
@@ -137,7 +137,7 @@ return {
 		------------------------------------------------------------------
 		-- Second smaller bud on a side branch (half open)
 		------------------------------------------------------------------
-		local bud = v(-4.7, 4.7, -0.3)
+		local bud = v(-4.9, 4.4, -0.7)
 		B:beam(crop, v(-0.3, 3.9, 0.7), bud + v(0.6, -0.4, 0.5), 0.55, 0.55, STEM)
 		local Fb = CFrame.new(bud) * CFrame.Angles(0, rad(30), 0) * CFrame.Angles(rad(20), 0, 0)
 		B:block(crop, v(1.8, 1.3, 0.7), Fb * CFrame.new(0, 0, 0.35), STEM_DK)
@@ -155,9 +155,11 @@ return {
 		local FLOAT = {
 			{ 4.9, 11.6, -0.8, YEL, 0.55, 20 }, { -5.0, 12.4, 0.3, GOLD, 0.5, -25 }, { 3.6, 13.3, 1.2, YEL_LT, 0.4, 40 },
 			{ -4.4, 9.4, -1.6, DISC_MID, 0.4, 30 }, { 5.2, 8.4, 0.6, DISC, 0.35, -15 },
+			{ -5.6, 10.8, -0.6, NEON_GOLD, 0.3, 45, true }, { 5.7, 10.2, -1.0, NEON_GOLD, 0.25, 30, true },
+			{ -1.6, 13.6, -1.4, NEON_GOLD, 0.28, 15, true },
 		}
 		for _, fl in FLOAT do
-			B:block(crop, v(fl[5], fl[5], fl[5]), cf(fl[1], fl[2], fl[3], fl[6], fl[6], 0), fl[4])
+			B:block(crop, v(fl[5], fl[5], fl[5]), cf(fl[1], fl[2], fl[3], fl[6], fl[6], 0), fl[4], fl[7] and NEON or nil)
 		end
 		B:block(crop, v(0.6, 0.12, 0.35), cf(1.7, 0.92, -1.1, 0, 30, 0), YEL)
 		B:block(crop, v(0.55, 0.12, 0.3), cf(-1.5, 0.92, -0.5, 0, -20, 0), GOLD)
