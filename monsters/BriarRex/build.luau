@@ -13,7 +13,7 @@ return {
 	Element = "Thorn",
 	Build = function(B, P)
 		local v, cf, ang = P.v, P.cf, P.ang
-		local MAIN, DARK = "#5c3a24", "#2a2220"
+		local MAIN, DARK = "#6a4229", "#2a2220"
 		local PLATE, RIM = "#3b2c25", "#9a6e45"
 		local BELLY, BELLY2 = "#8a1c2c", "#b32c3e"
 		local THORN, THORND = "#efe6cf", "#cfc2a2"

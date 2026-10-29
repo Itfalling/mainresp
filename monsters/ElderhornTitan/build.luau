@@ -99,7 +99,7 @@ return {
 		local chest = B:bone("Chest", "Body", v(0, 18, 0))
 		box(chest, 13, 10.5, 9.6, 0, 21.6, 1.6, BARK) -- barrel
 		box(chest, 16, 15, 11, 0, 23, -8.5, BARK) -- shoulders y15.5..30.5 z-14..-3
-		box(chest, 14, 3.6, 10, 0, 32, -7.5, BARK) -- withers hump y30.2..33.8
+		box(chest, 14, 2.6, 10, 0, 31.5, -7.5, BARK) -- withers hump y30.2..32.8
 		box(chest, 12, 5, 2.4, 0, 18.5, -14.8, BARK) -- brisket
 		box(chest, 11, 1, 17, 0, 15.3, -4, BARK_D) -- belly
 		box(chest, 12.4, 0.6, 7, 0, 27.1, 2.0, MOSS) -- mossy back
@@ -153,18 +153,18 @@ return {
 		B:emitter(aura, "sparkle", { name = "Sparkles", color = { "#ffffff", EMER, PINK_L }, rate = 5 })
 
 		-- shaggy fur + moss mane over the withers
-		local m1 = B:bone("Mane1", "Chest", v(0, 33.5, -8))
-		box(m1, 14.6, 1.4, 11.2, 0, 34.2, -7.6, FUR)
-		box(m1, 11.6, 1.0, 8.8, 0, 35.2, -8.0, MOSS_D)
-		box(m1, 6.6, 0.8, 5.6, 0, 35.9, -8.6, MOSS)
+		local m1 = B:bone("Mane1", "Chest", v(0, 32.5, -8))
+		box(m1, 14.6, 1.4, 11.2, 0, 33.2, -7.6, FUR)
+		box(m1, 11.6, 1.0, 8.8, 0, 34.2, -8.0, MOSS_D)
+		box(m1, 6.6, 0.8, 5.6, 0, 34.9, -8.6, MOSS)
 		B:sym(function()
-			box(m1, 1.2, 3.2, 9.6, 7.5, 32.6, -7.8, FUR)
+			box(m1, 1.2, 3.2, 9.6, 7.5, 31.6, -7.8, FUR)
 			for k, z in { -11.6, -8.8, -6.0, -3.4 } do
 				local len = (k % 2 == 0) and 2.0 or 2.8
-				box(m1, 1.0, len, 1.6, 7.8, 31.0 - len / 2, z, FUR)
-				box(m1, 0.8, 0.6, 1.0, 7.8, 30.7 - len, z, MOSS)
+				box(m1, 1.0, len, 1.6, 7.8, 30.0 - len / 2, z, FUR)
+				box(m1, 0.8, 0.6, 1.0, 7.8, 29.7 - len, z, MOSS)
 			end
-			blossom(m1, 4.0, 35.6, -5.4, 1.6)
+			blossom(m1, 4.0, 34.6, -5.4, 1.6)
 		end)
 
 		------------------------------------------------------------------
@@ -197,14 +197,14 @@ return {
 			box(beard, 1.0, 2.4, 2.2, 3.3, 20.6, -20.5, MOSS)
 		end)
 
-		local n2 = B:bone("Neck2", "Neck1", v(0, 31, -19.5))
-		box(n2, 9.2, 7.6, 7.6, 0, 33.2, -22.6, BARK) -- y29.4..37 z-26.4..-18.8
-		box(n2, 6.8, 0.8, 6.0, 0, 29.1, -22.8, BARK_D)
-		local m3 = B:bone("Mane3", "Neck2", v(0, 36.5, -21))
-		box(m3, 7.6, 1.4, 6.6, 0, 37.1, -21.4, FUR)
-		box(m3, 5.0, 0.8, 4.4, 0, 38.0, -21.0, MOSS_D)
+		local n2 = B:bone("Neck2", "Neck1", v(0, 31.5, -20.5))
+		box(n2, 9.4, 8.8, 7.8, 0, 34.2, -23.8, BARK) -- y29.8..38.6 z-27.7..-19.9
+		box(n2, 7.0, 0.8, 6.2, 0, 29.6, -24.0, BARK_D)
+		local m3 = B:bone("Mane3", "Neck2", v(0, 38, -22))
+		box(m3, 7.6, 1.4, 6.0, 0, 38.6, -22.2, FUR)
+		box(m3, 5.0, 0.8, 4.0, 0, 39.5, -21.8, MOSS_D)
 		B:sym(function()
-			strand(m3, 4.6, 36.6, -19.6, 2.4)
+			strand(m3, 4.8, 38.0, -20.8, 2.6)
 		end)
 
 		------------------------------------------------------------------
@@ -212,19 +212,26 @@ return {
 		-- tilted a little nose-down about the head pivot (HT): it looks
 		-- forward and DOWN at the thief from up high.
 		------------------------------------------------------------------
+		local HO = v(0, 1.5, -2.0) -- head moved up + forward (authored at HP)
 		local HP = v(0, 33, -23.5)
-		local HT = CFrame.new(HP) * P.ang(-6, 0, 0) * CFrame.new(-HP)
+		local HT = CFrame.new(HO) * CFrame.new(HP) * P.ang(-6, 0, 0) * CFrame.new(-HP)
+		local function ab(bone, sx, sy, sz, x, y, z, col, opts, rz)
+			return B:block(bone, v(sx, sy, sz), CFrame.new(HO) * cf(x, y, z, 0, 0, rz or 0), col, opts)
+		end
+		local function av(x, y, z)
+			return v(x, y, z) + HO
+		end
 		local function hb(bone, sx, sy, sz, x, y, z, col, opts, rz)
 			return B:block(bone, v(sx, sy, sz), HT * cf(x, y, z, 0, 0, rz or 0), col, opts)
 		end
 		local function hv(x, y, z)
 			return (HT * CFrame.new(x, y, z)).Position
 		end
-		local head = B:bone("Head", "Neck2", HP)
+		local head = B:bone("Head", "Neck2", HP + HO)
 		hb(head, 10, 7, 8.6, 0, 34, -27.6, BARK_D) -- skull y30.5..37.5 z-31.9..-23.3
 		hb(head, 8.6, 5.6, 1.0, 0, 34.2, -23.0, BARK)
-		box(head, 8, 1.0, 6.2, 0, 38.0, -27.0, OBSID) -- crown step
-		box(head, 3.6, 0.8, 3.2, 0, 38.8, -25.6, MOSS)
+		ab(head, 8, 1.0, 6.2, 0, 38.0, -27.0, OBSID) -- crown step
+		ab(head, 3.6, 0.8, 3.2, 0, 38.8, -25.6, MOSS)
 		-- skull mask: forehead plate + crest + 3 tapering muzzle tiers
 		hb(head, 9.4, 5.2, 0.6, 0, 34.8, -32.2, BONE) -- front -32.5
 		hb(head, 3.2, 2.2, 0.6, 0, 38.4, -32.0, BONE) -- mask crest
@@ -273,10 +280,10 @@ return {
 
 		-- ears
 		B:sym(function(side)
-			local ear = B:bone("Ear" .. side, "Head", v(5.2, 36.0, -25.4))
-			B:block(ear, v(3.8, 1.8, 2.4), cf(7.0, 36.4, -25.4, 0, 0, 14), BARK)
-			B:block(ear, v(2.8, 0.4, 1.6), cf(7.0, 36.4, -26.65, 0, 0, 14), MOSS)
-			B:block(ear, v(2.0, 1.1, 1.8), cf(9.0, 36.9, -25.4, 0, 0, 14), OBSID)
+			local ear = B:bone("Ear" .. side, "Head", av(5.2, 36.0, -25.4))
+			ab(ear, 3.8, 1.8, 2.4, 7.0, 36.4, -25.4, BARK, nil, 14)
+			ab(ear, 2.8, 0.4, 1.6, 7.0, 36.4, -26.65, MOSS, nil, 14)
+			ab(ear, 2.0, 1.1, 1.8, 9.0, 36.9, -25.4, OBSID, nil, 14)
 		end)
 
 		-- strong jaw (hinged at the back of the mouth)
@@ -299,55 +306,60 @@ return {
 		-- Dark obsidian/bark bases -> bark -> bone -> bone-white tips with
 		-- emerald glow; layered underside steps make every beam chunky.
 		------------------------------------------------------------------
+		local function bm(bone, a, b, w, h, col)
+			return B:beam(bone, av(a[1], a[2], a[3]), av(b[1], b[2], b[3]), w, h, col)
+		end
 		local function tine(bone, a, b, w, col)
-			B:beam(bone, a, b, w, w, col)
-			local d = (b - a).Unit
-			B:block(bone, v(w * 0.62, w * 0.62, w * 0.62), CFrame.new(b + d * (w * 0.3)), EMER, { mat = "Neon" })
+			local A, Bv = av(a[1], a[2], a[3]), av(b[1], b[2], b[3])
+			B:beam(bone, A, Bv, w, w, col)
+			local d = (Bv - A).Unit
+			B:block(bone, v(w * 0.62, w * 0.62, w * 0.62), CFrame.new(Bv + d * (w * 0.3)), EMER, { mat = "Neon" })
 		end
 		local function thorn(bone, a, b, name)
-			B:beam(bone, a, b, 0.55, 0.55, EMER, { mat = "Neon", tr = 1, name = name })
+			B:beam(bone, av(a[1], a[2], a[3]), av(b[1], b[2], b[3]), 0.55, 0.55, EMER, { mat = "Neon", tr = 1, name = name })
 		end
 		B:sym(function(side)
-			local a1 = B:bone("Antler1" .. side, "Head", v(3.4, 37.8, -27))
-			box(a1, 4.0, 1.4, 4.0, 3.4, 38.0, -27, STONE) -- burr
-			box(a1, 4.4, 0.6, 4.4, 3.4, 37.4, -27, OBSID)
-			B:beam(a1, v(3.4, 38.3, -27), v(8.8, 40.3, -25), 3.2, 3.0, BARK_D)
-			B:beam(a1, v(3.8, 37.6, -27.2), v(7.8, 38.9, -25.4), 2.4, 3.6, OBSID) -- underside step
-			B:beam(a1, v(4.4, 39.6, -26.8), v(8.0, 41.0, -25.2), 1.6, 1.0, BARK) -- top step
-			B:beam(a1, v(5.2, 39.4, -27.4), v(6.6, 40.6, -31.6), 2.2, 2.2, BARK) -- brow tine (forward)
-			tine(a1, v(6.4, 40.4, -31.0), v(7.4, 41.8, -33.4), 1.6, BONE_D)
-			strand(a1, 6.6, 38.6, -25.8, 2.4)
-			thorn(a1, v(6.6, 40.6, -26.0), v(6.0, 43.0, -28.0), "Thorn1" .. side)
+			local a1 = B:bone("Antler1" .. side, "Head", av(3.4, 36.8, -27))
+			ab(a1, 4.2, 1.6, 4.2, 3.4, 37.0, -27, STONE) -- burr
+			ab(a1, 4.6, 0.6, 4.6, 3.4, 36.4, -27, OBSID)
+			bm(a1, { 3.4, 37.3, -27 }, { 8.6, 39.0, -24.4 }, 3.6, 3.2, BARK_D)
+			bm(a1, { 3.8, 36.6, -27.2 }, { 7.8, 37.8, -25.0 }, 2.6, 3.8, OBSID) -- underside step
+			bm(a1, { 4.4, 38.7, -26.8 }, { 8.0, 40.0, -24.8 }, 1.8, 1.0, BARK) -- top step
+			bm(a1, { 5.0, 38.2, -27.6 }, { 6.8, 39.4, -32.2 }, 2.4, 2.4, BARK) -- brow tine (forward)
+			tine(a1, { 6.6, 39.4, -31.6 }, { 7.4, 40.6, -34.0 }, 1.8, BONE_D)
+			strand(a1, 6.6 + HO.X, 37.6 + HO.Y, -25.6 + HO.Z, 2.4)
+			thorn(a1, { 6.6, 39.6, -25.8 }, { 6.0, 41.6, -28.0 }, "Thorn1" .. side)
 
-			local a2 = B:bone("Antler2" .. side, "Antler1" .. side, v(8.8, 40.3, -25))
-			B:beam(a2, v(8.2, 40.2, -25.2), v(14.0, 41.4, -22.4), 2.7, 2.7, BARK)
-			B:beam(a2, v(8.8, 39.4, -25.0), v(12.8, 40.0, -23.0), 1.8, 2.6, BARK_D)
-			B:beam(a2, v(9.4, 41.5, -24.8), v(13.2, 42.3, -22.8), 1.4, 0.8, BONE_DD)
-			tine(a2, v(10.6, 41.0, -24.4), v(11.6, 43.0, -26.6), 1.9, BONE_D)
-			tine(a2, v(12.4, 41.4, -23.2), v(13.0, 43.0, -20.6), 1.6, BONE_D)
-			blossom(a2, 9.4, 41.9, -25.0, 1.7)
-			thorn(a2, v(13.0, 41.8, -22.6), v(14.2, 43.4, -24.6), "Thorn2" .. side)
+			local a2 = B:bone("Antler2" .. side, "Antler1" .. side, av(8.6, 39.0, -24.4))
+			bm(a2, { 8.0, 38.9, -24.6 }, { 13.8, 39.8, -20.2 }, 3.0, 3.0, BARK)
+			bm(a2, { 8.6, 38.0, -24.4 }, { 12.8, 38.6, -21.2 }, 2.0, 2.8, BARK_D)
+			bm(a2, { 9.4, 40.3, -24.0 }, { 13.2, 40.9, -21.0 }, 1.6, 0.8, BONE_DD)
+			tine(a2, { 10.4, 39.6, -23.4 }, { 11.2, 41.4, -25.8 }, 2.2, BONE_D)
+			tine(a2, { 12.4, 39.8, -21.6 }, { 13.2, 41.4, -18.8 }, 1.9, BONE_D)
+			blossom(a2, 9.4 + HO.X, 40.6 + HO.Y, -24.2 + HO.Z, 1.8)
+			thorn(a2, { 13.0, 40.4, -20.6 }, { 14.2, 42.0, -22.6 }, "Thorn2" .. side)
 
-			local a3 = B:bone("Antler3" .. side, "Antler2" .. side, v(14.0, 41.4, -22.4))
-			B:beam(a3, v(13.4, 41.3, -22.6), v(18.8, 42.0, -18.8), 2.1, 2.1, BONE_D)
-			B:beam(a3, v(14.0, 40.6, -22.4), v(17.6, 41.2, -19.8), 1.2, 1.8, BONE_DD)
-			tine(a3, v(15.4, 41.8, -21.6), v(16.6, 42.9, -23.8), 1.5, BONE)
-			tine(a3, v(17.2, 41.9, -19.8), v(18.6, 42.9, -17.0), 1.4, BONE)
-			tine(a3, v(18.6, 42.0, -18.9), v(21.4, 42.6, -17.6), 1.4, BONE)
-			blossom(a3, 16.2, 42.5, -20.6, 1.4)
-			thorn(a3, v(19.4, 42.1, -18.4), v(22.0, 43.4, -19.8), "Thorn3" .. side)
-			thorn(a3, v(14.6, 41.8, -21.8), v(14.0, 43.4, -24.2), "Thorn4" .. side)
-			local lan = B:bone("Lantern" .. side, "Antler3" .. side, v(19.6, 41.4, -18.4))
-			box(lan, 0.35, 1.0, 0.35, 19.6, 40.9, -18.4, MOSS_D)
-			box(lan, 1.5, 0.35, 1.5, 19.6, 40.3, -18.4, OBSID)
-			neon(lan, 0.85, 1.3, 0.85, 19.6, 39.5, -18.4, "Lamp" .. side)
-			box(lan, 1.5, 0.35, 1.5, 19.6, 38.7, -18.4, OBSID)
-			box(lan, 0.5, 0.4, 0.5, 19.6, 38.3, -18.4, OBSID)
-			local st = B:bone("Strand" .. side, "Antler3" .. side, v(16.4, 41.0, -20.6))
-			strand(st, 16.4, 41.0, -20.6, 3.0)
-			B:trail(a3, v(21.6, 42.6, -17.5), v(18.8, 42.0, -18.8), { name = "AntlerTrail" .. side, color = { EMER, PINK_L }, life = 0.22, trans = { 0.45, 1 } })
+			local a3 = B:bone("Antler3" .. side, "Antler2" .. side, av(13.8, 39.8, -20.2))
+			bm(a3, { 13.2, 39.7, -20.4 }, { 18.6, 40.0, -14.6 }, 2.4, 2.4, BONE_D)
+			bm(a3, { 13.8, 38.8, -20.2 }, { 17.6, 39.0, -15.8 }, 1.4, 2.0, BONE_DD)
+			tine(a3, { 15.2, 40.2, -19.0 }, { 16.4, 41.4, -21.2 }, 1.8, BONE)
+			tine(a3, { 17.0, 40.2, -16.6 }, { 18.4, 41.4, -14.2 }, 1.6, BONE)
+			tine(a3, { 18.6, 40.0, -14.6 }, { 21.6, 40.6, -12.4 }, 1.6, BONE)
+			tine(a3, { 19.4, 39.8, -14.2 }, { 21.2, 38.4, -15.8 }, 1.2, BONE) -- drooping dead-branch tine
+			blossom(a3, 16.0 + HO.X, 41.0 + HO.Y, -18.0 + HO.Z, 1.5)
+			thorn(a3, { 19.6, 40.2, -14.0 }, { 22.4, 41.6, -15.6 }, "Thorn3" .. side)
+			thorn(a3, { 14.6, 40.4, -19.6 }, { 14.0, 42.0, -22.0 }, "Thorn4" .. side)
+			local lan = B:bone("Lantern" .. side, "Antler3" .. side, av(17.8, 39.0, -15.6))
+			ab(lan, 0.35, 1.0, 0.35, 17.8, 38.5, -15.6, MOSS_D)
+			ab(lan, 1.5, 0.35, 1.5, 17.8, 37.9, -15.6, OBSID)
+			neon(lan, 0.85, 1.3, 0.85, 17.8 + HO.X, 37.1 + HO.Y, -15.6 + HO.Z, "Lamp" .. side)
+			ab(lan, 1.5, 0.35, 1.5, 17.8, 36.3, -15.6, OBSID)
+			ab(lan, 0.5, 0.4, 0.5, 17.8, 35.9, -15.6, OBSID)
+			local st = B:bone("Strand" .. side, "Antler3" .. side, av(15.2, 39.0, -18.6))
+			strand(st, 15.2 + HO.X, 39.0 + HO.Y, -18.6 + HO.Z, 3.0)
+			B:trail(a3, av(21.8, 40.6, -12.3), av(18.6, 40.0, -14.6), { name = "AntlerTrail" .. side, color = { EMER, PINK_L }, life = 0.22, trans = { 0.45, 1 } })
 		end)
-		local crown = box(head, 40, 3, 10, 0, 42, -22, STONE, { tr = 1, name = "CrownFX" })
+		local crown = ab(head, 42, 3, 12, 0, 40.5, -20, STONE, { tr = 1, name = "CrownFX" })
 		B:emitter(crown, "leaf", { name = "LeafStorm", color = { MOSS_L, "#c8f07a", PINK }, rate = 2, size = { 0.7, 0.7, 0.4 }, speed = { 2, 5 } })
 
 		------------------------------------------------------------------

@@ -698,7 +698,7 @@ local function ret(t, pose, ctx)
 	q.mand = 3 + 18 * grumble
 	q.browY = -0.15
 	q.browA = 9
-	q.lid = 0.15
+	q.lid = 0
 	q.antP = 6 * wave(t, RT, 0.3)
 	q.antPL = 6 * wave(t, RT, 0.55)
 	q.antR = 4 * wave(t, 2 * RT)

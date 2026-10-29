@@ -48,12 +48,12 @@ local LEGS = {
 -- curled-ball "radius" (centre height that keeps the lowest point on the
 -- floor) for every 5 degrees of forward roll, measured from the curled pose
 local DBALL = {
-	5.71, 5.79, 5.82, 5.82, 5.82, 5.78, 5.70, 5.58, 5.45, 5.30, 5.14, 4.95, 4.72, 4.68, 4.75, 4.79, 4.80, 4.80,
-	4.79, 4.94, 5.15, 5.32, 5.46, 5.55, 5.62, 5.65, 5.68, 5.69, 5.69, 5.66, 5.58, 5.44, 5.28, 5.17, 5.19, 5.23,
+	5.71, 5.79, 5.82, 5.82, 5.82, 5.78, 5.70, 5.58, 5.45, 5.30, 5.14, 4.95, 4.72, 4.39, 4.09, 4.07, 4.05, 4.35,
+	4.70, 4.94, 5.15, 5.32, 5.46, 5.55, 5.62, 5.65, 5.68, 5.69, 5.69, 5.66, 5.58, 5.44, 5.28, 5.17, 5.19, 5.23,
 	5.32, 5.38, 5.41, 5.41, 5.41, 5.46, 5.48, 5.47, 5.45, 5.38, 5.33, 5.50, 5.67, 5.77, 5.83, 5.85, 5.85, 5.83,
 	5.86, 5.90, 5.91, 5.91, 5.88, 5.81, 5.70, 5.50, 5.30, 5.11, 5.23, 5.39, 5.53, 5.61, 5.64, 5.64, 5.63, 5.62,
 }
-local BALL_R = 5.41 -- mean rolling radius
+local BALL_R = 5.37 -- mean rolling radius
 local function dBall(roll)
 	local r = (roll % 360) / 5
 	local i = math.floor(r)
@@ -148,7 +148,7 @@ local function curl(pose, k, extraBristle)
 	end
 	mix("Front", ang(-45, 0, 0))
 	mix("Rump", ang(45, 0, 0))
-	mix("Head", pa(0, 0.8, 6.2, -18, 0, 0))
+	mix("Head", pa(0, 1.0, 7.0, -24, 0, 0))
 	local c, s = quillCF(0.5 + (extraBristle or 0))
 	for _, g in { "F", "M", "R" } do
 		mix("Quill" .. g, c)
