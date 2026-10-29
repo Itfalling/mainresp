@@ -622,6 +622,15 @@ end
 
 function Builder:finish(motionSource, animLibSource, animatorSource)
 	local model = self.model
+	if motionSource == nil then
+		-- static prop (no motion.luau): no animation scripts shipped
+		pcall(function()
+			model.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
+		end)
+		model:SetAttribute("PartCount", self.partCount)
+		model.WorldPivot = CFrame.new(0, 0, 0)
+		return model
+	end
 	local folder = Instance.new("Folder")
 	folder.Name = "Animation"
 	folder.Parent = model

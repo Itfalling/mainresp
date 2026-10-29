@@ -184,7 +184,17 @@ function materialFor(p) {
 async function load() {
   const res = await fetch(dataUrl);
   if (!res.ok) throw new Error(`cannot load ${dataUrl}`);
-  return res.json();
+  return fixData(await res.json());
+}
+
+// static props have no joints; Lua's empty tables arrive as {} instead of []
+function fixData(d) {
+  const arr = (v) => (Array.isArray(v) ? v : []);
+  d.anim.joints = arr(d.anim.joints);
+  d.anim.frames = arr(d.anim.frames).map(arr);
+  if (!d.anim.frames.length) d.anim.frames = [[]];
+  d.anim.events = arr(d.anim.events);
+  return d;
 }
 
 function buildRig(data, scene) {
@@ -474,7 +484,7 @@ function tagSprite(name, rarity) {
 
 async function showcase() {
   const scene0 = await (await fetch(`../../out/preview/${params.get('scene') || '_showcase'}.json`)).json();
-  const datas = await Promise.all(scene0.monsters.map(async (m) => (await fetch(`../../out/preview/${m.id}.json`)).json()));
+  const datas = await Promise.all(scene0.monsters.map(async (m) => fixData(await (await fetch(`../../out/preview/${m.id}.json`)).json())));
   const L = scene0.length || 200;
   const fake = { bounds: { min: [-L / 2, 0, -40], max: [L / 2, 30, 40] } };
   const cw = Number(params.get('cw') || 1600), ch = Number(params.get('ch') || 900);

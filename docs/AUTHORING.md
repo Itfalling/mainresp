@@ -233,3 +233,9 @@ return L.states(M)
 * `monsters/<Id>/pack.txt` (e.g. `Guardian`) adds the monster to `out/<Pack>Showcase.rbxl` and
   `out/<Pack>Monsters.rbxm`. Render the pack scene with `node tools/preview/shoot.mjs _showcase_<Pack>`.
 * Rarity `Apex` (top-tier boss) allows 680 parts and 56 studs of height.
+
+## Static props (crops, decor)
+
+Leave out `motion.luau` and the model ships with no animation scripts at all (particle emitters
+and lights still work). Parts can sit directly on the `"Root"` bone, or on a few bones if you
+want sub-groups (e.g. a `Soil` base the game can remove). Preview/clipcheck work as usual.

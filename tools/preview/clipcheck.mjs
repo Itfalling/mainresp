@@ -23,6 +23,9 @@ function inv(a) {
 
 for (const id of ids) {
   const d = JSON.parse(fs.readFileSync(path.join(dir, id + '.json'), 'utf8'));
+  if (!Array.isArray(d.anim.joints)) d.anim.joints = [];
+  d.anim.frames = (Array.isArray(d.anim.frames) ? d.anim.frames : []).map((r) => (Array.isArray(r) ? r : []));
+  if (!d.anim.frames.length) d.anim.frames = [[]];
   const bones = new Map();
   for (const b of d.bones) bones.set(b.name, { ...b, rest: fromCF(b.cf) });
   for (const b of bones.values()) if (b.parent) b.c0 = mul(inv(bones.get(b.parent).rest), b.rest);

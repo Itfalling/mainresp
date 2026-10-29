@@ -142,7 +142,7 @@ local function buildMonster(id, L)
 	local buildSrc = readIfExists(dir .. "/build.luau")
 	local motionSrc = readIfExists(dir .. "/motion.luau")
 	assert(buildSrc, id .. ": missing build.luau")
-	assert(motionSrc, id .. ": missing motion.luau")
+	-- no motion.luau = static prop (crops, decor): built and previewed without animation
 
 	local benv = baseEnv()
 	benv.Enum = Enum
@@ -158,7 +158,7 @@ local function buildMonster(id, L)
 	local model = B:finish(motionSrc, ANIMLIB_SRC, ANIMATOR_SRC)
 
 	-- Motion validation + bake
-	local M = loadMotion(id, motionSrc, L)
+	local M = motionSrc and loadMotion(id, motionSrc, L) or { Cycle = 1, Update = function() end }
 	if M.States then
 		-- gameplay states: ship the Control helper + per-state timing for game scripts
 		local control = Instance.new("ModuleScript")
@@ -393,7 +393,7 @@ local function buildMonster(id, L)
 		table.insert(motionLines, ("%s %.0f°%s"):format(n, maxAng[n] or 0, (maxPos[n] or 0) > 0.05 and ("/" .. string.format("%.1f", maxPos[n])) or ""))
 	end
 	print("   motion range: " .. table.concat(motionLines, ", "))
-	if #unused > 0 then
+	if #unused > 0 and motionSrc then
 		print("   NOTE unanimated joints: " .. table.concat(unused, ", "))
 	end
 	if M.ReelSegments then
