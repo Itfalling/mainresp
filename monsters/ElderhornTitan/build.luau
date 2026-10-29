@@ -112,6 +112,18 @@ return {
 				box(chest, 0.8, 1.6, 4.6 - i * 0.6, 7.65, 21.4 - i * 2.2, -0.6 + i * 0.4, i == 1 and OBSID_L or OBSID)
 			end
 		end)
+		-- bone spines down the back + flowering vines wrapped round the flanks
+		for i, z in { -1.6, 2.2 } do
+			B:spike(chest, v(0, 25.2, z), v(0, 28.0 - i * 0.4, z + 1.8), 1.5, 1.5, BONE)
+		end
+		B:sym(function()
+			B:beam(chest, v(7.75, 24.2, -5.0), v(7.75, 14.6, 3.0), 0.7, 0.7, MOSS_D)
+			for k, p in { { 22.3, -3.4 }, { 19.4, -1.0 }, { 16.6, 1.3 } } do
+				box(chest, 0.5, 0.5, 1.6, 7.95, p[1] + 0.5, p[2] + (k % 2 == 0 and 0.7 or -0.7), MOSS_L)
+			end
+			box(chest, 0.6, 1.1, 1.1, 8.1, 20.9, -2.2, PINK)
+			box(chest, 0.3, 0.45, 0.45, 8.45, 20.9, -2.2, EMER, { mat = "Neon" })
+		end)
 		-- breastplate: obsidian slab, stone inner plate, tree-of-life rune, core gem
 		box(chest, 11.6, 10.6, 1, 0, 19.2, -14, OBSID) -- z -14.5..-13.5
 		box(chest, 8.2, 7.8, 0.6, 0, 19.2, -14.75, STONE_D)
@@ -174,6 +186,8 @@ return {
 		box(m2, 8.6, 1.6, 8.4, 0, 32.4, -14.8, MOSS_D)
 		box(m2, 6.4, 1.2, 6.4, 0, 33.7, -14.6, MOSS)
 		box(m2, 3.6, 1.0, 4.2, 0, 34.7, -14.2, MOSS_L)
+		B:spike(m2, v(0, 34.6, -13.0), v(0, 37.0, -10.8), 1.3, 1.3, BONE)
+		B:spike(m2, v(0, 34.0, -16.4), v(0, 36.0, -14.8), 1.0, 1.0, BONE)
 		B:sym(function()
 			strand(m2, 5.0, 31.8, -12.2, 2.8)
 			strand(m2, 5.2, 31.8, -17.0, 2.2)

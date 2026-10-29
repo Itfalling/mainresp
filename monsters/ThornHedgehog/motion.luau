@@ -46,12 +46,12 @@ local LEGS = {
 -- curled-ball "radius" (centre height that keeps the lowest point on the
 -- floor) for every 5 degrees of forward roll, measured from the curled pose
 local DBALL = {
-	5.60, 5.69, 5.75, 5.78, 5.78, 5.77, 5.75, 5.71, 5.64, 5.52, 5.36, 5.17, 5.02, 4.79, 4.68, 4.68, 4.68, 4.66,
-	4.90, 5.13, 5.36, 5.56, 5.72, 5.84, 5.93, 5.96, 5.96, 5.95, 5.91, 5.82, 5.69, 5.47, 5.26, 5.20, 5.29, 5.38,
-	5.47, 5.50, 5.50, 5.49, 5.45, 5.37, 5.26, 5.06, 4.86, 4.91, 4.92, 4.92, 5.09, 5.34, 5.54, 5.71, 5.84, 5.92,
-	5.97, 5.97, 5.97, 5.93, 5.85, 5.73, 5.60, 5.40, 5.19, 5.08, 5.28, 5.45, 5.59, 5.67, 5.71, 5.71, 5.71, 5.67,
+	5.60, 5.69, 5.75, 5.78, 5.78, 5.77, 5.75, 5.71, 5.64, 5.52, 5.36, 5.17, 5.02, 4.80, 4.89, 4.95, 4.98, 4.98,
+	4.97, 4.92, 5.01, 5.11, 5.25, 5.36, 5.44, 5.46, 5.46, 5.46, 5.41, 5.33, 5.21, 5.01, 4.97, 5.10, 5.20, 5.27,
+	5.31, 5.31, 5.30, 5.26, 5.18, 5.07, 4.92, 4.91, 4.99, 5.03, 5.04, 5.04, 5.19, 5.42, 5.60, 5.75, 5.86, 5.93,
+	5.95, 5.95, 5.93, 5.88, 5.78, 5.64, 5.49, 5.29, 5.09, 5.08, 5.28, 5.45, 5.59, 5.67, 5.71, 5.71, 5.71, 5.67,
 }
-local BALL_R = 5.41 -- mean rolling radius
+local BALL_R = 5.32 -- mean rolling radius
 local function dBall(roll)
 	local r = (roll % 360) / 5
 	local i = math.floor(r)
@@ -194,12 +194,12 @@ local function brows(pose, raise, scrunch)
 end
 
 local function orbs(pose, t, hz, spinRate, lift, out)
-	pose.Orbit = ang(0, 14 * wave(t, hz * 0.5), 0)
+	pose.Orbit = ang(0, 14 * wave(t, hz), 0)
 	for i = 1, 4 do
 		local dir = i % 2 == 0 and -1 or 1
 		local bob = 0.8 * wave(t, hz, i * 0.25) + (lift or 0)
 		local o = (out or 0) * dir
-		pose["Orb" .. i] = pa(o, bob, 0, spinRate * t * dir, spinRate * 1.3 * t, 0)
+		pose["Orb" .. i] = pa(o, bob, 0, spinRate * t * dir, spinRate * 2 * t, 0)
 	end
 end
 
@@ -294,10 +294,11 @@ local function idle(t, pose, ctx)
 	})
 
 	-- head / face
-	local look = 22 * L.noise(t, 7.7, 0.35) * calm + 26 * L.noise(t, 1.9, 0.6) * sniff
+	local edge = r01(c, 0, 0.6) * (1 - r01(c, IDLE_LEN - 0.6, IDLE_LEN))
+	local look = (22 * L.noise(c, 7.7, 0.35) * calm + 26 * L.noise(c, 1.9, 0.6) * sniff) * edge
 	local hp = -14 * sniff - 26 * dip + 34 * flick - 10 * gulp + 30 * yawn + 12 * ah1 + 18 * ah2 - 16 * choo
 		+ 22 * proud + 4 * wave(t, 0.5, 0.2)
-	local hroll = 6 * L.noise(t, 4.4, 0.4) * calm + 14 * shakeHd * wave(t, 9)
+	local hroll = 6 * L.noise(c, 4.4, 0.4) * calm * edge + 14 * shakeHd * wave(t, 9)
 	pose.Head = ang(hp, look + 30 * shakeHd * wave(t, 6), hroll - 8 * proud)
 	pose.Nose = ang(7 * wave(t, 8) * (sniff + 0.4 * dip) + 10 * ah2 - 10 * choo, 6 * wave(t, 4) * sniff, 0)
 	local chomp = munch * max(0, wave(t, 5))
@@ -633,7 +634,7 @@ local function retWalk(t, pose, ctx)
 	L.both(pose, "Ear", ang(0, 0, -6 * wave(t, 2 * hz)))
 	local w = 0.12 * wave(t, 2 * hz)
 	bristleAll(pose, 0.15 + w, 0.15 - w, 0.15 + w)
-	orbs(pose, t, hz, 90, 0, 0)
+	orbs(pose, t, hz, 360, 0, 0)
 	shock(pose, ctx, c, -9, 0)
 	if ctx.crossed(0.0) then ctx.emit("StompDust", 2) end
 	if ctx.crossed(0.5) then ctx.emit("StompDust", 2); ctx.emit("Huff", 2) end

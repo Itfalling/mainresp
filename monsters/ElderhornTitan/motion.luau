@@ -147,7 +147,9 @@ local function apply(S, t, pose, ctx)
 			local relW = (parentW * CF(g[5] - parentP)) * d.rel
 			target = target:Lerp(relW, d.k)
 		end
-		local up, kn, hf = legIK(g, parentW, parentP, target, CFrame.Angles(rad(d.hp or 0), 0, 0))
+		-- (a 0.1 stud hover keeps hoof corners out of the ground while the
+		-- runtime cross-fades joint angles between two different stances)
+		local up, kn, hf = legIK(g, parentW, parentP, target + V3(0, 0.1, 0), CFrame.Angles(rad(d.hp or 0), 0, 0))
 		pose[g[1]] = up
 		pose[g[2]] = kn
 		pose[g[3]] = hf
@@ -458,7 +460,7 @@ local function attack(t, pose, ctx)
 	S.orbit = 30 * t
 	local wind = env(t, 0.0, 0.32, 0.03, 0.15, "cubicOut", "quadIn")
 	local lunge = env(t, 0.3, 0.16, 0.12, 0.45, "backOut", "sineInOut")
-	local yaw = L.track(t, { { 0.0, 0 }, { 0.32, -32, "cubicOut" }, { 0.56, 38, "backOut" }, { 0.85, 4, "sineInOut" }, { 1.3, 0, "sineInOut" } })
+	local yaw = L.track(t, { { 0.0, 0 }, { 0.32, -24, "cubicOut" }, { 0.56, 28, "backOut" }, { 0.85, 4, "sineInOut" }, { 1.3, 0, "sineInOut" } })
 	local raise = env(t, 0.56, 0.24, 0.05, 0.07, "quadOut", "quadIn") -- hoof up, slams at 0.92
 	local hit = env(t, ATK_HIT, 0.04, 0.04, 0.45, "linear", "elasticOut")
 
@@ -468,9 +470,9 @@ local function attack(t, pose, ctx)
 	S.byaw = 0.15 * yaw
 	S.br = -2.5 * raise
 	S.cp = -3 * lunge + 2 * raise
-	S.n1 = 8 * wind - 22 * lunge + 4 * raise - 8 * hit
-	S.n2 = 4 * wind - 8 * lunge
-	S.hp = 10 * wind - 16 * lunge + 6 * raise - 6 * hit
+	S.n1 = 8 * wind - 14 * lunge + 4 * raise - 8 * hit
+	S.n2 = 4 * wind - 6 * lunge
+	S.hp = 10 * wind - 9 * lunge + 6 * raise - 6 * hit
 	S.look = yaw
 	S.tilt = -0.35 * yaw
 	S.jaw = -10 * wind - 30 * lunge - 40 * hit
@@ -655,7 +657,7 @@ M.States = {
 	Idle = { Loop = true, Length = 12, Update = idle },
 	Alert = { Length = 2.4, Update = alert },
 	Chase = { Loop = true, Length = CH_LEN, Speed = CH_SPEED, Update = chase },
-	Attack = { Length = 1.4, Blend = 0.3, Update = attack },
+	Attack = { Length = 1.4, Blend = 0.12, Update = attack },
 	Catch = { Length = 2.2, Update = catch },
 	GiveUp = { Length = 2.8, Blend = 0.12, Update = giveUp },
 	Return = { Loop = true, Length = RT_LEN, Speed = RT_SPEED, Update = returnWalk },

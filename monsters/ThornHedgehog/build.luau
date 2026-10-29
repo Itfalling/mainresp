@@ -116,8 +116,8 @@ return {
 		local rows = {
 			{ -58, { 0, 34, 68 }, "F", 1.9 },
 			{ -30, { 17, 50, 80 }, "F", 2.4 },
-			{ 2, { 0, 34, 66, 90 }, "M", 2.25 },
-			{ 32, { 17, 50, 80 }, "R", 2.4 },
+			{ 2, { 0, 34, 66, 90 }, "M", 2.0 },
+			{ 32, { 17, 50, 80 }, "R", 2.3 },
 			{ 60, { 0, 34, 68 }, "R", 2.3 },
 		}
 		local groupParent = { F = "Front", M = "Body", R = "Rump" }
@@ -138,12 +138,12 @@ return {
 			local d = v(math.sin(ph) * math.cos(ps), math.cos(ph) * math.cos(ps), math.sin(ps))
 			local surf = v(0, YC, ZC) + v(RX * d.X, RY * d.Y, RZ * d.Z)
 			local n = v(d.X / RX, d.Y / RY, d.Z / RZ).Unit
-			local dir = (n + v(0, 0.1, 0.75)).Unit
+			local dir = (n + v(0, 0.1, 0.4)).Unit
 			local base = surf - dir * 0.45
 			local mid = surf + dir * 0.45
 			local tip = surf + dir * len
 			B:beam(boneName, base, mid, 1.15, 1.15, COLLAR)
-			B:spike(boneName, mid - dir * 0.15, tip, 1.0, 1.0, THORN)
+			B:spike(boneName, mid - dir * 0.15, tip, 0.9, 0.9, THORN)
 			if neonTip then
 				B:block(boneName, v(0.3, 0.3, 0.3), CFrame.lookAt(tip - dir * 0.05, tip + dir), NEON, { mat = "Neon" })
 			end
