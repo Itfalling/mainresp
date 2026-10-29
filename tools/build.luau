@@ -556,6 +556,7 @@ local function makePen(parent, cx, cz, w, d)
 end
 
 local function buildPacks(built, rbxmPath, rbxlPath, scenePath)
+	table.clear(sceneParts) -- fences are per showcase
 	local sceneMonsters = {}
 	local folder = Instance.new("Folder")
 	folder.Name = "Monsters"
