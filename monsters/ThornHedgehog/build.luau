@@ -151,7 +151,9 @@ return {
 			local g = sliceOf(surf.Z)
 			local bone = "Quill" .. g .. (math.abs(phi) < 25 and "" or (phi > 0 and "R" or "L"))
 			B:beam(bone, surf - dir * 0.45, surf + dir * 0.5, 1.25, 1.25, SP0)
-			B:beam(bone, surf + dir * 0.4, surf + dir * 1.15, 0.95, 0.95, SP1)
+			if math.abs(phi) < 85 then
+				B:beam(bone, surf + dir * 0.4, surf + dir * 1.15, 0.95, 0.95, SP1)
+			end
 			local tip = surf + dir * (1.05 + len)
 			B:spike(bone, surf + dir * 1.05, tip, 0.8, 0.8, SP2)
 			if neonTip then

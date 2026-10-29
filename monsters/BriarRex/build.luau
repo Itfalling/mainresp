@@ -273,7 +273,7 @@ return {
 		-- TINY ARMS (comically small next to the 8-stud torso)
 		------------------------------------------------------------------
 		B:sym(function(side)
-			local AP = TB * v(3.8, 13.2, -4.0)
+			local AP = TB * v(4.1, 11.6, -4.2)
 			local arm = B:bone("Arm" .. side, "Chest", AP)
 			B:block(arm, v(1.6, 1.4, 2.2), cf(AP.X + 0.6, AP.Y - 0.3, AP.Z - 0.6), MAIN)
 			B:block(arm, v(1.8, 0.5, 1.7), cf(AP.X + 0.65, AP.Y + 0.5, AP.Z - 0.4), DARK)

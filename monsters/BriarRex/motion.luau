@@ -319,12 +319,12 @@ local function idle(t, pose, ctx)
 	-- tiny arms: idle fidget, the scratch attempt (reach + frantic flail, never
 	-- getting there), hide behind back when busted, flung up on the roar
 	local flail = 22 * strain * wave(t, 6)
-	s.aRx = 6 * breathe + 95 * gag + flail - 40 * busted + 30 * roar - 25 * wind
-	s.aLx = 6 * breathe + 95 * gag - flail - 40 * busted + 30 * roar - 25 * wind
+	s.aRx = 6 * breathe + 60 * gag + flail - 40 * busted + 30 * roar - 25 * wind
+	s.aLx = 6 * breathe + 60 * gag - flail - 40 * busted + 30 * roar - 25 * wind
 	s.aRz = 30 * gag + 0.6 * flail + 35 * roar + 20 * wind
 	s.aLz = 30 * gag - 0.6 * flail + 35 * roar + 20 * wind
-	s.foRx = 30 * gag + 25 * strain * wave(t, 6, 0.25) + 40 * roar - 20 * busted
-	s.foLx = 30 * gag - 25 * strain * wave(t, 6, 0.25) + 40 * roar - 20 * busted
+	s.foRx = 50 * gag + 25 * strain * wave(t, 6, 0.25) + 40 * roar - 20 * busted
+	s.foLx = 50 * gag - 25 * strain * wave(t, 6, 0.25) + 40 * roar - 20 * busted
 	s.foRz = 10 * roar * wave(t, 8)
 	s.foLz = -10 * roar * wave(t, 8)
 
