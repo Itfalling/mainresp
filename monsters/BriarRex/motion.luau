@@ -75,14 +75,14 @@ end
 ------------------------------------------------------------------------
 local TAIL_BONES = { "Tail1", "Tail2", "Tail3", "Tail4", "Tail5", "TailTip" }
 local TAIL_PIV = {
-	Vector3.new(0, 10.8, 6.6), Vector3.new(0, 10.3, 10.4), Vector3.new(0, 9.6, 14.0),
-	Vector3.new(0, 8.8, 17.4), Vector3.new(0, 8.0, 20.6), Vector3.new(0, 7.5, 23.6),
+	Vector3.new(0, 10.2, 6.0), Vector3.new(0, 8.9, 8.6), Vector3.new(0, 7.6, 11.0),
+	Vector3.new(0, 6.5, 13.2), Vector3.new(0, 5.6, 15.2), Vector3.new(0, 5.0, 17.0),
 }
 local TAIL_LOW = {
-	[3] = { Vector3.new(0, 7.2, 16.0) },
-	[4] = { Vector3.new(0, 6.8, 19.0) },
-	[5] = { Vector3.new(0, 6.3, 22.0) },
-	[6] = { Vector3.new(0, 6.2, 25.0), Vector3.new(0, 6.5, 27.6) },
+	[3] = { Vector3.new(0, 5.1, 12.3) },
+	[4] = { Vector3.new(0, 4.5, 14.4) },
+	[5] = { Vector3.new(0, 4.1, 16.3) },
+	[6] = { Vector3.new(0, 3.5, 18.4), Vector3.new(0, 4.2, 20.9), Vector3.new(0, 3.7, 20.6) },
 }
 local TAIL_FLOOR = 0.3
 
@@ -119,7 +119,7 @@ local ORB_DIR = { 1, -1, 1, -1 }
 
 local function rig(pose, ctx, s)
 	-- HIPS + legs
-	local hx, hy, hz, hp, hyw, hr = s.hx, s.hy, s.hz, 3 + s.hp, s.hyaw, s.hroll
+	local hx, hy, hz, hp, hyw, hr = s.hx, s.hy, s.hz, s.hp, s.hyaw, s.hroll
 	local hipsW = CFrame.new(HIP) * pa(hx, hy, hz, hp, hyw, hr)
 	local fR = FOOT + Vector3.new(s.fRx, s.fRy, s.fRz)
 	local fL = sideV(FOOT, -1) + Vector3.new(s.fLx, s.fLy, s.fLz)
@@ -135,10 +135,9 @@ local function rig(pose, ctx, s)
 	pose.ThighL, pose.ShinL, pose.FootL = tL, sL, ftL
 
 	-- spine + head
-	-- base stance: chest reared up a little (towering), head held level
-	pose.Chest = ang(7 + s.cx, s.cy, s.cz)
-	pose.Neck = ang(-4 + s.nx, s.ny, s.nz)
-	pose.Head = ang(-6 + s.hdx, s.hdy, s.hdz)
+	pose.Chest = ang(s.cx, s.cy, s.cz)
+	pose.Neck = ang(s.nx, s.ny, s.nz)
+	pose.Head = ang(s.hdx, s.hdy, s.hdz)
 	local jaw = 7 + s.jaw
 	pose.Jaw = ang(-jaw, s.jawY, 0)
 	pose.Beard = ang(-0.25 * jaw + s.beard, 0, s.beardZ)
@@ -161,7 +160,7 @@ local function rig(pose, ctx, s)
 	-- tail (−X lifts it, +Y swings toward the left)
 	local pitch, yaw = {}, {}
 	for i = 1, 5 do
-		pitch[i] = (i == 1 and (s.tp1 - 4) or s.tpn) + (i >= 4 and s.tpTip or 0)
+		pitch[i] = (i == 1 and s.tp1 or s.tpn) + (i >= 4 and s.tpTip or 0)
 		local lag = sin(2 * pi * (s.tw - 0.09 * i))
 		yaw[i] = s.tyo * (0.5 + 0.1 * i) + s.ty * lag * (0.55 + 0.13 * i)
 	end

@@ -99,18 +99,18 @@ return {
 		-- TAIL (stepped feather fan with dark tips + a follow-through bone)
 		------------------------------------------------------------------
 		local tail = B:bone("Tail", "Body", v(0, 3.3, 2.2))
-		B:block(tail, v(2.0, 1.0, 0.8), cf(0, 3.6, 2.6), WHITE) -- tail base
-		B:block(tail, v(1.5, 0.5, 0.6), cf(0, 4.2, 2.75), SHADE)
+		B:block(tail, v(2.0, 1.1, 1.0), cf(0, 3.65, 2.75), WHITE) -- tail base
+		B:block(tail, v(1.5, 0.5, 0.7), cf(0, 4.3, 2.85), SHADE)
 		-- fan of five stepped sickle feathers, leaning back; the three middle
 		-- ones are tall with dark tips
-		local tt = B:bone("TailTip", "Tail", v(0, 4.15, 2.95))
+		local tt = B:bone("TailTip", "Tail", v(0, 3.85, 3.2))
 		-- {angle, length, mid colour, tip colour}
 		local FAN = {
-			{ -62, 1.6, SHADE, GREY }, { -31, 2.0, SLATE, INK }, { 0, 2.25, SLATE, INK },
-			{ 31, 2.0, SLATE, INK }, { 62, 1.6, SHADE, GREY },
+			{ -64, 2.0, SHADE, GREY }, { -32, 2.35, SLATE, INK }, { 0, 2.55, SLATE, INK },
+			{ 32, 2.35, SLATE, INK }, { 64, 2.0, SHADE, GREY },
 		}
 		for i, f in FAN do
-			local F = CFrame.new(0, 4.15, 2.95 + (i % 2) * 0.14) * ang(0, 0, f[1]) * ang(36, 0, 0)
+			local F = CFrame.new(0, 3.85, 3.2 + (i % 2) * 0.14) * ang(0, 0, f[1]) * ang(30, 0, 0)
 			local L = f[2]
 			B:block(tt, v(0.8, L * 0.5, 0.5), F * CFrame.new(0, L * 0.25, 0), i % 2 == 0 and SHADE or WHITE)
 			B:block(tt, v(0.68, L * 0.35, 0.46), F * CFrame.new(0, L * 0.65, 0), f[3])

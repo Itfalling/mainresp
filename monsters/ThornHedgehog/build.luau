@@ -157,8 +157,8 @@ return {
 		local rows = {
 			{ -64, { 0, 36, 72 }, 1.4 },
 			{ -40, { 18, 54, 90 }, 1.8 },
-			{ -14, { 0, 36, 70, 98 }, 1.8 },
-			{ 12, { 18, 54, 88 }, 1.9 },
+			{ -14, { 0, 36, 70, 98 }, 1.55 },
+			{ 12, { 18, 54, 88 }, 1.5 },
 			{ 38, { 0, 36, 70, 98 }, 2.0 },
 			{ 63, { 18, 54, 88 }, 1.8 },
 		}
@@ -211,7 +211,6 @@ return {
 		end
 		berries(-60, -26)
 		berries(58, 26)
-		berries(-28, 50)
 		flower(-34, -24)
 		flower(32, 25)
 
@@ -224,9 +223,15 @@ return {
 		B:block(head, v(3.0, 0.5, 0.45), cf(0, 7.25, -6.3), CREAM)
 		B:block(head, v(5.2, 1.0, 2.8), cf(0, 7.6, -4.3), UMBER2) -- spiky hairline cap
 		B:block(head, v(1.8, 0.7, 0.45), cf(0, 7.25, -5.95), UMBER2) -- widow's peak
+		-- little forehead spikes poking up out of the hairline
+		for _, x in { -1.5, 0, 1.5 } do
+			local base = v(x, 7.9, -4.9)
+			local dir = v(x * 0.25, 0.75, 0.65).Unit
+			B:beam(head, base - dir * 0.3, base + dir * 0.45, 0.9, 0.9, SP1)
+			B:spike(head, base + dir * 0.35, base + dir * 1.5, 0.7, 0.7, SP2)
+		end
 		B:sym(function()
 			B:block(head, v(0.5, 2.6, 2.6), cf(2.6, 5.4, -4.8), CREAM2) -- cheek fluff
-			B:block(head, v(0.4, 1.4, 1.6), cf(2.95, 4.9, -4.8), TAN)
 			B:block(head, v(0.7, 0.35, 0.15), cf(1.75, 5.05, -6.73), BLUSH)
 			-- small beady eye + glint (front face only)
 			B:block(head, v(0.6, 0.8, 0.2), cf(1.2, 6.05, -6.75), EYE)
@@ -238,9 +243,6 @@ return {
 		-- snout step 1 + mouth roof + hidden upper teeth
 		B:block(head, v(2.6, 1.8, 1.5), cf(0, 4.9, -7.3), CREAM)
 		B:block(head, v(2.2, 0.2, 3.4), cf(0, 4.05, -6.6), MOUTH)
-		for _, x in { -0.7, 0, 0.7 } do
-			B:block(head, v(0.4, 0.35, 0.35), cf(x, 3.95, -7.75), WHITE)
-		end
 		-- pointed snout tip (own bone: sniff wiggle)
 		local nose = B:bone("Nose", "Head", v(0, 5.1, -7.9))
 		B:block(nose, v(1.7, 1.2, 1.2), cf(0, 5.2, -8.5), CREAM)

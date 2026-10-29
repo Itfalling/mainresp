@@ -13,8 +13,8 @@ return {
 	Element = "Thorn",
 	Build = function(B, P)
 		local v, cf, ang = P.v, P.cf, P.ang
-		local MAIN, DARK = "#4a3022", "#262020"
-		local PLATE, RIM = "#5f4330", "#8c6440"
+		local MAIN, DARK = "#5c3a24", "#2a2220"
+		local PLATE, RIM = "#3b2c25", "#9a6e45"
 		local BELLY, BELLY2 = "#8a1c2c", "#b32c3e"
 		local THORN, THORND = "#efe6cf", "#cfc2a2"
 		local VINE, MOSS, LEAF = "#2f6b2a", "#4d8a2c", "#62b03a"
@@ -28,8 +28,8 @@ return {
 			return CFrame.new(pivot) * ang(deg, 0, 0) * CFrame.new(-pivot)
 		end
 		local HIPP = v(0, 10.5, 2.5)
-		local TB = rot(HIPP, 25) -- reared-up torso
-		local TP = rot(HIPP, 12) -- pelvis
+		local TB = rot(HIPP, 32) -- reared-up torso
+		local TP = rot(HIPP, 16) -- pelvis
 
 		------------------------------------------------------------------
 		-- helpers
@@ -139,9 +139,9 @@ return {
 		------------------------------------------------------------------
 		-- NECK: thick muscular neck rising from the chest to the head
 		------------------------------------------------------------------
-		local HP = v(0, 17.7, -6.4) -- head pivot (back of the skull)
+		local HP = v(0, 17.6, -4.7) -- head pivot (back of the skull)
 		local neck = B:bone("Neck", "Chest", TB * v(0, 15.0, -3.6))
-		local na, nb = TB * v(0, 14.6, -2.4), v(0, 17.9, -7.4)
+		local na, nb = TB * v(0, 14.4, -2.6), v(0, 17.8, -5.9)
 		B:beam(neck, na, nb, 6.6, 6.2, MAIN)
 		local ncf, nlen = P.span(na, nb)
 		B:block(neck, v(4.4, 0.7, nlen - 0.6), ncf * CFrame.new(0, -3.05, 0.2), BELLY) -- throat
@@ -178,7 +178,7 @@ return {
 		hb(head, v(5.6, 0.4, 10.2), 0, 17.55, -13.4, MOUTH) -- mouth roof
 		hb(head, v(5.0, 2.0, 0.6), 0, 16.8, -8.4, MOUTH) -- throat wall
 		for k = -1, 1 do -- thorn crown (prideful king)
-			B:spike(head, hp(v(k * 1.5, 23.0, -10.6 + math.abs(k) * 0.6)), hp(v(k * 1.9, 23.65 - math.abs(k) * 0.25, -9.2 + math.abs(k) * 0.6)), 0.8, 0.8, THORN)
+			B:spike(head, hp(v(k * 1.5, 23.0, -10.6 + math.abs(k) * 0.6)), hp(v(k * 1.9, 23.2 - math.abs(k) * 0.2, -8.9 + math.abs(k) * 0.6)), 0.8, 0.8, THORN)
 		end
 		B:sym(function(side)
 			hb(head, v(0.7, 0.4, 0.2), 1.3, 19.5, -18.95, MOUTH) -- nostril
@@ -339,7 +339,7 @@ return {
 		-- TAIL: sweeps back + down as a counterweight; segments follow the
 		-- slope, charcoal plates, thorns, vines; thorny club tip
 		------------------------------------------------------------------
-		local piv = { v(0, 10.4, 6.0), v(0, 9.1, 8.9), v(0, 7.8, 11.5), v(0, 6.7, 13.9), v(0, 5.8, 16.1), v(0, 5.2, 18.1) }
+		local piv = { v(0, 10.2, 6.0), v(0, 8.9, 8.6), v(0, 7.6, 11.0), v(0, 6.5, 13.2), v(0, 5.6, 15.2), v(0, 5.0, 17.0) }
 		local dims = { { 5.8, 5.2, 3, "thorn" }, { 4.8, 4.3, 2, "rose" }, { 3.9, 3.5, 2, "thorn" }, { 3.1, 2.8, 1, "pink" }, { 2.4, 2.2, 1, "thorn" } }
 		local parent = "Hips"
 		for i = 1, 5 do
@@ -391,7 +391,7 @@ return {
 		for i = 1, 4 do
 			local th = math.rad((i - 1) * 90 + 20)
 			local y = 11 - 4.5 * math.cos(th) + (i % 2 == 0 and 1.0 or 0)
-			local p = v(12.5 * math.sin(th), y, 1 - 12.5 * math.cos(th))
+			local p = v(12.5 * math.sin(th), y, 1 - 11 * math.cos(th))
 			local ob = B:bone("Orb" .. i, "Orbit", p)
 			local s = i % 2 == 0 and 2.0 or 2.4
 			B:block(ob, v(s, s * 0.7, s), CFrame.new(p), i % 2 == 0 and VINE or MOSS)

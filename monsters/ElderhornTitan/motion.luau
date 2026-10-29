@@ -29,14 +29,14 @@ local V3, CF = Vector3.new, CFrame.new
 ------------------------------------------------------------------------
 -- Rig (rest pivots, model space)
 ------------------------------------------------------------------------
-local BODYP = V3(0, 15, 9)
-local CHESTP = V3(0, 16, 0)
+local BODYP = V3(0, 17, 11)
+local CHESTP = V3(0, 18, 0)
 local LEGS = {
 	-- name, upper bone, knee bone, hoof bone, parent, upper pivot, knee pivot, hoof pivot, bend
-	FR = { "FLegR", "FKneeR", "FHoofR", "Chest", V3(5.6, 14.5, -9), V3(5.6, 8, -11.2), V3(5.6, 2.5, -9), -1 },
-	FL = { "FLegL", "FKneeL", "FHoofL", "Chest", V3(-5.6, 14.5, -9), V3(-5.6, 8, -11.2), V3(-5.6, 2.5, -9), -1 },
-	HR = { "HLegR", "HKneeR", "HHoofR", "Body", V3(5.6, 14.5, 10), V3(5.6, 8, 12.2), V3(5.6, 2.5, 10), 1 },
-	HL = { "HLegL", "HKneeL", "HHoofL", "Body", V3(-5.6, 14.5, 10), V3(-5.6, 8, 12.2), V3(-5.6, 2.5, 10), 1 },
+	FR = { "FLegR", "FKneeR", "FHoofR", "Chest", V3(6.4, 17.5, -10), V3(6.4, 10, -12.2), V3(6.4, 2.5, -10), -1 },
+	FL = { "FLegL", "FKneeL", "FHoofL", "Chest", V3(-6.4, 17.5, -10), V3(-6.4, 10, -12.2), V3(-6.4, 2.5, -10), -1 },
+	HR = { "HLegR", "HKneeR", "HHoofR", "Body", V3(6.2, 17, 11), V3(6.2, 9.5, 13.4), V3(6.2, 2.5, 11), 1 },
+	HL = { "HLegL", "HKneeL", "HHoofL", "Body", V3(-6.2, 17, 11), V3(-6.2, 9.5, 13.4), V3(-6.2, 2.5, 11), 1 },
 }
 local LEG_ORDER = { "FR", "FL", "HR", "HL" }
 for _, g in LEGS do
@@ -375,8 +375,8 @@ local function alert(t, pose, ctx)
 	-- front legs: tuck + bicycle while reared, crash down
 	local kw = clamp(rear * 1.25, 0, 1)
 	local cyc = (t - 0.75) * 3.2
-	tuck(S, "FR", kw, V3(0, -7.4 + 2.0 * sin(2 * pi * cyc), -3.2 - 2.2 * cos(2 * pi * cyc)), -40)
-	tuck(S, "FL", kw, V3(0, -7.4 + 2.0 * sin(2 * pi * cyc + pi), -3.2 - 2.2 * cos(2 * pi * cyc + pi)), -40)
+	tuck(S, "FR", kw, V3(0, -9.4 + 2.4 * sin(2 * pi * cyc), -4.0 - 2.6 * cos(2 * pi * cyc)), -40)
+	tuck(S, "FL", kw, V3(0, -9.4 + 2.4 * sin(2 * pi * cyc + pi), -4.0 - 2.6 * cos(2 * pi * cyc + pi)), -40)
 
 	if ctx.crossed(0.86) then
 		ctx.emit("RoarBurst", 60)
@@ -491,7 +491,7 @@ local function attack(t, pose, ctx)
 	S.wag = 10 * hit
 	S.fling = env(t, ATK_HIT, 0.06, 0.1, 0.35, "backOut", "quadInOut")
 	-- right fore hoof rears up then stomps
-	tuck(S, "FR", raise, V3(0, -6.2, -4.5), -45)
+	tuck(S, "FR", raise, V3(0, -8.0, -5.5), -45)
 	if ctx.crossed(0.5) then ctx.emit("LeafStorm", 35) end
 	if ctx.crossed(ATK_HIT) then ctx.emit("RoarBurst", 30) end
 	quakeFX(ctx, S, t, ATK_HIT)
@@ -533,8 +533,8 @@ local function catch(t, pose, ctx)
 	S.fling = env(t, 0.8, 0.2, 0.7, 0.4, "backOut", "quadInOut")
 	local kw = clamp(rear * 1.25, 0, 1)
 	local cyc = (t - 0.5) * 2.6
-	tuck(S, "FR", kw, V3(0, -7.0 + 2.2 * sin(2 * pi * cyc), -3.6 - 2.4 * cos(2 * pi * cyc)), -40)
-	tuck(S, "FL", kw, V3(0, -7.0 + 2.2 * sin(2 * pi * cyc + 2.2), -3.6 - 2.4 * cos(2 * pi * cyc + 2.2)), -40)
+	tuck(S, "FR", kw, V3(0, -9.0 + 2.6 * sin(2 * pi * cyc), -4.4 - 2.8 * cos(2 * pi * cyc)), -40)
+	tuck(S, "FL", kw, V3(0, -9.0 + 2.6 * sin(2 * pi * cyc + 2.2), -4.4 - 2.8 * cos(2 * pi * cyc + 2.2)), -40)
 	if ctx.crossed(0.8) then
 		ctx.emit("RoarBurst", 55)
 		ctx.emit("LeafStorm", 80)
@@ -588,8 +588,8 @@ local function giveUp(t, pose, ctx)
 	S.fling = env(t, GU_HIT, 0.06, 0.1, 0.35, "backOut", "quadInOut")
 	-- both fore hooves rise then SLAM
 	local kw = hop
-	tuck(S, "FR", kw, V3(0, -8.5, -2.5), -20)
-	tuck(S, "FL", kw, V3(0, -8.5, -2.5), -20)
+	tuck(S, "FR", kw, V3(0, -10.6, -3.0), -20)
+	tuck(S, "FL", kw, V3(0, -10.6, -3.0), -20)
 	if ctx.crossed(0.78) then
 		ctx.emit("RoarBurst", 60)
 		ctx.emit("LeafStorm", 50)

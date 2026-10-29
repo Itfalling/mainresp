@@ -55,19 +55,21 @@ return {
 		-- HIPS (rear barrel, rounded by stepped hide plates) — pivot at the hind hips
 		------------------------------------------------------------------
 		local hips = B:bone("Hips", "Root", v(0, 6.6, 3.6))
-		B:block(hips, v(8.0, 5.6, 5.6), cf(0, 7.7, 3.2), SLATE)
-		B:block(hips, v(7.0, 0.8, 4.8), cf(0, 10.85, 3.1), SLATE) -- rounded back steps
-		B:block(hips, v(5.0, 0.6, 3.6), cf(0, 11.5, 3.1), SLATE)
+		B:block(hips, v(8.0, 3.8, 5.8), cf(0, 6.8, 3.2), SLATE)
+		B:block(hips, v(8.0, 1.8, 5.0), cf(0, 9.6, 2.9), SLATE) -- rounded rump steps
+		B:block(hips, v(7.0, 0.8, 4.2), cf(0, 10.9, 2.7), SLATE)
+		B:block(hips, v(5.0, 0.6, 3.0), cf(0, 11.55, 2.5), SLATE)
+		B:block(hips, v(7.0, 1.0, 0.6), cf(0, 9.2, 5.6), DARK)
 		B:block(hips, v(6.8, 0.8, 4.6), cf(0, 4.6, 3.1), BELLY) -- belly underside
 		B:block(hips, v(5.4, 0.4, 1.6), cf(0, 4.1, 2.0), STEELD)
 		B:block(hips, v(4.6, 0.4, 1.4), cf(0, 4.15, 4.0), BELLY)
-		B:block(hips, v(7.0, 4.4, 0.5), cf(0, 7.5, 6.1), SLATE) -- rump
-		B:block(hips, v(5.4, 3.2, 0.5), cf(0, 7.6, 6.45), DARK)
+		B:block(hips, v(7.0, 3.6, 0.5), cf(0, 7.0, 6.2), SLATE) -- rump
+		B:block(hips, v(5.4, 2.6, 0.5), cf(0, 7.0, 6.5), DARK)
 		B:sym(function()
 			-- hide folds: stepped darker plates down the flank
 			B:block(hips, v(0.5, 4.6, 0.8), cf(4.05, 7.6, 1.2), DARK) -- waist fold
-			B:block(hips, v(0.4, 3.0, 2.6), cf(4.1, 8.2, 4.4), DARK) -- haunch plate
-			B:block(hips, v(0.5, 0.6, 4.2), cf(3.65, 10.6, 3.2), DARK) -- back-step edge
+			B:block(hips, v(0.4, 2.6, 2.6), cf(4.1, 7.6, 4.4), DARK) -- haunch plate
+			B:block(hips, v(0.5, 0.6, 4.2), cf(3.65, 10.65, 2.7), DARK) -- back-step edge
 			B:block(hips, v(0.4, 0.5, 2.0), cf(4.1, 5.6, 3.4), BELLY) -- lower flank fold
 		end)
 		-- steel saddle plate over the waist fold, with rivets, neon seam and moss
@@ -84,13 +86,13 @@ return {
 		end)
 		stud(hips, 0, 11.75, 1.2, true)
 		-- moss growing over the rump
-		B:block(hips, v(3.4, 0.5, 2.6), cf(-1.2, 11.95, 3.6), MOSS)
-		B:block(hips, v(1.8, 0.45, 1.6), cf(1.7, 11.85, 4.3), MOSSD)
+		B:block(hips, v(3.4, 0.5, 2.4), cf(-1.2, 11.95, 3.0), MOSS)
+		B:block(hips, v(1.8, 0.45, 1.6), cf(1.7, 11.45, 4.2), MOSSD)
 		B:block(hips, v(1.2, 0.45, 1.2), cf(-3.0, 11.3, 4.6), MOSS)
 		B:block(hips, v(0.4, 1.2, 0.9), cf(-3.75, 10.4, 4.6), MOSS) -- moss drip over the edge
 
 		-- little flower sprouting from the rump moss (wobbles)
-		local flower = B:bone("SprigB", "Hips", v(-1.6, 12.1, 3.8))
+		local flower = B:bone("SprigB", "Hips", v(-1.6, 12.1, 3.2))
 		B:block(flower, v(0.3, 1.2, 0.3), cf(-1.6, 12.7, 3.8), MOSSD)
 		B:block(flower, v(0.8, 0.25, 0.4), cf(-1.2, 12.6, 3.8, 0, 0, 25), LEAF)
 		B:block(flower, v(0.5, 0.5, 0.5), cf(-1.6, 13.45, 3.8), GOLD)
@@ -101,18 +103,18 @@ return {
 		------------------------------------------------------------------
 		-- TAIL (short, with a dark hair tuft)
 		------------------------------------------------------------------
-		local tail1 = B:bone("Tail1", "Hips", v(0, 9.2, 6.1))
-		B:block(tail1, v(1.4, 1.4, 1.6), cf(0, 9.1, 6.7), SLATE)
-		local tail2 = B:bone("Tail2", "Tail1", v(0, 9.0, 7.3))
-		B:block(tail2, v(1.0, 2.4, 1.0), cf(0, 8.0, 7.5), SLATE)
-		B:block(tail2, v(1.1, 0.4, 1.1), cf(0, 8.9, 7.5), IRON) -- iron tail ring
-		rivet(tail2, 0, 8.9, 8.0, 0.35, 0.3, 0.2)
-		local tuft = B:bone("Tuft", "Tail2", v(0, 6.9, 7.5))
-		B:block(tuft, v(1.6, 1.4, 1.5), cf(0, 6.3, 7.5), HAIR)
-		B:block(tuft, v(1.1, 1.0, 1.1), cf(0, 5.2, 7.55), HAIR)
-		B:block(tuft, v(0.6, 0.6, 0.6), cf(0, 4.5, 7.6), DARK)
-		B:block(tuft, v(0.8, 0.25, 0.5), cf(0.75, 6.9, 7.5, 0, 0, 30), LEAF)
-		B:trail(tuft, v(0, 6.2, 7.6), v(0, 4.4, 7.6), { name = "TailTrail", color = { STEEL, MOSS }, life = 0.22, trans = { 0.45, 1 } })
+		local tail1 = B:bone("Tail1", "Hips", v(0, 8.6, 5.9))
+		B:block(tail1, v(1.4, 1.4, 1.6), cf(0, 8.5, 6.5), SLATE)
+		local tail2 = B:bone("Tail2", "Tail1", v(0, 8.4, 7.1))
+		B:block(tail2, v(1.0, 2.4, 1.0), cf(0, 7.4, 7.3), SLATE)
+		B:block(tail2, v(1.1, 0.4, 1.1), cf(0, 8.3, 7.3), IRON) -- iron tail ring
+		rivet(tail2, 0, 8.3, 7.85, 0.35, 0.3, 0.2)
+		local tuft = B:bone("Tuft", "Tail2", v(0, 6.3, 7.3))
+		B:block(tuft, v(1.6, 1.4, 1.5), cf(0, 5.7, 7.3), HAIR)
+		B:block(tuft, v(1.1, 1.0, 1.1), cf(0, 4.6, 7.35), HAIR)
+		B:block(tuft, v(0.6, 0.6, 0.6), cf(0, 3.9, 7.4), DARK)
+		B:block(tuft, v(0.8, 0.25, 0.5), cf(0.75, 6.3, 7.3, 0, 0, 30), LEAF)
+		B:trail(tuft, v(0, 5.6, 7.4), v(0, 3.8, 7.4), { name = "TailTrail", color = { STEEL, MOSS }, life = 0.22, trans = { 0.45, 1 } })
 
 		------------------------------------------------------------------
 		-- CHEST (front barrel with the big shoulder hump + steel pauldrons)
@@ -219,21 +221,26 @@ return {
 		-- the HUGE front horn: a scimitar of ivory beams curving forward then up
 		-- and back, a riveted steel cap band, neon front edge and tip
 		local H = { v(0, 7.9, -13.3), v(0, 9.7, -14.4), v(0, 11.5, -14.9), v(0, 12.9, -14.6), v(0, 13.8, -13.9), v(0, 14.25, -13.2) }
+		for i = 2, #H do
+			H[i] = H[1] + (H[i] - H[1]) * 1.12
+		end
 		B:block(head, v(3.6, 0.5, 3.4), cf(0, 8.6, -13.4), IVORYD) -- root collar
-		hornSeg(H[1], H[2], 3.0, IVORY)
-		hornSeg(H[2], H[3], 2.3, IVORY, true)
-		hornSeg(H[3], H[4], 1.7, IVORY, true)
-		hornSeg(H[4], H[5], 1.2, IVORYD)
-		B:beam(head, v(0, 9.45, -14.27), v(0, 10.05, -14.47), 2.75, 2.75, STEEL) -- cap band
-		B:beam(head, v(0, 9.3, -14.2), v(0, 9.5, -14.27), 2.95, 2.95, IRON)
-		local hornTip = B:beam(head, H[5], H[6], 0.7, 0.7, NEON, { mat = "Neon", name = "HornTip" })
+		hornSeg(H[1], H[2], 3.3, IVORY)
+		hornSeg(H[2], H[3], 2.6, IVORY, true)
+		hornSeg(H[3], H[4], 1.9, IVORY, true)
+		hornSeg(H[4], H[5], 1.35, IVORYD)
+		B:beam(head, H[1]:Lerp(H[2], 0.78), H[1]:Lerp(H[2], 1.05), 3.0, 3.0, STEEL) -- cap band
+		B:beam(head, H[1]:Lerp(H[2], 0.7), H[1]:Lerp(H[2], 0.79), 3.2, 3.2, IRON)
+		local hornTip = B:beam(head, H[5], H[6], 0.75, 0.75, NEON, { mat = "Neon", name = "HornTip" })
 		B:light(hornTip, { name = "HornLight", color = NEON, brightness = 0.5, range = 7 })
 		B:sym(function()
-			rivet(head, 1.38, 9.75, -14.37, 0.3, 0.4, 0.4)
+			local rp = H[1]:Lerp(H[2], 0.92)
+			rivet(head, 1.52, rp.Y, rp.Z, 0.3, 0.4, 0.4)
 		end)
-		rivet(head, 0, 9.85, -15.8, 0.4, 0.4, 0.3)
-		B:trail(head, v(0, 14.2, -13.3), v(0, 12.6, -14.9), { name = "HornTrail", color = { NEON, "#ffffff" }, life = 0.2, trans = { 0.35, 1 } })
-		local hornFX = B:block(head, v(1.4, 1.2, 1.2), cf(0, 13.6, -14.2), SLATE, { tr = 1, name = "HornFX" })
+		local rf = H[1]:Lerp(H[2], 0.92) + v(0, -0.42, -1.45)
+		rivet(head, 0, rf.Y, rf.Z, 0.4, 0.4, 0.3)
+		B:trail(head, H[6], H[4], { name = "HornTrail", color = { NEON, "#ffffff" }, life = 0.2, trans = { 0.35, 1 } })
+		local hornFX = B:block(head, v(1.4, 1.2, 1.2), CFrame.new(H[5]), SLATE, { tr = 1, name = "HornFX" })
 		B:emitter(hornFX, "burst", { name = "HornBurst", color = { "#ffffff", NEON, GOLD }, speed = { 7, 14 }, size = { 0.6, 0.4, 0 } })
 
 		-- nostril steam (forward + a little down) and head steam (anger)
