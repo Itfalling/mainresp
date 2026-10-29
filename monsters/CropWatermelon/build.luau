@@ -68,47 +68,57 @@ return {
 		------------------------------------------------------------------
 		-- BIG STRIPED WATERMELON (long axis = X)
 		------------------------------------------------------------------
-		local MX, MZ = 0.7, 1.0
+		-- the melon lies a little askew (yaw) so it never reads as a box
+		local M = cf(1.0, 0, 1.2, 0, -18, 0)
+		local function mb(x0, y0, z0, x1, y1, z1, col)
+			return pl(crop, M, (x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2, math.abs(x1 - x0), y1 - y0, math.abs(z1 - z0), col)
+		end
 		-- {y0, y1, width (Z), length (X), colour}; each layer is a plus shape
 		local LAYERS = {
-			{ 0.95, 1.65, 3.0, 5.4, LIGHTS },
-			{ 1.65, 2.4, 4.2, 6.6, DARKS },
-			{ 2.4, 3.6, 4.8, 7.2, LIGHT },
-			{ 3.6, 4.4, 4.2, 6.6, DARK },
-			{ 4.4, 5.0, 3.0, 5.6, LIGHTL },
+			{ 0.95, 1.5, 2.6, 4.6, LIGHTS },
+			{ 1.5, 2.15, 3.9, 6.2, DARKS },
+			{ 2.15, 2.85, 4.6, 7.0, LIGHT },
+			{ 2.85, 3.75, 4.9, 7.4, DARK },
+			{ 3.75, 4.45, 4.6, 7.0, LIGHT },
+			{ 4.45, 5.05, 3.9, 6.2, DARK },
+			{ 5.05, 5.45, 2.6, 4.6, LIGHTL },
 		}
 		for _, l in LAYERS do
 			local W, L = l[3], l[4]
-			box(crop, MX - L / 2, l[1], MZ - W * 0.36, MX + L / 2, l[2], MZ + W * 0.36, l[5])
-			box(crop, MX - L / 2 + 0.6, l[1], MZ - W / 2, MX + L / 2 - 0.6, l[2], MZ + W / 2, l[5])
+			mb(-L / 2, l[1], -W * 0.36, L / 2, l[2], W * 0.36, l[5])
+			mb(-L / 2 + 0.65, l[1], -W / 2, L / 2 - 0.65, l[2], W / 2, l[5])
 		end
-		box(crop, MX - 2.2, 5.0, MZ - 0.5, MX + 2.2, 5.25, MZ + 0.5, DARK) -- top ridge stripe
-		-- jagged stripe teeth: dark notches biting into the pale middle band
+		mb(-1.7, 5.45, -0.45, 1.7, 5.62, 0.45, DARK) -- top ridge stripe
+		-- jagged stripe teeth: the dark middle band bites into the pale bands
 		for _, side in { -1, 1 } do
-			local zf = MZ + side * 2.4
-			for i, x in { -2.4, -1.0, 0.4, 1.8 } do
-				local up = (i % 2 == 1)
-				local y0, y1 = up and 3.25 or 2.4, up and 3.6 or 2.75
-				box(crop, MX + x - 0.45, y0, zf, MX + x + 0.45, y1, zf + side * 0.08, i % 2 == 1 and DARK or DARKS)
+			local zf = side * 2.3
+			for i, x in { -2.6, -1.3, 0.0, 1.3, 2.6 } do
+				local up = (i % 2 == 0)
+				local y0, y1 = up and 3.75 or 2.55, up and 4.05 or 2.85
+				mb(x - 0.4, y0, zf, x + 0.4, y1, zf + side * 0.08, DARK)
 			end
 		end
-		-- teeth on the lime top band too (seen from above)
-		for i, x in { -1.6, 0.0, 1.6 } do
+		for i, x in { -1.4, 0.0, 1.4 } do -- teeth on the lime top band (seen from above)
 			local zs = (i % 2 == 1) and -1 or 1
-			box(crop, MX + x - 0.4, 5.0, MZ + zs * 0.5, MX + x + 0.4, 5.08, MZ + zs * 0.95, DARK)
+			mb(x - 0.38, 5.45, zs * 0.45, x + 0.38, 5.52, zs * 0.9, DARK)
 		end
 		-- shine
-		box(crop, MX - 2.6, 3.05, MZ - 2.48, MX - 1.8, 3.4, MZ - 2.4, GLINT)
-		box(crop, MX - 1.6, 5.0, MZ - 1.35, MX - 0.9, 5.06, MZ - 0.8, GLINT)
+		mb(-2.6, 4.05, -2.38, -1.9, 4.3, -2.3, GLINT)
+		mb(-1.3, 5.45, -1.2, -0.7, 5.5, -0.7, GLINT)
 		-- stem nub on the +X end, pale blossom spot on the -X end
-		box(crop, MX + 3.55, 2.75, MZ - 0.35, MX + 4.05, 3.25, MZ + 0.35, STEMD)
-		box(crop, MX + 4.0, 2.85, MZ - 0.2, MX + 4.4, 3.2, MZ + 0.2, STEM)
-		box(crop, MX - 3.68, 2.8, MZ - 0.35, MX - 3.58, 3.2, MZ + 0.35, LIGHTL)
+		mb(3.6, 3.0, -0.35, 4.05, 3.5, 0.35, STEMD)
+		mb(4.0, 3.1, -0.22, 4.45, 3.4, 0.22, STEM)
+		mb(-3.78, 3.05, -0.35, -3.68, 3.45, 0.35, LIGHTL)
+		-- vine curling down from the stem to the ground
+		mb(4.35, 2.25, -0.17, 4.67, 3.25, 0.17, VINE) -- stepped curl down to the ground
+		mb(4.35, 1.95, -0.17, 5.05, 2.27, 0.17, VINE)
+		mb(4.75, 1.05, -0.17, 5.07, 2.0, 0.17, VINE)
+		mb(4.75, 1.05, -0.17, 5.9, 1.35, 0.17, VINE)
 
 		------------------------------------------------------------------
 		-- HALF MELON (cut face up, tipped toward the viewer)
 		------------------------------------------------------------------
-		local H = cf(-3.3, 0.95, -2.7, 0, 12, 0) * ang(-14, 0, 0)
+		local H = cf(-3.6, 0.95, -3.0, 0, 12, 0) * ang(-14, 0, 0)
 		local function plus(F, y, h, a, b, col)
 			pl(crop, F, 0, y, 0, a, h, b * 0.72, col)
 			pl(crop, F, 0, y, 0, a - 0.8, h, b, col)
@@ -134,21 +144,22 @@ return {
 		pl(crop, W, 0, 0.52, 0, 3.4, 0.25, 0.96, RIND) -- white rind line
 		pl(crop, W, -1.6, 0.82, 0, 0.3, 0.4, 0.96, RIND)
 		pl(crop, W, 1.6, 0.82, 0, 0.3, 0.4, 0.96, RIND)
-		pl(crop, W, 0, 0.95, 0, 3.0, 0.6, 0.92, FLESHP) -- stepped flesh triangle
-		pl(crop, W, 0, 1.55, 0, 2.3, 0.6, 0.92, FLESH)
-		pl(crop, W, 0, 2.15, 0, 1.55, 0.6, 0.92, FLESH)
-		pl(crop, W, 0, 2.7, 0, 0.8, 0.5, 0.92, FLESHD)
-		for _, s in { { -0.75, 1.35 }, { 0.55, 1.4 }, { -0.2, 1.95 }, { 0.35, 2.5 }, { -1.15, 1.0 }, { 1.05, 1.0 } } do
-			pl(crop, W, s[1], s[2], -0.48, 0.2, 0.3, 0.06, SEED)
-			pl(crop, W, -s[1], s[2] + 0.1, 0.48, 0.2, 0.3, 0.06, SEED)
+		pl(crop, W, 0, 0.88, 0, 3.0, 0.46, 0.9, FLESHP) -- stepped flesh triangle
+		pl(crop, W, 0, 1.33, 0, 2.4, 0.46, 0.9, FLESH)
+		pl(crop, W, 0, 1.78, 0, 1.8, 0.46, 0.9, FLESH)
+		pl(crop, W, 0, 2.23, 0, 1.2, 0.46, 0.9, FLESH)
+		pl(crop, W, 0, 2.66, 0, 0.6, 0.42, 0.9, FLESHD)
+		for _, s in { { -0.75, 1.3 }, { 0.55, 1.35 }, { -0.2, 1.8 }, { 0.3, 2.25 }, { -1.1, 0.95 }, { 1.0, 0.95 } } do
+			pl(crop, W, s[1], s[2], -0.46, 0.16, 0.26, 0.06, SEED)
+			pl(crop, W, -s[1], s[2] + 0.1, 0.46, 0.16, 0.26, 0.06, SEED)
 		end
-		local tip = pl(crop, W, 0, 2.97, 0, 0.3, 0.06, 0.3, FLESHD, { tr = 1, name = "JuiceTip" })
+		local tip = pl(crop, W, 0, 2.9, 0, 0.3, 0.06, 0.3, FLESHD, { tr = 1, name = "JuiceTip" })
 		B:emitter(tip, "drip", { name = "JuiceDrip", color = { "#ff6f9a", NEON }, rate = 1.5, size = { 0.2, 0.16, 0.08 } })
 
 		------------------------------------------------------------------
 		-- BABY MELON
 		------------------------------------------------------------------
-		local BX, BZ = -4.5, 2.9
+		local BX, BZ = -5.0, 3.3
 		box(crop, BX - 0.8, 0.95, BZ - 0.55, BX + 0.8, 1.35, BZ + 0.55, LIGHTS)
 		box(crop, BX - 1.15, 1.3, BZ - 0.8, BX + 1.15, 1.85, BZ + 0.8, DARK)
 		box(crop, BX - 0.95, 1.3, BZ - 0.95, BX + 0.95, 1.85, BZ + 0.95, DARK)
@@ -175,13 +186,11 @@ return {
 			lb(2.6, 0.08, 0.16, 0, 0.22, -0.1, VEIN)
 			lb(0.3, 0.3, 1.2, 0, 0.05, 1.55, VINE)
 		end
-		leaf(6.2, 2.2, -110, 8, 0.95) -- back-right, off the stem end
-		leaf(-6.0, -0.4, 95, 6, 0.85) -- left
+		leaf(5.6, 3.4, -120, 8, 0.95) -- back-right, off the stem end
+		leaf(-5.6, 0.4, 95, 6, 0.85) -- left
 		leaf(1.0, 4.6, 180, 10, 0.75) -- small one at the back
 
 		-- vines from the stem end along the ground
-		box(crop, MX + 4.3, 1.05, MZ - 0.18, MX + 5.2, 1.35, MZ + 0.18, VINE)
-		box(crop, MX + 4.3, 1.05, MZ - 0.18, MX + 4.62, 2.9, MZ + 0.18, VINE)
 		box(crop, -3.2, 1.05, 2.9, -1.9, 1.35, 3.2, VINE) -- to the baby melon
 		box(crop, -2.6, 1.05, -0.6, -2.3, 1.35, 0.6, VINE)
 		local function tendril(x, z, yaw, s)
@@ -203,13 +212,15 @@ return {
 		-- MYTHIC BLING: neon juice drops, floating melon cubes, sparkles
 		------------------------------------------------------------------
 		local function drop(x, y, z, s)
-			B:block(crop, v(0.36, 0.36, 0.36) * s, cf(x, y, z), NEON, NO)
+			local d = B:block(crop, v(0.36, 0.36, 0.36) * s, cf(x, y, z), NEON, NO)
 			B:block(crop, v(0.22, 0.22, 0.22) * s, cf(x, y + 0.27 * s, z), NEON, NO)
 			B:block(crop, v(0.11, 0.16, 0.11) * s, cf(x, y + 0.45 * s, z), NEON, NO)
+			return d
 		end
-		drop(-1.7, 3.0, -4.2, 1.0)
-		drop(5.3, 3.4, -2.8, 0.85)
-		drop(-5.5, 2.6, -2.0, 0.8)
+		local d1 = drop(-1.4, 3.1, -4.3, 1.25)
+		B:light(d1, { name = "JuiceGlow", color = "#ff6f9a", brightness = 1, range = 7 })
+		drop(5.4, 3.5, -2.6, 1.1)
+		drop(-5.9, 2.8, -2.2, 1.0)
 
 		local function cube(x, y, z, rx, ry, rz, s)
 			local F = cf(x, y, z, rx, ry, rz)
@@ -218,9 +229,9 @@ return {
 			pl(crop, F, 0, 0.5 * s, 0, 0.84 * s, 0.18 * s, 0.84 * s, DARK)
 			pl(crop, F, 0.1 * s, -0.05 * s, -0.41 * s, 0.14 * s, 0.22 * s, 0.04, SEED)
 		end
-		cube(-1.4, 5.7, -2.0, 20, 30, 15, 0.9)
-		cube(4.0, 5.2, -0.4, -15, -25, 20, 0.8)
-		cube(-4.9, 4.2, 0.9, 10, 40, -20, 0.7)
+		cube(-2.1, 5.1, -2.6, 20, 30, 15, 1.1)
+		cube(4.7, 4.9, -0.9, -15, -25, 20, 1.0)
+		cube(-5.2, 4.3, 1.1, 10, 40, -20, 0.85)
 
 		local aura = box(crop, -5.0, 1.5, -4.0, 5.0, 5.8, 4.0, RIND, { tr = 1, name = "SparkleVolume" })
 		B:emitter(aura, "sparkle", { name = "MelonSparkle", color = { "#ffffff", NEON }, rate = 6, size = { 0.1, 0.4, 0 } })

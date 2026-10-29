@@ -185,11 +185,13 @@ return {
 		------------------------------------------------------------------
 		local NO = { mat = "Neon" }
 		local function star(x, y, z, s)
-			B:block(crop, v(0.13, 0.8 * s, 0.13), cf(x, y, z), NEON, NO)
+			local c = B:block(crop, v(0.13, 0.8 * s, 0.13), cf(x, y, z), NEON, NO)
 			B:block(crop, v(0.8 * s, 0.13, 0.13), cf(x, y, z), NEON, NO)
 			B:block(crop, v(0.13, 0.13, 0.8 * s), cf(x, y, z), NEON, NO)
+			return c
 		end
-		star(-3.3, 5.9, -2.6, 1.0)
+		local s1 = star(-3.3, 5.9, -2.6, 1.0)
+		B:light(s1, { name = "PrizeGlow", color = NEON, brightness = 0.9, range = 8 })
 		star(3.9, 4.9, -1.8, 0.8)
 		star(-4.3, 3.3, 2.2, 0.7)
 		star(2.6, 6.5, 1.6, 0.85)

@@ -18,7 +18,7 @@ return {
 		local rad = math.rad
 		-- palette
 		local YEL, YEL_LT, GOLD, GOLD_DK = "#ffd60a", "#fff15a", "#ffa412", "#e07800"
-		local DISC, DISC_MID, DISC_LT, DISC_C = "#3a1d0c", "#6e3a15", "#8f5420", "#7a6a1a"
+		local DISC, DISC_MID, DISC_LT, DISC_C = "#5a2c12", "#8c4c1c", "#c27a34", "#9a8a20"
 		local NEON_GOLD = "#ffcf33"
 		local STEM, STEM_DK, STEM_LT = "#2fa83e", "#1b7330", "#7fd650"
 		local LEAF, LEAF_DK, LEAF_LT, LIME = "#26a845", "#167a34", "#4cc957", "#b6f05a"
@@ -103,12 +103,12 @@ return {
 		end
 		-- back petal layer (golden), offset half a step
 		for i = 0, 15 do
-			B:block(crop, v(1.15, 2.6, 0.45), radial(i * 22.5 + 11.25, 3.55, 0.2), i % 2 == 0 and GOLD or GOLD_DK)
+			B:block(crop, v(1.15, 2.6, 0.55), radial(i * 22.5 + 11.25, 3.55, 0.25), i % 2 == 0 and GOLD or GOLD_DK)
 		end
 		-- front petal layer (bright yellow, two stepped blocks each)
 		for i = 0, 15 do
 			local th = i * 22.5
-			B:block(crop, v(1.25, 1.9, 0.5), radial(th, 3.1, -0.1), YEL)
+			B:block(crop, v(1.1, 1.9, 0.6), radial(th, 3.1, -0.12), YEL)
 			B:block(crop, v(0.75, 1.2, 0.5), radial(th, 4.55, -0.08), i % 2 == 0 and YEL_LT or YEL)
 			if i % 2 == 0 then
 				B:block(crop, v(0.3, 0.3, 0.12), radial(th, 4.85, -0.37), NEON_GOLD, NEON) -- glowing tip stud
@@ -118,32 +118,27 @@ return {
 		B:block(crop, v(4.6, 3.2, 0.7), at(0, 0, -0.15), DISC)
 		B:block(crop, v(3.2, 4.6, 0.7), at(0, 0, -0.15), DISC)
 		B:block(crop, v(4.0, 4.0, 0.7), at(0, 0, -0.15), DISC)
-		B:block(crop, v(3.2, 2.2, 0.3), at(0, 0, -0.6), DISC_MID)
-		B:block(crop, v(2.2, 3.2, 0.3), at(0, 0, -0.6), DISC_MID)
 		for i = -2, 2 do
 			for j = -2, 2 do
-				local x, y = i * 0.8, j * 0.8
-				if math.abs(i) + math.abs(j) <= 3 and (i + j) % 2 ~= 0 then
-					local inDome = (math.abs(x) <= 1.6 and math.abs(y) <= 1.1) or (math.abs(x) <= 1.1 and math.abs(y) <= 1.6)
-					if inDome then
-						B:block(crop, v(0.75, 0.75, 0.16), at(x, y, -0.76), DISC)
-					else
-						B:block(crop, v(0.75, 0.75, 0.16), at(x, y, -0.54), DISC_LT)
-					end
+				local outer = math.max(math.abs(i), math.abs(j)) == 2
+				local odd = (i + j) % 2 ~= 0
+				if not (math.abs(i) == 2 and math.abs(j) == 2) and (outer or odd) then
+					local col = (outer and odd) and DISC_LT or DISC_MID
+					B:block(crop, v(0.68, 0.68, 0.16), at(i * 0.72, j * 0.72, -0.55), col)
 				end
 			end
 		end
 		-- glowing golden centre ring + olive centre
-		B:block(crop, v(0.9, 0.9, 0.3), at(0, 0, -0.85), DISC_C)
+		B:block(crop, v(0.8, 0.8, 0.3), at(0, 0, -0.62), DISC_C)
 		for i = 0, 7 do
-			B:block(crop, v(0.4, 0.4, 0.2), radial(i * 45, 1.2, -0.85), NEON_GOLD, NEON)
+			B:block(crop, v(0.38, 0.38, 0.2), radial(i * 45, 1.12, -0.68), NEON_GOLD, NEON)
 		end
 
 		------------------------------------------------------------------
 		-- Second smaller bud on a side branch (half open)
 		------------------------------------------------------------------
-		local bud = v(-3.6, 4.8, -0.4)
-		B:beam(crop, v(-0.3, 4.0, 0.7), bud + v(0.5, -0.3, 0.5), 0.55, 0.55, STEM)
+		local bud = v(-4.7, 4.7, -0.3)
+		B:beam(crop, v(-0.3, 3.9, 0.7), bud + v(0.6, -0.4, 0.5), 0.55, 0.55, STEM)
 		local Fb = CFrame.new(bud) * CFrame.Angles(0, rad(30), 0) * CFrame.Angles(rad(20), 0, 0)
 		B:block(crop, v(1.8, 1.3, 0.7), Fb * CFrame.new(0, 0, 0.35), STEM_DK)
 		B:block(crop, v(1.3, 1.8, 0.7), Fb * CFrame.new(0, 0, 0.35), STEM_DK)
@@ -170,7 +165,7 @@ return {
 		local fx = B:block(crop, v(8, 8, 1), at(0, 0, 0), YEL, { tr = 1, name = "SparkleFX" })
 		B:emitter(fx, "sparkle", { name = "GoldSparkle", color = { NEON_GOLD, "#ffffff" }, rate = 6 })
 		B:emitter(fx, "glow", { name = "WarmGlow", color = "#ffc24a", rate = 1.2 })
-		local core = B:block(crop, v(1, 1, 1), at(0, 0, -1.2), YEL, { tr = 1, name = "CoreLight" })
-		B:light(core, { color = "#ffcf66", brightness = 1.2, range = 12, name = "SunLight" })
+		local core = B:block(crop, v(1, 1, 1), at(0, 0, -2.4), YEL, { tr = 1, name = "CoreLight" })
+		B:light(core, { color = "#ffcf66", brightness = 1.0, range = 14, name = "SunLight" })
 	end,
 }

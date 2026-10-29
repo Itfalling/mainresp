@@ -21,7 +21,8 @@ return {
 		local CRYS, CRYSD, CRYSP, CRYSN = "#7af0ff", "#33b2e0", "#c7a0ff", "#a8fbff"
 		local GOLD, GOLDD, GOLDL, GOLDN = "#ffc21f", "#d68b0e", "#ffe57a", "#ffd84a"
 		local BIRCH, SILVER, SILVERD, BMARK = "#f3efe6", "#cfd5e0", "#9fa6b8", "#4a4556"
-		local TEALX, TEALD, TEAL, TURQ, MINT, MINTH = "#08606c", "#0b8c96", "#11aab0", "#3fe6d6", "#8ef5cc", "#d4ffec"
+		local TEALX, TEALD, TEAL, TURQ, MINT, MINTH = "#08606c", "#0c94a0", "#14bcbc", "#3fe6d6", "#7cf2c8", "#d4ffec"
+		local MINTM = "#5fe0c2"
 		local PINK, PINKL, PINKD, POLLEN = "#ff63b4", "#ffadd8", "#d83c8a", "#fff0a0"
 		local SGOLD, SYEL, SORA = "#ffd01c", "#fff27a", "#ffa21a"
 
@@ -65,10 +66,10 @@ return {
 			local y = topAt(x, z)
 			if i % 2 == 0 then
 				local col = (i % 4 == 0) and CRYS or CRYSP
-				B:block(soil, v(0.9, 0.5, 0.9), cf(x, y + 0.2, z), CRYSD, SOIL)
-				B:block(soil, v(0.6, 1.0, 0.6), cf(x - 0.1, y + 0.85, z + 0.05), col, SOIL)
-				B:block(soil, v(0.4, 0.6, 0.4), cf(x + 0.35, y + 0.6, z - 0.25), col, SOIL)
-				B:gem(soil, v(0.32, 0.4, 0.32), cf(x - 0.1, y + 1.5, z + 0.05), CRYSN, { name = "Soil" })
+				B:block(soil, v(1.1, 0.55, 1.1), cf(x, y + 0.22, z), CRYSD, SOIL)
+				B:block(soil, v(0.75, 1.4, 0.75), cf(x - 0.1, y + 1.1, z + 0.05), col, SOIL)
+				B:block(soil, v(0.5, 0.8, 0.5), cf(x + 0.45, y + 0.75, z - 0.3), col, SOIL)
+				B:gem(soil, v(0.4, 0.5, 0.4), cf(x - 0.1, y + 2.0, z + 0.05), CRYSN, { name = "Soil" })
 			else
 				B:block(soil, v(1.0, 0.55, 0.8), cf(x, y + 0.22, z), GOLDD, SOIL)
 				B:block(soil, v(0.7, 0.35, 0.6), cf(x, y + 0.62, z), GOLD, SOIL)
@@ -140,8 +141,10 @@ return {
 			if under ~= false then
 				B:block(crop, v(s * 0.74, s * 0.24, s * 0.74), cf(x, y - s * 0.36, z), TEALD) -- dark underside
 			end
-			B:block(crop, v(s, s * 0.52, s * 0.7), cf(x, y, z), body)
-			B:block(crop, v(s * 0.7, s * 0.52 + 0.04, s), cf(x, y, z), body)
+			-- the two arms of the plus take neighbouring shades: notched corners read as shading
+			local shade = ({ [TEAL] = TEALD, [TURQ] = TEAL, [MINT] = MINTM })[body] or body
+			B:block(crop, v(s, s * 0.52, s * 0.7), cf(x, y, z), (a // 45) % 2 == 0 and body or shade)
+			B:block(crop, v(s * 0.7, s * 0.52 + 0.04, s), cf(x, y, z), (a // 45) % 2 == 0 and shade or body)
 			B:block(crop, v(s * 0.68, s * 0.24, s * 0.68), cf(x, y + s * 0.36, z), top) -- light cap
 			return v(x, y, z)
 		end
@@ -160,6 +163,7 @@ return {
 			tierB[i] = puff(i * 60, 4.6, 18.5 + (i % 2) * 0.4, 3.8, i % 2 == 0 and TURQ or TEAL, MINT)
 		end
 		-- tier C (top crown)
+		B:block(crop, v(4.6, 2.6, 4.6), cf(0, 20.6, 0), MINTM)
 		for i = 0, 3 do
 			tierC[i] = puff(i * 90 + 45, 2.3, 21.6, 3.2, MINT, MINTH, false)
 		end
@@ -210,7 +214,11 @@ return {
 			end
 			pb(v(1.1, 1.1, 0.8), 0, 0, SGOLD) -- body
 			pb(v(0.5, 0.55, 0.62), 0, 0.8, SGOLD) -- top point
-			pb(v(0.26, 0.32, 0.44), 0, 1.2, SYEL)
+			if neon then -- glowing top tip
+				B:gem(crop, v(0.26, 0.32, 0.44) * s, base * CFrame.new(0, 1.2 * s, 0), GOLDN, { name = "StarTip" })
+			else
+				pb(v(0.26, 0.32, 0.44), 0, 1.2, SYEL)
+			end
 			for _, sd in { -1, 1 } do
 				pb(v(0.6, 0.48, 0.62), sd * 0.82, 0.14, SGOLD) -- arms
 				pb(v(0.3, 0.28, 0.44), sd * 1.24, 0.2, SYEL)
