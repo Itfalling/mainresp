@@ -424,6 +424,7 @@ function L.states(M)
 		total += d
 	end
 	M.ReelSegments = segs
+	total = math.floor(total * 1e6 + 0.5) / 1e6
 	M.Cycle = total
 	local rr = L.runner(M)
 	rr.auto = false
