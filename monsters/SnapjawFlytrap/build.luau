@@ -94,20 +94,20 @@ return {
 				local d = v(math.sin(rad(a)), 0, -math.cos(rad(a)))
 				local H = v(0, 1.5, 0) + d * 1.6
 				local K = v(0, 2.8, 0) + d * 3.8
-				local F = v(0, 0.45, 0) + d * 5.0
+				local F = v(0, 0.55, 0) + d * 5.0
 				local up = B:bone("Leg" .. k .. side, "Pot", H)
 				B:beam(up, H - d * 0.4, K + d * 0.3, 1.4, 1.4, ROOT)
 				B:beam(up, H + d * 0.8 + v(0, 0.75, 0), K + v(0, 0.75, 0) - d * 0.2, 0.5, 0.3, ROOT_DK) -- top bark ridge
 				B:block(up, v(1.7, 1.7, 1.7), CFrame.new(K) * CFrame.Angles(0, -rad(a), 0), ROOT_DK) -- knee knot
 				B:spike(up, K + v(0, 0.6, 0), K + v(0, 1.6, 0) + d * 0.5, 0.5, 0.5, ROOT_TIP) -- little root thorn
 				local lo = B:bone("Shin" .. k .. side, "Leg" .. k .. side, K)
-				B:beam(lo, K, F + v(0, 0.1, 0), 1.2, 1.2, ROOT)
+				B:beam(lo, K, F + v(0, 0.45, 0) - d * 0.1, 1.2, 1.2, ROOT)
 				B:beam(lo, K + d * 0.2 + v(0, -0.6, 0), F + v(0, 0.6, 0) - d * 0.05, 1.3, 0.5, ROOT_DK) -- bark band
 				-- splayed root toes on the ground
-				B:block(lo, v(1.5, 0.6, 1.5), CFrame.new(F + v(0, -0.12, 0)) * CFrame.Angles(0, -rad(a), 0), ROOT_DK)
-				B:spike(lo, F + v(0, -0.15, 0), F + d * 1.3 + v(0, -0.25, 0), 0.6, 0.4, ROOT_TIP)
+				B:block(lo, v(1.35, 0.55, 1.35), CFrame.new(F + v(0, -0.05, 0)) * CFrame.Angles(0, -rad(a), 0), ROOT_DK)
+				B:spike(lo, F + v(0, -0.1, 0), F + d * 1.2 + v(0, -0.1, 0), 0.6, 0.4, ROOT_TIP)
 				local sd = v(d.Z, 0, -d.X)
-				B:spike(lo, F + v(0, -0.15, 0), F + d * 0.6 + sd * 0.9 + v(0, -0.25, 0), 0.45, 0.35, ROOT_TIP)
+				B:spike(lo, F + v(0, -0.1, 0), F + d * 0.6 + sd * 0.9 + v(0, -0.1, 0), 0.45, 0.35, ROOT_TIP)
 			end
 		end)
 
@@ -208,7 +208,8 @@ return {
 			B:block(brow, v(2.7, 0.6, 1.3), cf(1.75, 12.55, -3.95, 0, 0, 17), BROW)
 			-- eyelid (hidden; slides down over the eye for blinks / squints)
 			local lid = B:bone("Lid" .. side, "Head", v(1.7, 11.75, -4.3))
-			B:block(lid, v(1.95, 1.05, 0.3), cf(1.7, 11.75, -4.4), GREEN_DK, { tr = 1, name = "Eyelid" .. side })
+			B:block(lid, v(1.95, 1.05, 0.3), cf(1.7, 11.75, -4.4), GREEN, { tr = 1, name = "Eyelid" .. side })
+			B:block(lid, v(1.95, 0.2, 0.36), cf(1.7, 11.3, -4.42), BROW, { tr = 1, name = "Lash" .. side }) -- lid edge
 		end)
 
 		-- expression props (shown only by the states that use them)

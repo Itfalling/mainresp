@@ -75,7 +75,7 @@ local REST = { 0, 0, 8, 12, 0, -6, 0, 0 }
 -- (optional 9-11: shoulder shift x, y, z in studs)
 local CROSS_R = { 28, 0, -14, 34, 6, -64, 0, 0, -0.3, 0, -0.45 } -- right forearm on top
 local CROSS_L = { 20, 0, -14, 42, 18, -64, 0, 0, -0.3, 0, -0.3 }
-local FLEX = { -8, 0, 86, 20, 26, 128, -10, 0 } -- double-bicep
+local FLEX = { 6, 0, 86, 20, 26, 128, -10, 0 } -- double-bicep
 local EARPC = { 64, 0, 34, 6, -54, -140, 0, 0 } -- finger to the earpiece
 local KNUCK = { 52, 0, -6, 18, -14, -44, 0, 0 } -- fists together in front
 local APART = { 48, 0, 6, -10, -54, -72, 0, 0 } -- fists pulled apart (wind-up)
@@ -608,10 +608,10 @@ local function giveup(t, pose, ctx)
 	end
 	lift *= tant
 	slamK *= tant
-	S.hy = 0.15 * lift - 0.25 * slamK + 0.2 * throw - 0.25 * sigh
+	S.hy = 0.25 * lift - 0.3 * slamK + 0.2 * throw - 0.25 * sigh
 	S.hrz = 5 * lift
-	S.footR = Vector3.new(0.1 * lift, 1.0 * lift, -0.3 * lift)
-	S.pitchR = 18 * lift
+	S.footR = Vector3.new(0.15 * lift, 1.5 * lift, -0.45 * lift)
+	S.pitchR = 22 * lift
 	S.crx = -6 * tant - 5 * slamK + 12 * throw - 10 * sigh
 	S.crz = -4 * lift
 	S.hdx = -8 * tant + 6 * slamK + 26 * throw - 12 * sigh

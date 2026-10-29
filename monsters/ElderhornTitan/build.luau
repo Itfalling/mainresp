@@ -248,8 +248,8 @@ return {
 			-- EYE: dark socket, narrow emerald slit, slit pupil (front face only)
 			-- (socket + slit wrap round the skull's front corner so the eye also
 			-- reads from the side; the pupil is on the FRONT face only)
-			hb(head, 3.0, 1.7, 1.4, 3.55, 33.5, -25.4, MOUTH)
-			hb(head, 2.5, 0.7, 1.3, 3.6, 33.45, -25.5, EMER, { mat = "Neon", name = "Eye" }, 10)
+			hb(head, 2.9, 1.7, 1.4, 3.5, 33.5, -25.4, MOUTH)
+			hb(head, 2.9, 0.7, 1.3, 3.8, 33.45, -25.45, EMER, { mat = "Neon", name = "Eye" }, 10)
 			hb(head, 0.4, 0.7, 0.15, 3.0, 33.4, -26.2, PUPIL)
 			-- hidden rage flare: the eye slit blazes wider when enraged
 			hb(head, 3.0, 0.5, 0.2, 3.6, 33.55, -26.25, "#c8ffe4", { mat = "Neon", tr = 1, name = "EyeFlare" .. side }, 10)

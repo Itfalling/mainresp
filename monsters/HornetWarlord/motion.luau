@@ -80,6 +80,7 @@ local ZERO = { __index = function() return 0 end }
 local ORB_DIR = { 1, -1, 1, -1 }
 local ORB_XZ = { { 10.5, -3.0 }, { -10.5, -1.5 }, { 8.5, 7.0 }, { -8.5, 5.5 } }
 local SHOCK_N = 10
+local NOCURL = { 0, 0, 0, 0, 0 }
 
 local function rig(pose, t, ctx, q)
 	setmetatable(q, ZERO)
@@ -141,12 +142,13 @@ local function rig(pose, t, ctx, q)
 	L.both(pose, "Foot", ang(q.footX, 0, 0))
 
 	-- ABDOMEN + STINGER (+X curls it down/under, -X lifts it)
+	local curl = rawget(q, "abdC") or NOCURL
 	for i = 1, 4 do
 		local w = q.abdW * wave(t, q.abdHz, -0.12 * i)
 		local yw = q.abdYaw * wave(t, q.abdYHz, -0.1 * i)
-		pose["Abd" .. i] = ang(q.abdP * (i == 1 and 1.2 or 1) + w, yw, 0)
+		pose["Abd" .. i] = ang(q.abdP * (i == 1 and 1.2 or 1) + w + curl[i], yw, 0)
 	end
-	pose.Stinger = ang(q.sting + q.abdW * 1.4 * wave(t, q.abdHz, -0.6), 0, 0)
+	pose.Stinger = ang(q.sting + q.abdW * 1.4 * wave(t, q.abdHz, -0.6) + curl[5], 0, 0)
 	local glow = clamp01(q.glow)
 	ctx.transparency("StingGlow", glow > 0.05 and (0.95 - 0.8 * glow) or 1)
 	ctx.light("StingLight", 1.5 * glow)
@@ -177,10 +179,10 @@ local function rig(pose, t, ctx, q)
 	-- STRIKE SHOCKWAVE (q.shock: progress 0..1, anything else = hidden)
 	local sw = rawget(q, "shock")
 	local on = sw ~= nil and sw > 0 and sw < 1
-	local r = on and 6.0 * E.quadOut(sw) or 0
+	local r = on and 4.5 * E.quadOut(sw) or 0
 	for k = 1, SHOCK_N do
 		local a = (k - 1) / SHOCK_N * 2 * pi
-		pose["Shock" .. k] = CFrame.new(-sin(a) * r, on and 0.3 * (1 - sw) or 0, -cos(a) * r)
+		pose["Shock" .. k] = CFrame.new(-sin(a) * r, cos(a) * r, on and -1.5 * sw or 0)
 		local tr = on and (0.1 + 0.85 * sw * sw) or 1
 		ctx.transparency("Wave" .. k, tr)
 		ctx.transparency("WaveTop" .. k, tr)
@@ -226,7 +228,7 @@ local function idle(t, pose, ctx)
 
 	-- BODY
 	q.y = 0.45 * bob + 0.6 * sal + 1.1 * hup - 0.9 * crouch + 1.3 * rise - 0.9 * slam
-	q.p = 2 * pulse * 0.5 + 6 * sal - 8 * crouch + 4 * twirl - 10 * slam + 6 * flare
+	q.p = pulse + 6 * sal - 8 * crouch + 4 * twirl - 10 * slam + 6 * flare
 	q.yw = 0.55 * scan + 10 * pol - 12 * twirl
 	q.r = 3 * sway * calm + 4 * twirl
 	q.z = 0.4 * crouch
@@ -289,16 +291,16 @@ local function idle(t, pose, ctx)
 	q.footX = 8 * wave(t, 1.0, 0.3)
 
 	-- ABDOMEN: breathing pulse, pumps on the hup, cocks for the flare
-	q.abdP = 2 * pulse - 8 * hup + 10 * crouch - 18 * flare
+	q.abdP = 2 * pulse - 8 * hup - 6 * crouch - 18 * flare - 7 * sal - 6 * twirl
 	q.abdW = 2.5 + 4 * hup
 	q.abdHz = 1.0
 	q.abdYaw = 3
 	q.abdYHz = 0.25
-	q.sting = -40 * flare + 8 * crouch
+	q.sting = -40 * flare - 10 * crouch
 	q.glow = max(flare, 0.5 * crouch)
 
 	-- CUBES
-	q.orbYaw = 30 * t
+	q.orbYaw = 25 * wave(t, 1 / 12)
 	q.orbHz = 0.5
 	q.orbY = 0.8 * rise
 	q.orbOut = 1.5 * flare
@@ -339,7 +341,7 @@ local function alert(t, pose, ctx)
 	local charge = env(c, 0.35, 0.45, 0.85, 0.35)
 	local shake = cry * wave(t, 9)
 
-	q.y = 0.45 * wave(t, 0.5) + 1.4 * shock - 1.1 * crouch + 1.8 * cry
+	q.y = 0.45 * wave(t, 0.5) + 1.4 * shock - 0.6 * crouch + 1.8 * cry
 	q.p = 12 * shock - 16 * crouch + 12 * cry
 	q.z = 0.6 * crouch
 	q.r = 3 * shake
@@ -357,7 +359,7 @@ local function alert(t, pose, ctx)
 	q.wSweep = 4 + 22 * crouch
 	q.wRaise = 6 + 16 * cry
 
-	q.fistR = lerpV(FI + V(0, 0.8 * shock, 0), CRY_R, cry) + V(0, 0, 0.6 * crouch)
+	q.fistR = lerpV(FI + V(0, 0.8 * shock, 0), CRY_R, cry) + V(0, 1.0 * crouch, 0.6 * crouch)
 	q.poleR = cry > 0.01 and V(1, -0.3, 0.3) or nil
 	q.fistL = lerpV(FI + V(0.4 * shock, 1.0 * shock, 0), CRY_L + V(0, 0.5 * shake, 0), cry)
 	q.poleL = cry > 0.01 and V(1, -0.2, 0.3) or nil
@@ -374,7 +376,7 @@ local function alert(t, pose, ctx)
 	q.glow = charge
 	q.spearLight = 1.2 * cry
 
-	q.orbYaw = 30 * t + 120 * E.cubicOut(remap(c, 0.72, 1.6))
+	q.orbYaw = 20 * cry * wave(t, 1.5)
 	q.orbHz = 0.5
 	q.orbOut = 2.5 * cry - 1.0 * crouch
 	q.orbY = 1.5 * cry
@@ -458,59 +460,75 @@ end
 ------------------------------------------------------------------------
 -- ATTACK (1.2 s): stinger strike - the abdomen whips forward under the body
 ------------------------------------------------------------------------
-local IMPACT = 0.46
+local IMPACT = 0.5
+local STING = { 20, 40, 55, 40, 40 } -- curl per joint (Abd1..4, Stinger) at full strike
 
 local function attack(t, pose, ctx)
 	local c = t
 	local q = {}
-	local cock = env(c, 0.0, 0.32, 0.04, 0.12, "cubicOut", "quadIn")
-	local strike = env(c, 0.36, 0.1, 0.22, 0.52, "quadIn", "cubicInOut")
+	local cock = env(c, 0.0, 0.3, 0.04, 0.14, "cubicOut", "quadIn")
+	-- whip progress: 0 -> 1 (fast), hold, then exactly back along the same path
+	local k
+	if c < 0.34 then
+		k = 0
+	elseif c < IMPACT then
+		k = E.quadIn(remap(c, 0.34, IMPACT))
+	elseif c < 0.74 then
+		k = 1
+	else
+		k = 1 - E.cubicInOut(remap(c, 0.74, 1.16))
+	end
 	local impact = env(c, IMPACT, 0.03, 0.05, 0.55, "linear", "elasticOut")
-	local bob = 0.45 * wave(t, 0.5)
+	local lift = L.smoothstep(min(1, k * 1.5))
+	local curl = {}
+	for j = 1, 5 do
+		curl[j] = STING[j] * L.smoothstep((k - 0.5 * (5 - j) / 4) / 0.5)
+	end
+	q.abdC = curl
 
-	q.y = bob + 1.0 * cock + 1.4 * strike - 0.5 * impact
-	q.p = 20 * cock - 14 * strike + 4 * impact
-	q.z = 0.8 * cock - 1.2 * strike
-	q.hp = 8 * cock + 4 * strike - 8 * impact
-	q.mand = 30 * cock + 44 * strike - 30 * impact
+	q.y = 0.45 * wave(t, 0.5) + 0.8 * cock + 3.5 * lift - 0.4 * impact
+	q.p = 18 * cock - 20 * k + 3 * impact
+	q.z = 0.8 * cock - 1.5 * k
+	q.hp = 6 * cock + 10 * k - 6 * impact
+	q.mand = 30 * cock + 40 * k * (1 - 0.7 * impact)
 	q.browY = -0.2
-	q.browA = 12 + 6 * strike
+	q.browA = 12 + 6 * k
 	q.lid = 0.3 * cock
-	q.antP = 15 * cock - 20 * strike + 10 * impact
-	q.wAmp = 28 + 16 * cock + 10 * strike
+	q.antP = 15 * cock - 18 * k + 10 * impact
+	q.wAmp = 28 + 16 * cock + 12 * k
 	q.wHz = 15
 	q.wSweep = 4 + 16 * cock
 	q.wRaise = 6 + 10 * cock
 
-	q.fistR = lerpV(FI, V(5.0, 11.6, -1.8), max(cock, strike))
+	local reach = max(cock, k)
+	q.fistR = lerpV(FI, V(5.0, 11.4, -1.8), reach)
 	q.poleR = V(1, -0.3, 0.3)
-	q.spear = ang(14 * strike, 0, -8 * strike)
-	q.fistL = lerpV(FI, V(4.8, 10.2, -3.0), max(cock, strike))
+	q.spear = ang(14 * k, 0, -8 * k)
+	q.fistL = lerpV(FI, V(4.8, 10.2, -3.0), reach)
 
-	q.legX = -12 * cock + 30 * strike
-	q.legZ = 10 * strike
-	q.shinX = 10 * cock - 20 * strike
+	q.legX = -12 * cock + 34 * k
+	q.legZ = 10 * k
+	q.shinX = 10 * cock - 24 * k
 
-	q.abdP = -12 * cock + 28 * strike + 4 * impact
+	q.abdP = -10 * cock + 3 * impact
 	q.abdW = 1.5
 	q.abdHz = 2
-	q.sting = -10 * cock + 26 * strike
-	q.glow = max(cock, strike)
-	q.spearLight = 0
+	q.sting = -16 * cock
+	q.glow = max(cock, k)
 
-	q.orbYaw = 30 * t
+	q.orbYaw = 10 * wave(t, 1)
 	q.orbHz = 0.5
 	q.orbY = -1.2 * impact
 	q.orbOut = 1.5 * impact
 	q.tumble = 120 * t
 	q.anger = 1
-	local sw = remap(c, IMPACT, IMPACT + 0.45)
-	q.shock = (c > IMPACT and c < IMPACT + 0.45) and sw or nil
+	local sw = remap(c, IMPACT, IMPACT + 0.4)
+	q.shock = (c > IMPACT and c < IMPACT + 0.4) and sw or nil
 	rig(pose, t, ctx, q)
 
 	if ctx.crossed(IMPACT) then
 		ctx.emit("StingBurst", 45)
-		ctx.emit("GroundDust", 30)
+		ctx.emit("GroundDust", 25)
 		ctx.emit("PetalBurst", 20)
 		ctx.emit("BattleBurst", 10)
 	end
@@ -555,14 +573,14 @@ local function catch(t, pose, ctx)
 	q.legZ = 10 * rise
 	q.shinX = 15 * rise
 
-	q.abdP = 6 * crouch - 12 * tri - 6 * rise
+	q.abdP = -4 * crouch - 12 * tri - 6 * rise
 	q.abdW = 2
 	q.abdHz = 2
 	q.sting = -28 * tri
 	q.glow = tri
 	q.spearLight = 1.3 * tri
 
-	q.orbYaw = 30 * t + 360 * loopK
+	q.orbYaw = 360 * loopK
 	q.orbHz = 0.5
 	q.orbY = 1.2 * rise
 	q.orbOut = 2.0 * rise
@@ -636,7 +654,7 @@ local function giveUp(t, pose, ctx)
 	q.sting = 10 * droop - 30 * fold
 	q.glow = 0.4 * inLoop
 
-	q.orbYaw = 30 * t + 200 * loopK
+	q.orbYaw = 360 * loopK
 	q.orbHz = 0.5
 	q.orbY = -1.2 * droop
 	q.orbOut = 1.2 * inLoop

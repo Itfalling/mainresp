@@ -107,6 +107,8 @@ return {
 		B:block(pend, v(0.3, 0.05, 0.04), cf(0, 4.04, -1.15), CARROTD)
 		B:block(pend, v(0.12, 0.28, 0.1), cf(0.1, 4.48, -1.05), LEAF)
 		B:block(pend, v(0.1, 0.22, 0.1), cf(-0.1, 4.46, -1.06), LEAFD)
+		local bling = B:block(pend, v(0.5, 0.9, 0.3), cf(0, 4.0, -1.05), TANK, { tr = 1, name = "BlingFX" })
+		B:emitter(bling, "sparkle", { name = "Bling", color = { "#ffffff", "#ffe27a" }, rate = 1.5, size = { 0.05, 0.3, 0 } })
 
 		-- FX volumes on the chest: flex sparkles + fist clash sparks
 		local flexAt = B:block(chest, v(4.5, 2.5, 1.5), cf(0, 4.4, 0.0), TANK, { tr = 1, name = "FlexFX" })
@@ -150,10 +152,10 @@ return {
 			B:block(brow, v(0.9, 0.24, 0.32), cf(0.58, 6.12, -1.52), BROW)
 		end)
 		-- anger vein mark (props) floating at the top-right of the head
-		local vein = B:bone("Vein", "Head", v(1.2, 6.45, -1.2))
-		local vb = { { 1.08, 6.45, 0.08, 0.36 }, { 1.32, 6.45, 0.08, 0.36 }, { 1.2, 6.57, 0.36, 0.08 }, { 1.2, 6.33, 0.36, 0.08 } }
+		local vein = B:bone("Vein", "Head", v(1.55, 6.55, -1.1))
+		local vb = { { 1.43, 6.55, 0.08, 0.36 }, { 1.67, 6.55, 0.08, 0.36 }, { 1.55, 6.67, 0.36, 0.08 }, { 1.55, 6.43, 0.36, 0.08 } }
 		for i, b in vb do
-			B:block(vein, v(b[3], b[4], 0.08), cf(b[1], b[2], -1.25, 0, 0, 45), RED, { mat = "Neon", tr = 1, name = "AngryMark" .. i })
+			B:block(vein, v(b[3], b[4], 0.08), cf(b[1], b[2], -1.1, 0, 0, 45), RED, { mat = "Neon", tr = 1, name = "AngryMark" .. i })
 		end
 
 		-- SHADES on their own bone (flip up onto the forehead)
@@ -163,7 +165,7 @@ return {
 			B:block(shades, v(0.95, 0.24, 0.2), cf(0.62, 5.33, -1.6), SHADE) -- lens bottoms
 			B:block(shades, v(0.32, 0.09, 0.04), cf(0.88, 5.88, -1.75), GLINT)
 			B:block(shades, v(0.1, 0.09, 0.04), cf(0.6, 5.88, -1.75), GLINT)
-			B:block(shades, v(0.1, 0.12, 1.45), cf(1.3, 5.86, -0.9), SHADE) -- temple arm
+			B:block(shades, v(0.1, 0.12, 0.75), cf(1.3, 5.86, -1.22), SHADE) -- temple arm
 		end)
 		B:block(shades, v(0.26, 0.2, 0.06), cf(0, 5.42, -1.69), "#20202a") -- nose bridge
 
@@ -247,7 +249,7 @@ return {
 		-- Floating garden voxel cubes (carrot, leaf, soil) + falling leaves
 		------------------------------------------------------------------
 		local orbit = B:bone("Orbit", "Root", v(0, 4, 0.3))
-		local spots = { { 4.8, 5.6, -1.6 }, { -4.7, 3.8, 1.4 }, { 2.0, 7.0, 4.3 } }
+		local spots = { { 4.8, 2.8, -1.6 }, { -4.7, 3.8, 1.4 }, { 2.0, 7.0, 4.3 } }
 		for i, p in spots do
 			local ob = B:bone("Orb" .. i, "Orbit", v(p[1], p[2], p[3]))
 			if i == 1 then

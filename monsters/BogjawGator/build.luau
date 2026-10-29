@@ -139,8 +139,10 @@ return {
 		B:block(head, v(5.7, 0.4, 3.2), cf(0, 3.85, -6.9), BELLY2) -- pale cheek / lip line
 		B:block(head, v(5.74, 0.9, 0.7), cf(0, 5.3, -5.6), DARK) -- dark band behind the eyes
 		B:block(head, v(4.4, 1.6, 4.2), cf(0, 4.45, -10.7), MAIN) -- snout
-		B:block(head, v(3.4, 0.45, 4.0), cf(0, 5.45, -10.4), MAIN) -- snout top step
-		B:block(head, v(1.6, 0.3, 3.4), cf(0, 5.75, -10.0), DARK) -- snout ridge
+		B:block(head, v(3.4, 0.45, 4.0), cf(0, 5.45, -10.4), DARK) -- snout top step
+		B:block(head, v(1.6, 0.3, 3.4), cf(0, 5.75, -10.0), DEEP) -- snout ridge
+		B:block(head, v(4.52, 0.35, 3.6), cf(0, 4.95, -10.6), DARK) -- dark snout side stripe
+		B:block(head, v(5.76, 0.5, 2.6), cf(0, 5.95, -7.3), DARK) -- dark brow ridge band
 		B:block(head, v(4.5, 0.4, 4.1), cf(0, 3.85, -10.7), BELLY2) -- pale upper lip band
 		B:block(head, v(4.46, 0.3, 0.6), cf(0, 4.75, -9.2), DARK) -- snout bands
 		B:block(head, v(4.46, 0.3, 0.6), cf(0, 4.75, -11.3), DARK)
@@ -205,10 +207,10 @@ return {
 		local mark = B:bone("Mark", "Head", v(3.4, 10.0, -6.6))
 		local MP = CFrame.new(3.4, 10.0, -6.6) * ang(0, -35, 0)
 		local veins = {
-			{ -0.35, 0.6, 0.75, 0.25 }, { -0.6, 0.35, 0.25, 0.75 },
-			{ 0.35, 0.6, 0.75, 0.25 }, { 0.6, 0.35, 0.25, 0.75 },
-			{ -0.35, -0.6, 0.75, 0.25 }, { -0.6, -0.35, 0.25, 0.75 },
-			{ 0.35, -0.6, 0.75, 0.25 }, { 0.6, -0.35, 0.25, 0.75 },
+			{ -0.55, 0.7, 0.6, 0.25 }, { -0.7, 0.55, 0.25, 0.6 },
+			{ 0.55, 0.7, 0.6, 0.25 }, { 0.7, 0.55, 0.25, 0.6 },
+			{ -0.55, -0.7, 0.6, 0.25 }, { -0.7, -0.55, 0.25, 0.6 },
+			{ 0.55, -0.7, 0.6, 0.25 }, { 0.7, -0.55, 0.25, 0.6 },
 		}
 		for i, q in veins do
 			B:block(mark, v(q[3], q[4], 0.3), MP * CFrame.new(q[1], q[2], 0), RED, { tr = 1, name = "AngryMark" .. i })
@@ -339,7 +341,6 @@ return {
 		B:block(tip, v(1.15, 0.5, 0.9), cf(0, 1.95, 12.6), BELLY)
 		B:block(tip, v(1.1, 1.1, 0.9), cf(0, 3.45, 12.85), MAIN)
 		B:block(tip, v(0.9, 1.0, 0.8), cf(0, 4.35, 12.95), DARK)
-		B:block(tip, v(0.4, 0.5, 0.5), cf(0, 4.1, 13.45), DEEP) -- back nub
 		-- driftwood hook
 		B:beam(tip, v(0, 4.6, 12.95), v(0, 5.9, 12.5), 0.45, 0.45, WOOD)
 		B:beam(tip, v(0, 5.85, 12.65), v(0, 5.75, 11.25), 0.42, 0.42, WOOD)

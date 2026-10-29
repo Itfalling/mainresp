@@ -273,10 +273,10 @@ return {
 		B:block(hat, v(0.72, 0.42, 0.08), cf(-0.55, 9.6, -1.12), PATCH_B)
 		ticks(hat, v(-0.8, 9.6, -1.17), v(-0.3, 9.6, -1.17), 2, v(0.07, 0.5, 0.04))
 		-- sunflower + leaves tucked in the band (right side)
-		B:block(hat, v(0.14, 0.9, 0.45), cf(1.32, 9.75, 0.45, -20, 0, -10), LEAF)
-		B:block(hat, v(0.14, 0.7, 0.4), cf(1.32, 9.65, 0.85, 30, 0, -10), LEAF_D)
-		B:block(hat, v(0.16, 0.62, 0.62), cf(1.36, 9.95, 0.05), SUN)
-		B:block(hat, v(0.1, 0.28, 0.28), cf(1.45, 9.95, 0.05), WOOD_D)
+		B:block(hat, v(0.14, 0.9, 0.45), cf(1.32, 9.6, 0.45, -20, 0, -10), LEAF)
+		B:block(hat, v(0.14, 0.7, 0.4), cf(1.32, 9.55, 0.85, 30, 0, -10), LEAF_D)
+		B:block(hat, v(0.16, 0.62, 0.62), cf(1.36, 9.72, 0.05), SUN)
+		B:block(hat, v(0.1, 0.28, 0.28), cf(1.45, 9.72, 0.05), WOOD_D)
 		local function flap(name, pivot, size, at, fray, frayAt)
 			local b = B:bone(name, "Hat", pivot)
 			B:block(b, size, CFrame.new(at), HAT)
@@ -351,10 +351,10 @@ return {
 		------------------------------------------------------------------
 		local orbit = B:bone("Orbit", "Root", v(0, 5, 0))
 		local spots = {
-			{ 6.2, 6.6, 1.2, "pumpkin" },
-			{ -6.0, 4.6, 2.2, "corn" },
-			{ 3.6, 2.4, 5.0, "bale" },
-			{ -4.0, 8.8, -3.8, "pumpkin" },
+			{ 5.8, 6.6, 0.8, "pumpkin" },
+			{ -5.8, 4.4, 1.2, "corn" },
+			{ 3.4, 2.2, 4.6, "bale" },
+			{ -3.6, 9.4, 3.8, "pumpkin" },
 		}
 		for i, s in spots do
 			local p = v(s[1], s[2], s[3])

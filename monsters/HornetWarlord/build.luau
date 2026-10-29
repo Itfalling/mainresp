@@ -66,8 +66,8 @@ return {
 		B:block(head, v(5.2, 0.8, 4.0), cf(0, 16.7, -3.0), GOLD)
 		B:block(head, v(6.8, 0.45, 1.1), cf(0, 14.95, -5.95), GOLD) -- brim
 		B:block(head, v(6.9, 0.4, 5.2), cf(0, 14.95, -3.2), GOLD) -- rim band
-		B:block(head, v(1.2, 0.7, 4.4), cf(0, 17.4, -3.0), BLK) -- crest
-		B:block(head, v(0.6, 0.2, 3.6), cf(0, 17.8, -3.0), YEL)
+		B:block(head, v(1.2, 0.6, 4.4), cf(0, 17.3, -3.0), BLK) -- crest
+		B:block(head, v(0.6, 0.2, 3.6), cf(0, 17.55, -3.0), YEL)
 		B:block(head, v(1.3, 1.0, 0.3), cf(0, 15.85, -5.8), BLK) -- badge
 		B:gem(head, v(0.5, 0.5, 0.2), cf(0, 15.85, -6.0), MAG)
 		-- mouth: black cavity with a row of white teeth (the mandibles close over it)
@@ -77,14 +77,14 @@ return {
 		end
 		B:sym(function(side)
 			-- side of the helmet + cheek armour + spikes
-			B:block(head, v(0.5, 1.8, 3.8), cf(3.25, 14.5, -3.0), BLK)
+			B:block(head, v(0.5, 1.8, 3.8), cf(3.25, 14.6, -2.8), DGOLD)
 			B:block(head, v(0.4, 2.2, 3.0), cf(3.1, 12.2, -3.2), DGOLD)
 			B:spike(head, v(3.2, 15.9, -2.4), v(4.4, 16.9, -1.4), 0.8, 0.8, CREAM)
 			B:spike(head, v(3.3, 14.6, -1.6), v(4.5, 14.9, -0.2), 0.7, 0.7, CREAM)
 			-- EYE: big angular dark eye on the front face, gold frame, small
 			-- magenta glints (front face only). It wraps the corner in plain dark.
-			B:block(head, v(2.6, 2.0, 0.3), cf(1.55, 13.2, -5.7, 0, 0, 12), BLK2)
-			B:block(head, v(2.3, 1.7, 0.4), cf(1.55, 13.2, -5.85, 0, 0, 12), EYE)
+			B:block(head, v(2.6, 2.0, 0.3), cf(1.55, 13.15, -5.7, 0, 0, 12), YEL2)
+			B:block(head, v(2.2, 1.6, 0.4), cf(1.55, 13.15, -5.85, 0, 0, 12), EYE)
 			B:block(head, v(0.5, 1.4, 1.4), cf(2.95, 13.35, -5.0), EYE)
 			B:block(head, v(0.6, 0.6, 0.12), cf(1.95, 13.55, -6.1, 0, 0, 12), MAG, { mat = "Neon", name = "Glint" .. side })
 			B:block(head, v(0.3, 0.3, 0.12), cf(1.2, 12.85, -6.1, 0, 0, 12), WHITE)
@@ -92,9 +92,9 @@ return {
 			local lid = B:bone("Lid" .. side, "Head", v(1.55, 13.2, -6.1))
 			B:block(lid, v(2.4, 1.8, 0.3), cf(1.55, 13.2, -6.15, 0, 0, 12), YEL2, { tr = 1, name = "Eyelid" .. side })
 			-- heavy black stepped brow on its own bone (angry: inner end low)
-			local brow = B:bone("Brow" .. side, "Head", v(1.5, 14.55, -5.9))
-			B:block(brow, v(2.9, 0.8, 1.0), cf(1.55, 14.55, -6.1, 0, 0, 16), BLK)
-			B:block(brow, v(1.2, 0.5, 0.8), cf(2.55, 15.05, -6.0, 0, 0, 16), BLK)
+			local brow = B:bone("Brow" .. side, "Head", v(1.6, 14.6, -5.9))
+			B:block(brow, v(2.8, 0.55, 0.9), cf(1.6, 14.6, -6.15, 0, 0, 16), BLK)
+			B:block(brow, v(1.1, 0.4, 0.7), cf(2.65, 14.95, -6.1, 0, 0, 16), BLK)
 			-- antennae: two-bone chains, bent forward, yellow clubs
 			local a1 = B:bone("AntA" .. side, "Head", v(1.1, 16.6, -4.6))
 			B:beam(a1, v(1.1, 16.4, -4.6), v(1.6, 17.2, -5.6), 0.55, 0.55, BLK)
@@ -287,14 +287,15 @@ return {
 		B:emitter(ground, "dust", { name = "GroundDust", color = { "#f3e7c9", "#d9c79c" }, size = { 1.6, 3.2, 4.2 } })
 		B:emitter(ground, "leaf", { name = "PetalBurst", color = { PINK, LEAF, YEL }, rate = 0, speed = { 4, 9 }, size = { 0.5, 0.45, 0.25 }, life = { 1.2, 2.4 }, accel = { 0, -4, 0 } })
 
-		-- strike shockwave: ring of dark-gold slabs with magenta tops
-		local SC = v(0, 0.35, -6.0)
+		-- sting shockwave: a ring of dark-gold slabs with magenta faces that
+		-- bursts open in the air in front of the stinger on the strike
+		local SC = v(0, 6.8, -3.4)
 		for k = 1, 10 do
 			local a = (k - 1) / 10 * 360
 			local sb = B:bone("Shock" .. k, "Root", SC)
-			local at = CFrame.new(SC) * P.ang(0, a, 0) * CFrame.new(0, 0, -2.6)
-			B:block(sb, v(1.8, 0.6, 1.2), at, DGOLD, { tr = 1, name = "Wave" .. k })
-			B:block(sb, v(1.5, 0.2, 0.8), at * CFrame.new(0, 0.38, 0), MAG, { mat = "Neon", tr = 1, name = "WaveTop" .. k })
+			local at = CFrame.new(SC) * P.ang(0, 0, a) * CFrame.new(0, 1.6, 0)
+			B:block(sb, v(1.4, 0.6, 0.8), at, DGOLD, { tr = 1, name = "Wave" .. k })
+			B:block(sb, v(1.1, 0.2, 0.5), at * CFrame.new(0, 0.38, 0), MAG, { mat = "Neon", tr = 1, name = "WaveTop" .. k })
 		end
 
 		------------------------------------------------------------------

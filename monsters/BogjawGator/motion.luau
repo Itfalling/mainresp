@@ -266,6 +266,7 @@ local function idle(t, pose, ctx)
 		broll = 1.2 * wave(t, 0.25) * lowW + 2 * sq,
 		cp = 1.5 * br + 7 * yawn + 8 * wind * rise - 3 * sq,
 		cyaw = -3 * wave(t, 0.25, 0.1) * lowW,
+		feet = { FR = foot("FR", -0.6 * rise), FL = foot("FL", -0.6 * rise), RR = foot("RR", -0.5 * rise), RL = foot("RL", -0.5 * rise) },
 	})
 
 	-- head + jaw (gators open by lifting the upper skull: head pitches up)
@@ -285,7 +286,7 @@ local function idle(t, pose, ctx)
 	local flyLook = clamp(-5 * fx, -18, 18) * aware
 	local smug = L.env(c, 7.0, 0.2, 0.7, 0.4)
 	pose.Neck = ang(0.5 * hp * 0.3 - 2 * doze, 0.4 * (peek + flyLook), 0)
-	pose.Head = ang(hp * 0.8, 0.6 * (peek + flyLook), 6 * smug + 4 * L.env(c, 2.0, 0.6, 0.3, 0.6) + 3 * doze * wave(t, 0.5))
+	pose.Head = ang(max(hp * 0.85, -jaw - 5 - 22 * rise), 0.6 * (peek + flyLook), 6 * smug + 4 * L.env(c, 2.0, 0.6, 0.3, 0.6) + 3 * doze * wave(t, 0.5))
 	pose.Jaw = ang(jaw, 0, 0)
 
 	-- eyes
@@ -367,10 +368,12 @@ local function alert(t, pose, ctx)
 		broll = 2 * trem,
 		cp = 4 * flinch + 8 * rear - 4 * ready,
 		cyaw = 4 * hiss * wave(t, 3),
+		feet = { FR = foot("FR", -0.5 * rear), FL = foot("FL", -0.5 * rear), RR = foot("RR", -0.4 * rear), RL = foot("RL", -0.4 * rear) },
 	})
 	pose.Neck = ang(-6 * flinch + 4 * rear, 0, 0)
-	pose.Head = ang(10 * flinch + 16 * hiss + 3 * trem, 6 * hiss * wave(t, 4), 3 * trem)
-	pose.Jaw = ang(-5 - 68 * hiss + 4 * trem, 0, 0)
+	local aj = -5 - 58 * hiss + 4 * trem
+	pose.Head = ang(max(10 * flinch + 16 * hiss, -aj - 20) + 3 * trem, 6 * hiss * wave(t, 4), 3 * trem)
+	pose.Jaw = ang(aj, 0, 0)
 	local wide = L.env(t, 0, 0.06, 0.4, 0.3, "backOut")
 	face(pose, wide - 0.25 * hiss, wide - 0.25 * hiss, 0.4 * wide, hiss, 0.4 * wide, hiss)
 	marks(ctx, t > 0.32 and t < 1.6)
@@ -381,7 +384,7 @@ local function alert(t, pose, ctx)
 	local lash = max(rear, flinch * 0.5)
 	for i = 1, 6 do
 		yaw[i] = (12 + 5 * i) * lash * wave(t, 3.2, -0.08 * i)
-		pitch[i] = (i == 1 and -10 or -2) * rear + 3 * flinch
+		pitch[i] = (i == 1 and -10 or -2) * rear - (i == 1 and 7 or 0) * flinch
 	end
 	local ps = tail(pose, pitch, yaw)
 	pose.Lantern = ang(-ps + 15 * flinch, 0, 30 * lash * wave(t, 3.2, -0.6))
@@ -443,8 +446,9 @@ local function chase(t, pose, ctx)
 	})
 	local sum = 15 * cos(w) - 7 * cos(w)
 	pose.Neck = ang(4 + 2 * bounce, -0.55 * sum - 5 * cos(w), 0)
-	pose.Head = ang(9 + 3 * cos(2 * w - 0.6), -0.45 * sum - 4 * cos(w), 4 * sin(w))
-	pose.Jaw = ang(-24 + 12 * sin(2 * w), 0, 0)
+	local cj = -16 + 9 * sin(2 * w)
+	pose.Head = ang(14 - 0.6 * (cj + 16) + 2 * cos(2 * w - 0.6), -0.45 * sum - 4 * cos(w), 4 * sin(w))
+	pose.Jaw = ang(cj, 0, 0)
 	face(pose, 0.3, 0.3, 0, 1)
 	marks(ctx, true)
 	pose.Mark = pa(0, 0.15 * cos(2 * w), 0, 0, 0, 10 * sin(w))
@@ -493,17 +497,17 @@ local function attack(t, pose, ctx)
 	rig(pose, {
 		by = -0.4 * wind - 0.2 * lunge - 0.45 * imp,
 		bz = 1.1 * wind - 2.4 * lunge,
-		bp = 5 * wind - 5 * lunge + 2 * imp,
+		bp = 5 * wind - 2 * lunge + 2 * imp,
 		byaw = -12 * whip,
 		broll = 4 * whip,
-		cp = 6 * wind - 4 * lunge - 3 * imp,
+		cp = 6 * wind - 1 * lunge - 2 * imp,
 		cyaw = 8 * whip,
 		feet = feet,
 		fp = { FR = -20 * sin(pi * hop), FL = -20 * sin(pi * hop) },
 	})
 	pose.Jaw = ang(L.track(t, { { 0, -5 }, { 0.28, -64, "cubicOut" }, { 0.38, -66 }, { CHOMP, 0, "expoIn" }, { 0.56, -10, "quadOut" }, { 0.72, -3 }, { 1.2, -4 } }), 0, 0)
-	local hp = L.track(t, { { 0, 0 }, { 0.28, 30, "cubicOut" }, { 0.38, 33 }, { CHOMP, -12, "expoIn" }, { 0.62, 2, "backOut" }, { 1.2, 0 } })
-	pose.Neck = ang(4 * wind - 6 * imp, 6 * whip, 0)
+	local hp = L.track(t, { { 0, 0 }, { 0.28, 30, "cubicOut" }, { 0.38, 33 }, { CHOMP, 4, "expoIn" }, { 0.62, 6, "backOut" }, { 1.2, 0 } })
+	pose.Neck = ang(4 * wind - 3 * imp, 6 * whip, 0)
 	pose.Head = ang(hp, 8 * whip, -6 * imp)
 	face(pose, -0.2 * wind + 0.8 * imp, -0.2 * wind + 0.8 * imp, 0, 1)
 	marks(ctx, t < 1.0)
@@ -557,7 +561,7 @@ local function catch(t, pose, ctx)
 	local spinning = t > ROLL0 and t < ROLL1
 	local roll = 360 * E.cubicInOut(k)
 	local lift = spinning and 2.4 * sin(pi * k) or 0
-	local tuck = L.env(t, 0.3, 0.12, 0.75, 0.15)
+	local tuck = L.env(t, 0.36, 0.12, 0.7, 0.15)
 	local land = L.env(t, ROLL1, 0.05, 0.05, 0.45, "quadOut", "backOut")
 	local grin = L.env(t, 1.35, 0.25, 0.3, 0.3, "backOut", "cubicInOut")
 	rig(pose, {
@@ -629,15 +633,16 @@ local function giveup(t, pose, ctx)
 		by = 0.2 * tant - 0.3 * thud + 0.3 * sigh + LOW * sink,
 		bp = -2 * thud + 2 * sigh,
 		broll = 4 * tant * wave(t, 2.3),
-		cp = 3 * tant * wave(t, 4.6) - 3 * thud + 6 * sigh - 3 * sink,
+		cp = 3 * tant * wave(t, 4.6) - 3 * thud + 6 * sigh,
 		cyaw = 6 * tant * wave(t, 2.3),
 		feet = feet,
 		fp = fp,
 	})
+	local jg = L.track(t, { { 0, -4 }, { 0.12, -40, "cubicOut" }, { 0.24, 0, "expoIn" }, { 0.42, -42, "cubicOut" }, { 0.56, 0, "expoIn" }, { 0.75, -6 }, { 1.1, -14 }, { 1.4, -2 }, { 2.6, -4 } })
 	local no = 18 * tant * wave(t, 4.6)
-	pose.Neck = ang(4 * sigh - 4 * sink, 0.4 * no, 0)
-	pose.Head = ang(14 * sigh - 7 * sink + 6 * tant, 0.6 * no, 4 * sink)
-	pose.Jaw = ang(L.track(t, { { 0, -4 }, { 0.12, -40, "cubicOut" }, { 0.24, 0, "expoIn" }, { 0.42, -42, "cubicOut" }, { 0.56, 0, "expoIn" }, { 0.75, -6 }, { 1.1, -14 }, { 1.4, -2 }, { 2.6, -4 } }), 0, 0)
+	pose.Neck = ang(4 * sigh - 1 * sink, 0.4 * no, 0)
+	pose.Head = ang(14 * sigh + 2 * sink + 6 * tant + 0.9 * max(0, -jg - 6), 0.6 * no, 4 * sink)
+	pose.Jaw = ang(jg, 0, 0)
 	local sulkLid = -0.65 * sink
 	face(pose, 0.3 * tant + sulkLid - 0.5 * sigh, 0.3 * tant + sulkLid - 0.5 * sigh, 0.15 * sink, tant - 0.9 * sink, 0.15 * sink, tant - 0.9 * sink)
 	marks(ctx, t < 1.05)

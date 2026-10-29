@@ -26,7 +26,7 @@ return {
 		local GOLD, GOLDD = "#ffc633", "#d18c17" -- badge / helmet band
 		local GREEN, DGREEN = "#63cc3a", "#3c9a2a" -- carrot sprout
 		local DIRT = "#8a5a33"
-		local TONGUE, STRAP, SWEAT = "#ff6f88", "#6b4426", "#86d8ff"
+		local TONGUE, SWEAT, BLUE = "#ff6f88", "#86d8ff", "#2f5fd0"
 		local NEON = "#ffd23d" -- the one neon accent
 		local NEONOPT = { mat = "Neon" }
 
@@ -57,6 +57,10 @@ return {
 		B:block(body, v(0.7, 0.7, 0.12), cf(-0.7, 3.0, -2.06, 0, 0, 45), GOLD)
 		local badge = B:gem(body, v(0.22, 0.22, 0.08), cf(-0.7, 3.0, -2.13, 0, 0, 45), NEON, { name = "BadgeGem" })
 		B:light(badge, { name = "BadgeLight", color = NEON, brightness = 0, range = 6 })
+		-- stepped feather scales on the rump (alternating white / shade)
+		for i, r in { { 2.45, 1.4 }, { 2.95, 2.0 }, { 3.45, 1.6 } } do
+			B:block(body, v(r[2], 0.45, 0.3), cf(0, r[1], 2.43 + (i % 2) * 0.1), i % 2 == 0 and SHADE or GREY)
+		end
 		-- tiny back feather tufts (stepped)
 		B:block(body, v(1.2, 0.35, 0.8), cf(0, 4.25, 1.1), SHADE)
 		B:block(body, v(0.7, 0.3, 0.6), cf(0, 4.5, 1.25), WHITE)
@@ -107,7 +111,11 @@ return {
 		------------------------------------------------------------------
 		local neck = B:bone("Neck", "Body", v(0, 3.35, -0.7))
 		B:block(neck, v(2.1, 1.0, 1.9), cf(0, 3.6, -0.85), WHITE)
-		B:block(neck, v(2.3, 0.35, 2.0), cf(0, 3.3, -0.8), SHADE) -- ruff
+		B:block(neck, v(2.5, 0.4, 2.2), cf(0, 3.42, -0.8), BLUE) -- guard collar
+		B:block(neck, v(2.56, 0.12, 2.26), cf(0, 3.24, -0.8), GOLD) -- collar trim
+		B:sym(function()
+			B:block(neck, v(0.3, 0.3, 0.12), cf(1.0, 3.45, -1.95), GOLD) -- collar pins
+		end)
 
 		local head = B:bone("Head", "Neck", v(0, 3.75, -0.95))
 		B:block(head, v(2.6, 1.8, 2.4), cf(0, 4.4, -1.15), WHITE) -- skull
@@ -140,16 +148,17 @@ return {
 		-- so they can dart around), heavy angry brows, hidden lids
 		B:sym(function(side)
 			local eye = B:bone("Eye" .. side, "Head", v(0.82, 4.5, -2.3))
-			B:block(eye, v(1.05, 1.0, 0.9), cf(0.82, 4.5, -2.12), WHITE)
-			B:block(eye, v(1.2, 1.14, 0.8), cf(0.82, 4.5, -2.08), GREY) -- eye rim
-			B:block(eye, v(1.0, 0.12, 0.92), cf(0.82, 3.98, -2.12), GREY) -- lower lid line
+			B:block(eye, v(1.15, 1.0, 0.9), cf(0.87, 4.5, -2.12), WHITE)
+			B:block(eye, v(1.12, 1.14, 0.3), cf(0.78, 4.5, -2.35), GREY) -- eye rim (front)
+			B:block(eye, v(0.15, 1.14, 1.04), cf(1.35, 4.5, -2.1), GREY) -- eye rim (side)
+			B:block(eye, v(1.1, 0.12, 0.92), cf(0.87, 3.98, -2.12), GREY) -- lower lid line
 			local pupil = B:bone("Pupil" .. side, "Eye" .. side, v(0.7, 4.45, -2.6))
 			B:block(pupil, v(0.42, 0.62, 0.1), cf(0.7, 4.45, -2.6), BLACK, { name = "PupilDisc" .. side })
 			B:block(pupil, v(0.15, 0.15, 0.06), cf(0.8, 4.64, -2.66), WHITE, { name = "Glint" .. side })
 			B:block(pupil, v(0.2, 0.2, 0.1), cf(0.72, 4.45, -2.6), BLACK, { tr = 1, name = "Dot" .. side })
 			-- eyelid (+ dark lash) shown only while blinking / squeezing
-			B:block(eye, v(1.1, 1.06, 0.96), cf(0.82, 4.5, -2.13), SHADE, { tr = 1, name = "Eyelid" .. side })
-			B:block(eye, v(1.12, 0.14, 0.98), cf(0.82, 4.05, -2.13), INK, { tr = 1, name = "Lash" .. side })
+			B:block(eye, v(1.2, 1.06, 1.16), cf(0.87, 4.5, -2.13), SHADE, { tr = 1, name = "Eyelid" .. side })
+			B:block(eye, v(1.22, 0.14, 1.18), cf(0.87, 4.05, -2.13), INK, { tr = 1, name = "Lash" .. side })
 			-- heavy brow (inner end low = angry), its own bone for expressions
 			local brow = B:bone("Brow" .. side, "Head", v(0.82, 5.1, -2.45))
 			B:block(brow, v(1.15, 0.36, 0.55), cf(0.8, 5.12, -2.42, 0, 0, 18), INK)
@@ -170,13 +179,13 @@ return {
 		-- comb: stepped red blocks rising from the forehead (own bone: jiggles)
 		local comb = B:bone("Comb", "Head", v(0, 5.4, -1.6))
 		B:block(comb, v(0.5, 0.3, 1.5), cf(0, 5.55, -1.55), DRED)
-		B:block(comb, v(0.45, 0.5, 0.5), cf(0, 5.8, -2.05), RED)
-		B:block(comb, v(0.45, 0.75, 0.5), cf(0, 5.95, -1.55), RED)
-		B:block(comb, v(0.45, 0.45, 0.45), cf(0, 5.8, -1.1), RED)
+		B:block(comb, v(0.45, 0.45, 0.5), cf(0, 5.75, -2.05), RED)
+		B:block(comb, v(0.45, 0.6, 0.5), cf(0, 5.88, -1.55), RED)
+		B:block(comb, v(0.45, 0.4, 0.45), cf(0, 5.75, -1.1), RED)
 
 		-- tin-bucket guard helmet, a size too small, cocked back on the crown,
 		-- with a gold band, chin strap and a carrot-sprout "plume"
-		local HC = CFrame.new(0, 5.42, -0.35) * ang(12, 0, -7)
+		local HC = CFrame.new(0, 5.36, -0.35) * ang(12, 0, -7)
 		local helmet = B:bone("Helmet", "Head", HC)
 		B:block(helmet, v(1.9, 0.2, 1.7), HC * CFrame.new(0, 0.05, 0), TIND) -- rim
 		B:block(helmet, v(1.55, 0.45, 1.35), HC * CFrame.new(0, 0.37, 0), TIN) -- bucket

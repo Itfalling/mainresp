@@ -399,8 +399,8 @@ local function alert(t, pose, ctx)
 	S.croll = 1.2 * rumble
 	S.FR = { py, pz, -25 * py / 1.4 }
 
-	S.np = 10 * jolt + 10 * inhale - 6 * blast - 5 * scrape - 4 * lower
-	S.dp = 18 * jolt + 22 * inhale - 10 * blast - 8 * scrape - 12 * lower
+	S.np = 6 * jolt + 6 * inhale - 6 * blast - 5 * scrape - 4 * lower
+	S.dp = 12 * jolt + 14 * inhale - 10 * blast - 8 * scrape - 12 * lower
 	S.dyaw = 6 * blast * wave(t, 7)
 	S.droll = 6 * blast * wave(t, 6) + 3 * rumble
 	S.jaw = -8 * jolt - 62 * blast + 8 * inhale
@@ -590,8 +590,8 @@ local function giveUp(t, pose, ctx)
 	S.hp = 9 * skid - 2 * thud
 	S.hroll = 2 * rumble + 4 * (stompR - stompL)
 	S.cp = 4 * skid + 5 * huff
-	S.FR = { 2.6 * stompR, -1.8 * skid - 0.6 * stompR, -25 * stompR }
-	S.FL = { 2.6 * stompL, -1.8 * skid - 0.6 * stompL, -25 * stompL }
+	S.FR = { 2.6 * stompR, -1.3 * skid - 0.6 * stompR, -25 * stompR }
+	S.FL = { 2.6 * stompL, -1.3 * skid - 0.6 * stompL, -25 * stompL }
 	S.HR = { 0, 0.5 * skid, 0 }
 	S.HL = { 0, 0.5 * skid, 0 }
 	S.np = 8 * skid + 6 * seethe - 6 * thud - 6 * droop

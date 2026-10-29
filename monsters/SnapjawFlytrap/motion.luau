@@ -23,7 +23,7 @@ M.Props = {
 	AngryMark1 = 1, AngryMark2 = 1, AngryMark3 = 1, AngryMark4 = 1,
 	SweatDrop1 = 1, SweatDrop2 = 1,
 	FlyBody = 1, FlyWingR = 1, FlyWingL = 1,
-	EyelidR = 1, EyelidL = 1,
+	EyelidR = 1, EyelidL = 1, LashR = 1, LashL = 1,
 }
 
 local JAW0 = -12 -- neutral: trap slightly open so the pink inside + teeth read
@@ -38,7 +38,7 @@ for k, a in LEGA do
 	local d = Vector3.new(sin(rad(a)), 0, -cos(rad(a)))
 	local H = Vector3.new(0, 1.5, 0) + d * 1.6
 	local K = Vector3.new(0, 2.8, 0) + d * 3.8
-	local F = Vector3.new(0, 0.45, 0) + d * 5.0
+	local F = Vector3.new(0, 0.55, 0) + d * 5.0
 	local u0, l0 = K - H, F - K
 	local uF = (F - H).Unit
 	local pole = (u0 - uF * u0:Dot(uF)).Unit
@@ -47,6 +47,7 @@ end
 -- tripod gait groups: A = 1R, 2L, 3R ; B = 1L, 2R, 3L
 local GROUP = { R = { 0, 0.5, 0 }, L = { 0.5, 0, 0.5 } }
 local LEAFA = { 35, 95, 150 }
+local PLANT = Vector3.new(0, -0.18, 0) -- feet pressed onto the ground (toes at Y~0)
 
 local function rmin(a, b)
 	local ax = a:Cross(b)
@@ -82,7 +83,10 @@ end
 local function gait(ph, S, lift)
 	ph = ph % 1
 	if ph < 0.5 then
-		return -S / 2 + S * (ph / 0.5), 0
+		-- planted; the root tip rolls up a touch at the stride extremes so the
+		-- tilted toe block never digs into the ground
+		local x = ph / 0.5 * 2 - 1
+		return -S / 2 + S * (ph / 0.5), 0.06 * S * x * x
 	end
 	local s = (ph - 0.5) / 0.5
 	return S / 2 - S * E.sineInOut(s), lift * sin(pi * s)
@@ -122,10 +126,10 @@ local function apply(t, pose, ctx, P)
 	for k = 1, 3 do
 		local G = LEG[k]
 		local oR = P.feet.R[k]
-		local u, s = solve(potW, k, G.F + oR)
+		local u, s = solve(potW, k, G.F + PLANT + oR)
 		pose["Leg" .. k .. "R"], pose["Shin" .. k .. "R"] = u, s
 		local oL = P.feet.L[k]
-		local um, sm = solve(potWm, k, G.F + Vector3.new(-oL.X, oL.Y, oL.Z))
+		local um, sm = solve(potWm, k, G.F + PLANT + Vector3.new(-oL.X, oL.Y, oL.Z))
 		pose["Leg" .. k .. "L"], pose["Shin" .. k .. "L"] = L.mirror(um), L.mirror(sm)
 	end
 
@@ -146,7 +150,8 @@ local function apply(t, pose, ctx, P)
 	-- drool hangs (counter the trap tilt) and swings
 	local tilt = P.head[1] + P.jaw
 	pose.Drool = ang(clamp(-tilt * 0.85, -80, 80) + 8 * wave(t, 1, 0.1), 0, 6 * wave(t, 0.5, 0.3))
-	pose.DroolDrop = pa(0, -0.12 * L.bounce(t, 1), 0, 10 * wave(t, 1, -0.05), 0, 0)
+	local wide = clamp((-P.jaw - 30) / 40, 0, 1)
+	pose.DroolDrop = pa(0, -0.12 * L.bounce(t, 1) + 0.5 * wide, 0, 10 * wave(t, 1, -0.05), 0, 0)
 
 	-- FACE
 	L.both(pose, "Brow", pa(0, P.browY, 0, 0, 0, P.brow), pa(0, P.browYL or P.browY, 0, 0, 0, P.browL or P.brow))
@@ -155,6 +160,8 @@ local function apply(t, pose, ctx, P)
 	local lidTr = close > 0.15 and 0 or 1
 	ctx.transparency("EyelidR", lidTr)
 	ctx.transparency("EyelidL", lidTr)
+	ctx.transparency("LashR", lidTr)
+	ctx.transparency("LashL", lidTr)
 	pose.Sweat = CFrame.new(0, -P.sweat, 0)
 
 	-- ARMS
@@ -306,10 +313,10 @@ local function idle(t, pose, ctx)
 	-- ARMS: idle sway, rub belly while chewing, yawn stretch, chomp punches
 	local armSw = 8 * wave(t, 0.5, 0.1)
 	local pat = 18 * wave(t, 4) * chew
-	P.armR = { 0, 10 * sway * idleW + 30 * chew + 20 * hit3 - 25 * proud - 30 * yawn, armSw * idleW + 42 * yawn + 15 * burp - 15 * chew - 10 * proud }
-	P.armL = { 0, -10 * sway * idleW + 30 * chew + 20 * hit3 - 25 * proud - 30 * yawn, -armSw * idleW + 42 * yawn + 15 * burp - 15 * chew - 10 * proud }
-	P.handR = { pat, 0, 6 * wave(t, 0.5, 0.25) + 25 * yawn - 15 * proud }
-	P.handL = { -pat, 0, -6 * wave(t, 0.5, 0.25) + 25 * yawn - 15 * proud }
+	P.armR = { 0, 10 * sway * idleW + 40 * chew + 20 * hit3 - 25 * proud - 30 * yawn, armSw * idleW + 42 * yawn + 15 * burp - 10 * proud }
+	P.armL = { 0, -10 * sway * idleW + 40 * chew + 20 * hit3 - 25 * proud - 30 * yawn, -armSw * idleW + 42 * yawn + 15 * burp - 10 * proud }
+	P.handR = { 0, 0, 6 * wave(t, 0.5, 0.25) + 25 * yawn - 10 * proud + 0.6 * pat }
+	P.handL = { 0, 0, -6 * wave(t, 0.5, 0.25) + 25 * yawn - 10 * proud - 0.6 * pat }
 	P.flare = 6 * yawn + 10 * burp + 8 * hit3 + 3 * breathe
 	P.flutter = 4 + 8 * (hit1 + hit2 + hit3)
 
@@ -468,10 +475,10 @@ local function attack(t, pose, ctx)
 	P.stretch = 0.15 * antic + 0.2 * lunge
 	P.fwd = -0.4 * antic + 1.6 * lunge
 	P.headFwd = 0.8 * lunge
-	P.n[1] = { 12 * antic - 26 * lunge, 0, 0 }
+	P.n[1] = { 12 * antic - 22 * lunge, 0, 0 }
 	P.n[2] = { 18 * antic - 22 * lunge, 0, 0 }
 	P.n[3] = { 8 * antic - 10 * lunge, 0, 0 }
-	P.head = { 22 * antic + 10 * open - 8 * lunge - 6 * hit, 12 * thrash * wave(t, 7), 6 * thrash * wave(t, 5) }
+	P.head = { 22 * antic + 10 * open - 2 * lunge - 6 * hit, 12 * thrash * wave(t, 7), 6 * thrash * wave(t, 5) }
 	P.jaw = JAW0 * (1 - hit) - 64 * open + 4 * thrash * wave(t, 12)
 	P.brow = 16
 	P.browY = -0.15
@@ -552,13 +559,13 @@ local function giveup(t, pose, ctx)
 	local hit = env(t, 1.62, 0.03, 0.08, 0.3)
 	local hmph = env(t, 1.85, 0.1, 0.3, 0.3)
 
-	P.pot = { 0, -0.6 * wilt - 0.1 * sigh + 0.45 * perk - 0.35 * hit, 0, -5 * wilt + 4 * perk, 0, 4 * wilt }
+	P.pot = { 0, -0.45 * wilt - 0.1 * sigh + 0.45 * perk - 0.35 * hit, 0, -4 * wilt + 4 * perk, 0, 0 }
 	P.stretch = -0.2 * wilt + 0.25 * perk
-	P.n[1] = { -8 * wilt + 4 * perk, 0, 3 * wilt }
-	P.n[2] = { -20 * wilt - 6 * sigh + 6 * perk, 0, 3 * wilt }
-	P.n[3] = { -18 * wilt + 4 * perk, 0, 3 * wilt }
-	P.head = { -30 * wilt + 5 * sigh + 14 * perk + 12 * open, 14 * hmph * wave(t, 5) - 10 * wilt, 16 * wilt }
-	P.jaw = JAW0 * (1 - hit) - 26 * wilt - 50 * open
+	P.n[1] = { -8 * wilt + 4 * perk, 0, 0 }
+	P.n[2] = { -20 * wilt - 6 * sigh + 6 * perk, 0, 5 * wilt }
+	P.n[3] = { -18 * wilt + 4 * perk, 0, 5 * wilt }
+	P.head = { -24 * wilt + 5 * sigh + 14 * perk + 12 * open, 14 * hmph * wave(t, 5) - 8 * wilt, 14 * wilt }
+	P.jaw = JAW0 * (1 - hit) - 16 * wilt - 50 * open
 	P.tongue = 0.9 * wilt
 	P.tonguePitch = -28 * wilt
 	P.tongueYaw = 15 * wilt
@@ -566,10 +573,10 @@ local function giveup(t, pose, ctx)
 	P.browY = 0.15 * wilt - 0.15 * perk
 	P.lid = max(0.5 * wilt, 0.7 * sigh * wilt)
 	P.sweat = 0.8 * L.remap(t, 0.4, 1.45)
-	P.armR = { 0, 35 * wilt - 15 * perk, -6 * wilt + 40 * perk - 20 * hit }
-	P.armL = { 0, 35 * wilt - 15 * perk, -6 * wilt + 40 * perk - 20 * hit }
-	P.handR = { 0, 15 * wilt, -4 * wilt + 15 * perk }
-	P.handL = { 0, 15 * wilt, -4 * wilt + 15 * perk }
+	P.armR = { 0, 12 * wilt - 15 * perk, -6 * wilt + 40 * perk - 20 * hit }
+	P.armL = { 0, 12 * wilt - 15 * perk, -6 * wilt + 40 * perk - 20 * hit }
+	P.handR = { 0, 15 * wilt, 15 * perk }
+	P.handL = { 0, 15 * wilt, 15 * perk }
 	P.flare = -16 * wilt + 25 * perk
 	P.flutter = 2 + 10 * perk
 	if t > 0.4 and t < 1.45 then

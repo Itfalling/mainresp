@@ -31,7 +31,7 @@ return {
 
 		-- stepped iron spine stud with a gold or neon tip
 		local function stud(bone, x, y, z, neon)
-			B:block(bone, v(1.3, 0.6, 1.5), cf(x, y + 0.3, z), IRON)
+			B:block(bone, v(1.3, 0.6, 1.5), cf(x, y + 0.3, z), DARK)
 			B:block(bone, v(0.8, 0.5, 0.9), cf(x, y + 0.8, z + 0.15), STEELD)
 			B:block(bone, v(0.4, 0.4, 0.45), cf(x, y + 1.2, z + 0.25), neon and NEON or GOLD, neon and N or nil)
 		end
@@ -46,14 +46,21 @@ return {
 		B:block(hips, v(4.6, 0.4, 1.4), cf(0, 4.25, 4.0), BELLY)
 		B:block(hips, v(6.8, 4.2, 0.6), cf(0, 7.6, 6.15), DARK) -- rump back panel
 		B:block(hips, v(4.4, 1.0, 0.4), cf(0, 9.1, 6.5), SLATE)
+		-- rear armour tasset with rivets
+		B:block(hips, v(6.4, 1.6, 0.4), cf(0, 9.7, 6.55), STEEL)
+		B:block(hips, v(6.6, 0.35, 0.5), cf(0, 8.85, 6.6), IRON)
+		B:sym(function()
+			rivet(hips, 2.6, 9.9, 6.8, 0.5, 0.5, 0.2)
+			rivet(hips, 1.0, 9.9, 6.8, 0.5, 0.5, 0.2)
+		end)
 		-- rump armour: top plate + side skirts with iron trim and gold rivets
 		B:block(hips, v(8.6, 0.6, 5.0), cf(0, 10.75, 3.3), STEEL)
-		B:block(hips, v(8.8, 0.4, 0.5), cf(0, 10.9, 5.85), IRON)
-		B:block(hips, v(8.8, 0.4, 0.5), cf(0, 10.9, 0.75), IRON)
+		B:block(hips, v(8.8, 0.4, 0.5), cf(0, 10.9, 5.85), STEELD)
+		B:block(hips, v(8.8, 0.4, 0.5), cf(0, 10.9, 0.75), STEELD)
 		B:sym(function()
 			B:block(hips, v(0.5, 1.8, 5.0), cf(4.3, 9.75, 3.3), STEEL)
 			B:block(hips, v(0.6, 0.4, 5.1), cf(4.35, 8.75, 3.3), IRON)
-			B:block(hips, v(0.3, 0.3, 3.4), cf(4.6, 10.2, 3.3), STEELD)
+			B:block(hips, v(0.2, 0.25, 2.6), cf(4.6, 10.2, 3.3), NEON, N)
 			for _, z in { 1.4, 5.2 } do
 				rivet(hips, 4.62, 9.75, z, 0.3, 0.5, 0.5)
 				rivet(hips, 3.6, 11.1, z, 0.5, 0.3, 0.5)
@@ -109,8 +116,8 @@ return {
 		-- back armour plate over the shoulder hump
 		B:block(chest, v(9.2, 0.6, 5.4), cf(0, 11.3, -1.3), STEEL)
 		B:block(chest, v(7.0, 0.5, 3.6), cf(0, 11.75, -1.0), STEEL)
-		B:block(chest, v(9.4, 0.45, 0.5), cf(0, 11.4, -4.05), IRON)
-		B:block(chest, v(9.4, 0.45, 0.5), cf(0, 11.4, 1.45), IRON)
+		B:block(chest, v(9.4, 0.45, 0.5), cf(0, 11.4, -4.05), STEELD)
+		B:block(chest, v(9.4, 0.45, 0.5), cf(0, 11.4, 1.45), STEELD)
 		B:sym(function()
 			rivet(chest, 3.9, 11.65, -3.4, 0.5, 0.3, 0.5)
 			rivet(chest, 3.9, 11.65, 0.8, 0.5, 0.3, 0.5)
@@ -138,7 +145,7 @@ return {
 		B:block(neck, v(6.6, 5.0, 3.0), cf(0, 8.2, -4.9), SLATE)
 		B:block(neck, v(5.2, 0.8, 2.8), cf(0, 5.75, -5.0), BELLY)
 		B:block(neck, v(7.0, 0.6, 3.2), cf(0, 10.8, -4.9), STEEL)
-		B:block(neck, v(7.2, 0.4, 0.5), cf(0, 10.9, -6.35), IRON)
+		B:block(neck, v(7.2, 0.4, 0.5), cf(0, 10.9, -6.35), STEELD)
 		B:sym(function()
 			rivet(neck, 2.9, 11.15, -4.9, 0.5, 0.3, 0.5)
 			B:block(neck, v(0.4, 2.6, 2.6), cf(3.35, 8.4, -4.9), DARK)
@@ -198,18 +205,18 @@ return {
 		B:block(head, v(2.645, 1.1, 2.5), cf(0.0, 10.1, -12.35), IVORY)
 		B:block(head, v(2.3, 0.45, 2.2), cf(0.0, 10.75, -12.4), IRON) -- iron cap band
 		B:block(head, v(2.185, 1.0, 2.0), cf(0.0, 11.3, -12.4), STEEL)
-		B:block(head, v(1.61, 0.9, 1.5), cf(0.0, 12.2, -12.2), STEEL)
-		B:block(head, v(1.15, 0.6, 1.0), cf(0.0, 12.9, -11.85), STEELD)
+		B:block(head, v(1.61, 0.8, 1.5), cf(0.0, 12.15, -12.2), STEEL)
+		B:block(head, v(1.15, 0.5, 1.0), cf(0.0, 12.75, -11.85), STEELD)
 		B:block(head, v(0.345, 0.8, 0.15), cf(0.0, 11.3, -13.45), NEON, N) -- neon edge accent
-		B:block(head, v(0.345, 0.7, 0.15), cf(0.0, 12.2, -13.0), NEON, N)
-		local hornTip = B:block(head, v(0.632, 0.45, 0.6), cf(0.0, 13.4, -11.6), NEON, { mat = "Neon", name = "HornTip" })
+		B:block(head, v(0.345, 0.6, 0.15), cf(0.0, 12.15, -13.0), NEON, N)
+		local hornTip = B:block(head, v(0.632, 0.4, 0.6), cf(0.0, 13.15, -11.6), NEON, { mat = "Neon", name = "HornTip" })
 		B:light(hornTip, { name = "HornLight", color = NEON, brightness = 0.5, range = 7 })
 		B:sym(function()
 			rivet(head, 1.208, 10.75, -12.4, 0.345, 0.3, 0.3)
 			rivet(head, 1.115, 11.3, -12.9, 0.23, 0.35, 0.35)
 			rivet(head, 0.828, 12.2, -12.6, 0.23, 0.3, 0.3)
 		end)
-		B:trail(head, v(0.0, 13.5, -11.6), v(0.0, 12.0, -12.7), { name = "HornTrail", color = { NEON, "#ffffff" }, life = 0.2, trans = { 0.35, 1 } })
+		B:trail(head, v(0.0, 13.25, -11.6), v(0.0, 12.0, -12.7), { name = "HornTrail", color = { NEON, "#ffffff" }, life = 0.2, trans = { 0.35, 1 } })
 		local hornFX = B:block(head, v(1.38, 1.2, 1.2), cf(0.0, 13.0, -12.0), SLATE, { tr = 1, name = "HornFX" })
 		B:emitter(hornFX, "burst", { name = "HornBurst", color = { "#ffffff", NEON, GOLD }, speed = { 7, 14 }, size = { 0.6, 0.4, 0 } })
 

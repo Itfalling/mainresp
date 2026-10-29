@@ -38,12 +38,12 @@ local LEGS = {
 -- curled-ball "radius" (centre height that keeps the lowest point on the
 -- floor) for every 5 degrees of forward roll, measured from the curled pose
 local DBALL = {
-	4.88, 4.95, 4.99, 4.99, 5.07, 5.11, 5.11, 5.11, 5.08, 5.01, 4.90, 4.76, 4.58, 4.43, 4.35, 4.32, 4.28, 4.44,
-	4.63, 4.78, 4.89, 4.97, 5.01, 5.01, 5.01, 4.98, 4.91, 4.81, 4.67, 4.56, 4.85, 5.10, 5.31, 5.48, 5.63, 5.76,
-	5.84, 5.88, 5.89, 5.89, 5.85, 5.76, 5.64, 5.47, 5.26, 5.00, 5.03, 5.14, 5.20, 5.23, 5.24, 5.23, 5.19, 5.11,
-	4.99, 4.83, 4.80, 4.86, 4.88, 4.88, 4.91, 5.07, 5.19, 5.28, 5.32, 5.33, 5.32, 5.29, 5.22, 5.11, 4.96, 4.82,
+	4.58, 4.73, 4.88, 4.99, 5.06, 5.10, 5.11, 5.11, 5.08, 5.01, 4.91, 4.77, 4.60, 4.34, 4.32, 4.32, 4.29, 4.23,
+	4.13, 4.24, 4.35, 4.42, 4.46, 4.48, 4.48, 4.46, 4.41, 4.32, 4.21, 4.19, 4.47, 4.70, 4.90, 5.06, 5.20, 5.31,
+	5.40, 5.43, 5.43, 5.42, 5.38, 5.30, 5.19, 4.99, 4.80, 4.64, 4.79, 4.89, 4.98, 5.01, 5.02, 5.01, 4.98, 4.92,
+	4.82, 4.64, 4.61, 4.67, 4.70, 4.71, 4.93, 5.08, 5.20, 5.28, 5.32, 5.32, 5.32, 5.29, 5.22, 5.11, 4.97, 4.79,
 }
-local BALL_R = 5.05 -- mean rolling radius
+local BALL_R = 4.78 -- mean rolling radius
 local function dBall(roll)
 	local r = (roll % 360) / 5
 	local i = math.floor(r)
@@ -90,6 +90,38 @@ local function legs(pose, bodyW, feet)
 	end
 end
 
+-- keep the snout + open jaw above the floor: close the jaw first, then lift the head
+local HEADP, JAWP = Vector3.new(0, 4.3, -3.4), Vector3.new(0, 2.95, -4.4)
+local HPTS = { Vector3.new(0, 3.9, -10.3), Vector3.new(0, 2.7, -8.4) }
+local JPTS = { Vector3.new(0, 1.5, -9.2), Vector3.new(0, 1.5, -5.0), Vector3.new(1.8, 1.8, -9.2) }
+local function fixHead(pose)
+	local bodyW = CFrame.new(BP) * (pose.Body or CFrame.new())
+	local head = pose.Head or CFrame.new()
+	local jaw = pose.Jaw or CFrame.new()
+	local jx = jaw:ToEulerAnglesXYZ()
+	for _ = 1, 14 do
+		local hW = bodyW * CFrame.new(HEADP - BP) * head
+		local jW = hW * CFrame.new(JAWP - HEADP) * jaw
+		local low = math.huge
+		for _, p in HPTS do
+			low = math.min(low, (hW * (p - HEADP)).Y)
+		end
+		for _, p in JPTS do
+			low = math.min(low, (jW * (p - JAWP)).Y)
+		end
+		if low >= 0.2 then
+			break
+		end
+		if jx < rad(-4) then
+			jaw = jaw * ang(6, 0, 0)
+			jx += rad(6)
+		else
+			head = head * ang(3, 0, 0)
+		end
+	end
+	pose.Head, pose.Jaw = head, jaw
+end
+
 local function bodyAt(cfPose)
 	return CFrame.new(BP) * cfPose
 end
@@ -106,7 +138,7 @@ local function curl(pose, k, extraBristle)
 	end
 	mix("Front", ang(-70, 0, 0))
 	mix("Rump", ang(70, 0, 0))
-	mix("Head", pa(0, 1.0, 6.6, -25, 0, 0))
+	mix("Head", pa(0, 1.8, 6.6, -10, 0, 0))
 	local c, s = quillCF(0.5 + (extraBristle or 0))
 	for _, g in { "F", "M", "R" } do
 		mix("Quill" .. g, c)
@@ -204,7 +236,7 @@ local function idle(t, pose, ctx)
 	if CAL then
 		shock(pose, ctx, c, -9, 0)
 		curl(pose, 1, 0)
-		pose.Body = CFrame.new(-BP) * CFrame.new(0, 8, BP.Z + Q.Z) * CFrame.Angles(rad(-30 * c), 0, 0) * CFrame.new(-Q)
+		pose.Body = CFrame.new(-BP) * CFrame.new(0, 8, BP.Z + Q.Z) * CFrame.Angles(rad(-36 * c), 0, 0) * CFrame.new(-Q)
 		return
 	end
 
@@ -241,6 +273,7 @@ local function idle(t, pose, ctx)
 	local byaw = 10 * L.noise(t, 2.3, 0.4) * sniff + 4 * shakeHd * wave(t, 7)
 	local broll = 3 * patter + 2 * wave(t, 0.25) * calm
 	local stand = pa(0, by, bz, bp, byaw, broll)
+	pose.Body = stand
 
 	local lR = 0.45 * max(0, patter)
 	local lL = 0.45 * max(0, -patter)
@@ -253,7 +286,7 @@ local function idle(t, pose, ctx)
 
 	-- head / face
 	local look = 22 * L.noise(t, 7.7, 0.35) * calm + 26 * L.noise(t, 1.9, 0.6) * sniff
-	local hp = -14 * sniff - 26 * dip + 34 * flick - 10 * gulp + 30 * yawn + 12 * ah1 + 18 * ah2 - 38 * choo
+	local hp = -14 * sniff - 26 * dip + 34 * flick - 10 * gulp + 30 * yawn + 12 * ah1 + 18 * ah2 - 16 * choo
 		+ 22 * proud + 4 * wave(t, 0.5, 0.2)
 	local hroll = 6 * L.noise(t, 4.4, 0.4) * calm + 14 * shakeHd * wave(t, 9)
 	pose.Head = ang(hp, look + 30 * shakeHd * wave(t, 6), hroll - 8 * proud)
@@ -261,6 +294,7 @@ local function idle(t, pose, ctx)
 	local chomp = munch * max(0, wave(t, 5))
 	local mutter = 0.5 * calm * max(0, wave(t, 1.5, 0.1)) ^ 6
 	pose.Jaw = ang(-4 - 8 * mutter - 40 * catchOpen - 18 * chomp - 62 * yawn - 22 * ah2 - 30 * choo + 4 * gulp, 0, 0)
+	fixHead(pose)
 	brows(pose, 0.6 * flick + 0.8 * yawn + 0.6 * ah2 - 0.2 * proud, 0.4 * sniff + 0.5 * munch + 0.6 * shakeHd + 0.3 * crouch)
 	L.both(pose, "Ear", ang(0, 0, -16 * max(0, wave(t, 0.5, 0.3)) ^ 12 - 20 * choo + 10 * yawn))
 	local bl = env(c, 1.55, 0.05, 0.05, 0.05) + env(c, 1.75, 0.05, 0.05, 0.05) + env(c, 4.95, 0.05, 0.05, 0.05)
@@ -367,6 +401,7 @@ local function alert(t, pose, ctx)
 	pose.Head = ang(14 * take - 18 * crouch + 26 * boom * settle - 10 * (hitR + hitL) - 6 * ready, 18 * take + headShake, -6 * take)
 	pose.Nose = ang(-8 * crouch + 10 * boom, 0, 0)
 	pose.Jaw = ang(-12 * take - 64 * boom * settle - 20 * (stompR + stompL) * settle, 0, 0)
+	fixHead(pose)
 	brows(pose, 1.2 * take - 0.4 * crouch, 1.2 * crouch + 1.0 * rage)
 	L.both(pose, "Ear", ang(0, 0, -30 * crouch + 25 * boom))
 	lids(ctx, crouch > 0.6)
@@ -393,15 +428,15 @@ end
 ------------------------------------------------------------------------
 -- CHASE (0.8 s loop): spiky rolling ball, one revolution per loop
 ------------------------------------------------------------------------
-local CHASE_LEN = 0.8
+local CHASE_LEN = 0.9
 local function chase(t, pose, ctx)
 	local c = t % CHASE_LEN
 	local roll = 360 * c / CHASE_LEN
 	pose.Body = ballT(roll, 0, 0, 0)
 	curl(pose, 1, 0)
-	orbs(pose, t, 1.25, 450, 0.5, 1.0)
+	orbs(pose, t, 1 / CHASE_LEN, 400, 0.5, 1.0)
 	shock(pose, ctx, c, -9, 0)
-	for _, at in { 0.0, 0.2, 0.4, 0.6 } do
+	for _, at in { 0.0, 0.225, 0.45, 0.675 } do
 		if ctx.crossed(at) then
 			ctx.emit("RollDust", 3)
 			ctx.emit("RollLeaves", 2)
@@ -436,7 +471,7 @@ local function attack(t, pose, ctx)
 	pose.Jaw = ang(-20 * land, 0, 0)
 	bristleAll(pose, 0.3 * land)
 	if k > 0 then
-		pose.Body = stand:Lerp(ballT(roll, 0, z, up), k)
+		pose.Body = stand:Lerp(ballT(roll, 0, z, up + 0.9 * impact), k)
 		curl(pose, k, 0.9 * impact)
 	end
 	anger(ctx, pose, t, true)
@@ -474,6 +509,7 @@ local function catchS(t, pose, ctx)
 	pose.PawL = ang(-30 * rear, 0, 0)
 	pose.Head = ang(-16 * rear + 4 * chuckle - 12 * nod, 18 * rear * wave(t, 0.5, 0.1), -8 * rear)
 	pose.Jaw = ang(-6 - 14 * chuckle - 10 * nod, 0, 0)
+	fixHead(pose)
 	pose.Nose = ang(12 * rear, 0, 0)
 	brows(pose, -0.2 * rear, 0.3)
 	lids(ctx, rear > 0.5)
@@ -497,7 +533,7 @@ end
 ------------------------------------------------------------------------
 local function giveUp(t, pose, ctx)
 	local c = t
-	local shockA = env(c, 0.0, 0.08, 0.1, 0.1, "backOut", "quadIn")
+	local shockA = env(c, 0.12, 0.08, 0.08, 0.1, "backOut", "quadIn")
 	local s1 = env(c, 0.22, 0.1, 0.0, 0.07, "quadOut", "quadIn")
 	local s2 = env(c, 0.45, 0.1, 0.0, 0.07, "quadOut", "quadIn")
 	local s3 = env(c, 0.68, 0.1, 0.0, 0.07, "quadOut", "quadIn")
@@ -510,7 +546,8 @@ local function giveUp(t, pose, ctx)
 	local rage = c < 1.75 and 1 or 0
 
 	local yaw = 720 * E.cubicInOut(spinW)
-	local by = 0.2 * shockA - 0.4 * (s1 + s2 + s3) + 1.5 * hops - 1.3 * plop
+	local pop = env(c, 0.0, 0.1, 0.06, 0.16, "quadOut", "quadIn")
+	local by = 1.0 * pop + 0.2 * shockA - 0.4 * (s1 + s2 + s3) + 1.5 * hops - 0.85 * plop
 	local stand = pa(0, by, 0, 4 * (s1 + s3) + 3 * s2 - 5 * plop, yaw, -6 * s1 + 6 * s2 - 6 * s3)
 	pose.Body = stand
 	-- planted feet are in world space; while spinning they ride along the yaw
@@ -526,6 +563,7 @@ local function giveUp(t, pose, ctx)
 	})
 	pose.Head = ang(12 * shockA - 8 * (s1 + s2 + s3) + 14 * hops - 18 * sulkHead * rise, 14 * rage * wave(t, 6), 10 * sulkHead * rise)
 	pose.Jaw = ang(-30 * shockA - 40 * (s1 + s2 + s3) - 30 * hops + 6 * sulkHead, 0, 0)
+	fixHead(pose)
 	brows(pose, 1.0 * shockA - 0.4 * sulkHead, 1.3 * rage + 0.5 * sulkHead)
 	L.both(pose, "Ear", ang(0, 0, -25 * plop * rise))
 	lids(ctx, plop > 0.6 and c < 2.15)
@@ -574,6 +612,7 @@ local function retWalk(t, pose, ctx)
 	legs(pose, bodyAt(stand), { AR = f(ph), LL = f(ph), AL = f(ph + 0.5), LR = f(ph + 0.5) })
 	pose.Head = ang(-10 + 4 * wave(t, 2 * hz, 0.15), -6 * wave(t, hz, -0.1), -4 * wave(t, hz, 0.1))
 	pose.Jaw = ang(-4 - 8 * max(0, wave(t, 4 * hz)) ^ 2, 0, 0)
+	fixHead(pose)
 	pose.Nose = ang(5 * wave(t, 4 * hz), 0, 0)
 	brows(pose, 0, 0.8)
 	L.both(pose, "Ear", ang(0, 0, -6 * wave(t, 2 * hz)))

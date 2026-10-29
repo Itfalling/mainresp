@@ -173,7 +173,8 @@ local function apply(pose, ctx, q, t)
 	pose.RopeEnd = ang(10 * f * wave(t, hz, 0.3) + 8 * q.hipP / 20, 0, 8 * f * wave(t, hz * 0.5))
 
 	-- floating harvest cubes
-	pose.Orbit = ang(0, 30 * t, 0)
+	-- the cubes sway round the flanks + back (never in front of the face)
+	pose.Orbit = ang(0, 38 * wave(t, 1 / 12) + 10 * q.orbOut * wave(t, 1.5), 0)
 	for i = 1, 4 do
 		local dir = i % 2 == 0 and -1 or 1
 		pose["Orb" .. i] = pa(0, 0.6 * wave(t, 0.5, i * 0.27) + 0.8 * q.orbOut, 0, 50 * t * dir, 80 * t + 30 * i, 15 * i)
@@ -322,8 +323,8 @@ local function idle(t, pose, ctx)
 	q.armL = q.armL + V(0, 0, 18 * choo)
 
 	-- SHOW-OFF: pitchfork baton twirl, hop, stamp, proud pose
-	q.armR = q.armR + V(70 + 10 * proud, 0, -40 - 20 * proud) * show
-	q.foreR = q.foreR + V(18 - 18 * proud, 0, 10) * show
+	q.armR = q.armR + V(48 - 18 * proud, 0, 16 - 4 * proud) * show
+	q.foreR = q.foreR + V(22 + 10 * proud, 0, 0) * show
 	q.handR = q.handR + V(-10, 0, 0) * show
 	q.armL = q.armL + V(-10 + 30 * hopping * wave(t, 2.5), 0, 40 * hopping) * show
 	q.foreL = q.foreL + V(40, 0, 0) * show
@@ -437,7 +438,7 @@ local function alert(t, pose, ctx)
 	q.foreL = V(-10 * star + 50 * jw, 0, 30 * jz) + V(60, 0, 0) * ready
 	q.handL = V(30 * jx, 0, -30 * star)
 	-- head: snaps up, spins 360, glares
-	q.headP = -12 * crouch + 22 * star - 12 * ready + 8 * jy
+	q.headP = -12 * crouch + 22 * star + 10 * ready + 8 * jy
 	q.headY = spin
 	q.headR = 10 * jz
 	q.headUp = -0.15 * crouch + 0.35 * star
@@ -525,7 +526,7 @@ local function chase(t, pose, ctx)
 	q.chestY = -16 * sin(2 * pi * p)
 	q.chestR = -4 * sin(2 * pi * p + 0.6)
 	-- floppy head lagging the bounce, angry face, chomping grin
-	q.headP = -2 - 8 * cos(2 * pi * 2 * (p - 0.25)) + 10
+	q.headP = 18 - 7 * cos(2 * pi * 2 * (p - 0.25))
 	q.headY = 12 * sin(2 * pi * p - 0.6)
 	q.headR = 10 * sin(2 * pi * p - 0.9)
 	q.headUp = 0.08 * cos(2 * pi * 2 * (p - 0.3))
@@ -577,22 +578,23 @@ local function attack(t, pose, ctx)
 	local liftL = env(t, 0.28, 0.12, 0.0, 0.1, "quadOut", "quadIn") + env(t, 0.8, 0.1, 0.0, 0.12, "quadOut", "quadIn")
 	local vib = shake * wave(t, 22)
 
-	q.hipZ = 0.45 * cock - 1.1 * thrust
-	q.hipY = -0.3 * cock - 0.55 * thrust - 0.2 * impact
-	q.hipP = 6 * cock - 18 * thrust
-	q.hipYaw = -22 * cock + 18 * thrust
-	q.chestP = 6 * cock - 10 * thrust + 2 * vib
-	q.chestY = -12 * cock + 10 * thrust
+	q.hipZ = 0.7 * cock - 1.1 * thrust
+	q.hipY = -0.35 * cock - 0.55 * thrust - 0.2 * impact
+	q.hipP = 10 * cock - 18 * thrust
+	q.hipYaw = -30 * cock + 18 * thrust
+	q.chestP = 8 * cock - 10 * thrust + 2 * vib
+	q.chestY = -20 * cock + 10 * thrust
 	q.footL = V(0, 0.55 * liftL, -1.5 * stepL)
 	q.toeL = -15 * liftL
 	q.footR = V(0, 0, 0)
-	q.armR = V(-30 * cock + 88 * thrust + 3 * vib, 0, 22 * cock + 6 * thrust)
-	q.foreR = V(75 * cock + 4 * thrust, 0, 0)
-	q.armL = V(45 * cock - 25 * thrust, 0, 25 * cock + 50 * thrust)
-	q.foreL = V(30 * cock + 30 * thrust, 0, 0)
-	q.handL = V(0, 0, -30 * thrust)
-	q.headP = 10 * cock - 10 * thrust + 4 * vib
-	q.headY = -10 * cock + 8 * thrust
+	q.armR = V(-70 * cock + 88 * thrust + 3 * vib, 0, 28 * cock + 6 * thrust)
+	q.foreR = V(115 * cock + 4 * thrust, 0, 0)
+	q.armL = V(80 * cock - 25 * thrust, 0, 10 * cock + 50 * thrust)
+	q.foreL = V(10 * cock + 30 * thrust, 0, 0)
+	q.handL = V(-20 * cock, 0, 0)
+	q.handL = q.handL + V(0, 0, -30 * thrust)
+	q.headP = 4 * cock + 26 * thrust + 4 * vib
+	q.headY = 30 * cock - 20 * thrust
 	q.headR = 6 * vib
 	q.jaw = 4 - 2 * cock + 48 * thrust + 10 * impact
 	q.lid = 0.45 * cock
@@ -601,9 +603,9 @@ local function attack(t, pose, ctx)
 	q.eyeGlow = 0.6 * cock + 1.0 * impact + 0.3 * thrust
 	q.mouthGlow = thrust
 	q.angry = thrust > 0.3
-	q.forkW = ang(-88 + 4 * vib, 0, 0)
+	q.forkW = ang(-88 + 22 * cock + 4 * vib, 0, 0)
 	q.forkK = clamp(math.max(cock, thrust) * 1.4, 0, 1)
-	q.forkSlide = -0.5 * cock + 1.1 * thrust
+	q.forkSlide = -1.0 * cock + 1.2 * thrust
 	q.hatP = -8 * cock + 12 * thrust
 	q.hatUp = 0.3 * impact
 	q.flop = 1 + 2 * shake
@@ -782,7 +784,7 @@ end
 ------------------------------------------------------------------------
 -- RETURN (1.2 s loop): loose limp-swing trudge home
 ------------------------------------------------------------------------
-local WALK_T, WALK_DUTY, WALK_D, WALK_H = 1.2, 0.58, 2.6, 0.55
+local WALK_T, WALK_DUTY, WALK_D, WALK_H = 1.2, 0.58, 3.0, 0.6
 local WALK_SPEED = WALK_D / (WALK_DUTY * WALK_T)
 
 local function returnHome(t, pose, ctx)
@@ -803,20 +805,20 @@ local function returnHome(t, pose, ctx)
 	q.chestY = -10 * sin(w)
 	q.chestR = -5 * sin(w + 0.5)
 	-- head hangs low, bobbing and lolling with lag, grumbling
-	q.headP = -12 - 5 * cos(2 * w - 1.4)
-	q.headR = 12 * sin(w - 0.8)
+	q.headP = -3 - 5 * cos(2 * w - 1.4)
+	q.headR = 15 * sin(w - 0.8)
 	q.headY = -6 * sin(w - 1.2)
 	q.jaw = 6 + 6 * (0.5 + 0.5 * wave(t, 5 / WALK_T))
 	q.browAng = 16
 	q.browUp = -0.05
 	q.lid = 0.35
 	-- left arm dangles and swings like a rope, right shoulders the fork
-	q.armL = V(-30 * sin(w - 0.4), 0, 8 + 6 * sin(w + 1))
-	q.foreL = V(-14 - 22 * (0.5 + 0.5 * sin(w - 1.4)), 0, 0)
-	q.handL = V(-25 * sin(w - 2.0), 0, -10)
+	q.armL = V(-38 * sin(w - 0.4), 0, 10 + 8 * sin(w + 1))
+	q.foreL = V(-10 - 34 * (0.5 + 0.5 * sin(w - 1.5)), 0, 0)
+	q.handL = V(-35 * sin(w - 2.2), 0, -12)
 	q.armR = V(38 + 4 * bob, 0, 12)
 	q.foreR = V(105, 0, 0)
-	q.forkW = ang(58, 0, -14) * ang(0, 0, 4 * sin(w))
+	q.forkW = ang(70, 0, -24) * ang(0, 0, 4 * sin(w))
 	q.forkK = 1
 	q.forkSlide = -0.6
 	q.hatP = -6
