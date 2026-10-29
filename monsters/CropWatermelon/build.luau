@@ -30,23 +30,30 @@ return {
 			local function p(x, y, z, sx, sy, sz, col)
 				return B:block(crop, v(sx * s, sy * s, sz * s), F * CFrame.new(x * s, y * s, z * s), col)
 			end
-			local yc = 1.55
-			-- body: stepped oval (rounded from the side, the top and the ends)
-			p(0, yc, 0, 4.6, 3.1, 2.0, MEL) -- tall core
-			p(0, yc, 0, 5.8, 2.6, 3.0, MEL) -- middle shell
-			p(0, yc, 0, 4.6, 1.4, 3.6, MEL) -- wide belt
-			p(0, yc, 0, 6.6, 1.5, 1.8, MEL_DK) -- blunt ends
-			-- light stripes running end to end
-			local t = 0.12 / s
-			for _, sd in { -1, 1 } do
-				p(0, 3.1 + t / 2, sd * 0.5, 4.6, t, 0.5, STRIPE) -- top
-				p(0, 2.6, sd * (1.5 + t / 2), 5.8, 0.4, t, STRIPE) -- shoulder
-				p(0, yc, sd * (1.8 + t / 2), 4.6, 0.55, t, STRIPE) -- side
+			-- body: horizontal slabs stepped in width (round cross-section), each one a
+			-- flush colour so the stripes are wide bands following the curve end to end.
+			-- {y0, y1, width (Z), length (X), colour}
+			local LAYERS = {
+				{ 0.0, 0.5, 2.4, 5.0, MEL_DK },
+				{ 0.5, 0.9, 3.2, 6.0, MEL },
+				{ 0.9, 1.4, 3.5, 6.0, STRIPE }, -- lower side stripe
+				{ 1.4, 2.0, 3.7, 6.0, MEL }, -- widest belt
+				{ 2.0, 2.5, 3.5, 6.0, STRIPE }, -- upper side stripe
+				{ 2.5, 2.9, 3.0, 6.0, MEL },
+			}
+			for _, l in LAYERS do
+				p(0, (l[1] + l[2]) / 2, 0, l[4], l[2] - l[1], l[3], l[5])
 			end
-			p(0, yc, 0, 6.6 + t * 2, 0.5, 0.55, STRIPE) -- across both ends
+			-- top cap: dark sides with a light stripe down the middle
+			p(0, 3.15, -0.75, 5.0, 0.5, 0.7, MEL)
+			p(0, 3.15, 0, 5.0, 0.5, 0.8, STRIPE)
+			p(0, 3.15, 0.75, 5.0, 0.5, 0.7, MEL)
+			-- rounded ends: two smaller dark slabs poking out of both ends
+			p(0, 1.7, 0, 6.8, 2.0, 2.6, MEL_DK)
+			p(0, 1.7, 0, 7.4, 1.0, 1.4, MEL_DK)
 			-- stem nub on the +X end
-			p(3.45, yc + 0.35, 0, 0.5, 0.45, 0.45, STEM)
-			return (F * CFrame.new(3.6 * s, (yc + 0.35) * s, 0)).Position
+			p(3.85, 1.7, 0, 0.5, 0.45, 0.45, STEM)
+			return (F * CFrame.new(4.05 * s, 1.7 * s, 0)).Position
 		end
 		local stemA = melon(cf(-0.9, TOP, 0.6, 0, -8, 0), 0.85)
 		local stemB = melon(cf(1.6, TOP, -2.1, 0, 10, 0), 0.45)
