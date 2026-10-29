@@ -194,6 +194,7 @@ function fixData(d) {
   d.anim.frames = arr(d.anim.frames).map(arr);
   if (!d.anim.frames.length) d.anim.frames = [[]];
   d.anim.events = arr(d.anim.events);
+  d.effects = arr(d.effects);
   return d;
 }
 
