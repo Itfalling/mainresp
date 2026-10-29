@@ -143,7 +143,7 @@ local function rig(pose, ctx, s)
 	pose.Beard = ang(-0.25 * jaw + s.beard, 0, s.beardZ)
 
 	-- brows: + = angry (inner end down), browUp raises them (shock)
-	local brow = 7 + s.brow
+	local brow = 3 + 0.5 * s.brow
 	L.both(pose, "Brow", pa(0, s.browUp, -0.15 * s.browUp, 0, 0, brow))
 	-- lids: 0 open .. 1 closed (lid blocks are props, shown only while closing)
 	local lid = clamp(s.lid, 0, 1)
@@ -601,15 +601,15 @@ local function catch(t, pose, ctx)
 
 	s.hy = -0.7 * crouch - 1.2 * sq + 0.3 * sky
 	s.hz = 0.6 * sky
-	s.hp = -4 * crouch + 10 * sky - 2 * sq
+	s.hp = -4 * crouch + 4 * sky - 2 * sq
 	s.hroll = 4 * stomp
 	s.fLy, s.fLz, s.toeL = 2.4 * stomp, -0.5 * stomp, -14 * stomp
-	s.cx = -6 * crouch + 14 * sky - 4 * sq + 3 * smug
-	s.nx = -10 * smug - 8 * crouch + 22 * sky - 8 * nod
-	s.hdx = -12 * smug - 10 * crouch + 36 * sky - 14 * nod
+	s.cx = -6 * crouch + 6 * sky - 4 * sq + 3 * smug
+	s.nx = -10 * smug - 8 * crouch + 12 * sky - 8 * nod
+	s.hdx = -12 * smug - 10 * crouch + 26 * sky - 14 * nod
 	s.hdy = 8 * shake * wave(t, 5) - 10 * smug
 	s.hdz = 8 * smug + 4 * shake * wave(t, 2.5)
-	s.jaw = -4 * smug + 72 * sky + 6 * shake * wave(t, 12)
+	s.jaw = -4 * smug + 62 * sky + 6 * shake * wave(t, 12)
 	s.beardZ = 14 * shake * wave(t, 5, 0.2)
 	s.brow = 10 * smug + 6 * sky
 	s.browUp = 0.3 * sky

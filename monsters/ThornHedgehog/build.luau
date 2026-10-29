@@ -60,9 +60,9 @@ return {
 
 		-- hidden spiky covers that close the ball (props, shown while curled)
 		local bc = 0
-		local function cover(size, at, col)
+		local function cover(size, at, col, bone)
 			bc += 1
-			B:block(body, size, at, col, { tr = 1, name = "BallCover" .. bc })
+			B:block(bone or body, size, at, col, { tr = 1, name = "BallCover" .. bc })
 		end
 		cover(v(6.0, 0.6, 4.4), cf(0, 0.95, 0.6), UMBER)
 		for _, p in { { 1.8, -0.9 }, { -1.8, -0.9 }, { 0, -0.4 }, { 1.8, 2.0 }, { -1.8, 2.0 }, { 0, 1.8 } } do
@@ -70,6 +70,13 @@ return {
 			local dir = v(p[1] * 0.45, -1, (p[2] - 0.6) * 0.45 + 0.5).Unit
 			cover(v(0.95, 0.95, 0.8), CFrame.lookAt(base + dir * 0.2, base + dir * 2), SP1)
 			cover(v(0.6, 0.6, 1.0), CFrame.lookAt(base + dir * 0.9, base + dir * 3), SP2)
+		end
+		-- chest-bib cover on the front slice (faces outward once folded)
+		cover(v(5.0, 3.0, 0.45), cf(0, 2.9, -4.42), UMBER, front)
+		for _, x in { -1.4, 1.4 } do
+			local base = v(x, 2.6, -4.6)
+			local dir = v(x * 0.3, -0.3, -1).Unit
+			cover(v(0.6, 0.6, 1.1), CFrame.lookAt(base + dir * 0.5, base + dir * 2), SP2, front)
 		end
 		for s = 1, -1, -2 do
 			cover(v(0.5, 2.4, 3.6), cf(3.35 * s, 2.4, 0.6), UMBER2)

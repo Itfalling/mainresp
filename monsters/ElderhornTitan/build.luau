@@ -98,8 +98,8 @@ return {
 		------------------------------------------------------------------
 		local chest = B:bone("Chest", "Body", v(0, 18, 0))
 		box(chest, 13, 10.5, 9.6, 0, 21.6, 1.6, BARK) -- barrel
-		box(chest, 16, 15, 11, 0, 23, -8.5, BARK) -- shoulders y15.5..30.5 z-14..-3
-		box(chest, 14, 2.6, 10, 0, 31.5, -7.5, BARK) -- withers hump y30.2..32.8
+		box(chest, 16, 13.6, 11, 0, 22.3, -8.5, BARK) -- shoulders y15.5..29.1 z-14..-3
+		box(chest, 14, 2.6, 10, 0, 30.2, -7.5, BARK) -- withers hump y28.9..31.5
 		box(chest, 12, 5, 2.4, 0, 18.5, -14.8, BARK) -- brisket
 		box(chest, 11, 1, 17, 0, 15.3, -4, BARK_D) -- belly
 		box(chest, 12.4, 0.6, 7, 0, 27.1, 2.0, MOSS) -- mossy back
@@ -119,15 +119,15 @@ return {
 			box(chest, 0.6, 1.1, 1.1, 7.8, 21.8, 1.6, PINK)
 			box(chest, 0.3, 0.45, 0.45, 8.15, 21.8, 1.6, EMER, { mat = "Neon" })
 			-- hulking layered pauldrons with bone spikes + a small rune
-			box(chest, 2.2, 9, 10, 8.6, 25, -8.5, OBSID)
+			box(chest, 2.2, 8.4, 10, 8.6, 24.4, -8.5, OBSID)
 			box(chest, 1.0, 6.6, 7.6, 9.8, 24.6, -8.6, OBSID_L)
 			box(chest, 0.8, 4.2, 5.0, 10.5, 24.2, -8.8, OBSID)
-			box(chest, 3.0, 1.0, 10.6, 8.8, 30.0, -8.5, STONE)
+			box(chest, 3.0, 1.0, 10.6, 8.8, 28.9, -8.5, STONE)
 			box(chest, 2.6, 0.7, 10.2, 8.6, 20.2, -8.5, MOSS)
 			box(chest, 1.2, 0.5, 4.0, 9.2, 19.6, -10.0, MOSS_L)
 			algiz(chest, 11.0, 23.8, -8.8, 0.75)
-			B:spike(chest, v(9.4, 30.4, -5.6), v(12.6, 35.2, -3.2), 1.9, 1.9, BONE)
-			B:spike(chest, v(9.4, 30.4, -10.6), v(12.2, 34.0, -12.8), 1.6, 1.6, BONE)
+			B:spike(chest, v(9.4, 29.3, -5.6), v(12.6, 34.0, -3.2), 1.9, 1.9, BONE)
+			B:spike(chest, v(9.4, 29.3, -10.6), v(12.2, 32.8, -12.8), 1.6, 1.6, BONE)
 			B:spike(chest, v(10.6, 27.0, -13.2), v(12.8, 27.8, -16.2), 1.2, 1.2, BONE_D)
 		end)
 		-- layered breastplate, tree-of-life rune, rune core gem
@@ -153,18 +153,18 @@ return {
 		B:emitter(aura, "sparkle", { name = "Sparkles", color = { "#ffffff", EMER, PINK_L }, rate = 5 })
 
 		-- shaggy fur + moss mane over the withers
-		local m1 = B:bone("Mane1", "Chest", v(0, 32.5, -8))
-		box(m1, 14.6, 1.4, 11.2, 0, 33.2, -7.6, FUR)
-		box(m1, 11.6, 1.0, 8.8, 0, 34.2, -8.0, MOSS_D)
-		box(m1, 6.6, 0.8, 5.6, 0, 34.9, -8.6, MOSS)
+		local m1 = B:bone("Mane1", "Chest", v(0, 31.2, -8))
+		box(m1, 14.6, 1.4, 11.2, 0, 31.9, -7.6, FUR)
+		box(m1, 11.6, 1.0, 8.8, 0, 32.9, -8.0, MOSS_D)
+		box(m1, 6.6, 0.8, 5.6, 0, 33.6, -8.6, MOSS)
 		B:sym(function()
-			box(m1, 1.2, 3.2, 9.6, 7.5, 31.6, -7.8, FUR)
+			box(m1, 1.2, 3.2, 9.6, 7.5, 30.3, -7.8, FUR)
 			for k, z in { -11.6, -8.8, -6.0, -3.4 } do
 				local len = (k % 2 == 0) and 2.0 or 2.8
-				box(m1, 1.0, len, 1.6, 7.8, 30.0 - len / 2, z, FUR)
-				box(m1, 0.8, 0.6, 1.0, 7.8, 29.7 - len, z, MOSS)
+				box(m1, 1.0, len, 1.6, 7.8, 28.8 - len / 2, z, FUR)
+				box(m1, 0.8, 0.6, 1.0, 7.8, 28.5 - len, z, MOSS)
 			end
-			blossom(m1, 4.0, 34.6, -5.4, 1.6)
+			blossom(m1, 4.0, 33.3, -5.4, 1.6)
 		end)
 
 		------------------------------------------------------------------
@@ -197,14 +197,14 @@ return {
 			box(beard, 1.0, 2.4, 2.2, 3.3, 20.6, -20.5, MOSS)
 		end)
 
-		local n2 = B:bone("Neck2", "Neck1", v(0, 31.5, -20.5))
-		box(n2, 9.4, 8.8, 7.8, 0, 34.2, -23.8, BARK) -- y29.8..38.6 z-27.7..-19.9
+		local n2 = B:bone("Neck2", "Neck1", v(0, 32, -20.5))
+		box(n2, 9.4, 9.8, 7.8, 0, 34.7, -23.8, BARK) -- y29.8..39.6 z-27.7..-19.9
 		box(n2, 7.0, 0.8, 6.2, 0, 29.6, -24.0, BARK_D)
-		local m3 = B:bone("Mane3", "Neck2", v(0, 38, -22))
-		box(m3, 7.6, 1.4, 6.0, 0, 38.6, -22.2, FUR)
-		box(m3, 5.0, 0.8, 4.0, 0, 39.5, -21.8, MOSS_D)
+		local m3 = B:bone("Mane3", "Neck2", v(0, 39, -21.4))
+		box(m3, 7.6, 1.4, 5.4, 0, 39.6, -21.4, FUR)
+		box(m3, 5.0, 0.8, 3.6, 0, 40.5, -21.0, MOSS_D)
 		B:sym(function()
-			strand(m3, 4.8, 38.0, -20.8, 2.6)
+			strand(m3, 4.8, 39.0, -20.6, 2.8)
 		end)
 
 		------------------------------------------------------------------
@@ -212,9 +212,9 @@ return {
 		-- tilted a little nose-down about the head pivot (HT): it looks
 		-- forward and DOWN at the thief from up high.
 		------------------------------------------------------------------
-		local HO = v(0, 1.5, -2.0) -- head moved up + forward (authored at HP)
+		local HO = v(0, 2.5, -2.0) -- head moved up + forward (authored at HP)
 		local HP = v(0, 33, -23.5)
-		local HT = CFrame.new(HO) * CFrame.new(HP) * P.ang(-6, 0, 0) * CFrame.new(-HP)
+		local HT = CFrame.new(HO) * CFrame.new(HP) * P.ang(-3, 0, 0) * CFrame.new(-HP)
 		local function ab(bone, sx, sy, sz, x, y, z, col, opts, rz)
 			return B:block(bone, v(sx, sy, sz), CFrame.new(HO) * cf(x, y, z, 0, 0, rz or 0), col, opts)
 		end
@@ -306,58 +306,66 @@ return {
 		-- Dark obsidian/bark bases -> bark -> bone -> bone-white tips with
 		-- emerald glow; layered underside steps make every beam chunky.
 		------------------------------------------------------------------
+		-- antlers sit 1 stud lower relative to the head (they grow out of the
+		-- skull's upper sides), keeping the crown under the 44-stud cap
+		local function avA(x, y, z)
+			return av(x, y - 1, z)
+		end
+		local function abA(bone, sx, sy, sz, x, y, z, col, opts, rz)
+			return ab(bone, sx, sy, sz, x, y - 1, z, col, opts, rz)
+		end
 		local function bm(bone, a, b, w, h, col)
-			return B:beam(bone, av(a[1], a[2], a[3]), av(b[1], b[2], b[3]), w, h, col)
+			return B:beam(bone, avA(a[1], a[2], a[3]), avA(b[1], b[2], b[3]), w, h, col)
 		end
 		local function tine(bone, a, b, w, col)
-			local A, Bv = av(a[1], a[2], a[3]), av(b[1], b[2], b[3])
+			local A, Bv = avA(a[1], a[2], a[3]), avA(b[1], b[2], b[3])
 			B:beam(bone, A, Bv, w, w, col)
 			local d = (Bv - A).Unit
 			B:block(bone, v(w * 0.62, w * 0.62, w * 0.62), CFrame.new(Bv + d * (w * 0.3)), EMER, { mat = "Neon" })
 		end
 		local function thorn(bone, a, b, name)
-			B:beam(bone, av(a[1], a[2], a[3]), av(b[1], b[2], b[3]), 0.55, 0.55, EMER, { mat = "Neon", tr = 1, name = name })
+			B:beam(bone, avA(a[1], a[2], a[3]), avA(b[1], b[2], b[3]), 0.55, 0.55, EMER, { mat = "Neon", tr = 1, name = name })
 		end
 		B:sym(function(side)
-			local a1 = B:bone("Antler1" .. side, "Head", av(3.4, 36.8, -27))
-			ab(a1, 4.2, 1.6, 4.2, 3.4, 37.0, -27, STONE) -- burr
-			ab(a1, 4.6, 0.6, 4.6, 3.4, 36.4, -27, OBSID)
+			local a1 = B:bone("Antler1" .. side, "Head", avA(3.4, 36.8, -27))
+			abA(a1, 4.2, 1.6, 4.2, 3.4, 37.0, -27, STONE) -- burr
+			abA(a1, 4.6, 0.6, 4.6, 3.4, 36.4, -27, OBSID)
 			bm(a1, { 3.4, 37.3, -27 }, { 8.6, 39.0, -24.4 }, 3.6, 3.2, BARK_D)
 			bm(a1, { 3.8, 36.6, -27.2 }, { 7.8, 37.8, -25.0 }, 2.6, 3.8, OBSID) -- underside step
 			bm(a1, { 4.4, 38.7, -26.8 }, { 8.0, 40.0, -24.8 }, 1.8, 1.0, BARK) -- top step
 			bm(a1, { 5.0, 38.2, -27.6 }, { 6.8, 39.4, -32.2 }, 2.4, 2.4, BARK) -- brow tine (forward)
 			tine(a1, { 6.6, 39.4, -31.6 }, { 7.4, 40.6, -34.0 }, 1.8, BONE_D)
-			strand(a1, 6.6 + HO.X, 37.6 + HO.Y, -25.6 + HO.Z, 2.4)
+			strand(a1, 6.6 + HO.X, 37.6 + HO.Y - 1, -25.6 + HO.Z, 2.4)
 			thorn(a1, { 6.6, 39.6, -25.8 }, { 6.0, 41.6, -28.0 }, "Thorn1" .. side)
 
-			local a2 = B:bone("Antler2" .. side, "Antler1" .. side, av(8.6, 39.0, -24.4))
+			local a2 = B:bone("Antler2" .. side, "Antler1" .. side, avA(8.6, 39.0, -24.4))
 			bm(a2, { 8.0, 38.9, -24.6 }, { 13.8, 39.8, -20.2 }, 3.0, 3.0, BARK)
 			bm(a2, { 8.6, 38.0, -24.4 }, { 12.8, 38.6, -21.2 }, 2.0, 2.8, BARK_D)
 			bm(a2, { 9.4, 40.3, -24.0 }, { 13.2, 40.9, -21.0 }, 1.6, 0.8, BONE_DD)
 			tine(a2, { 10.4, 39.6, -23.4 }, { 11.2, 41.4, -25.8 }, 2.2, BONE_D)
 			tine(a2, { 12.4, 39.8, -21.6 }, { 13.2, 41.4, -18.8 }, 1.9, BONE_D)
-			blossom(a2, 9.4 + HO.X, 40.6 + HO.Y, -24.2 + HO.Z, 1.8)
+			blossom(a2, 9.4 + HO.X, 40.6 + HO.Y - 1, -24.2 + HO.Z, 1.8)
 			thorn(a2, { 13.0, 40.4, -20.6 }, { 14.2, 42.0, -22.6 }, "Thorn2" .. side)
 
-			local a3 = B:bone("Antler3" .. side, "Antler2" .. side, av(13.8, 39.8, -20.2))
+			local a3 = B:bone("Antler3" .. side, "Antler2" .. side, avA(13.8, 39.8, -20.2))
 			bm(a3, { 13.2, 39.7, -20.4 }, { 18.6, 40.0, -14.6 }, 2.4, 2.4, BONE_D)
 			bm(a3, { 13.8, 38.8, -20.2 }, { 17.6, 39.0, -15.8 }, 1.4, 2.0, BONE_DD)
 			tine(a3, { 15.2, 40.2, -19.0 }, { 16.4, 41.4, -21.2 }, 1.8, BONE)
 			tine(a3, { 17.0, 40.2, -16.6 }, { 18.4, 41.4, -14.2 }, 1.6, BONE)
 			tine(a3, { 18.6, 40.0, -14.6 }, { 21.6, 40.6, -12.4 }, 1.6, BONE)
 			tine(a3, { 19.4, 39.8, -14.2 }, { 21.2, 38.4, -15.8 }, 1.2, BONE) -- drooping dead-branch tine
-			blossom(a3, 16.0 + HO.X, 41.0 + HO.Y, -18.0 + HO.Z, 1.5)
+			blossom(a3, 16.0 + HO.X, 41.0 + HO.Y - 1, -18.0 + HO.Z, 1.5)
 			thorn(a3, { 19.6, 40.2, -14.0 }, { 22.4, 41.6, -15.6 }, "Thorn3" .. side)
 			thorn(a3, { 14.6, 40.4, -19.6 }, { 14.0, 42.0, -22.0 }, "Thorn4" .. side)
-			local lan = B:bone("Lantern" .. side, "Antler3" .. side, av(17.8, 39.0, -15.6))
-			ab(lan, 0.35, 1.0, 0.35, 17.8, 38.5, -15.6, MOSS_D)
-			ab(lan, 1.5, 0.35, 1.5, 17.8, 37.9, -15.6, OBSID)
-			neon(lan, 0.85, 1.3, 0.85, 17.8 + HO.X, 37.1 + HO.Y, -15.6 + HO.Z, "Lamp" .. side)
-			ab(lan, 1.5, 0.35, 1.5, 17.8, 36.3, -15.6, OBSID)
-			ab(lan, 0.5, 0.4, 0.5, 17.8, 35.9, -15.6, OBSID)
-			local st = B:bone("Strand" .. side, "Antler3" .. side, av(15.2, 39.0, -18.6))
-			strand(st, 15.2 + HO.X, 39.0 + HO.Y, -18.6 + HO.Z, 3.0)
-			B:trail(a3, av(21.8, 40.6, -12.3), av(18.6, 40.0, -14.6), { name = "AntlerTrail" .. side, color = { EMER, PINK_L }, life = 0.22, trans = { 0.45, 1 } })
+			local lan = B:bone("Lantern" .. side, "Antler3" .. side, avA(17.8, 39.0, -15.6))
+			abA(lan, 0.35, 1.0, 0.35, 17.8, 38.5, -15.6, MOSS_D)
+			abA(lan, 1.5, 0.35, 1.5, 17.8, 37.9, -15.6, OBSID)
+			neon(lan, 0.85, 1.3, 0.85, 17.8 + HO.X, 37.1 + HO.Y - 1, -15.6 + HO.Z, "Lamp" .. side)
+			abA(lan, 1.5, 0.35, 1.5, 17.8, 36.3, -15.6, OBSID)
+			abA(lan, 0.5, 0.4, 0.5, 17.8, 35.9, -15.6, OBSID)
+			local st = B:bone("Strand" .. side, "Antler3" .. side, avA(15.2, 39.0, -18.6))
+			strand(st, 15.2 + HO.X, 39.0 + HO.Y - 1, -18.6 + HO.Z, 3.0)
+			B:trail(a3, avA(21.8, 40.6, -12.3), avA(18.6, 40.0, -14.6), { name = "AntlerTrail" .. side, color = { EMER, PINK_L }, life = 0.22, trans = { 0.45, 1 } })
 		end)
 		local crown = ab(head, 42, 3, 12, 0, 40.5, -20, STONE, { tr = 1, name = "CrownFX" })
 		B:emitter(crown, "leaf", { name = "LeafStorm", color = { MOSS_L, "#c8f07a", PINK }, rate = 2, size = { 0.7, 0.7, 0.4 }, speed = { 2, 5 } })

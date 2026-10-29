@@ -205,11 +205,11 @@ return {
 			-- EYE on the side of the face behind the horn: a bump, dark socket,
 			-- glow wrapping its front/outer corner, pupil on the front face only
 			B:block(head, v(1.3, 2.0, 2.2), cf(2.95, 8.2, -9.9), SLATE)
-			B:block(head, v(1.2, 1.1, 1.2), cf(3.2, 8.3, -10.5), IRON)
-			B:block(head, v(0.9, 0.8, 0.9), cf(3.4, 8.3, -10.7), EYE, { mat = "Neon", name = "Eye" })
-			B:block(head, v(0.4, 0.55, 0.1), cf(3.15, 8.25, -11.18), PUPIL)
+			B:block(head, v(1.3, 1.15, 1.2), cf(3.25, 8.3, -10.5), IRON)
+			B:block(head, v(1.05, 0.85, 0.9), cf(3.45, 8.3, -10.7), EYE, { mat = "Neon", name = "Eye" })
+			B:block(head, v(0.45, 0.6, 0.1), cf(3.15, 8.25, -11.18), PUPIL)
 			-- heavy angry steel brow, inner end down
-			B:block(head, v(2.2, 0.6, 1.7), cf(2.95, 9.3, -10.45, 0, 0, 16), STEEL)
+			B:block(head, v(2.2, 0.6, 1.3), cf(3.0, 9.35, -10.35, 0, 0, 16), STEEL)
 			B:block(head, v(1.0, 0.45, 1.3), cf(3.55, 9.75, -10.2, 0, 0, 16), STEELD)
 		end)
 
@@ -258,7 +258,7 @@ return {
 		-- eyelids (props: shown only while blinking / squinting)
 		B:sym(function(side)
 			local lid = B:bone("Lid" .. side, "Head", v(3.42, 9.2, -10.7))
-			B:block(lid, v(1.05, 1.0, 1.15), cf(3.42, 9.2, -10.7), SLATE, { tr = 1, name = "Eyelid" .. side })
+			B:block(lid, v(1.2, 1.0, 1.15), cf(3.45, 9.2, -10.7), SLATE, { tr = 1, name = "Eyelid" .. side })
 		end)
 
 		-- tube ears on top of the head
