@@ -25,7 +25,7 @@ return {
 		local PURP_DK, PURP, PURP_LT = "#5b1fc4", "#7e3cf0", "#a874ff"
 		local PINK, PINK_LT = "#ff3fb4", "#ff86d4"
 		local CYAN, CYAN_LT = "#16c8f0", "#72e6ff"
-		local SILVER_LT, SILVER, SILVER_DK = "#ffffff", "#d9e2ee", "#8f9db4"
+		local SILVER_LT, SILVER, SILVER_DK = "#ffffff", "#d9e2ee", "#a3b2c9"
 		local TINTS = { "#ffc4ec", "#bdf3ff", "#fff3b0", "#dcc4ff" }
 		local FLOOR = { "#ff3fb4", "#28d2ff", "#ffe23a", "#8c4bff" }
 		local N_PINK, N_CYAN, N_YELLOW, N_WHITE = "#ff5cc8", "#4fe6ff", "#fff36a", "#ffffff"
@@ -96,8 +96,6 @@ return {
 			B:block(soil, v(1.0, 1.0, 1.4), C, CAN, S)
 			B:block(soil, v(0.75, 0.75, 0.2), C * CFrame.new(0, 0, 0.72), s[2], { name = "Soil", mat = "Neon" })
 			B:block(soil, v(1.2, 0.2, 0.3), C * CFrame.new(0, 0.55, 0.55), GOLD, S)
-			-- faint see-through light beam up into the crown
-			B:block(soil, v(0.6, 0.6, 5.2), C * CFrame.new(0, 0, 0.85 + 2.6), s[2], { name = "Soil", mat = "Neon", tr = 0.78 })
 		end
 		-- grass tufts
 		local grass = { { -8.3, 3.9 }, { 8.8, 1.6 }, { 2.4, 8.7 }, { -3.4, -8.5 }, { 6.9, -5.9 }, { -6.6, -5.4 } }
@@ -206,8 +204,8 @@ return {
 			discoN += 1
 			local C = cf(pos.X, pos.Y, pos.Z, tilt, yaw, tilt * 0.6)
 			B:block(crop, v(s, s, s), C, SILVER)
-			B:block(crop, v(s * 1.08, s * 0.72, s * 0.72), C, SILVER_LT)
-			B:block(crop, v(s * 0.72, s * 1.08, s * 0.72), C, SILVER_DK)
+			B:block(crop, v(s * 1.08, s * 0.72, s * 0.72), C, SILVER_DK)
+			B:block(crop, v(s * 0.72, s * 1.08, s * 0.72), C, SILVER_LT)
 			B:block(crop, v(s * 0.72, s * 0.72, s * 1.08), C, TINTS[discoN % 4 + 1])
 			local g
 			if glint then

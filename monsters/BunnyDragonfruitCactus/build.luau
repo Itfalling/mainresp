@@ -180,7 +180,7 @@ return {
 		------------------------------------------------------------------
 		local function ledgeFruit(ti, a, s)
 			local t = tierInfo[ti]
-			local d = t.w / 2 - 0.55
+			local d = t.w / 2 - 0.15
 			dragonfruit(t.cf * CFrame.Angles(0, rad(a), 0) * CFrame.new(0.4, (t.y1 - t.y0) / 2 + 0.95 * s, -d) * CFrame.Angles(0, rad(30), 0), s)
 		end
 		ledgeFruit(1, 140, 0.75)

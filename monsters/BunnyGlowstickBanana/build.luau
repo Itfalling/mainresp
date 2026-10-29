@@ -20,9 +20,9 @@ return {
 		local STALK = "#4f7a2a"
 		-- glowstick colours: { plastic body, neon tip }
 		local GLOW = {
-			{ "#ff3fae", "#ff5fd2" }, -- pink
-			{ "#a8f02a", "#8bff4a" }, -- lime
-			{ "#ffd21f", "#ffe94a" }, -- yellow
+			{ "#ff6cc4", "#ff4fd0" }, -- pink
+			{ "#b4ff3c", "#7dff4a" }, -- lime
+			{ "#ffe23a", "#fff04a" }, -- yellow
 		}
 
 		----------------------------------------------------------------- mound

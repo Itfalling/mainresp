@@ -2,7 +2,7 @@
 -- Diamond Pineapple (Bunny Stage #9, Divine) -- a giant diamond-cut pineapple
 -- in the stud-tree reference style: a stepped, gold-trimmed dirt mound with
 -- gem studs, a rosette of chunky green leaf blocks at the base, a gold ring
--- setting (collar + prongs) holding the fruit, a tall stepped body of icy
+-- collar holding the fruit, two baby diamond pineapples, a tall body of icy
 -- cyan tiers covered in rotated white/ice "diamond facet" cubes (the
 -- pineapple cross-hatch) with tiny neon glints, and a big three-layer crown
 -- of stepped gold leaf blocks with glowing tips. Floating diamond cubes,

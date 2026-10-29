@@ -196,6 +196,23 @@ return {
 			end
 		end
 
+		-- a sprinkle of gold-leaf flecks in the crown (VIP bling)
+		local flecks, ftries = 0, 0
+		while flecks < 8 and ftries < 1000 do
+			ftries += 1
+			local c = cubes[math.floor(rnd(1, #cubes + 0.999))]
+			local fdir = FACES[math.floor(rnd(1, 5.999))]
+			local h = c.s / 2
+			local t1, t2 = rnd(-0.35, 0.35) * c.s, rnd(-0.35, 0.35) * c.s
+			local loc = fdir.X ~= 0 and v(fdir.X * h, t1, t2) or (fdir.Y ~= 0 and v(t1, fdir.Y * h, t2) or v(t1, t2, fdir.Z * h))
+			local p = c.cf:PointToWorldSpace(loc)
+			if p.Y > Y0 + 6.5 and not buried(p, c) and farEnough(p) then
+				B:block(crop, v(0.75, 0.3, 0.75), c.cf * CFrame.new(loc) * ang(rnd(-20, 20), rnd(0, 90), rnd(-20, 20)), (flecks % 2 == 0) and GOLD or GOLD_LT)
+				table.insert(placed, p)
+				flecks += 1
+			end
+		end
+
 		---------------------------------------------------------------- bling
 		B:emitter(shines[1], "sparkle", { name = "PlumSparkle", color = { "#ffd0f4", "#c48bff" }, rate = 4, size = 0.35 })
 		B:emitter(shines[3] or shines[1], "glow", { name = "PlumGlow", color = "#e080ff", rate = 2, size = 0.6 })
