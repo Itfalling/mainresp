@@ -148,7 +148,7 @@ local function solve(pose, ctx, S)
 	local headR = ang(g("dp"), g("dyaw"), g("droll"))
 	local jawR = ang(-4 + g("jaw"), 0, 0)
 	for _ = 1, 10 do
-		local neckW = chestW * CFrame.new(NK - C0) * ang(np, g("nyaw"), g("nroll"))
+		local neckW = chestW * CFrame.new(NK - C0) * pa(0, g("ny"), g("nz"), np, g("nyaw"), g("nroll"))
 		local jawW = neckW * CFrame.new(HD - NK) * headR * CFrame.new(JW - HD) * jawR
 		local headW = neckW * CFrame.new(HD - NK) * headR
 		local low = math.huge
@@ -163,7 +163,7 @@ local function solve(pose, ctx, S)
 		end
 		np += max(1.5, (HEAD_FLOOR - low) * 7)
 	end
-	pose.Neck = ang(np, g("nyaw"), g("nroll"))
+	pose.Neck = pa(0, g("ny"), g("nz"), np, g("nyaw"), g("nroll"))
 	pose.Head = headR
 	pose.Jaw = jawR
 
@@ -455,8 +455,9 @@ local function chase(t, pose, ctx)
 	S.hroll = 2.5 * wave(t, f, 0.3)
 	S.hyaw = 2 * wave(t, f)
 	S.cp = 3 * wave(t, f, -0.15)
-	S.np = -2 - 3 * pitchW
-	S.dp = -26 - 5 * wave(t, f, -0.12)
+	S.ny, S.nz = 1.3, -0.4 -- head carried up and forward so the horn can point ahead
+	S.np = 4 - 3 * pitchW
+	S.dp = -38 - 5 * wave(t, f, -0.12)
 	S.droll = 3 * wave(t, f, 0.2)
 	S.jaw = -14 - 8 * max(0, wave(t, f, 0.5))
 	S.lid = 0.42

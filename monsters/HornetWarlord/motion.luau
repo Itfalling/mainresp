@@ -236,7 +236,7 @@ local function idle(t, pose, ctx)
 	q.z = 0.4 * crouch
 
 	-- HEAD
-	q.hp = 2 * wave(t, 0.5, 0.15) + 6 * sal - 12 * pol + 4 * huff - 6 * crouch + 8 * twirl + 22 * flare
+	q.hp = 8 + 2 * wave(t, 0.5, 0.15) + 6 * sal - 12 * pol + 4 * huff - 6 * crouch + 8 * twirl + 22 * flare
 	q.hy = 0.5 * scan + 18 * pol - 8 * twirl * wave(t, 1.5)
 	q.hr = 4 * sway * calm + 6 * pol + 8 * snap
 
@@ -245,9 +245,9 @@ local function idle(t, pose, ctx)
 		+ 8 * flare * wave(t, 11)
 	q.browY = 0.25 * sal - 0.25 * show + 0.15 * huff
 	q.browA = 3 + 12 * show - 6 * sal
-	local blink = max(env(c, 1.45, 0.06, 0.05, 0.08), env(c, 6.95, 0.06, 0.04, 0.08), env(c, 7.12, 0.06, 0.04, 0.08),
-		env(c, 11.7, 0.06, 0.05, 0.08))
-	q.lid = max(blink, 0.35 * rub, 0.3 * crouch)
+	local blink = max(env(c, 1.62, 0.04, 0.0, 0.06), env(c, 6.95, 0.04, 0.0, 0.06), env(c, 7.08, 0.04, 0.0, 0.06),
+		env(c, 11.7, 0.04, 0.0, 0.06))
+	q.lid = max(blink, 0.3 * rub, 0.2 * crouch)
 
 	-- ANTENNAE: idle wobble, flick up on the salute snap and on the hup
 	local flick = max(env(c, 2.85, 0.08, 0.2, 0.4, "backOut"), hup)
@@ -415,7 +415,7 @@ local function chase(t, pose, ctx)
 	q.y = 0.25 + 0.55 * s
 	q.p = -26 + 4 * wave(t, CH, 0.25)
 	q.r = 4 * wave(t, CH, 0.1)
-	q.hp = 24 + 4 * wave(t, CH, 0.3)
+	q.hp = 28 + 4 * wave(t, CH, 0.3)
 	q.hy = 3 * wave(t, CH, 0.2)
 	q.mand = 12 + 20 * max(0, s2) ^ 2
 	q.browY = -0.1
@@ -692,13 +692,13 @@ local function ret(t, pose, ctx)
 	q.p = -5 + 2 * wave(t, RT, 0.2)
 	q.r = 4 * wave(t, RT, 0.25)
 	q.yw = 3 * wave(t, RT, 0.1)
-	q.hp = 6 + 3 * wave(t, RT, 0.15)
+	q.hp = 12 + 3 * wave(t, RT, 0.15)
 	q.hy = 8 * wave(t, RT, 0.4)
 	q.hr = -4 * wave(t, RT, 0.25)
 	q.mand = 3 + 18 * grumble
 	q.browY = -0.15
 	q.browA = 9
-	q.lid = 0.28
+	q.lid = 0.15
 	q.antP = 6 * wave(t, RT, 0.3)
 	q.antPL = 6 * wave(t, RT, 0.55)
 	q.antR = 4 * wave(t, 2 * RT)
