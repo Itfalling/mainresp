@@ -580,13 +580,10 @@ local function buildPacks(built, rbxmPath, rbxlPath, scenePath)
 	end
 	local GAP = 9
 	local aisle = 26
-	local maxDepth = { 0, 0 }
-	for r = 1, 2 do
-		for _, b in rows[r] do
-			maxDepth[r] = math.max(maxDepth[r], b.info.mx.Z - b.info.mn.Z + 16)
-		end
+	-- each pen fits its own monster; all pens line up along the aisle
+	local function penDepth(b)
+		return b.info.mx.Z - b.info.mn.Z + 16
 	end
-	local rowZ = { -(aisle / 2 + maxDepth[1] / 2), aisle / 2 + maxDepth[2] / 2 }
 
 	local totalLen = 0
 	for r = 1, 2 do
@@ -605,9 +602,11 @@ local function buildPacks(built, rbxmPath, rbxlPath, scenePath)
 			local cx = cursor + w / 2
 			cursor += w + GAP
 			local center = (b.info.mn + b.info.mx) / 2
+			local d = penDepth(b)
+			local cz = (r == 1 and -1 or 1) * (aisle / 2 + d / 2)
 			-- row 1 (at -Z) turns around to face +Z, the aisle; row 2 faces -Z (default)
 			local rot = r == 1 and CFrame.Angles(0, math.pi, 0) or CFrame.new()
-			local offset = CFrame.new(cx, 0, rowZ[r]) * rot * CFrame.new(-center.X, 0, -center.Z)
+			local offset = CFrame.new(cx, 0, cz) * rot * CFrame.new(-center.X, 0, -center.Z)
 
 			local packCopy = b.model:Clone()
 			moveModel(packCopy, offset)
@@ -620,9 +619,9 @@ local function buildPacks(built, rbxmPath, rbxlPath, scenePath)
 			end
 			placeCopy.Parent = showcase
 
-			makePen(pens, cx, rowZ[r], w, maxDepth[r])
-			table.insert(sceneMonsters, { id = b.id, cf = cfArr(offset), name = b.info.spec.DisplayName or b.id, rarity = b.info.spec.Rarity or "Legendary", tag = { cx, b.info.mx.Y + 2.5, rowZ[r] } })
-			makeTag(tags, b.info.spec.DisplayName or b.id, b.info.spec.Rarity or "Legendary", Vector3.new(cx, b.info.mx.Y + 1.5, rowZ[r]))
+			makePen(pens, cx, cz, w, d)
+			table.insert(sceneMonsters, { id = b.id, cf = cfArr(offset), name = b.info.spec.DisplayName or b.id, rarity = b.info.spec.Rarity or "Legendary", tag = { cx, b.info.mx.Y + 2.5, cz } })
+			makeTag(tags, b.info.spec.DisplayName or b.id, b.info.spec.Rarity or "Legendary", Vector3.new(cx, b.info.mx.Y + 1.5, cz))
 		end
 	end
 
