@@ -32,10 +32,10 @@ local KN = V(3.6, 3.9, 3.4) -- ShinR
 local AN = V(3.6, 1.3, 4.0) -- FootR
 local NK = V(0, 8.4, -3.6) -- Neck
 local HD = V(0, 7.8, -6.0) -- Head
-local JW = V(0, 5.0, -8.9) -- Jaw
+local JW = V(0, 5.3, -9.6) -- Jaw
 -- lowest corners of the jaw / snout (model rest space) for the ground clamp
-local JAW_LOW = { V(2.75, 3.18, -8.9), V(-2.75, 3.18, -8.9), V(2.75, 3.18, -13.3), V(-2.75, 3.18, -13.3), V(0, 3.55, -13.85) }
-local HEAD_LOW = { V(2.9, 4.9, -13.1), V(-2.9, 4.9, -13.1), V(2.3, 4.05, -12.75) }
+local JAW_LOW = { V(2.2, 3.8, -9.7), V(-2.2, 3.8, -9.7), V(2.2, 3.8, -14.7), V(-2.2, 3.8, -14.7), V(0, 3.48, -14.2) }
+local HEAD_LOW = { V(0, 4.1, -15.8), V(1.3, 5.0, -16.0), V(-1.3, 5.0, -16.0), V(2.4, 5.1, -15.0) }
 local HEAD_FLOOR = 0.35
 
 -- angle of a hanging limb segment (0 = straight down, + = swung forward / -Z)

@@ -36,52 +36,66 @@ return {
 			B:block(bone, v(0.4, 0.4, 0.45), cf(x, y + 1.2, z + 0.25), neon and NEON or GOLD, neon and N or nil)
 		end
 
+		local head_
+		-- beam along a->b plus an optional thin neon strip on its front (-Z) edge
+		local function hornSeg(a, b, w, col, edge)
+			B:beam(head_, a, b, w, w, col)
+			if edge then
+				local d = (b - a).Unit
+				local n = v(0, -d.Z, d.Y) -- perpendicular in the side plane
+				if n.Z > 0 then n = -n end
+				local o = n * (w / 2 + 0.05)
+				local m = (a + b) / 2
+				local half = (b - a) * 0.3
+				B:beam(head_, m - half + o, m + half + o, 0.32, 0.15, NEON, N)
+			end
+		end
+
 		------------------------------------------------------------------
-		-- HIPS (rear barrel) — pivot at the hind hip joints
+		-- HIPS (rear barrel, rounded by stepped hide plates) — pivot at the hind hips
 		------------------------------------------------------------------
 		local hips = B:bone("Hips", "Root", v(0, 6.6, 3.6))
 		B:block(hips, v(8.0, 5.6, 5.6), cf(0, 7.7, 3.2), SLATE)
-		B:block(hips, v(7.0, 0.8, 4.6), cf(0, 4.7, 3.1), BELLY) -- belly underside
-		B:block(hips, v(5.4, 0.4, 1.6), cf(0, 4.2, 2.0), STEEL)
-		B:block(hips, v(4.6, 0.4, 1.4), cf(0, 4.25, 4.0), BELLY)
-		B:block(hips, v(6.8, 4.2, 0.6), cf(0, 7.6, 6.15), DARK) -- rump back panel
-		B:block(hips, v(4.4, 1.0, 0.4), cf(0, 9.1, 6.5), SLATE)
-		-- rear armour tasset with rivets
-		B:block(hips, v(6.4, 1.6, 0.4), cf(0, 9.7, 6.55), STEEL)
-		B:block(hips, v(6.6, 0.35, 0.5), cf(0, 8.85, 6.6), IRON)
+		B:block(hips, v(7.0, 0.8, 4.8), cf(0, 10.85, 3.1), SLATE) -- rounded back steps
+		B:block(hips, v(5.0, 0.6, 3.6), cf(0, 11.5, 3.1), SLATE)
+		B:block(hips, v(6.8, 0.8, 4.6), cf(0, 4.6, 3.1), BELLY) -- belly underside
+		B:block(hips, v(5.4, 0.4, 1.6), cf(0, 4.1, 2.0), STEELD)
+		B:block(hips, v(4.6, 0.4, 1.4), cf(0, 4.15, 4.0), BELLY)
+		B:block(hips, v(7.0, 4.4, 0.5), cf(0, 7.5, 6.1), SLATE) -- rump
+		B:block(hips, v(5.4, 3.2, 0.5), cf(0, 7.6, 6.45), DARK)
 		B:sym(function()
-			rivet(hips, 2.6, 9.9, 6.8, 0.5, 0.5, 0.2)
-			rivet(hips, 1.0, 9.9, 6.8, 0.5, 0.5, 0.2)
+			-- hide folds: stepped darker plates down the flank
+			B:block(hips, v(0.5, 4.6, 0.8), cf(4.05, 7.6, 1.2), DARK) -- waist fold
+			B:block(hips, v(0.4, 3.0, 2.6), cf(4.1, 8.2, 4.4), DARK) -- haunch plate
+			B:block(hips, v(0.5, 0.6, 4.2), cf(3.65, 10.6, 3.2), DARK) -- back-step edge
+			B:block(hips, v(0.4, 0.5, 2.0), cf(4.1, 5.6, 3.4), BELLY) -- lower flank fold
 		end)
-		-- rump armour: top plate + side skirts with iron trim and gold rivets
-		B:block(hips, v(8.6, 0.6, 5.0), cf(0, 10.75, 3.3), STEEL)
-		B:block(hips, v(8.8, 0.4, 0.5), cf(0, 10.9, 5.85), STEELD)
-		B:block(hips, v(8.8, 0.4, 0.5), cf(0, 10.9, 0.75), STEELD)
+		-- steel saddle plate over the waist fold, with rivets, neon seam and moss
+		B:block(hips, v(8.0, 0.5, 2.8), cf(0, 11.5, 1.2), STEEL)
+		B:block(hips, v(8.2, 0.35, 0.4), cf(0, 11.45, 2.65), IRON)
+		B:block(hips, v(8.2, 0.35, 0.4), cf(0, 11.45, -0.25), IRON)
 		B:sym(function()
-			B:block(hips, v(0.5, 1.8, 5.0), cf(4.3, 9.75, 3.3), STEEL)
-			B:block(hips, v(0.6, 0.4, 5.1), cf(4.35, 8.75, 3.3), IRON)
-			B:block(hips, v(0.2, 0.25, 2.6), cf(4.6, 10.2, 3.3), NEON, N)
-			for _, z in { 1.4, 5.2 } do
-				rivet(hips, 4.62, 9.75, z, 0.3, 0.5, 0.5)
-				rivet(hips, 3.6, 11.1, z, 0.5, 0.3, 0.5)
-			end
-			B:block(hips, v(0.4, 3.0, 3.6), cf(4.1, 6.0, 3.4), DARK) -- flank shadow
+			B:block(hips, v(0.4, 2.2, 2.8), cf(4.15, 10.2, 1.2), STEEL)
+			B:block(hips, v(0.45, 0.35, 2.9), cf(4.17, 9.0, 1.2), IRON)
+			B:block(hips, v(0.2, 0.25, 2.0), cf(4.4, 10.5, 1.2), NEON, N)
+			rivet(hips, 4.42, 9.6, 0.4, 0.3, 0.45, 0.45)
+			rivet(hips, 4.42, 9.6, 2.0, 0.3, 0.45, 0.45)
+			rivet(hips, 3.2, 11.8, 1.2, 0.5, 0.3, 0.5)
 		end)
-		stud(hips, 0, 11.05, 1.9, true)
-		stud(hips, 0, 11.05, 4.3)
-		-- moss growing over the rump plate
-		B:block(hips, v(3.6, 0.5, 2.6), cf(-1.6, 11.25, 4.0), MOSS)
-		B:block(hips, v(1.6, 0.4, 1.6), cf(-2.9, 11.2, 2.0), MOSSD)
-		B:block(hips, v(2.0, 0.45, 1.4), cf(2.2, 11.2, 4.9), MOSSD)
-		B:block(hips, v(0.4, 1.0, 0.8), cf(-4.3, 10.3, 4.2), MOSS) -- moss drip over the edge
+		stud(hips, 0, 11.75, 1.2, true)
+		-- moss growing over the rump
+		B:block(hips, v(3.4, 0.5, 2.6), cf(-1.2, 11.95, 3.6), MOSS)
+		B:block(hips, v(1.8, 0.45, 1.6), cf(1.7, 11.85, 4.3), MOSSD)
+		B:block(hips, v(1.2, 0.45, 1.2), cf(-3.0, 11.3, 4.6), MOSS)
+		B:block(hips, v(0.4, 1.2, 0.9), cf(-3.75, 10.4, 4.6), MOSS) -- moss drip over the edge
 
 		-- little flower sprouting from the rump moss (wobbles)
-		local flower = B:bone("SprigB", "Hips", v(-1.8, 11.4, 4.2))
-		B:block(flower, v(0.3, 1.2, 0.3), cf(-1.8, 12.0, 4.2), MOSSD)
-		B:block(flower, v(0.8, 0.25, 0.4), cf(-1.4, 11.9, 4.2, 0, 0, 25), LEAF)
-		B:block(flower, v(0.5, 0.5, 0.5), cf(-1.8, 12.75, 4.2), GOLD)
+		local flower = B:bone("SprigB", "Hips", v(-1.6, 12.1, 3.8))
+		B:block(flower, v(0.3, 1.2, 0.3), cf(-1.6, 12.7, 3.8), MOSSD)
+		B:block(flower, v(0.8, 0.25, 0.4), cf(-1.2, 12.6, 3.8, 0, 0, 25), LEAF)
+		B:block(flower, v(0.5, 0.5, 0.5), cf(-1.6, 13.45, 3.8), GOLD)
 		for _, o in { { 0.5, 0 }, { -0.5, 0 }, { 0, 0.5 }, { 0, -0.5 } } do
-			B:block(flower, v(0.5, 0.45, 0.5), cf(-1.8 + o[1], 12.75, 4.2 + o[2]), PINK)
+			B:block(flower, v(0.5, 0.45, 0.5), cf(-1.6 + o[1], 13.45, 3.8 + o[2]), PINK)
 		end
 
 		------------------------------------------------------------------
@@ -101,132 +115,134 @@ return {
 		B:trail(tuft, v(0, 6.2, 7.6), v(0, 4.4, 7.6), { name = "TailTrail", color = { STEEL, MOSS }, life = 0.22, trans = { 0.45, 1 } })
 
 		------------------------------------------------------------------
-		-- CHEST (front barrel + shoulder armour)
+		-- CHEST (front barrel with the big shoulder hump + steel pauldrons)
 		------------------------------------------------------------------
 		local chest = B:bone("Chest", "Hips", v(0, 7.4, 0.8))
 		B:block(chest, v(8.8, 6.4, 5.6), cf(0, 7.9, -1.4), SLATE)
+		B:block(chest, v(7.8, 0.9, 5.0), cf(0, 11.5, -1.3), SLATE) -- hump steps
+		B:block(chest, v(6.0, 0.8, 3.8), cf(0, 12.3, -1.1), SLATE)
+		B:block(chest, v(4.0, 0.4, 2.6), cf(0, 12.8, -0.9), DARK)
 		B:block(chest, v(7.6, 0.8, 4.8), cf(0, 4.5, -1.4), BELLY)
 		for i, r in { { -3.3, 5.6 }, { -1.6, 6.4 }, { 0.1, 5.6 } } do
-			B:block(chest, v(r[2], 0.4, 1.5), cf(0, 4.0 - (i % 2) * 0.1, r[1]), i % 2 == 0 and STEEL or BELLY)
+			B:block(chest, v(r[2], 0.4, 1.5), cf(0, 4.0 - (i % 2) * 0.1, r[1]), i % 2 == 0 and STEELD or BELLY)
 		end
 		-- light stepped chest scales under the neck (read from 3/4 + below)
 		for i, r in { { 6.4, 4.2 }, { 5.4, 5.2 }, { 4.4, 4.2 } } do
-			B:block(chest, v(r[2], 1.0, 0.6), cf(0, r[1], -4.35 - (i % 2) * 0.2), i % 2 == 0 and BELLY or STEELD)
+			B:block(chest, v(r[2], 1.0, 0.6), cf(0, r[1], -4.35 - (i % 2) * 0.2), i % 2 == 0 and BELLY or SLATE)
 		end
-		-- back armour plate over the shoulder hump
-		B:block(chest, v(9.2, 0.6, 5.4), cf(0, 11.3, -1.3), STEEL)
-		B:block(chest, v(7.0, 0.5, 3.6), cf(0, 11.75, -1.0), STEEL)
-		B:block(chest, v(9.4, 0.45, 0.5), cf(0, 11.4, -4.05), STEELD)
-		B:block(chest, v(9.4, 0.45, 0.5), cf(0, 11.4, 1.45), STEELD)
 		B:sym(function()
-			rivet(chest, 3.9, 11.65, -3.4, 0.5, 0.3, 0.5)
-			rivet(chest, 3.9, 11.65, 0.8, 0.5, 0.3, 0.5)
-			B:block(chest, v(0.4, 3.4, 4.6), cf(4.4, 7.4, -1.2), DARK) -- flank under the pauldron
+			B:block(chest, v(0.5, 0.7, 4.6), cf(3.65, 11.35, -1.3), DARK) -- hump edge fold
+			B:block(chest, v(0.5, 4.8, 0.8), cf(4.45, 7.6, 1.0), DARK) -- shoulder fold
+			B:block(chest, v(0.4, 3.0, 1.0), cf(4.5, 6.4, 0.0), BELLY)
 		end)
-		stud(chest, 0, 12.0, -2.6, true)
-		stud(chest, 0, 12.0, -0.2)
-		-- moss + leaf sprig on the shoulder armour
-		B:block(chest, v(3.0, 0.5, 2.4), cf(2.2, 12.05, -1.6), MOSS)
-		B:block(chest, v(1.6, 0.45, 1.8), cf(-2.6, 12.0, -0.4), MOSSD)
-		B:block(chest, v(1.4, 0.4, 1.2), cf(-3.4, 11.7, -3.2), MOSS)
-		local sprig = B:bone("SprigA", "Chest", v(2.4, 12.2, -2.0))
-		B:block(sprig, v(0.3, 1.1, 0.3), cf(2.4, 12.7, -2.0), MOSSD)
-		B:block(sprig, v(1.1, 0.25, 0.6), cf(2.9, 13.05, -2.0, 0, 0, 28), LEAF)
-		B:block(sprig, v(0.9, 0.25, 0.55), cf(1.95, 12.85, -2.0, 0, 0, -28), LEAF)
+		stud(chest, 0, 13.0, -1.8, true)
+		stud(chest, 0, 12.7, 0.2)
+		-- moss + leaf sprig on the hump
+		B:block(chest, v(2.6, 0.5, 2.2), cf(1.6, 12.85, -2.2), MOSS)
+		B:block(chest, v(1.6, 0.45, 1.8), cf(-2.2, 12.6, -0.3), MOSSD)
+		B:block(chest, v(1.4, 0.4, 1.2), cf(-3.0, 11.95, -3.2), MOSS)
+		local sprig = B:bone("SprigA", "Chest", v(2.2, 13.0, -2.4))
+		B:block(sprig, v(0.3, 1.1, 0.3), cf(2.2, 13.5, -2.4), MOSSD)
+		B:block(sprig, v(1.1, 0.25, 0.6), cf(2.7, 13.85, -2.4, 0, 0, 28), LEAF)
+		B:block(sprig, v(0.9, 0.25, 0.55), cf(1.75, 13.65, -2.4, 0, 0, -28), LEAF)
 
 		local aura = B:block(chest, v(9, 3, 12), cf(0, 12.5, 1), SLATE, { tr = 1, name = "AuraVolume" })
 		B:emitter(aura, "leaf", { name = "Leaves", color = { LEAF, MOSS }, rate = 1.5, size = { 0.45, 0.45, 0.3 } })
 		B:emitter(aura, "sparkle", { name = "Twinkle", color = { "#ffffff", EYE }, rate = 2.5 })
 
 		------------------------------------------------------------------
-		-- NECK (thick, with an armoured top plate)
+		-- NECK (thick, with hide folds and an armoured top plate)
 		------------------------------------------------------------------
 		local neck = B:bone("Neck", "Chest", v(0, 8.4, -3.6))
 		B:block(neck, v(6.6, 5.0, 3.0), cf(0, 8.2, -4.9), SLATE)
+		B:block(neck, v(7.0, 4.6, 0.6), cf(0, 8.1, -4.3), DARK) -- neck fold
 		B:block(neck, v(5.2, 0.8, 2.8), cf(0, 5.75, -5.0), BELLY)
-		B:block(neck, v(7.0, 0.6, 3.2), cf(0, 10.8, -4.9), STEEL)
-		B:block(neck, v(7.2, 0.4, 0.5), cf(0, 10.9, -6.35), STEELD)
+		B:block(neck, v(6.2, 0.5, 2.6), cf(0, 10.85, -5.0), STEEL)
 		B:sym(function()
-			rivet(neck, 2.9, 11.15, -4.9, 0.5, 0.3, 0.5)
-			B:block(neck, v(0.4, 2.6, 2.6), cf(3.35, 8.4, -4.9), DARK)
+			rivet(neck, 2.6, 11.15, -5.0, 0.5, 0.3, 0.5)
 		end)
 
 		------------------------------------------------------------------
-		-- HEAD
+		-- HEAD: long, low wedge (tall cranium -> mid face -> snout), the big
+		-- scimitar horn on the snout tip, small mean eyes on the sides behind
+		-- it, tube ears on top, a hooked upper lip.
 		------------------------------------------------------------------
-		local head = B:bone("Head", "Neck", v(0.0, 7.8, -6.0))
-		B:block(head, v(7.36, 4.4, 4.2), cf(0.0, 8.0, -7.6), SLATE) -- cranium
-		B:block(head, v(5.75, 0.6, 3.2), cf(0.0, 10.35, -6.9), SLATE) -- crown step
-		B:block(head, v(7.475, 0.5, 2.6), cf(0.0, 6.0, -6.9), DARK) -- jowl band
-		B:block(head, v(5.75, 2.8, 3.9), cf(0.0, 6.3, -11.15), SLATE) -- snout
-		B:block(head, v(4.83, 0.6, 3.4), cf(0.0, 7.95, -11.05), SLATE) -- snout top step
-		B:block(head, v(2.99, 0.3, 2.8), cf(0.0, 8.35, -10.9), DARK) -- snout ridge
-		B:block(head, v(5.06, 1.6, 0.4), cf(0.0, 6.5, -13.2), DARK) -- nose plate
-		B:block(head, v(5.865, 0.5, 3.8), cf(0.0, 5.15, -11.2), DARK) -- upper lip band
-		B:block(head, v(5.06, 0.4, 3.8), cf(0.0, 4.75, -11.1), MOUTH) -- mouth roof
-		B:block(head, v(4.83, 2.0, 0.4), cf(0.0, 4.6, -9.05), MOUTH) -- throat wall
-		-- forehead armour plate (iron lip doubles as the brow ridge)
-		B:block(head, v(6.44, 0.6, 3.2), cf(0.0, 10.45, -8.2), STEEL)
-		B:block(head, v(6.67, 0.55, 0.45), cf(0.0, 10.35, -9.75), IRON)
-		-- second (smaller) horn rising out of the forehead plate
-		B:block(head, v(1.725, 0.7, 1.6), cf(0.0, 11.05, -8.4), IVORY)
-		B:block(head, v(1.15, 0.6, 1.0), cf(0.0, 11.65, -8.2), STEEL)
-		B:block(head, v(0.575, 0.35, 0.5), cf(0.0, 12.1, -8.05), STEELD)
+		local head = B:bone("Head", "Neck", v(0, 7.8, -6.0))
+		head_ = head
+		B:block(head, v(6.6, 4.6, 3.8), cf(0, 8.1, -7.2), SLATE) -- cranium
+		B:block(head, v(6.9, 4.0, 0.5), cf(0, 7.9, -5.6), DARK) -- hide fold behind the head
+		B:block(head, v(5.4, 0.6, 3.0), cf(0, 10.6, -7.2), SLATE) -- crown step
+		B:block(head, v(5.6, 3.8, 3.4), cf(0, 7.3, -10.4), SLATE) -- mid face
+		B:block(head, v(4.8, 3.0, 3.4), cf(0, 6.6, -13.4), SLATE) -- snout
+		B:block(head, v(4.0, 0.5, 3.0), cf(0, 8.3, -13.3), SLATE) -- snout top step (horn seat)
+		B:block(head, v(5.7, 0.5, 3.3), cf(0, 5.6, -10.4), DARK) -- lip line (mid face)
+		B:block(head, v(4.9, 0.5, 3.3), cf(0, 5.35, -13.4), DARK) -- lip line (snout)
+		B:block(head, v(4.4, 0.3, 6.0), cf(0, 5.0, -12.2), MOUTH) -- mouth roof
+		-- hooked prehensile upper lip
+		B:block(head, v(2.6, 1.2, 1.0), cf(0, 5.6, -15.5), SLATE)
+		B:block(head, v(1.8, 0.8, 0.8), cf(0, 4.8, -15.6), DARK)
+		B:block(head, v(1.0, 0.5, 0.6), cf(0, 4.35, -15.5), DARK)
+		-- forehead armour plate
+		B:block(head, v(5.0, 0.5, 2.8), cf(0, 11.1, -7.4), STEEL)
+		B:block(head, v(5.2, 0.35, 0.4), cf(0, 11.05, -8.8), IRON)
 		B:sym(function()
-			rivet(head, 2.53, 10.8, -7.1, 0.575, 0.3, 0.5)
-			rivet(head, 2.53, 10.8, -9.1, 0.575, 0.3, 0.5)
-			-- cheek armour guard with rivets
-			B:block(head, v(0.46, 2.0, 3.0), cf(3.852, 7.8, -7.3), STEEL)
-			B:block(head, v(0.517, 0.4, 3.1), cf(3.887, 6.65, -7.3), IRON)
-			rivet(head, 4.14, 8.3, -6.4, 0.345, 0.45, 0.45)
-			rivet(head, 4.14, 8.3, -8.2, 0.345, 0.45, 0.45)
-			-- snout side steps (darker) + nostril
-			B:block(head, v(0.345, 1.6, 3.2), cf(2.932, 6.4, -11.3), DARK)
-			B:block(head, v(0.92, 0.5, 0.2), cf(1.322, 6.85, -13.45), MOUTH)
-			-- EYE: dark socket, glowing block wrapped round the cranium corner,
-			-- pupil on the front face only (inner side = mean, focused look)
-			B:block(head, v(1.7, 1.2, 1.1), cf(2.9, 9.0, -9.3), IRON)
-			B:block(head, v(1.3, 0.95, 0.9), cf(3.15, 8.98, -9.45), EYE, { mat = "Neon", name = "Eye" })
-			B:block(head, v(0.55, 0.72, 0.1), cf(2.82, 8.92, -9.92), PUPIL)
-			-- heavy angry iron brow, inner end down
-			B:block(head, v(2.99, 0.8, 1.4), cf(2.415, 9.8, -9.6, 0, 0, 16), STEEL)
-			B:block(head, v(1.15, 0.5, 1.2), cf(3.565, 10.35, -9.4, 0, 0, 16), STEELD)
-			-- upper teeth (small; the bully tusks are on the jaw)
-			for i = 0, 2 do
-				B:block(head, v(0.632, 0.6, 0.55), cf(2.012, 4.35, -10.2 - i * 1.15), WHITE)
-			end
-			B:block(head, v(0.69, 0.65, 0.5), cf(0.632, 4.35, -12.75), WHITE)
+			rivet(head, 2.1, 11.4, -6.6, 0.5, 0.3, 0.5)
+			rivet(head, 2.1, 11.4, -8.2, 0.5, 0.3, 0.5)
+			-- cheek armour guard behind the eye
+			B:block(head, v(0.4, 2.4, 2.6), cf(3.4, 8.0, -7.2), STEEL)
+			B:block(head, v(0.45, 0.35, 2.7), cf(3.42, 6.75, -7.2), IRON)
+			rivet(head, 3.65, 8.6, -6.4, 0.3, 0.45, 0.45)
+			rivet(head, 3.65, 8.6, -8.0, 0.3, 0.45, 0.45)
+			-- hide folds: stepped plates down the face side
+			B:block(head, v(0.3, 2.8, 0.6), cf(2.85, 7.0, -11.9), DARK)
+			B:block(head, v(0.3, 2.2, 3.0), cf(2.45, 6.9, -13.6), DARK)
+			-- nostril on the snout side near the tip
+			B:block(head, v(0.25, 0.5, 0.9), cf(2.5, 7.3, -14.6), MOUTH)
+			-- blunt front tooth (only seen when the mouth opens)
+			B:block(head, v(0.7, 0.5, 0.6), cf(1.1, 4.75, -14.6), IVORY)
+			-- EYE on the side of the face behind the horn: a bump, dark socket,
+			-- glow wrapping its front/outer corner, pupil on the front face only
+			B:block(head, v(1.3, 2.0, 2.2), cf(2.95, 8.2, -9.9), SLATE)
+			B:block(head, v(1.2, 1.1, 1.2), cf(3.2, 8.3, -10.5), IRON)
+			B:block(head, v(0.9, 0.8, 0.9), cf(3.4, 8.3, -10.7), EYE, { mat = "Neon", name = "Eye" })
+			B:block(head, v(0.4, 0.55, 0.1), cf(3.15, 8.25, -11.18), PUPIL)
+			-- heavy angry steel brow, inner end down
+			B:block(head, v(2.2, 0.6, 1.7), cf(2.95, 9.3, -10.45, 0, 0, 16), STEEL)
+			B:block(head, v(1.0, 0.45, 1.3), cf(3.55, 9.75, -10.2, 0, 0, 16), STEELD)
 		end)
 
-		-- the HUGE front horn: stepped ivory sweeping up/back, iron cap with gold
-		-- rivets, hot neon edge strip + tip
-		B:block(head, v(3.45, 0.4, 3.2), cf(0.0, 8.35, -11.8), IVORYD) -- root collar
-		B:block(head, v(3.22, 1.2, 3.0), cf(0.0, 9.0, -12.0), IVORY)
-		B:block(head, v(2.645, 1.1, 2.5), cf(0.0, 10.1, -12.35), IVORY)
-		B:block(head, v(2.3, 0.45, 2.2), cf(0.0, 10.75, -12.4), IRON) -- iron cap band
-		B:block(head, v(2.185, 1.0, 2.0), cf(0.0, 11.3, -12.4), STEEL)
-		B:block(head, v(1.61, 0.8, 1.5), cf(0.0, 12.15, -12.2), STEEL)
-		B:block(head, v(1.15, 0.5, 1.0), cf(0.0, 12.75, -11.85), STEELD)
-		B:block(head, v(0.345, 0.8, 0.15), cf(0.0, 11.3, -13.45), NEON, N) -- neon edge accent
-		B:block(head, v(0.345, 0.6, 0.15), cf(0.0, 12.15, -13.0), NEON, N)
-		local hornTip = B:block(head, v(0.632, 0.4, 0.6), cf(0.0, 13.15, -11.6), NEON, { mat = "Neon", name = "HornTip" })
+		-- second (smaller) horn on the mid face, iron capped
+		B:block(head, v(2.0, 0.6, 2.0), cf(0, 9.4, -10.6), IVORYD)
+		B:beam(head, v(0, 9.3, -10.6), v(0, 10.7, -10.9), 1.6, 1.6, IVORY)
+		B:beam(head, v(0, 10.55, -10.85), v(0, 11.35, -10.55), 1.0, 1.0, STEELD)
+
+		-- the HUGE front horn: a scimitar of ivory beams curving forward then up
+		-- and back, a riveted steel cap band, neon front edge and tip
+		local H = { v(0, 7.9, -13.3), v(0, 9.7, -14.4), v(0, 11.5, -14.9), v(0, 12.9, -14.6), v(0, 13.8, -13.9), v(0, 14.25, -13.2) }
+		B:block(head, v(3.6, 0.5, 3.4), cf(0, 8.6, -13.4), IVORYD) -- root collar
+		hornSeg(H[1], H[2], 3.0, IVORY)
+		hornSeg(H[2], H[3], 2.3, IVORY, true)
+		hornSeg(H[3], H[4], 1.7, IVORY, true)
+		hornSeg(H[4], H[5], 1.2, IVORYD)
+		B:beam(head, v(0, 9.45, -14.27), v(0, 10.05, -14.47), 2.75, 2.75, STEEL) -- cap band
+		B:beam(head, v(0, 9.3, -14.2), v(0, 9.5, -14.27), 2.95, 2.95, IRON)
+		local hornTip = B:beam(head, H[5], H[6], 0.7, 0.7, NEON, { mat = "Neon", name = "HornTip" })
 		B:light(hornTip, { name = "HornLight", color = NEON, brightness = 0.5, range = 7 })
 		B:sym(function()
-			rivet(head, 1.208, 10.75, -12.4, 0.345, 0.3, 0.3)
-			rivet(head, 1.115, 11.3, -12.9, 0.23, 0.35, 0.35)
-			rivet(head, 0.828, 12.2, -12.6, 0.23, 0.3, 0.3)
+			rivet(head, 1.38, 9.75, -14.37, 0.3, 0.4, 0.4)
 		end)
-		B:trail(head, v(0.0, 13.25, -11.6), v(0.0, 12.0, -12.7), { name = "HornTrail", color = { NEON, "#ffffff" }, life = 0.2, trans = { 0.35, 1 } })
-		local hornFX = B:block(head, v(1.38, 1.2, 1.2), cf(0.0, 13.0, -12.0), SLATE, { tr = 1, name = "HornFX" })
+		rivet(head, 0, 9.85, -15.8, 0.4, 0.4, 0.3)
+		B:trail(head, v(0, 14.2, -13.3), v(0, 12.6, -14.9), { name = "HornTrail", color = { NEON, "#ffffff" }, life = 0.2, trans = { 0.35, 1 } })
+		local hornFX = B:block(head, v(1.4, 1.2, 1.2), cf(0, 13.6, -14.2), SLATE, { tr = 1, name = "HornFX" })
 		B:emitter(hornFX, "burst", { name = "HornBurst", color = { "#ffffff", NEON, GOLD }, speed = { 7, 14 }, size = { 0.6, 0.4, 0 } })
 
 		-- nostril steam (forward + a little down) and head steam (anger)
-		local nostrils = B:block(head, v(2.99, 0.5, 0.4), cf(0.0, 6.7, -13.6, -25, 0, 0), SLATE, { tr = 1, name = "NostrilFX" })
+		local nostrils = B:block(head, v(4.4, 0.5, 0.4), cf(0, 7.0, -15.0, -25, 0, 0), SLATE, { tr = 1, name = "NostrilFX" })
 		B:emitter(nostrils, "smoke", {
 			name = "Steam", rate = 0, color = { "#ffffff", "#d9e2ee" }, life = { 0.45, 0.9 }, speed = { 5, 9 },
 			size = { 0.5, 1.5, 2.2 }, trans = { 0.15, 0.45, 1 }, spread = 18, accel = { 0, 3, 0 }, drag = 3, dir = "Front",
 		})
-		local headSteam = B:block(head, v(6.9, 0.4, 2.0), cf(0.0, 11.0, -6.4), SLATE, { tr = 1, name = "HeadSteamFX" })
+		local headSteam = B:block(head, v(5.0, 0.4, 2.0), cf(0, 11.6, -6.6), SLATE, { tr = 1, name = "HeadSteamFX" })
 		B:emitter(headSteam, "smoke", {
 			name = "HeadSteam", rate = 0, color = { "#ffffff", "#e6ecf4" }, life = { 0.6, 1.1 }, speed = { 5, 9 },
 			size = { 0.6, 1.6, 2.4 }, trans = { 0.15, 0.5, 1 }, spread = 25, accel = { 0, 2, 0 }, drag = 2,
@@ -234,41 +250,38 @@ return {
 
 		-- eyelids (props: shown only while blinking / squinting)
 		B:sym(function(side)
-			local lid = B:bone("Lid" .. side, "Head", v(3.162, 9.9, -9.45))
-			B:block(lid, v(1.42, 1.05, 1.1), cf(3.15, 9.95, -9.45), SLATE, { tr = 1, name = "Eyelid" .. side })
+			local lid = B:bone("Lid" .. side, "Head", v(3.42, 9.2, -10.7))
+			B:block(lid, v(1.05, 1.0, 1.15), cf(3.42, 9.2, -10.7), SLATE, { tr = 1, name = "Eyelid" .. side })
 		end)
 
-		-- ears stick out sideways (pin back when angry)
+		-- tube ears on top of the head
 		B:sym(function(side)
-			local ear = B:bone("Ear" .. side, "Head", v(3.45, 9.8, -6.3))
-			B:block(ear, v(1.61, 1.0, 1.0), cf(4.025, 10.0, -6.3, 0, 0, 20), SLATE)
-			B:block(ear, v(1.38, 0.9, 0.8), cf(5.175, 10.45, -6.3, 0, 0, 20), SLATE)
-			B:block(ear, v(1.84, 0.6, 0.2), cf(4.6, 10.25, -6.85, 0, 0, 20), PINK)
-			B:block(ear, v(0.575, 0.5, 0.7), cf(5.865, 10.85, -6.3, 0, 0, 20), DARK)
+			local ear = B:bone("Ear" .. side, "Head", v(2.2, 10.6, -6.6))
+			local e = cf(2.2, 10.6, -6.6, 0, 0, -18)
+			B:block(ear, v(1.2, 1.4, 1.0), e * CFrame.new(0, 0.6, 0), SLATE)
+			B:block(ear, v(1.0, 1.0, 0.8), e * CFrame.new(0, 1.7, 0), SLATE)
+			B:block(ear, v(0.6, 1.4, 0.15), e * CFrame.new(0, 1.2, -0.48), PINK)
+			B:block(ear, v(0.6, 0.5, 0.6), e * CFrame.new(0, 2.4, 0), DARK)
 		end)
 
 		-- anger mark (prop) floating at the top corner of the head
-		local anger = B:bone("Anger", "Head", v(3.91, 12.0, -8.2))
+		local anger = B:bone("Anger", "Head", v(3.6, 12.2, -8.8))
 		local ac = "#ff2d2d"
 		for i, o in { { -0.45, 0.2, 0.9, 0.3 }, { 0.45, 0.2, 0.9, 0.3 }, { 0, 0.65, 0.3, 0.9 }, { 0, -0.25, 0.3, 0.9 } } do
-			local a = cf(3.91, 12.0, -8.2, 0, -30, 0) * CFrame.new(o[1], o[2] - 0.2, 0)
+			local a = cf(3.6, 12.2, -8.8, 0, -30, 0) * CFrame.new(o[1], o[2] - 0.2, 0)
 			B:block(anger, v(o[3], o[4], 0.3), a, ac, { tr = 1, name = "Anger" .. i })
 		end
 
-		-- JAW: underbite with bully tusks
-		local jaw = B:bone("Jaw", "Head", v(0.0, 5.0, -8.9))
-		B:block(jaw, v(5.52, 1.1, 4.7), cf(0.0, 4.1, -11.2), BELLY)
-		B:block(jaw, v(4.83, 0.45, 4.2), cf(0.0, 3.4, -11.0), DARK)
-		B:block(jaw, v(4.83, 0.3, 4.2), cf(0.0, 4.7, -11.1), MOUTH)
-		B:block(jaw, v(2.76, 0.3, 2.6), cf(0.0, 4.85, -10.8), TONGUE)
-		B:block(jaw, v(4.6, 1.4, 0.5), cf(0.0, 5.0, -9.25), MOUTH) -- back of the mouth
-		B:block(jaw, v(3.91, 0.5, 0.4), cf(0.0, 3.8, -13.65), STEEL) -- chin guard
+		-- JAW: a long rhino lower lip, no tusk row
+		local jaw = B:bone("Jaw", "Head", v(0, 5.3, -9.6))
+		B:block(jaw, v(4.4, 1.2, 5.0), cf(0, 4.4, -12.2), BELLY)
+		B:block(jaw, v(3.8, 0.45, 4.4), cf(0, 3.7, -12.0), DARK)
+		B:block(jaw, v(3.8, 0.25, 4.6), cf(0, 5.05, -12.2), MOUTH)
+		B:block(jaw, v(2.2, 0.3, 2.8), cf(0, 5.15, -11.8), TONGUE)
+		B:block(jaw, v(3.8, 1.3, 0.4), cf(0, 5.55, -9.9), MOUTH) -- back of the mouth
+		B:block(jaw, v(3.4, 0.5, 0.5), cf(0, 4.55, -14.75), BELLY) -- lower lip
 		B:sym(function()
-			B:block(jaw, v(0.862, 1.5, 0.75), cf(2.012, 5.25, -13.15), WHITE) -- tusk
-			B:block(jaw, v(0.575, 0.5, 0.5), cf(2.012, 6.15, -13.15), IVORYD)
-			B:block(jaw, v(0.575, 0.55, 0.5), cf(0.69, 5.05, -13.15), WHITE)
-			B:block(jaw, v(0.575, 0.5, 0.5), cf(2.127, 5.0, -11.6), WHITE)
-			rivet(jaw, 1.438, 3.8, -13.9, 0.402, 0.3, 0.15)
+			B:block(jaw, v(0.6, 0.45, 0.6), cf(1.2, 5.25, -14.1), IVORY) -- blunt tooth
 		end)
 
 		------------------------------------------------------------------

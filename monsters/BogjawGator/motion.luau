@@ -560,7 +560,7 @@ local function catch(t, pose, ctx)
 	local k = L.remap(t, ROLL0, ROLL1)
 	local spinning = t > ROLL0 and t < ROLL1
 	local roll = 360 * E.cubicInOut(k)
-	local lift = spinning and 2.4 * sin(pi * k) or 0
+	local lift = spinning and 3.0 * sin(pi * k) or 0
 	local tuck = L.env(t, 0.36, 0.12, 0.7, 0.15)
 	local land = L.env(t, ROLL1, 0.05, 0.05, 0.45, "quadOut", "backOut")
 	local grin = L.env(t, 1.35, 0.25, 0.3, 0.3, "backOut", "cubicInOut")

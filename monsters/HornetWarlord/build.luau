@@ -59,43 +59,32 @@ return {
 		------------------------------------------------------------------
 		local head = B:bone("Head", "Body", v(0, 11.2, -1.4))
 		B:block(head, v(3.2, 1.4, 3.0), cf(0, 11.0, -1.8), BLK) -- neck
-		B:block(head, v(6.0, 4.0, 4.6), cf(0, 13.0, -3.4), YEL) -- face / skull
-		B:block(head, v(5.0, 0.8, 4.0), cf(0, 10.8, -3.6), YEL2) -- chin step
-		-- helmet
-		B:block(head, v(6.6, 1.6, 5.0), cf(0, 15.6, -3.2), DGOLD)
-		B:block(head, v(5.2, 0.8, 4.0), cf(0, 16.7, -3.0), GOLD)
-		B:block(head, v(6.8, 0.45, 1.1), cf(0, 14.95, -5.95), GOLD) -- brim
-		B:block(head, v(6.9, 0.4, 5.2), cf(0, 14.95, -3.2), GOLD) -- rim band
-		B:block(head, v(1.2, 0.6, 4.4), cf(0, 17.3, -3.0), BLK) -- crest
-		B:block(head, v(0.6, 0.2, 3.6), cf(0, 17.55, -3.0), YEL)
-		B:block(head, v(1.3, 1.0, 0.3), cf(0, 15.85, -5.8), BLK) -- badge
-		B:gem(head, v(0.5, 0.5, 0.2), cf(0, 15.85, -6.0), MAG)
-		-- mouth: black cavity with a row of white teeth (the mandibles close over it)
-		B:block(head, v(3.4, 1.3, 0.5), cf(0, 11.75, -5.75), MOUTH)
-		for i = -1.5, 1.5 do
-			B:block(head, v(0.45, 0.55, 0.3), cf(i * 0.7, 12.1, -6.0), WHITE)
-		end
+		B:block(head, v(6.4, 4.6, 4.8), cf(0, 13.3, -3.5), YEL) -- big face / skull
+		B:block(head, v(5.2, 0.8, 4.0), cf(0, 10.8, -3.6), YEL2) -- chin step
+		-- helmet: one dark-gold cap + a low black crest (kept simple so the eyes rule)
+		B:block(head, v(6.8, 1.4, 5.4), cf(0, 16.2, -3.3), DGOLD)
+		B:block(head, v(1.0, 0.45, 4.6), cf(0, 17.1, -3.2), BLK)
+		-- black mouth between the mandibles
+		B:block(head, v(2.6, 1.1, 0.5), cf(0, 11.65, -5.85), MOUTH)
 		B:sym(function(side)
-			-- side of the helmet + cheek armour + spikes
-			B:block(head, v(0.5, 1.8, 3.8), cf(3.25, 14.6, -2.8), DGOLD)
-			B:block(head, v(0.4, 2.2, 3.0), cf(3.1, 12.2, -3.2), DGOLD)
-			B:spike(head, v(3.2, 15.9, -2.4), v(4.4, 16.9, -1.4), 0.8, 0.8, CREAM)
-			B:gem(head, v(0.35, 0.35, 0.35), cf(4.4, 16.9, -1.4), MAG)
-			B:spike(head, v(3.3, 14.6, -1.6), v(4.5, 14.9, -0.2), 0.7, 0.7, CREAM)
-			-- EYE: big angular dark eye on the front face, gold frame, small
-			-- magenta glints (front face only). It wraps the corner in plain dark.
-			B:block(head, v(2.6, 2.0, 0.3), cf(1.55, 13.15, -5.7, 0, 0, 12), YEL2)
-			B:block(head, v(2.2, 1.6, 0.4), cf(1.55, 13.15, -5.85, 0, 0, 12), EYE)
-			B:block(head, v(0.5, 1.4, 1.4), cf(2.95, 13.35, -5.0), EYE)
-			B:block(head, v(0.6, 0.6, 0.12), cf(1.95, 13.55, -6.1, 0, 0, 12), MAG, { mat = "Neon", name = "Glint" .. side })
-			B:block(head, v(0.3, 0.3, 0.12), cf(1.2, 12.85, -6.1, 0, 0, 12), WHITE)
+			-- cheek guards hanging from the cap + one horn spike
+			B:block(head, v(0.5, 3.0, 3.2), cf(3.35, 14.1, -2.8), DGOLD)
+			B:block(head, v(0.6, 0.5, 3.3), cf(3.4, 14.6, -2.8), BLK)
+			B:spike(head, v(3.3, 16.3, -2.6), v(4.6, 17.2, -1.4), 0.9, 0.9, CREAM)
+			B:gem(head, v(0.35, 0.35, 0.35), cf(4.6, 17.2, -1.4), MAG)
+			-- EYE: big angular dark eye (stepped up toward the outer corner) with
+			-- magenta glints on the front face only; it wraps the corner in plain dark
+			B:block(head, v(2.7, 1.9, 0.4), cf(1.65, 13.45, -6.0, 0, 0, 14), EYE)
+			B:block(head, v(1.3, 0.6, 0.4), cf(2.45, 14.45, -6.0, 0, 0, 14), EYE)
+			B:block(head, v(0.5, 1.8, 1.6), cf(3.15, 13.75, -5.2), EYE)
+			B:block(head, v(0.75, 0.75, 0.12), cf(1.25, 13.75, -6.25, 0, 0, 14), MAG, { mat = "Neon", name = "Glint" .. side })
+			B:block(head, v(0.35, 0.35, 0.12), cf(2.3, 13.0, -6.25, 0, 0, 14), WHITE)
 			-- eyelid (shown only while blinking / squinting)
-			local lid = B:bone("Lid" .. side, "Head", v(1.55, 13.2, -6.1))
-			B:block(lid, v(2.4, 1.8, 0.3), cf(1.55, 13.2, -6.15, 0, 0, 12), YEL2, { tr = 1, name = "Eyelid" .. side })
-			-- heavy black stepped brow on its own bone (angry: inner end low)
-			local brow = B:bone("Brow" .. side, "Head", v(1.6, 14.6, -5.9))
-			B:block(brow, v(2.8, 0.55, 0.9), cf(1.6, 14.6, -6.15, 0, 0, 16), BLK)
-			B:block(brow, v(1.1, 0.4, 0.7), cf(2.65, 14.95, -6.1, 0, 0, 16), BLK)
+			local lid = B:bone("Lid" .. side, "Head", v(1.65, 13.6, -6.3))
+			B:block(lid, v(2.9, 2.6, 0.3), cf(1.75, 13.65, -6.3, 0, 0, 14), YEL2, { tr = 1, name = "Eyelid" .. side })
+			-- heavy black brow on its own bone (angry: inner end low)
+			local brow = B:bone("Brow" .. side, "Head", v(1.6, 15.05, -6.0))
+			B:block(brow, v(3.2, 0.85, 1.0), cf(1.7, 15.05, -6.2, 0, 0, 18), BLK)
 			-- antennae: two-bone chains, bent forward, yellow clubs
 			local a1 = B:bone("AntA" .. side, "Head", v(1.1, 16.6, -4.6))
 			B:beam(a1, v(1.1, 16.4, -4.6), v(1.6, 17.2, -5.6), 0.55, 0.55, BLK)
@@ -105,15 +94,13 @@ return {
 			B:gem(a2, v(0.4, 0.4, 0.4), cf(3.1, 16.95, -7.25), MAG)
 		end)
 
-		-- MANDIBLES (the jaw): two big hinged gold hooks with cream tips + teeth
+		-- MANDIBLES (the jaw): two big hinged gold hooks with cream blade tips
 		B:sym(function(side)
-			local m = B:bone("Mand" .. side, "Head", v(2.0, 11.9, -5.6))
-			B:block(m, v(1.6, 1.4, 1.6), cf(2.1, 11.8, -6.2), DGOLD)
-			B:block(m, v(1.7, 0.35, 1.7), cf(2.1, 12.55, -6.2), BLK)
-			B:block(m, v(1.4, 1.1, 1.4), cf(1.55, 11.7, -7.2), GOLD)
-			B:spike(m, v(1.3, 11.7, -7.6), v(0.15, 11.6, -8.5), 0.95, 0.9, CREAM)
-			B:block(m, v(0.4, 0.55, 0.4), cf(0.95, 11.2, -6.7), WHITE)
-			B:block(m, v(0.4, 0.45, 0.4), cf(0.85, 11.25, -7.5), WHITE)
+			local m = B:bone("Mand" .. side, "Head", v(2.1, 11.8, -5.7))
+			B:block(m, v(1.9, 1.6, 1.8), cf(2.2, 11.7, -6.4), DGOLD)
+			B:block(m, v(1.6, 1.3, 1.6), cf(1.6, 11.6, -7.6), GOLD)
+			B:spike(m, v(1.35, 11.6, -8.1), v(0.15, 11.5, -9.2), 1.1, 1.0, CREAM)
+			B:block(m, v(0.5, 0.6, 0.5), cf(1.0, 11.0, -7.1), WHITE) -- one fang
 		end)
 		local mouthFX = B:block(head, v(2, 1, 1), cf(0, 11.8, -7.5), YEL, { tr = 1, name = "MouthFX" })
 		B:emitter(mouthFX, "burst", { name = "BattleBurst", color = { "#ffffff", YEL, MAG }, size = { 0.8, 0.5, 0 } })
@@ -215,7 +202,7 @@ return {
 			local w, h, y, z = s[2], s[3], s[4], s[5]
 			B:block(b, v(w, h, 2.6), cf(0, y, z), YEL)
 			B:block(b, v(w - 1.0, 0.5, 1.8), cf(0, y + h / 2 + 0.2, z - 0.2), i % 2 == 0 and YEL2 or YEL) -- top step
-			B:block(b, v(w + 0.3, h + 0.2, 0.9), cf(0, y - 0.1, z + 1.35), BLK) -- black stripe ring
+			B:block(b, v(w + 0.3, h + 0.2, 0.9), cf(0, y + 0.05, z - 1.0), BLK) -- black stripe ring
 			B:block(b, v(1.2, 0.35, 1.0), cf(0, y + h / 2 + 0.55, z - 0.3), BLK) -- chevron mark
 			B:block(b, v(w - 1.0, 0.4, 2.0), cf(0, y - h / 2 - 0.15, z - 0.1), DGOLD) -- belly plate
 			if i <= 3 then
@@ -231,17 +218,17 @@ return {
 			parent = name
 		end
 		local st = B:bone("Stinger", "Abd4", v(0, 4.0, 12.3))
-		B:block(st, v(2.4, 2.2, 1.2), cf(0, 4.0, 12.6), BLK)
-		B:block(st, v(2.5, 0.5, 1.0), cf(0, 4.2, 12.7), YEL)
-		B:block(st, v(1.6, 1.6, 1.2), cf(0, 3.7, 13.6), BLK2)
-		B:block(st, v(1.7, 0.3, 0.6), cf(0, 4.55, 13.7), GOLD)
-		B:spike(st, v(0, 3.6, 14.0), v(0, 2.5, 16.6), 1.2, 1.2, CREAM)
-		B:gem(st, v(0.5, 0.5, 0.7), cf(0, 2.55, 16.55, -24, 0, 0), MAG)
-		local stingFX = B:block(st, v(0.8, 0.8, 0.8), cf(0, 2.6, 16.4), CREAM, { tr = 1, name = "StingFX" })
+		-- clean stepped taper: yellow band -> black band -> yellow band -> long sharp blade
+		B:block(st, v(2.7, 2.3, 1.1), cf(0, 3.95, 12.85, 20, 0, 0), YEL)
+		B:block(st, v(2.1, 1.75, 1.0), cf(0, 3.62, 13.75, 20, 0, 0), BLK)
+		B:block(st, v(1.5, 1.25, 0.9), cf(0, 3.32, 14.6, 20, 0, 0), YEL)
+		B:spike(st, v(0, 3.2, 14.9), v(0, 2.35, 17.9), 1.05, 1.05, CREAM)
+		B:gem(st, v(0.45, 0.45, 0.7), cf(0, 2.45, 17.65, 16, 0, 0), MAG)
+		local stingFX = B:block(st, v(0.8, 0.8, 0.8), cf(0, 2.5, 17.5), CREAM, { tr = 1, name = "StingFX" })
 		B:emitter(stingFX, "burst", { name = "StingBurst", color = { "#ffffff", MAG }, size = { 0.9, 0.5, 0 } })
 		B:light(stingFX, { name = "StingLight", color = MAG, brightness = 0, range = 12 })
-		local stingGlow = B:block(st, v(1.0, 0.9, 1.0), cf(0, 3.2, 14.6, -24, 0, 0), MAG, { mat = "Neon", tr = 1, name = "StingGlow" })
-		B:trail(st, v(0, 2.9, 16.0), v(0, 2.3, 16.9), { name = "StingTrail", color = { "#ffffff", MAG }, life = 0.22, trans = { 0.4, 1 } })
+		B:block(st, v(1.25, 1.0, 0.95), cf(0, 3.33, 14.6, 20, 0, 0), MAG, { mat = "Neon", tr = 1, name = "StingGlow" })
+		B:trail(st, v(0, 2.9, 16.9), v(0, 2.3, 17.8), { name = "StingTrail", color = { "#ffffff", MAG }, life = 0.22, trans = { 0.4, 1 } })
 
 		------------------------------------------------------------------
 		-- WINGS: two pairs of amber translucent membranes with dark veins
@@ -256,7 +243,7 @@ return {
 			for _, p in pts do
 				table.insert(poly, wp(p[1], p[2]))
 			end
-			B:poly(b, poly, 0.22, WINGC, { tr = 0.4 })
+			B:poly(b, poly, 0.22, WINGC, { tr = 0.3 })
 			for _, vn in veins do
 				B:beam(b, wp(vn[1], vn[2], 0.12), wp(vn[3], vn[4], 0.12), vn[5], 0.16, vn[6], { up = N })
 			end
@@ -266,21 +253,23 @@ return {
 			return b, wp
 		end
 		B:sym(function(side)
-			local _, fw = wing("WingF" .. side, v(1.2, 11.9, 0.9), v(0.85, 0.5, 0.32), v(0, -0.1, 1),
-				{ { 0, -0.3 }, { 3, -0.8 }, { 7.5, -0.7 }, { 10, 0.3 }, { 10.2, 1.8 }, { 7.6, 2.9 }, { 3, 2.6 }, { 0, 1.3 } },
+			-- chord tilted up-back so the membranes face the camera from the front / 3/4
+			local _, fw = wing("WingF" .. side, v(1.2, 11.9, 0.9), v(0.85, 0.32, 0.4), v(0, 0.4, 0.9),
+				{ { 0, -0.3 }, { 3.4, -0.9 }, { 8.4, -0.8 }, { 11.2, 0.3 }, { 11.4, 2.0 }, { 8.5, 3.3 }, { 3.4, 2.9 }, { 0, 1.4 } },
 				{
-					{ 0, -0.35, 9.8, 0.0, 0.32, BLK },
-					{ 0.3, 1.0, 9.4, 1.5, 0.18, DGOLD },
-					{ 3.0, 2.5, 7.6, 2.75, 0.18, DGOLD },
-				}, { 8.6, 1.0 })
-			B:trail("WingF" .. side, fw(10.1, 0.6), fw(9.2, 2.4), { name = "WingTrailF" .. side, color = { "#fff6c8", WINGC }, life = 0.1, trans = { 0.55, 1 } })
-			local _, hw = wing("WingB" .. side, v(1.2, 11.1, 1.7), v(0.85, 0.15, 0.6), v(0, -0.2, 1),
-				{ { 0, -0.2 }, { 2.5, -0.6 }, { 6, -0.3 }, { 7.4, 0.8 }, { 6.6, 2.0 }, { 2.5, 2.0 }, { 0, 1.0 } },
+					{ 0, -0.35, 11.0, 0.1, 0.4, BLK },
+					{ 0.3, 1.1, 10.6, 1.7, 0.28, BLK },
+					{ 3.2, 2.85, 8.4, 3.1, 0.28, DGOLD },
+					{ 5.5, -0.5, 6.2, 2.9, 0.22, DGOLD },
+				}, { 9.6, 1.1 })
+			B:trail("WingF" .. side, fw(11.3, 0.6), fw(10.3, 2.6), { name = "WingTrailF" .. side, color = { "#fff6c8", WINGC }, life = 0.1, trans = { 0.5, 1 } })
+			local _, hw = wing("WingB" .. side, v(1.2, 11.1, 1.7), v(0.85, 0.1, 0.6), v(0, 0.35, 0.95),
+				{ { 0, -0.2 }, { 2.8, -0.7 }, { 6.7, -0.35 }, { 8.3, 0.9 }, { 7.4, 2.2 }, { 2.8, 2.2 }, { 0, 1.1 } },
 				{
-					{ 0, -0.2, 7.0, 0.3, 0.28, BLK },
-					{ 0.4, 0.9, 6.4, 1.4, 0.16, DGOLD },
+					{ 0, -0.2, 7.9, 0.35, 0.36, BLK },
+					{ 0.4, 1.0, 7.2, 1.55, 0.24, DGOLD },
 				}, nil)
-			B:trail("WingB" .. side, hw(7.3, 0.6), hw(6.4, 1.9), { name = "WingTrailB" .. side, color = { "#fff6c8", WINGC }, life = 0.1, trans = { 0.6, 1 } })
+			B:trail("WingB" .. side, hw(8.2, 0.7), hw(7.2, 2.1), { name = "WingTrailB" .. side, color = { "#fff6c8", WINGC }, life = 0.1, trans = { 0.55, 1 } })
 		end)
 
 		------------------------------------------------------------------

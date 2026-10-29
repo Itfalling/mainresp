@@ -22,6 +22,7 @@ return {
 		local RED, DRED = "#ec3432", "#b51e26" -- comb / wattle
 		local ORANGE, DORANGE = "#ffa222", "#e2731a" -- beak / feet
 		local INK, BLACK = "#2a2532", "#17131c" -- brows + tail tips / pupils + mouth
+		local SLATE = "#3d5566" -- dark rooster sickle feathers
 		local TIN, TIND = "#b4bfcc", "#7d8998" -- bucket helmet
 		local GOLD, GOLDD = "#ffc633", "#d18c17" -- badge / helmet band
 		local GREEN, DGREEN = "#63cc3a", "#3c9a2a" -- carrot sprout
@@ -55,8 +56,9 @@ return {
 		B:block(body, v(0.85, 0.85, 0.12), cf(-0.7, 3.0, -1.98, 0, 0, 45), GOLDD)
 		B:block(body, v(0.7, 0.7, 0.12), cf(-0.7, 3.0, -2.04), GOLD)
 		B:block(body, v(0.7, 0.7, 0.12), cf(-0.7, 3.0, -2.06, 0, 0, 45), GOLD)
-		local badge = B:gem(body, v(0.22, 0.22, 0.08), cf(-0.7, 3.0, -2.13, 0, 0, 45), NEON, { name = "BadgeGem" })
-		B:light(badge, { name = "BadgeLight", color = NEON, brightness = 0, range = 6 })
+		B:block(body, v(0.36, 0.36, 0.1), cf(-0.7, 3.0, -2.1), GOLDD) -- badge centre boss
+		local badge = B:gem(body, v(0.1, 0.1, 0.04), cf(-0.7, 3.0, -2.16), NEON, { name = "BadgeGem" })
+		B:light(badge, { name = "BadgeLight", color = NEON, brightness = 0, range = 5 })
 		-- stepped feather scales on the rump (alternating white / shade)
 		for i, r in { { 2.45, 1.4 }, { 2.95, 2.0 }, { 3.45, 1.6 } } do
 			B:block(body, v(r[2], 0.45, 0.3), cf(0, r[1], 2.43 + (i % 2) * 0.1), i % 2 == 0 and SHADE or GREY)
@@ -76,35 +78,44 @@ return {
 		-- WINGS (stubby, two bones each for flap follow-through)
 		------------------------------------------------------------------
 		B:sym(function(side)
+			-- three stepped feather layers (coverts -> secondaries -> primaries),
+			-- each one lower, longer and a step further out, with dark tip feathers
 			local wing = B:bone("Wing" .. side, "Body", v(1.45, 3.35, -0.3))
-			B:block(wing, v(0.55, 1.3, 2.3), cf(1.68, 2.95, 0.25), WHITE)
-			B:block(wing, v(0.6, 0.4, 2.1), cf(1.7, 3.35, 0.2), SHADE) -- covert row
-			B:block(wing, v(0.6, 0.3, 1.4), cf(1.72, 2.95, -0.25), WHITE)
-			B:block(wing, v(0.5, 0.35, 0.6), cf(1.66, 3.25, -0.95), WHITE) -- shoulder knob
-			local tip = B:bone("WingTip" .. side, "Wing" .. side, v(1.68, 2.6, 1.0))
-			B:block(tip, v(0.5, 0.45, 1.5), cf(1.68, 2.35, 1.05), SHADE)
-			B:block(tip, v(0.5, 0.45, 1.1), cf(1.66, 1.95, 0.85), WHITE)
-			B:block(tip, v(0.5, 0.4, 0.7), cf(1.64, 1.65, 0.65), GREY)
-			B:block(tip, v(0.45, 0.6, 0.5), cf(1.68, 2.4, 1.95), GREY) -- primary tip
-			B:trail(tip, v(1.7, 2.7, 2.1), v(1.7, 1.5, 1.2), { name = "WingTrail" .. side, color = { "#ffffff", NEON }, life = 0.16, trans = { 0.5, 1 } })
+			B:block(wing, v(0.5, 0.5, 0.7), cf(1.62, 3.32, -0.85), WHITE) -- shoulder knob
+			B:block(wing, v(0.5, 0.5, 1.9), cf(1.64, 3.3, 0.05), WHITE) -- coverts
+			B:block(wing, v(0.5, 0.5, 2.1), cf(1.7, 2.85, 0.35), SHADE) -- secondaries
+			B:block(wing, v(0.5, 0.45, 0.4), cf(1.7, 2.85, 1.6), GREY)
+			local tip = B:bone("WingTip" .. side, "Wing" .. side, v(1.72, 2.7, 0.2))
+			B:block(tip, v(0.46, 0.5, 1.8), cf(1.77, 2.4, 0.7), GREY) -- primaries
+			B:block(tip, v(0.46, 0.5, 0.55), cf(1.77, 2.4, 1.85), INK) -- dark primary tip
+			-- serrated stepped feather fringe along the bottom edge
+			B:block(tip, v(0.42, 0.42, 0.55), cf(1.8, 1.98, 0.2), SHADE)
+			B:block(tip, v(0.42, 0.42, 0.55), cf(1.8, 1.98, 0.8), GREY)
+			B:block(tip, v(0.42, 0.42, 0.55), cf(1.8, 1.98, 1.4), INK)
+			B:trail(tip, v(1.8, 2.65, 2.1), v(1.8, 1.8, 1.65), { name = "WingTrail" .. side, color = { "#ffffff", NEON }, life = 0.16, trans = { 0.5, 1 } })
 		end)
 
 		------------------------------------------------------------------
 		-- TAIL (stepped feather fan with dark tips + a follow-through bone)
 		------------------------------------------------------------------
 		local tail = B:bone("Tail", "Body", v(0, 3.3, 2.2))
-		B:block(tail, v(1.8, 0.9, 0.8), cf(0, 3.45, 2.45), WHITE)
-		B:block(tail, v(1.4, 0.4, 0.7), cf(0, 3.95, 2.6), SHADE)
-		local tt = B:bone("TailTip", "Tail", v(0, 4.1, 2.7))
-		-- three stepped feathers rising up + back, dark tips
-		B:block(tt, v(0.55, 0.7, 0.6), cf(0, 4.4, 2.8), WHITE)
-		B:block(tt, v(0.5, 0.6, 0.55), cf(0, 4.95, 3.15), WHITE)
-		B:block(tt, v(0.45, 0.55, 0.5), cf(0, 5.45, 3.5), INK)
-		B:sym(function()
-			B:block(tt, v(0.5, 0.6, 0.55), cf(0.55, 4.3, 2.75), SHADE)
-			B:block(tt, v(0.45, 0.55, 0.5), cf(0.68, 4.8, 3.05), WHITE)
-			B:block(tt, v(0.4, 0.45, 0.45), cf(0.78, 5.2, 3.35), INK)
-		end)
+		B:block(tail, v(2.0, 1.0, 0.8), cf(0, 3.6, 2.6), WHITE) -- tail base
+		B:block(tail, v(1.5, 0.5, 0.6), cf(0, 4.2, 2.75), SHADE)
+		-- fan of five stepped sickle feathers, leaning back; the three middle
+		-- ones are tall with dark tips
+		local tt = B:bone("TailTip", "Tail", v(0, 4.15, 2.95))
+		-- {angle, length, mid colour, tip colour}
+		local FAN = {
+			{ -62, 1.6, SHADE, GREY }, { -31, 2.0, SLATE, INK }, { 0, 2.25, SLATE, INK },
+			{ 31, 2.0, SLATE, INK }, { 62, 1.6, SHADE, GREY },
+		}
+		for i, f in FAN do
+			local F = CFrame.new(0, 4.15, 2.95 + (i % 2) * 0.14) * ang(0, 0, f[1]) * ang(36, 0, 0)
+			local L = f[2]
+			B:block(tt, v(0.8, L * 0.5, 0.5), F * CFrame.new(0, L * 0.25, 0), i % 2 == 0 and SHADE or WHITE)
+			B:block(tt, v(0.68, L * 0.35, 0.46), F * CFrame.new(0, L * 0.65, 0), f[3])
+			B:block(tt, v(0.56, L * 0.25, 0.44), F * CFrame.new(0, L * 0.92, 0), f[4])
+		end
 
 		------------------------------------------------------------------
 		-- NECK + HEAD (big cartoon head)
@@ -127,15 +138,10 @@ return {
 			B:block(head, v(0.2, 0.35, 0.8), cf(1.42, 3.7, -0.5), GREY)
 		end)
 
-		-- upper beak (orange) with nostrils and two silly buck teeth
-		B:block(head, v(1.15, 0.5, 0.9), cf(0, 3.95, -2.65), ORANGE)
-		B:block(head, v(0.6, 0.2, 0.95), cf(0, 4.25, -2.6), DORANGE) -- ridge
-		B:wedge(head, v(0.85, 0.45, 0.55), cf(0, 3.92, -3.37), ORANGE) -- pointy tip
-		B:block(head, v(1.0, 0.18, 0.95), cf(0, 3.62, -2.6), BLACK) -- mouth roof
-		B:sym(function()
-			B:block(head, v(0.18, 0.12, 0.1), cf(0.25, 4.05, -3.12), DORANGE) -- nostril
-			B:block(head, v(0.22, 0.28, 0.2), cf(0.18, 3.47, -2.98), WHITE) -- buck tooth
-		end)
+		-- upper beak: one chunky stepped orange beak
+		B:block(head, v(1.2, 0.55, 0.8), cf(0, 4.0, -2.72), ORANGE)
+		B:block(head, v(0.8, 0.45, 0.5), cf(0, 3.97, -3.35), ORANGE) -- stepped tip
+		B:block(head, v(0.9, 0.08, 0.7), cf(0, 3.7, -2.7), BLACK) -- mouth roof (seen when open)
 		local beakFX = B:block(head, v(0.8, 0.6, 0.6), cf(0, 3.7, -3.6), WHITE, { tr = 1, name = "BeakFX" })
 		B:emitter(beakFX, "burst", { name = "CrowBurst", color = { "#ffffff", NEON }, size = { 0.5, 0.35, 0 }, speed = { 5, 10 } })
 		B:emitter(beakFX, "spark", {
@@ -147,34 +153,33 @@ return {
 		-- can pop out), ONE black pupil each on the front face only (own bones
 		-- so they can dart around), heavy angry brows, hidden lids
 		B:sym(function(side)
-			local eye = B:bone("Eye" .. side, "Head", v(0.82, 4.5, -2.3))
-			B:block(eye, v(1.15, 1.0, 0.9), cf(0.87, 4.5, -2.12), WHITE)
-			B:block(eye, v(1.12, 1.14, 0.3), cf(0.78, 4.5, -2.35), GREY) -- eye rim (front)
-			B:block(eye, v(0.15, 1.14, 1.04), cf(1.35, 4.5, -2.1), GREY) -- eye rim (side)
-			B:block(eye, v(1.1, 0.12, 0.92), cf(0.87, 3.98, -2.12), GREY) -- lower lid line
-			local pupil = B:bone("Pupil" .. side, "Eye" .. side, v(0.7, 4.45, -2.6))
-			B:block(pupil, v(0.42, 0.62, 0.1), cf(0.7, 4.45, -2.6), BLACK, { name = "PupilDisc" .. side })
-			B:block(pupil, v(0.15, 0.15, 0.06), cf(0.8, 4.64, -2.66), WHITE, { name = "Glint" .. side })
-			B:block(pupil, v(0.2, 0.2, 0.1), cf(0.72, 4.45, -2.6), BLACK, { tr = 1, name = "Dot" .. side })
+			local EY = 4.62
+			local eye = B:bone("Eye" .. side, "Head", v(0.82, EY, -2.3))
+			B:block(eye, v(1.15, 1.1, 0.9), cf(0.87, EY, -2.12), WHITE)
+			B:block(eye, v(1.12, 1.24, 0.3), cf(0.78, EY, -2.35), GREY) -- eye rim (front)
+			B:block(eye, v(0.15, 1.24, 1.04), cf(1.35, EY, -2.1), GREY) -- eye rim (side)
+			local pupil = B:bone("Pupil" .. side, "Eye" .. side, v(0.7, EY - 0.05, -2.6))
+			B:block(pupil, v(0.48, 0.7, 0.1), cf(0.7, EY - 0.05, -2.6), BLACK, { name = "PupilDisc" .. side })
+			B:block(pupil, v(0.17, 0.17, 0.06), cf(0.82, EY + 0.17, -2.66), WHITE, { name = "Glint" .. side })
+			B:block(pupil, v(0.22, 0.22, 0.1), cf(0.72, EY - 0.05, -2.6), BLACK, { tr = 1, name = "Dot" .. side })
 			-- eyelid (+ dark lash) shown only while blinking / squeezing
-			B:block(eye, v(1.2, 1.06, 1.16), cf(0.87, 4.5, -2.13), SHADE, { tr = 1, name = "Eyelid" .. side })
-			B:block(eye, v(1.22, 0.14, 1.18), cf(0.87, 4.05, -2.13), INK, { tr = 1, name = "Lash" .. side })
+			B:block(eye, v(1.2, 1.16, 1.16), cf(0.87, EY, -2.13), SHADE, { tr = 1, name = "Eyelid" .. side })
+			B:block(eye, v(1.22, 0.14, 1.18), cf(0.87, EY - 0.5, -2.13), INK, { tr = 1, name = "Lash" .. side })
 			-- heavy brow (inner end low = angry), its own bone for expressions
-			local brow = B:bone("Brow" .. side, "Head", v(0.82, 5.1, -2.45))
-			B:block(brow, v(1.15, 0.36, 0.55), cf(0.8, 5.12, -2.42, 0, 0, 18), INK)
+			local brow = B:bone("Brow" .. side, "Head", v(0.82, 5.24, -2.45))
+			B:block(brow, v(1.2, 0.38, 0.55), cf(0.8, 5.27, -2.42, 0, 0, 18), INK)
 		end)
 
 		-- lower beak = the jaw, with the wattle hanging underneath
-		local jaw = B:bone("Jaw", "Head", v(0, 3.72, -2.2))
-		B:block(jaw, v(1.0, 0.32, 0.9), cf(0, 3.5, -2.62), ORANGE)
-		B:block(jaw, v(0.6, 0.28, 0.4), cf(0, 3.52, -3.2), DORANGE)
-		B:block(jaw, v(0.85, 0.12, 0.85), cf(0, 3.7, -2.6), BLACK) -- mouth floor
-		B:block(jaw, v(0.5, 0.1, 0.5), cf(0, 3.76, -2.55), TONGUE)
-		B:block(jaw, v(0.85, 0.5, 0.15), cf(0, 3.75, -2.22), BLACK) -- throat wall
-		B:sym(function()
-			B:block(jaw, v(0.36, 0.55, 0.36), cf(0.17, 3.1, -2.48), RED) -- wattle lobes
-			B:block(jaw, v(0.3, 0.3, 0.3), cf(0.17, 2.72, -2.48), DRED)
-		end)
+		local jaw = B:bone("Jaw", "Head", v(0, 3.72, -2.3))
+		B:block(jaw, v(1.05, 0.38, 0.75), cf(0, 3.5, -2.72), DORANGE)
+		B:block(jaw, v(0.65, 0.32, 0.4), cf(0, 3.53, -3.25), DORANGE) -- stepped tip
+		B:block(jaw, v(0.8, 0.06, 0.6), cf(0, 3.71, -2.68), BLACK) -- mouth floor (seen when open)
+		B:block(jaw, v(0.45, 0.06, 0.4), cf(0, 3.74, -2.62), TONGUE)
+		B:block(jaw, v(0.85, 0.45, 0.12), cf(0, 3.75, -2.36), BLACK) -- throat wall
+		-- neat red wattle hanging centred under the beak
+		B:block(jaw, v(0.6, 0.5, 0.4), cf(0, 3.08, -2.68), RED)
+		B:block(jaw, v(0.38, 0.3, 0.34), cf(0, 2.7, -2.68), DRED)
 
 		-- comb: stepped red blocks rising from the forehead (own bone: jiggles)
 		local comb = B:bone("Comb", "Head", v(0, 5.4, -1.6))
@@ -210,7 +215,7 @@ return {
 		B:block(head, v(0.35, 0.8, 0.35), cf(1.55, 6.5, -1.6, 0, 0, -12), RED, { tr = 1, name = "Exclaim1" })
 		B:block(head, v(0.35, 0.32, 0.35), cf(1.43, 5.85, -1.6, 0, 0, -12), RED, { tr = 1, name = "Exclaim2" })
 		-- anger mark (4 bent brackets) on the front-left of the head
-		local AM = CFrame.new(-1.05, 5.55, -2.45)
+		local AM = CFrame.new(-1.5, 5.75, -2.2)
 		for k = 0, 3 do
 			local r = CFrame.new(AM.Position) * ang(0, 0, 45 + k * 90)
 			B:block(head, v(0.32, 0.11, 0.1), r * CFrame.new(0.18, 0.1, 0), RED, { tr = 1, name = "Anger" .. (2 * k + 1) })

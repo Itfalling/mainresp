@@ -15,8 +15,8 @@ return {
 	Element = "Swamp",
 	Build = function(B, P)
 		local v, cf, ang = P.v, P.cf, P.ang
-		local MAIN, DARK, DEEP = "#5b7f2e", "#3a5620", "#26391a"
-		local BELLY, BELLY2, SCUTE = "#e6eba6", "#c9d47f", "#e2d896"
+		local MAIN, DARK, DEEP = "#2f5a52", "#1e3d3a", "#16302d"
+		local BELLY, BELLY2, SCUTE = "#f0e6c6", "#dccfa2", "#f6edd2"
 		local MOSS, MOSS2, LILY, LILY2 = "#8cc43a", "#5f9a2a", "#3f9c3c", "#2b7430"
 		local PINK, PINK2, POLLEN = "#ff74b4", "#ffc2de", "#ffd84a"
 		local WOOD, WOOD2, IRON = "#6b4a2a", "#46301b", "#2b2b30"
@@ -27,7 +27,7 @@ return {
 		------------------------------------------------------------------
 		-- helpers
 		------------------------------------------------------------------
-		-- one body chunk: olive core, dark back stripe, pale belly band wrapping
+		-- one body chunk: slate swamp-teal core, dark back stripe, pale belly band wrapping
 		-- the lower sides with a dark seam, dark gator bands across the flanks,
 		-- stepped belly plates underneath
 		local function segment(bone, z0, z1, yc, w, h, bands, plates)
@@ -97,9 +97,9 @@ return {
 
 		-- cattail reed + grass blades (own bone, sways)
 		local reed = B:bone("Reed", "Body", v(-1.4, 6.7, 3.4))
-		B:beam(reed, v(-1.4, 6.6, 3.4), v(-1.6, 9.0, 3.6), 0.3, 0.3, MOSS2)
-		B:block(reed, v(0.6, 1.1, 0.6), cf(-1.62, 9.15, 3.62), WOOD)
-		B:block(reed, v(0.2, 0.5, 0.2), cf(-1.64, 9.9, 3.64), MOSS2)
+		B:beam(reed, v(-1.4, 6.6, 3.4), v(-1.6, 8.6, 3.6), 0.3, 0.3, MOSS2)
+		B:block(reed, v(0.6, 1.1, 0.6), cf(-1.62, 8.75, 3.62), WOOD)
+		B:block(reed, v(0.2, 0.5, 0.2), cf(-1.64, 9.5, 3.64), MOSS2)
 		B:beam(reed, v(-1.2, 6.6, 3.0), v(-0.5, 8.3, 2.5), 0.45, 0.15, MOSS)
 		B:beam(reed, v(-1.7, 6.6, 3.8), v(-2.6, 8.0, 4.5), 0.45, 0.15, MOSS)
 
@@ -135,77 +135,86 @@ return {
 		-- HEAD: wide flat cranium, raised eye bumps, long chunky snout
 		------------------------------------------------------------------
 		local head = B:bone("Head", "Neck", v(0, 4.5, -5.4))
-		B:block(head, v(5.6, 2.6, 3.4), cf(0, 4.95, -6.9), MAIN) -- cranium
-		B:block(head, v(5.7, 0.4, 3.2), cf(0, 3.85, -6.9), BELLY2) -- pale cheek / lip line
-		B:block(head, v(5.74, 0.9, 0.7), cf(0, 5.3, -5.6), DARK) -- dark band behind the eyes
-		B:block(head, v(4.4, 1.6, 4.2), cf(0, 4.45, -10.7), MAIN) -- snout
-		B:block(head, v(3.4, 0.45, 4.0), cf(0, 5.45, -10.4), DARK) -- snout top step
-		B:block(head, v(1.6, 0.3, 3.4), cf(0, 5.75, -10.0), DEEP) -- snout ridge
-		B:block(head, v(4.52, 0.35, 3.6), cf(0, 4.95, -10.6), DARK) -- dark snout side stripe
-		B:block(head, v(5.76, 0.5, 2.6), cf(0, 5.95, -7.3), DARK) -- dark brow ridge band
-		B:block(head, v(4.5, 0.4, 4.1), cf(0, 3.85, -10.7), BELLY2) -- pale upper lip band
-		B:block(head, v(4.46, 0.3, 0.6), cf(0, 4.75, -9.2), DARK) -- snout bands
-		B:block(head, v(4.46, 0.3, 0.6), cf(0, 4.75, -11.3), DARK)
-		B:block(head, v(2.8, 0.6, 1.3), cf(0, 5.55, -12.1), DARK) -- nose pad
-		B:block(head, v(4.0, 0.25, 4.0), cf(0, 3.55, -10.6), PALATE) -- palate
-		B:block(head, v(5.0, 0.25, 3.0), cf(0, 3.55, -7.1), PALATE)
+		B:block(head, v(6.0, 3.1, 3.6), cf(0, 5.2, -6.9), MAIN) -- tall chunky cranium
+		B:block(head, v(6.1, 0.45, 3.3), cf(0, 3.88, -6.9), BELLY2) -- pale cheek / lip line
+		B:block(head, v(6.14, 1.0, 0.7), cf(0, 5.6, -5.5), DARK) -- dark band behind the eyes
+		B:block(head, v(4.6, 0.4, 2.8), cf(0, 6.9, -6.7), DARK) -- skull top plate
+		B:block(head, v(4.6, 2.0, 4.2), cf(0, 4.65, -10.7), MAIN) -- snout
+		B:block(head, v(3.6, 0.5, 4.0), cf(0, 5.9, -10.4), DARK) -- snout top step
+		B:block(head, v(1.6, 0.3, 3.4), cf(0, 6.25, -10.0), DEEP) -- snout ridge
+		B:block(head, v(4.72, 0.4, 3.7), cf(0, 5.2, -10.65), DARK) -- dark snout side stripe
+		B:block(head, v(4.66, 0.4, 0.12), cf(0, 5.2, -12.83), DARK) -- ... wrapping the front
+		B:block(head, v(4.7, 0.8, 4.1), cf(0, 4.05, -10.7), BELLY2) -- pale muzzle / upper lip band
+		B:block(head, v(4.68, 0.3, 0.6), cf(0, 4.7, -9.2), DARK) -- snout bands
+		B:block(head, v(4.68, 0.3, 0.6), cf(0, 4.7, -11.3), DARK)
+		B:block(head, v(3.4, 0.8, 1.5), cf(0, 6.05, -12.1), MAIN) -- nose bulb
+		B:block(head, v(2.2, 0.3, 1.0), cf(0, 6.55, -12.05), DEEP)
+		B:block(head, v(4.2, 0.25, 4.0), cf(0, 3.55, -10.6), PALATE) -- palate
+		B:block(head, v(5.2, 0.25, 3.0), cf(0, 3.55, -7.1), PALATE)
 		B:block(head, v(4.4, 1.4, 0.4), cf(0, 3.0, -5.45), MOUTH) -- dark throat
 		-- moss crown + a tiny lily pad behind the eye bumps
-		B:block(head, v(3.0, 0.4, 1.6), cf(0, 6.4, -5.9), MOSS)
-		B:block(head, v(1.4, 0.18, 1.0), cf(0.4, 6.68, -6.0), LILY)
-		B:block(head, v(1.0, 0.18, 1.4), cf(0.4, 6.69, -6.0), LILY)
-		B:block(head, v(0.8, 0.3, 0.6), cf(-0.9, 6.7, -5.5), MOSS2)
+		B:block(head, v(3.0, 0.4, 1.4), cf(0, 7.25, -5.9), MOSS)
+		B:block(head, v(1.4, 0.18, 1.0), cf(0.4, 7.5, -6.0), LILY)
+		B:block(head, v(1.0, 0.18, 1.4), cf(0.4, 7.51, -6.0), LILY)
+		B:block(head, v(0.8, 0.3, 0.6), cf(-0.9, 7.5, -5.5), MOSS2)
 
 		B:sym(function(side)
-			-- nostril on the nose pad
-			B:block(head, v(0.55, 0.15, 0.5), cf(0.7, 5.9, -12.35), MOUTH)
+			-- nostril on top of the nose bulb
+			B:block(head, v(0.6, 0.15, 0.5), cf(0.8, 6.48, -12.4), MOUTH)
+			B:block(head, v(0.7, 0.25, 0.1), cf(0.85, 6.15, -12.88), MOUTH)
+			-- jowl bulge widens the head; bone-cream jowl spike
+			B:block(head, v(0.7, 1.9, 2.6), cf(3.2, 4.75, -6.7), MAIN)
+			B:block(head, v(0.72, 0.45, 2.2), cf(3.21, 5.85, -6.7), DARK)
+			B:block(head, v(0.5, 0.6, 1.0), cf(3.6, 4.6, -6.2), SCUTE)
 			-- upper teeth: neat row of white blocks hanging off the lip
 			for i = 0, 4 do
 				local h = i % 2 == 0 and 0.75 or 0.55
-				B:block(head, v(0.5, h, 0.5), cf(2.0, 3.66 - h / 2, -8.9 - i * 0.85), TEETH)
+				B:block(head, v(0.5, h, 0.5), cf(2.1, 3.66 - h / 2, -8.9 - i * 0.85), TEETH)
 			end
-			B:block(head, v(0.5, 0.7, 0.5), cf(2.45, 3.3, -7.6), TEETH) -- back tooth under the cheek
+			B:block(head, v(0.5, 0.7, 0.5), cf(2.6, 3.3, -7.6), TEETH) -- back tooth under the cheek
 			B:block(head, v(0.45, 0.6, 0.45), cf(0.8, 3.36, -12.5), TEETH) -- front tooth
+			B:block(head, v(0.5, 0.85, 0.5), cf(1.75, 3.25, -12.45), TEETH) -- corner fang
 			-- raised eye bump (crocodile style)
-			B:block(head, v(2.4, 1.8, 2.5), cf(1.95, 6.95, -7.25), MAIN)
-			B:block(head, v(1.6, 0.3, 1.6), cf(1.7, 7.9, -6.8), DARK)
+			B:block(head, v(2.4, 1.8, 2.5), cf(1.95, 7.45, -7.25), MAIN)
+			B:block(head, v(1.6, 0.3, 1.6), cf(1.7, 8.4, -6.8), DARK)
 			-- BIG amber eye on the bump's front; one slit pupil on the front face
-			B:block(head, v(1.6, 1.4, 1.2), cf(2.42, 7.0, -8.0), AMBER, { mat = "Neon", name = "Eye" .. side })
-			B:block(head, v(0.5, 1.2, 0.12), cf(2.25, 6.95, -8.63), SLIT)
-			B:block(head, v(0.3, 0.3, 0.08), cf(2.85, 7.2, -8.63), "#ffffff", NEON) -- glint
+			B:block(head, v(1.6, 1.4, 1.2), cf(2.42, 7.5, -8.0), AMBER, { mat = "Neon", name = "Eye" .. side })
+			B:block(head, v(0.5, 1.2, 0.12), cf(2.25, 7.45, -8.63), SLIT)
+			B:block(head, v(0.3, 0.3, 0.08), cf(2.85, 7.7, -8.63), "#ffffff", NEON) -- glint
 			-- algae drips off the upper lip (own bone, swings)
-			local algae = B:bone("Algae" .. side, "Head", v(2.05, 3.7, -10.2))
-			B:block(algae, v(0.3, 0.8, 0.35), cf(2.3, 3.3, -10.2), MOSS2)
-			B:block(algae, v(0.25, 0.5, 0.3), cf(2.3, 2.7, -10.2), MOSS)
+			local algae = B:bone("Algae" .. side, "Head", v(2.15, 3.7, -10.2))
+			B:block(algae, v(0.3, 0.8, 0.35), cf(2.4, 3.3, -10.2), MOSS2)
+			B:block(algae, v(0.25, 0.5, 0.3), cf(2.4, 2.7, -10.2), MOSS)
 		end)
-		local nose = B:block(head, v(1.8, 0.4, 0.8), cf(0, 6.1, -12.2), MAIN, { tr = 1, name = "NoseFX" })
+		local nose = B:block(head, v(1.8, 0.4, 0.8), cf(0, 6.7, -12.2), MAIN, { tr = 1, name = "NoseFX" })
 		B:emitter(nose, "bubble", {
 			name = "Bubbles", color = { "#ffffff", "#c9f2c0" }, rate = 0, size = { 0.3, 0.6, 0.8 }, speed = { 1, 2.5 },
 			life = { 1.0, 1.8 }, spread = 35,
 		})
 		local mouthFx = B:block(head, v(2.4, 1.2, 1.2), cf(0, 3.4, -13.2), MAIN, { tr = 1, name = "MouthFX" })
 		B:emitter(mouthFx, "burst", { name = "SnapBurst", color = { "#ffffff", AMBER, MOSS } })
-		B:trail(head, v(0, 5.8, -12.7), v(0, 3.7, -12.7), { name = "SnoutTrail", color = { "#ffffff", AMBER }, life = 0.2, trans = { 0.55, 1 } })
+		B:trail(head, v(0, 6.3, -12.7), v(0, 3.7, -12.7), { name = "SnoutTrail", color = { "#ffffff", AMBER }, life = 0.2, trans = { 0.55, 1 } })
 		-- cartoon CHOMP impact lines (hidden, flashed on the snap)
 		for i = 1, 6 do
 			local a = (i - 1) / 6 * 360 + 30
-			B:block(head, v(0.3, 0.3, 1.3), CFrame.new(0, 4.2, -13.4) * ang(0, 0, a) * CFrame.new(0, 2.7, 0) * ang(90, 0, 0), "#fff8dc", { mat = "Neon", tr = 1, name = "SnapLine" .. i })
+			B:block(head, v(0.3, 0.3, 1.3), CFrame.new(0, 4.4, -13.4) * ang(0, 0, a) * CFrame.new(0, 2.9, 0) * ang(90, 0, 0), "#fff8dc", { mat = "Neon", tr = 1, name = "SnapLine" .. i })
 		end
 
-		-- heavy lids (half-closed = lazy) and heavy brows, on bones
+		-- heavy lids (half-closed = lazy) and heavy overhanging brows, on bones
 		B:sym(function(side)
-			local lid = B:bone("Lid" .. side, "Head", v(2.42, 8.05, -8.0))
-			B:block(lid, v(1.8, 1.45, 1.45), cf(2.42, 8.05, -8.0), MAIN)
-			B:block(lid, v(1.84, 0.2, 1.49), cf(2.42, 7.38, -8.0), DEEP) -- lash line
-			local brow = B:bone("Brow" .. side, "Head", v(1.9, 8.9, -7.8))
-			B:block(brow, v(2.8, 0.6, 1.7), cf(1.95, 8.95, -7.9), DEEP)
-			B:block(brow, v(1.1, 0.45, 1.2), cf(2.85, 9.4, -7.7), DEEP)
-			B:block(brow, v(0.7, 0.3, 0.8), cf(3.15, 9.7, -7.6), SCUTE)
+			local lid = B:bone("Lid" .. side, "Head", v(2.42, 8.55, -8.0))
+			B:block(lid, v(1.8, 1.45, 1.45), cf(2.42, 8.55, -8.0), MAIN)
+			B:block(lid, v(1.84, 0.2, 1.49), cf(2.42, 7.88, -8.0), DEEP) -- lash line
+			local brow = B:bone("Brow" .. side, "Head", v(1.9, 9.4, -7.8))
+			B:block(brow, v(3.0, 0.7, 1.8), cf(2.0, 9.45, -7.9), DEEP)
+			B:block(brow, v(2.4, 0.2, 1.4), cf(1.8, 9.88, -7.95), BELLY2) -- bone ridge on top
+			B:block(brow, v(1.0, 0.45, 1.2), cf(3.05, 9.95, -7.7), DEEP)
+			B:block(brow, v(0.6, 0.3, 0.8), cf(3.3, 10.2, -7.6), SCUTE)
 		end)
 
 		-- anger vein (prop) above the right brow
-		local mark = B:bone("Mark", "Head", v(3.4, 10.0, -6.6))
-		local MP = CFrame.new(3.4, 10.0, -6.6) * ang(0, -35, 0)
+		local mark = B:bone("Mark", "Head", v(3.6, 10.6, -6.6))
+		local MP = CFrame.new(3.6, 10.6, -6.6) * ang(0, -35, 0)
 		local veins = {
 			{ -0.55, 0.7, 0.6, 0.25 }, { -0.7, 0.55, 0.25, 0.6 },
 			{ 0.55, 0.7, 0.6, 0.25 }, { 0.7, 0.55, 0.25, 0.6 },
@@ -217,13 +226,13 @@ return {
 		end
 
 		-- sleepy Zzz (prop)
-		local zzz = B:bone("Zzz", "Head", v(1.6, 9.2, -5.6))
+		local zzz = B:bone("Zzz", "Head", v(1.6, 9.9, -5.6))
 		local function zee(c0, s, n)
 			B:block(zzz, v(0.9 * s, 0.24 * s, 0.24), c0 * CFrame.new(0, 0.38 * s, 0), "#eef6ff", { tr = 1, name = "Zzz" .. n })
 			B:block(zzz, v(0.9 * s, 0.24 * s, 0.24), c0 * CFrame.new(0, -0.38 * s, 0), "#eef6ff", { tr = 1, name = "Zzz" .. (n + 1) })
 			B:block(zzz, v(0.24 * s, 1.0 * s, 0.24), c0 * ang(0, 0, -50), "#bcd8ff", { tr = 1, name = "Zzz" .. (n + 2) })
 		end
-		local ZP = CFrame.new(1.6, 9.2, -5.6) * ang(0, -30, 0)
+		local ZP = CFrame.new(1.6, 9.9, -5.6) * ang(0, -30, 0)
 		zee(ZP, 1, 1)
 		zee(ZP * CFrame.new(0.9, 1.0, 0), 0.7, 4)
 
@@ -236,6 +245,7 @@ return {
 		B:block(jaw, v(4.4, 0.35, 2.8), cf(0, 2.33, -7.1), BELLY)
 		B:block(jaw, v(3.2, 0.35, 4.2), cf(0, 2.43, -10.6), BELLY)
 		B:block(jaw, v(4.66, 0.3, 0.6), cf(0, 3.0, -8.0), DARK) -- jaw band
+		B:block(jaw, v(3.0, 0.55, 0.14), cf(0, 2.75, -12.86), BELLY) -- pale chin
 		B:block(jaw, v(4.0, 0.15, 2.6), cf(0, 3.5, -7.1), MOUTH)
 		B:block(jaw, v(2.8, 0.15, 4.2), cf(0, 3.52, -10.6), MOUTH)
 		B:block(jaw, v(1.8, 0.25, 4.2), cf(0, 3.62, -9.2), TONGUE)
@@ -255,46 +265,52 @@ return {
 		-- LEGS: short sprawling gator legs (3 bones each), chunky clawed feet
 		------------------------------------------------------------------
 		B:sym(function(side)
-			-- front legs on the chest
+			-- front legs on the chest: stepped shoulder -> elbow -> wrist -> toes
 			local arm = B:bone("Arm" .. side, "Chest", v(2.9, 3.6, -2.6))
 			B:block(arm, v(2.2, 2.2, 2.2), cf(3.2, 3.7, -2.6), MAIN)
-			B:block(arm, v(1.6, 0.6, 1.8), cf(3.4, 2.75, -2.6), BELLY)
-			B:beam(arm, v(3.4, 3.4, -2.55), v(4.75, 2.75, -2.4), 1.7, 1.7, MAIN)
+			B:block(arm, v(1.7, 0.5, 1.8), cf(3.35, 2.5, -2.6), BELLY)
+			B:block(arm, v(1.6, 1.5, 1.6), cf(4.15, 3.1, -2.5), MAIN)
+			B:block(arm, v(0.25, 0.9, 1.2), cf(4.98, 3.15, -2.5), DARK)
 			scute(arm, 3.4, 4.8, -2.6, 0.8)
 			local fore = B:bone("Forearm" .. side, "Arm" .. side, v(4.7, 2.7, -2.4))
-			B:block(fore, v(1.8, 1.8, 1.8), cf(4.75, 2.7, -2.45), DARK)
-			B:beam(fore, v(4.7, 2.5, -2.45), v(4.62, 0.8, -2.7), 1.5, 1.5, MAIN)
-			B:block(fore, v(1.0, 1.2, 0.3), cf(4.65, 1.5, -3.5), BELLY2)
+			B:block(fore, v(1.7, 1.6, 1.7), cf(4.75, 2.65, -2.45), DARK)
+			B:block(fore, v(1.5, 1.2, 1.5), cf(4.68, 1.6, -2.55), MAIN)
+			B:block(fore, v(1.0, 0.9, 0.2), cf(4.68, 1.6, -3.35), BELLY2)
+			B:block(fore, v(1.3, 0.55, 1.3), cf(4.62, 0.85, -2.65), DARK)
 			local hand = B:bone("Hand" .. side, "Forearm" .. side, v(4.6, 0.65, -2.7))
-			B:block(hand, v(2.0, 0.7, 2.6), cf(4.65, 0.35, -3.0), DARK)
-			B:block(hand, v(1.6, 0.45, 1.9), cf(4.65, 0.9, -2.85), MAIN)
+			B:block(hand, v(2.0, 0.45, 2.0), cf(4.65, 0.23, -2.8), DARK)
+			B:block(hand, v(1.5, 0.4, 1.4), cf(4.65, 0.6, -2.75), MAIN)
 			for k = -1, 1 do
-				B:wedge(hand, v(0.45, 0.5, 0.9), cf(4.65 + k * 0.65, 0.25, -4.7), TEETH)
+				B:block(hand, v(0.55, 0.5, 1.0), cf(4.65 + k * 0.72, 0.27, -4.1), MAIN)
+				B:wedge(hand, v(0.45, 0.45, 0.7), cf(4.65 + k * 0.72, 0.23, -4.9), TEETH)
 			end
 			local dustF = B:block(hand, v(2.0, 0.2, 2.4), cf(4.65, 0.1, -3.0), MAIN, { tr = 1, name = "DustPadF" .. side })
 			B:emitter(dustF, "dust", {
 				name = "DustF" .. side, color = { "#d8d0a8", "#a7a878" }, size = { 1.2, 2.4, 3.0 }, speed = { 4, 9 },
 				life = { 0.5, 0.9 }, trans = { 0.3, 0.5, 1 }, spread = 80,
 			})
-			B:trail(hand, v(4.65, 0.55, -4.9), v(4.65, 0.05, -4.9), { name = "ClawTrail" .. side, color = { "#ffffff", MOSS }, life = 0.15, trans = { 0.5, 1 } })
+			B:trail(hand, v(4.65, 0.5, -5.1), v(4.65, 0.05, -5.1), { name = "ClawTrail" .. side, color = { "#ffffff", MOSS }, life = 0.15, trans = { 0.5, 1 } })
 
-			-- rear legs on the hips (bigger thighs)
+			-- rear legs on the hips: big stepped thigh -> knee -> shin -> toes
 			local thigh = B:bone("Thigh" .. side, "Body", v(2.8, 3.6, 3.2))
 			B:block(thigh, v(2.6, 2.6, 2.8), cf(3.25, 3.75, 3.2), MAIN)
 			B:block(thigh, v(0.3, 1.2, 1.8), cf(4.6, 4.0, 3.2), DARK)
-			B:block(thigh, v(2.0, 0.6, 2.2), cf(3.4, 2.65, 3.2), BELLY)
-			B:beam(thigh, v(3.6, 3.4, 3.1), v(4.85, 2.95, 2.9), 2.0, 2.0, MAIN)
+			B:block(thigh, v(2.0, 0.5, 2.2), cf(3.4, 2.45, 3.2), BELLY)
+			B:block(thigh, v(1.8, 1.7, 2.0), cf(4.35, 3.05, 3.0), MAIN)
 			scute(thigh, 3.3, 5.05, 3.3, 0.85)
 			local shin = B:bone("Shin" .. side, "Thigh" .. side, v(4.8, 2.9, 2.9))
-			B:block(shin, v(2.0, 2.0, 2.0), cf(4.85, 2.9, 2.95), DARK)
-			B:beam(shin, v(4.8, 2.7, 3.0), v(4.7, 0.8, 3.35), 1.7, 1.7, MAIN)
+			B:block(shin, v(1.9, 1.8, 2.0), cf(4.85, 2.85, 2.95), DARK)
+			B:block(shin, v(1.0, 0.8, 0.25), cf(4.85, 2.9, 1.86), SCUTE) -- knee cap
+			B:block(shin, v(1.6, 1.3, 1.7), cf(4.75, 1.75, 3.15), MAIN)
+			B:block(shin, v(1.4, 0.55, 1.5), cf(4.72, 0.95, 3.3), DARK)
 			local foot = B:bone("Foot" .. side, "Shin" .. side, v(4.7, 0.65, 3.4))
-			B:block(foot, v(2.2, 0.7, 3.2), cf(4.75, 0.35, 2.85), DARK)
-			B:block(foot, v(1.8, 0.45, 2.4), cf(4.75, 0.9, 3.0), MAIN)
+			B:block(foot, v(2.2, 0.45, 2.6), cf(4.75, 0.23, 3.0), DARK)
+			B:block(foot, v(1.7, 0.4, 1.8), cf(4.75, 0.6, 3.1), MAIN)
 			for k = -1, 1 do
-				B:wedge(foot, v(0.5, 0.5, 1.0), cf(4.75 + k * 0.72, 0.25, 0.8), TEETH)
+				B:block(foot, v(0.6, 0.5, 1.1), cf(4.75 + k * 0.78, 0.27, 1.3), MAIN)
+				B:wedge(foot, v(0.5, 0.45, 0.8), cf(4.75 + k * 0.78, 0.23, 0.4), TEETH)
 			end
-			B:wedge(foot, v(0.5, 0.45, 0.8), cf(4.75, 0.22, 4.7, 0, 180, 0), DEEP) -- heel spur
+			B:wedge(foot, v(0.5, 0.45, 0.8), cf(4.75, 0.22, 4.6, 0, 180, 0), DEEP) -- heel spur
 			local dustR = B:block(foot, v(2.2, 0.2, 3.0), cf(4.75, 0.1, 2.9), MAIN, { tr = 1, name = "DustPadR" .. side })
 			B:emitter(dustR, "dust", {
 				name = "DustR" .. side, color = { "#d8d0a8", "#a7a878" }, size = { 1.3, 2.6, 3.2 }, speed = { 4, 9 },
@@ -362,7 +378,7 @@ return {
 		B:light(core, { name = "LanternLight", color = AMBER, brightness = 1.2, range = 10 })
 
 		------------------------------------------------------------------
-		-- Floating voxel cubes: olive cube + moss cap + thin amber band
+		-- Floating voxel cubes: slate cube + moss cap + thin amber band
 		------------------------------------------------------------------
 		local orbs = {
 			{ 7.8, 7.4, -4.5, 1.7 },

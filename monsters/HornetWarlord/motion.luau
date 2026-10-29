@@ -415,7 +415,7 @@ local function chase(t, pose, ctx)
 	q.y = 0.25 + 0.55 * s
 	q.p = -26 + 4 * wave(t, CH, 0.25)
 	q.r = 4 * wave(t, CH, 0.1)
-	q.hp = 18 + 4 * wave(t, CH, 0.3)
+	q.hp = 24 + 4 * wave(t, CH, 0.3)
 	q.hy = 3 * wave(t, CH, 0.2)
 	q.mand = 12 + 20 * max(0, s2) ^ 2
 	q.browY = -0.25

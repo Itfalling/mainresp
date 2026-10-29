@@ -19,10 +19,11 @@ M.Props = {
 	AngerMark1 = 1, AngerMark2 = 1, AngerMark3 = 1, AngerMark4 = 1,
 	Berry = 1, BerryLeaf = 1, EyelidR = 1, EyelidL = 1,
 	BallCover1 = 1, BallCover2 = 1, BallCover3 = 1, BallCover4 = 1, BallCover5 = 1, BallCover6 = 1,
+	BallCover7 = 1, BallCover8 = 1, BallCover9 = 1, BallCover10 = 1, BallCover11 = 1,
 }
 local function covers(ctx, k)
 	if k > 0.6 then
-		for i = 1, 6 do
+		for i = 1, 11 do
 			ctx.transparency("BallCover" .. i, 0)
 		end
 	end
@@ -40,8 +41,8 @@ end
 local BP = Vector3.new(0, 4.0, 0.6) -- Body pivot
 local Q = Vector3.new(0, 1.0, 0.2) -- ball centre in Body-local space
 local LEGS = {
-	{ "Arm", "Paw", Vector3.new(2.7, 2.6, -2.3) },
-	{ "Leg", "Foot", Vector3.new(2.9, 2.6, 2.6) },
+	{ "Arm", "Paw", Vector3.new(2.2, 2.4, -2.0) },
+	{ "Leg", "Foot", Vector3.new(2.4, 2.4, 2.6) },
 }
 -- curled-ball "radius" (centre height that keeps the lowest point on the
 -- floor) for every 5 degrees of forward roll, measured from the curled pose
@@ -99,9 +100,9 @@ local function legs(pose, bodyW, feet)
 end
 
 -- keep the snout + open jaw above the floor: close the jaw first, then lift the head
-local HEADP, JAWP = Vector3.new(0, 4.3, -3.4), Vector3.new(0, 2.95, -4.4)
-local HPTS = { Vector3.new(0, 3.9, -10.3), Vector3.new(0, 2.7, -8.4) }
-local JPTS = { Vector3.new(0, 1.5, -9.2), Vector3.new(0, 1.5, -5.0), Vector3.new(1.8, 1.8, -9.2) }
+local HEADP, JAWP = Vector3.new(0, 5.0, -3.2), Vector3.new(0, 4.3, -4.6)
+local HPTS = { Vector3.new(0, 5.1, -10.2), Vector3.new(0, 3.8, -7.9) }
+local JPTS = { Vector3.new(0, 3.0, -8.3), Vector3.new(0, 3.0, -4.9), Vector3.new(1.3, 3.25, -8.3) }
 local function fixHead(pose)
 	local bodyW = CFrame.new(BP) * (pose.Body or CFrame.new())
 	local head = pose.Head or CFrame.new()
@@ -146,7 +147,7 @@ local function curl(pose, k, extraBristle)
 	end
 	mix("Front", ang(-45, 0, 0))
 	mix("Rump", ang(45, 0, 0))
-	mix("Head", pa(0, 0.8, 6.6, -10, 0, 0))
+	mix("Head", pa(0, 0.3, 5.2, -12, 0, 0))
 	local c, s = quillCF(0.5 + (extraBristle or 0))
 	for _, g in { "F", "M", "R" } do
 		mix("Quill" .. g, c)
@@ -342,8 +343,8 @@ local function idle(t, pose, ctx)
 	ctx.transparency("BerryLeaf", showBerry and 0 or 1)
 	if showBerry then
 		local u = r01(c, 2.9, 3.3)
-		local y = 4.5 * u + 6.0 * sin(pi * u) * (1 - 0.15 * u)
-		local z = 2.2 * u
+		local y = 6.0 * u + 5.0 * sin(pi * u) * (1 - 0.15 * u)
+		local z = 2.4 * u
 		pose.Snack = pa(0, y, z, -260 * u, 120 * u, 0)
 	end
 
