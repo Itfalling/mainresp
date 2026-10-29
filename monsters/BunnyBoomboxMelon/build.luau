@@ -21,7 +21,7 @@ return {
 		local GRASS, GRASS_DK = "#5fcf3c", "#3fa82e"
 		local BARK_DK, BARK = "#4f2c1e", "#653a26"
 		local VINE_DK, VINE, VINE_LT = "#1f6b2c", "#2d8c39", "#45a846"
-		local LEAF_DK, LEAF, LEAF_LT, LEAF_HI = "#23863a", "#33a845", "#4fc94f", "#74dd5a"
+		local LEAF_DK, LEAF, LEAF_LT, LEAF_HI = "#1f9a52", "#2fb85e", "#52d46e", "#82e88c"
 		local MEL, MEL_DK = "#1c1f29", "#12141b"
 		local GRILLE, CONE, CONE_RIM = "#1fb8d6", "#30343f", "#4a5060"
 		local CYAN_NEON = "#62f4ff"
@@ -160,9 +160,9 @@ return {
 		runner({ v(-1.2, Y0 + 0.6, -0.6), v(-2.4, 1.6, -1.6), v(-3.4, 1.7, -2.6) }, 0.6)
 		melon(cf(3.6, 0.8 + 1.25, 2.6, 0, -50, 3), 2.7)
 		runner({ v(1.2, Y0 + 0.6, 0.6), v(2.3, 1.5, 1.7), v(3.2, 1.6, 2.7) }, 0.6)
-		-- a small one in front
-		melon(cf(1.6, 1.4 + 0.95, -3.4, 0, -15, 0), 2.0)
-		runner({ v(0.4, Y0 + 0.6, -1.2), v(1.0, 1.9, -2.4), v(1.5, 2.5, -3.2) }, 0.5)
+		-- a small one at the back
+		melon(cf(-1.4, 1.4 + 0.95, 3.6, 0, 160, 0), 2.0)
+		runner({ v(-0.4, Y0 + 0.6, 1.2), v(-0.9, 1.9, 2.4), v(-1.3, 2.5, 3.2) }, 0.5)
 
 		-- hanging melons on curly tendrils under the crown
 		local function hang(x, z, top, len, s, yaw)
@@ -206,12 +206,12 @@ return {
 			local a = math.rad(deg)
 			note(v(math.sin(a) * r, Y0 + y, -math.cos(a) * r), yaw, col, glow, double)
 		end
-		noteAt(-60, 7.4, 11.8, 30, PINK, PINK_NEON, false)
-		noteAt(20, 6.8, 12.4, -10, GRILLE, CYAN_NEON, true)
-		noteAt(85, 7.6, 11.0, -70, GOLD, GOLD_NEON, false)
-		noteAt(150, 7.0, 12.2, 200, PINK, PINK_NEON, true)
-		noteAt(215, 7.4, 11.4, 130, GRILLE, CYAN_NEON, false)
-		noteAt(270, 7.2, 12.6, 80, GOLD, GOLD_NEON, true)
+		noteAt(-60, 8.0, 11.8, 30, PINK, PINK_NEON, false)
+		noteAt(20, 7.8, 12.4, -10, GRILLE, CYAN_NEON, true)
+		noteAt(85, 8.2, 11.0, -70, GOLD, GOLD_NEON, false)
+		noteAt(150, 7.8, 12.2, 200, PINK, PINK_NEON, true)
+		noteAt(215, 8.0, 11.4, 130, GRILLE, CYAN_NEON, false)
+		noteAt(270, 7.8, 12.6, 80, GOLD, GOLD_NEON, true)
 
 		---------------------------------------------------------------- bling
 		B:emitter(notes[1], "sparkle", { name = "NoteSparkle", color = { "#ff9ee0", "#7ff6ff" }, rate = 4, size = 0.4 })

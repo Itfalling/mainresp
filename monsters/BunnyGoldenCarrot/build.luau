@@ -95,18 +95,18 @@ return {
 			B:block(crop, v(2.0, 0.9, 1.2), cf(c * 2.5, 2.55, s * 2.5, 0, -a, 0), BARK)
 			B:block(crop, v(1.2, 0.6, 1.0), cf(c * 3.6, 2.2, s * 3.6, 0, -a, 0), BARK_DK)
 		end
-		B:block(crop, v(2.6, 3.0, 2.6), cf(0, 6.3, 0), BARK)
+		B:block(crop, v(3.0, 3.0, 3.0), cf(0, 6.3, 0), BARK)
 		-- gold bling band (chain of links) wrapping the trunk
-		B:block(crop, v(2.8, 0.5, 2.8), cf(0, 6.0, 0), GOLD_DK)
+		B:block(crop, v(3.2, 0.5, 3.2), cf(0, 6.0, 0), GOLD_DK)
 		for k = 0, 3 do
 			local a = k * 90
 			local c, s = math.cos(rad(a)), math.sin(rad(a))
-			B:block(crop, v(0.7, 0.7, 0.4), cf(c * 1.5, 6.0, s * 1.5, 0, -a + 90, 0), GOLD)
+			B:block(crop, v(0.7, 0.7, 0.4), cf(c * 1.7, 6.0, s * 1.7, 0, -a + 90, 0), GOLD)
 		end
-		B:block(crop, v(2.3, 2.6, 2.3), cf(0.1, 8.9, 0, 0, 10, 4), BARK)
-		B:block(crop, v(1.6, 0.6, 0.5), cf(-0.4, 7.9, -1.25, 0, 10, 0), BARK_LT) -- bark patches
-		B:block(crop, v(0.5, 1.2, 1.3), cf(1.3, 5.6, 0.4), BARK_DK)
-		B:block(crop, v(1.0, 1.4, 0.5), cf(0.6, 9.4, 1.18, 0, 10, 4), BARK_DK)
+		B:block(crop, v(2.6, 2.8, 2.6), cf(0.1, 8.9, 0, 0, 10, 4), BARK)
+		B:block(crop, v(1.6, 0.6, 0.5), cf(-0.4, 7.9, -1.4, 0, 10, 0), BARK_LT) -- bark patches
+		B:block(crop, v(0.5, 1.2, 1.3), cf(1.5, 5.4, 0.4), BARK_DK)
+		B:block(crop, v(1.0, 1.4, 0.5), cf(0.6, 9.4, 1.32, 0, 10, 4), BARK_DK)
 
 		-- branches of angled blocks reaching into the canopy
 		local function branch(a, len, tilt, y)

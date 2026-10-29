@@ -137,16 +137,18 @@ return {
 			-- stalk hanging from the crown
 			B:beam(crop, v(tx + math.sin(a) * 0.6, ty + 0.4, tz + math.cos(a) * 0.6), v(bx, y - 0.4, bz), 0.6, 0.6, STALK)
 			for tier = 0, 1 do
-				local ty2 = y + 0.8 - tier * 1.2
-				for k = 0, 4 do
-					local phi = a + math.rad((k - 2) * 38 + tier * 19)
+				local ty2 = y + 0.9 - tier * 1.3
+				for k = 0, 3 do
+					local phi = a + math.rad((k - 1.5) * 46 + tier * 23)
 					local ox, oz = math.sin(phi), math.cos(phi)
-					-- banana: points outward then curls up, neon glowstick tip
-					local p0 = v(bx + ox * 0.2, ty2, bz + oz * 0.2)
-					local p1 = p0 + v(ox * 1.3, 0.8, oz * 1.3)
-					local p2 = p1 + v(ox * 0.25, 0.7, oz * 0.25)
-					B:beam(crop, p0, p1, 0.75, 0.75, body)
-					local t = B:beam(crop, p1 - v(ox * 0.15, 0.12, oz * 0.15), p2, 0.5, 0.5, tip, { mat = "Neon" })
+					-- banana: two segments curving out then up, neon glowstick tip
+					local p0 = v(bx + ox * 0.25, ty2, bz + oz * 0.25)
+					local p1 = p0 + v(ox * 1.1, 0.3, oz * 1.1)
+					local p2 = p1 + v(ox * 0.55, 0.95, oz * 0.55)
+					local p3 = p2 + v(ox * 0.05, 0.45, oz * 0.05)
+					B:beam(crop, p0, p1 + v(ox * 0.2, 0.05, oz * 0.2), 0.68, 0.68, body)
+					B:beam(crop, p1 - v(ox * 0.1, 0.05, oz * 0.1), p2, 0.62, 0.62, body)
+					local t = B:beam(crop, p2 - v(ox * 0.06, 0.12, oz * 0.06), p3, 0.48, 0.48, tip, { mat = "Neon" })
 					table.insert(tips, t)
 				end
 			end
@@ -159,8 +161,8 @@ return {
 
 		----------------------------------------------------------------- vfx
 		B:emitter(tips[2], "sparkle", { name = "PinkSparkle", color = { "#ffffff", "#ff8fd8" }, rate = 3, size = 0.35 })
-		B:emitter(tips[13], "sparkle", { name = "LimeSparkle", color = { "#ffffff", "#b8ff7a" }, rate = 3, size = 0.35 })
-		B:emitter(tips[23], "sparkle", { name = "GoldSparkle", color = { "#ffffff", "#ffe56a" }, rate = 3, size = 0.35 })
-		B:light(tips[8], { color = "#ff9be6", brightness = 1.0, range = 10, name = "GlowstickLight" })
+		B:emitter(tips[11], "sparkle", { name = "LimeSparkle", color = { "#ffffff", "#b8ff7a" }, rate = 3, size = 0.35 })
+		B:emitter(tips[19], "sparkle", { name = "GoldSparkle", color = { "#ffffff", "#ffe56a" }, rate = 3, size = 0.35 })
+		B:light(tips[6], { color = "#ff9be6", brightness = 1.0, range = 10, name = "GlowstickLight" })
 	end,
 }

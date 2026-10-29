@@ -92,10 +92,12 @@ return {
 		for k, s in spots do
 			local x, _, z = polar(5.9, s[1], 0)
 			B:block(soil, v(1.1, 0.5, 1.1), cf(x, 2.2, z, 0, -s[1], 0), CAN, S)
-			local C = cf(x, 2.95, z, 0, -s[1], 0) * ang(-35, 0, 0)
+			local C = cf(x, 2.95, z, 0, -s[1], 0) * ang(-55, 0, 0)
 			B:block(soil, v(1.0, 1.0, 1.4), C, CAN, S)
 			B:block(soil, v(0.75, 0.75, 0.2), C * CFrame.new(0, 0, 0.72), s[2], { name = "Soil", mat = "Neon" })
 			B:block(soil, v(1.2, 0.2, 0.3), C * CFrame.new(0, 0.55, 0.55), GOLD, S)
+			-- faint see-through light beam up into the crown
+			B:block(soil, v(0.6, 0.6, 5.2), C * CFrame.new(0, 0, 0.85 + 2.6), s[2], { name = "Soil", mat = "Neon", tr = 0.78 })
 		end
 		-- grass tufts
 		local grass = { { -8.3, 3.9 }, { 8.8, 1.6 }, { 2.4, 8.7 }, { -3.4, -8.5 }, { 6.9, -5.9 }, { -6.6, -5.4 } }
