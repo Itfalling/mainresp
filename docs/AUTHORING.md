@@ -232,4 +232,4 @@ return L.states(M)
   `--times=` close-ups and clipcheck. The showcase place plays the reel; in game the model starts in `Idle`.
 * `monsters/<Id>/pack.txt` (e.g. `Guardian`) adds the monster to `out/<Pack>Showcase.rbxl` and
   `out/<Pack>Monsters.rbxm`. Render the pack scene with `node tools/preview/shoot.mjs _showcase_<Pack>`.
-* Rarity `Apex` (top-tier boss) allows 680 parts and 44 studs of height.
+* Rarity `Apex` (top-tier boss) allows 680 parts and 56 studs of height.

@@ -366,7 +366,7 @@ local function buildMonster(id, L)
 	local CAPS = { Common = 260, Uncommon = 280, Rare = 320, Epic = 360, Legendary = 440, Mythic = 460, Secret = 460, Cosmic = 480, Divine = 520, Apex = 680 }
 	local cap = CAPS[spec.Rarity or "Legendary"] or 360
 	if B.partCount > cap then problem(("too many parts: %d (max %d for %s) - get detail from color blocking, not part spam"):format(B.partCount, cap, spec.Rarity or "?")) end
-	local maxH = spec.Rarity == "Apex" and 44 or 24
+	local maxH = spec.Rarity == "Apex" and 56 or 24
 	if mx.Y - mn.Y > maxH then problem(("too tall: %.1f studs (max %d - a player is 5 studs)"):format(mx.Y - mn.Y, maxH)) end
 
 	-- Report

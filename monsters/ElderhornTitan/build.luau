@@ -227,11 +227,15 @@ return {
 		local function av(x, y, z)
 			return v(x, y, z) + HO
 		end
+		local HS = 1.12 -- big cartoon head: face authored at 1x, scaled about HP
+		local function hp(x, y, z)
+			return HP + (v(x, y, z) - HP) * HS
+		end
 		local function hb(bone, sx, sy, sz, x, y, z, col, opts, rz)
-			return B:block(bone, v(sx, sy, sz), HT * cf(x, y, z, 0, 0, rz or 0), col, opts)
+			return B:block(bone, v(sx, sy, sz) * HS, HT * CFrame.new(hp(x, y, z)) * P.ang(0, 0, rz or 0), col, opts)
 		end
 		local function hv(x, y, z)
-			return (HT * CFrame.new(x, y, z)).Position
+			return (HT * CFrame.new(hp(x, y, z))).Position
 		end
 		local head = B:bone("Head", "Neck2", HP + HO)
 		hb(head, 10, 7, 8.6, 0, 34, -27.6, BARK_D) -- skull y30.5..37.5 z-31.9..-23.3
@@ -243,15 +247,15 @@ return {
 		hb(head, 3.2, 2.2, 0.6, 0, 38.4, -32.0, BONE) -- mask crest
 		hb(head, 1.8, 1.2, 0.6, 0, 40.0, -31.8, BONE)
 		hb(head, 8.0, 4.4, 4.0, 0, 32.6, -34.4, BONE) -- muzzle 1 y30.4..34.8
-		hb(head, 6.6, 3.8, 3.4, 0, 32.3, -38.0, BONE) -- muzzle 2
-		hb(head, 5.2, 3.2, 2.0, 0, 32.0, -40.6, BONE) -- muzzle 3
+		hb(head, 6.6, 3.8, 2.8, 0, 32.3, -37.7, BONE) -- muzzle 2
+		hb(head, 5.2, 3.2, 1.6, 0, 32.0, -39.8, BONE) -- muzzle 3
 		hb(head, 6.0, 0.6, 3.6, 0, 35.1, -34.2, MASK_D) -- muzzle top step
-		hb(head, 2.6, 0.6, 7.6, 0, 34.6, -37.6, MASK_D) -- nose ridge
-		hb(head, 2.8, 0.9, 0.6, 0, 33.25, -41.8, OBSID) -- nose pad
+		hb(head, 2.6, 0.6, 6.8, 0, 34.6, -37.2, MASK_D) -- nose ridge
+		hb(head, 2.8, 0.9, 0.6, 0, 33.25, -40.85, OBSID) -- nose pad
 		B:sym(function(side)
-			hb(head, 0.7, 0.4, 0.2, 0.75, 33.2, -42.15, MOUTH) -- nostril
+			hb(head, 0.7, 0.4, 0.2, 0.75, 33.2, -41.2, MOUTH) -- nostril
 			hb(head, 0.4, 2.8, 3.8, 4.05, 32.4, -34.4, MASK_D)
-			hb(head, 0.4, 2.4, 3.2, 3.35, 32.2, -38.0, MASK_D)
+			hb(head, 0.4, 2.4, 2.6, 3.35, 32.2, -37.7, MASK_D)
 			hb(head, 0.3, 1.8, 0.3, 4.3, 33.2, -33.2, BONE_DD) -- ancient crack
 			hb(head, 0.3, 0.3, 1.6, 4.3, 32.4, -34.0, BONE_DD)
 			-- cheek armour + a bone cheek spike sweeping back
@@ -260,9 +264,9 @@ return {
 			hb(head, 1.0, 0.6, 6.6, 5.45, 36.2, -27.6, STONE)
 			B:spike(head, hv(5.6, 32.2, -25.6), hv(8.2, 31.4, -21.6), 1.3, 1.3, BONE)
 			-- upper blunt teeth
-			hb(head, 1.1, 1.2, 1.0, 1.5, 29.95, -41.3, TEETH)
+			hb(head, 1.1, 1.2, 1.0, 1.5, 29.95, -40.35, TEETH)
 			hb(head, 1.1, 0.9, 1.1, 3.0, 30.0, -35.6, TEETH)
-			hb(head, 0.3, 1.4, 9.4, 3.3, 29.9, -36.4, MOUTH) -- cheek wall
+			hb(head, 0.3, 1.4, 8.6, 3.3, 29.9, -36.0, MOUTH) -- cheek wall
 			-- EYE: deep dark socket, emerald slit wrapping the skull corner
 			-- (reads from the side), pupil on the FRONT face only
 			hb(head, 3.2, 2.1, 1.4, 3.4, 35.2, -32.6, MOUTH)
@@ -270,9 +274,9 @@ return {
 			hb(head, 0.45, 0.95, 0.15, 3.0, 35.1, -33.45, PUPIL)
 			hb(head, 3.2, 0.5, 0.2, 3.6, 35.4, -33.5, "#c8ffe4", { mat = "Neon", tr = 1, name = "EyeFlare" .. side }, 10)
 		end)
-		hb(head, 6.8, 0.4, 9.8, 0, 30.2, -36.6, MOUTH) -- mouth roof
-		hb(head, 5.4, 0.45, 0.3, 0, 30.2, -41.75, MOUTH) -- mouth line
-		local roarFX = hb(head, 3, 2, 2, 0, 29.4, -41.6, STONE, { tr = 1, name = "RoarFX" })
+		hb(head, 6.8, 0.4, 9.0, 0, 30.2, -36.2, MOUTH) -- mouth roof
+		hb(head, 5.4, 0.45, 0.3, 0, 30.2, -40.8, MOUTH) -- mouth line
+		local roarFX = hb(head, 3, 2, 2, 0, 29.4, -40.6, STONE, { tr = 1, name = "RoarFX" })
 		B:emitter(roarFX, "burst", { name = "RoarBurst", color = { "#ffffff", EMER, MOSS_L }, speed = { 12, 24 }, size = { 1.6, 1.0, 0 }, life = { 0.4, 0.9 }, spread = 35, dir = "Front" })
 		B:light(roarFX, { name = "MouthLight", color = EMER, brightness = 0, range = 18 })
 
@@ -295,16 +299,16 @@ return {
 
 		-- strong jaw (hinged at the back of the mouth)
 		local jaw = B:bone("Jaw", "Head", hv(0, 30.4, -31.6))
-		hb(jaw, 7.4, 2.4, 10.2, 0, 29.0, -36.6, BARK_D) -- y27.8..30.2
-		hb(jaw, 6.0, 1.0, 8.4, 0, 27.4, -36.2, OBSID) -- chin plate
-		hb(jaw, 5.4, 0.9, 1.0, 0, 28.8, -41.8, BONE_D) -- chin lip
-		hb(jaw, 6.6, 0.3, 9.4, 0, 30.25, -36.6, MOUTH)
+		hb(jaw, 7.4, 2.4, 9.2, 0, 29.0, -36.1, BARK_D) -- y27.8..30.2
+		hb(jaw, 6.0, 1.0, 7.6, 0, 27.4, -35.8, OBSID) -- chin plate
+		hb(jaw, 5.4, 0.9, 1.0, 0, 28.8, -40.8, BONE_D) -- chin lip
+		hb(jaw, 6.6, 0.3, 8.6, 0, 30.25, -36.1, MOUTH)
 		hb(jaw, 3.2, 0.3, 5.4, 0, 30.45, -35.6, TONGUE)
 		hb(jaw, 6.0, 2.6, 1.0, 0, 30.6, -32.0, MOUTH) -- throat wall
 		B:sym(function()
-			hb(jaw, 1.1, 0.9, 1.1, 2.2, 30.75, -39.0, TEETH)
+			hb(jaw, 1.1, 0.9, 1.1, 2.2, 30.75, -38.6, TEETH)
 			hb(jaw, 1.0, 0.8, 1.0, 3.0, 30.7, -34.4, TEETH)
-			hb(jaw, 0.3, 1.2, 9.2, 3.5, 30.6, -36.6, MOUTH)
+			hb(jaw, 0.3, 1.2, 8.4, 3.5, 30.6, -36.1, MOUTH)
 			B:spike(jaw, hv(3.4, 28.6, -33.0), hv(5.0, 27.4, -30.6), 1.0, 1.0, BONE_D) -- jaw barb
 		end)
 

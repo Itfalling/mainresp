@@ -147,9 +147,9 @@ local function apply(S, t, pose, ctx)
 			local relW = (parentW * CF(g[5] - parentP)) * d.rel
 			target = target:Lerp(relW, d.k)
 		end
-		-- (a 0.1 stud hover keeps hoof corners out of the ground while the
+		-- (a 0.15 stud hover keeps hoof corners out of the ground while the
 		-- runtime cross-fades joint angles between two different stances)
-		local up, kn, hf = legIK(g, parentW, parentP, target + V3(0, 0.1, 0), CFrame.Angles(rad(d.hp or 0), 0, 0))
+		local up, kn, hf = legIK(g, parentW, parentP, target + V3(0, 0.15, 0), CFrame.Angles(rad(d.hp or 0), 0, 0))
 		pose[g[1]] = up
 		pose[g[2]] = kn
 		pose[g[3]] = hf
@@ -291,9 +291,9 @@ local function idle(t, pose, ctx)
 	local rise = env(c, 7.55, 0.6, 1.6, 0.8, "backOut", "sineInOut")
 	local bloom = env(c, 8.05, 0.25, 1.3, 0.9, "backOut", "sineInOut")
 	local bellow = env(c, 8.3, 0.35, 0.9, 0.4, "quadOut", "quadInOut")
-	S.n1 += -10 * dip + 16 * rise
+	S.n1 += -10 * dip + 10 * rise
 	S.n2 += -6 * dip + 6 * rise
-	S.hp += -10 * dip + 12 * rise
+	S.hp += -10 * dip + 7 * rise
 	S.by += -0.7 * dip + 0.2 * rise
 	S.bp += 1.0 * rise
 	S.cp += 3 * rise
@@ -426,9 +426,9 @@ local function chase(t, pose, ctx)
 	S.bp = -3 + 6 * cos(w - 2 * pi * 0.2)
 	S.br = 1.2 * sin(w)
 	S.cp = 1.5 * cos(w - 2 * pi * 0.55)
-	S.n1 = -5 + 6 * cos(w - 2 * pi * 0.7)
+	S.n1 = 1 + 5 * cos(w - 2 * pi * 0.7)
 	S.n2 = -2 + 3 * cos(w - 2 * pi * 0.8)
-	S.hp = -4 + 4 * cos(w - 2 * pi * 0.85)
+	S.hp = 2 + 3 * cos(w - 2 * pi * 0.85)
 	S.jaw = -18 - 8 * (0.5 + 0.5 * cos(w - 2 * pi * 0.65))
 	S.anger = 1
 	S.squint = 0.6
