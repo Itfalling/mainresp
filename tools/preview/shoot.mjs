@@ -38,9 +38,9 @@ const browser = await chromium.launch({
   args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'],
 });
 
-const SHOWCASE = ids[0] === '_showcase';
+const SHOWCASE = ids[0].startsWith('_showcase');
 const SHEETS = SHOWCASE
-  ? (opt.view || 'aisle,overview').split(',').map((v) => ({ name: v, q: { mode: 'showcase', view: v, t: opt.t || '1.5', cw: opt.cw || '1600', ch: opt.ch || '900' } }))
+  ? (opt.view || 'aisle,overview').split(',').map((v) => ({ name: v, q: { mode: 'showcase', scene: ids[0], view: v, t: opt.t || '1.5', cw: opt.cw || '1600', ch: opt.ch || '900' } }))
   : opt.views || opt.times || opt.nt
   ? [{ name: opt.name || 'custom', q: { views: opt.views || '34', times: opt.times || '', nt: opt.nt || '', cols: opt.cols || '', zoom: opt.zoom || '1', focus: opt.focus || '', cw: opt.cw || '', ch: opt.ch || '' } }]
   : [

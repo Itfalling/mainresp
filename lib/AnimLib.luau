@@ -242,4 +242,216 @@ function L.chain(t, freq, lag, amp)
 	end
 end
 
+---------------------------------------------------------------------------
+-- Gameplay states (guardians / NPCs)
+---------------------------------------------------------------------------
+-- A Motion module can define named states instead of one loop:
+--
+--   M.States = {
+--     Idle  = { Loop = true, Length = 12, Update = function(t, pose, ctx) end },
+--     Chase = { Loop = true, Length = 0.6, Speed = 22, Update = ... }, -- Speed: studs/s the stride matches
+--     Alert = { Length = 1.6, Update = ... },  -- one-shot: plays once, then back to the looping state
+--   }
+--   M.Base  = "Idle"                          -- looping state at spawn
+--   M.Props = { AngryMark = 1 }               -- parts states show/hide + their resting transparency
+--   M.Reel  = { { "Idle" }, { "Alert" }, { "Chase", 3 } }  -- showcase demo order (seconds per entry)
+--   return L.states(M)
+--
+-- Inside a state's Update, t is the time since the state started (it keeps
+-- growing in looping states, so use t % Length or waves of t) and
+-- ctx.crossed(sec) fires once per pass in that state's own clock.
+-- L.states fills in M.Cycle / M.Update so the reel plays as one long loop
+-- (previews + showcase); the Animator drives the real states in game.
+
+local BLEND = 0.2
+local EPS = 1e-4
+local IDENT = CFrame.new()
+
+local function noop() end
+local MUTED = { crossed = function() return false end, emit = noop, enable = noop, light = noop, transparency = noop }
+
+function L.runner(M)
+	local states = M.States
+	local props = M.Props or {}
+	local R = { base = M.Base or "Idle", auto = true }
+	local cur, curT, prevT, fresh = nil, 0, 0, false
+	local from, fromT, blendT, blendLen = nil, 0, 0, 0
+	local poseA = {}
+	local outer = MUTED
+	local propNow = {}
+
+	local sub = {}
+	function sub.crossed(at)
+		local st = states[cur]
+		if st.Loop then
+			local len = st.Length
+			if curT - prevT >= len then
+				return true
+			end
+			local p, c = prevT % len, curT % len
+			if c >= p then
+				return p < at and at <= c
+			end
+			return at > p or at <= c
+		end
+		return prevT < at and at <= curT
+	end
+	function sub.emit(n, k) outer.emit(n, k) end
+	function sub.enable(n, on) outer.enable(n, on) end
+	function sub.light(n, b) outer.light(n, b) end
+	function sub.transparency(n, v)
+		if props[n] ~= nil then
+			propNow[n] = v
+		else
+			outer.transparency(n, v)
+		end
+	end
+
+	-- Start a state from its first frame, blending out of the current pose.
+	function R.enter(name)
+		if not states[name] then
+			return
+		end
+		if cur and not fresh then
+			from, fromT, blendT = cur, curT, 0
+		end
+		blendLen = states[name].Blend or BLEND
+		cur, curT, prevT, fresh = name, 0, -EPS, true
+	end
+	-- Jump straight into a state at time st (no blend, no effects replayed).
+	function R.jump(name, st)
+		cur, curT, prevT, fresh, from = name, st, st, false, nil
+	end
+	-- Looping "base" state the monster returns to after one-shots.
+	function R.setBase(name)
+		if not states[name] then
+			return
+		end
+		R.base = name
+		if cur == nil or (states[cur].Loop and cur ~= name) then
+			R.enter(name)
+		end
+	end
+	-- Play any state now (a looping one also becomes the new base).
+	function R.play(name)
+		local st = states[name]
+		if not st then
+			return
+		end
+		if st.Loop then
+			R.base = name
+		end
+		R.enter(name)
+	end
+	function R.current()
+		return cur, curT
+	end
+
+	local function eval(name, t, pose, ctx)
+		local st = states[name]
+		if not st.Loop then
+			t = math.min(t, st.Length)
+		end
+		st.Update(t, pose, ctx)
+	end
+
+	function R.step(dt, pose, ctx)
+		outer = ctx or MUTED
+		if cur == nil then
+			R.enter(R.base)
+		end
+		if fresh then
+			fresh = false
+		else
+			prevT = curT
+			curT += dt
+		end
+		local st = states[cur]
+		if R.auto and not st.Loop and curT >= st.Length then
+			R.enter(R.base)
+			fresh = false
+		end
+
+		table.clear(propNow)
+		for n, v in props do
+			propNow[n] = v
+		end
+		eval(cur, curT, pose, sub)
+		for n, v in propNow do
+			outer.transparency(n, v)
+		end
+
+		if from then
+			fromT += dt
+			blendT += dt
+			local k = blendT / blendLen
+			if k >= 1 then
+				from = nil
+			else
+				k = k * k * (3 - 2 * k)
+				table.clear(poseA)
+				eval(from, fromT, poseA, MUTED)
+				for n, a in poseA do
+					pose[n] = a:Lerp(pose[n] or IDENT, k)
+				end
+				for n, b in pose do
+					if poseA[n] == nil then
+						pose[n] = IDENT:Lerp(b, k)
+					end
+				end
+			end
+		end
+	end
+	return R
+end
+
+-- Validates M.States and builds the showcase reel: M.Cycle + M.Update(t, pose, ctx).
+function L.states(M)
+	assert(type(M.States) == "table", "L.states: M.States missing")
+	for name, st in M.States do
+		assert(type(st.Update) == "function", "state " .. name .. " needs Update(t, pose, ctx)")
+		assert(type(st.Length) == "number" and st.Length > 0, "state " .. name .. " needs Length > 0")
+	end
+	M.Base = M.Base or "Idle"
+	assert(M.States[M.Base] and M.States[M.Base].Loop, "M.Base must be a looping state")
+	local reel = M.Reel or { { M.Base } }
+	local segs, total = {}, 0
+	for _, e in reel do
+		local name = e[1]
+		assert(M.States[name], "M.Reel: unknown state " .. tostring(name))
+		local d = e[2] or M.States[name].Length
+		table.insert(segs, { name = name, start = total, dur = d })
+		total += d
+	end
+	M.ReelSegments = segs
+	M.Cycle = total
+	local rr = L.runner(M)
+	rr.auto = false
+	local lastT, idx = nil, 0
+	local function segAt(c)
+		for i = #segs, 1, -1 do
+			if c >= segs[i].start then
+				return i
+			end
+		end
+		return 1
+	end
+	function M.Update(t, pose, ctx)
+		local c = t % total
+		local i = segAt(c)
+		local dt = lastT and (t - lastT) or 0
+		if lastT == nil or dt < 0 or dt > 1 then
+			idx = i
+			rr.jump(segs[i].name, c - segs[i].start)
+			dt = 0
+		elseif i ~= idx then
+			idx = i
+			rr.enter(segs[i].name)
+		end
+		lastT = t
+		rr.step(dt, pose, ctx)
+	end
+	return M
+end
+
 return L

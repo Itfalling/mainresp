@@ -194,3 +194,42 @@ must be attached to the bone that should carry it (head parts on Head, jaw parts
 Study `monsters/AtomicKaiju/` — it is the reference implementation of this style.
 
 Do not edit anything in `lib/` or `tools/`. Keep all code inside your monster's folder.
+
+## Guardians: gameplay states (`M.States`)
+
+Guardians chase players in game, so instead of one loop their motion defines **named states** that
+game scripts switch between (via `Animation/Control`, shipped automatically):
+
+```lua
+local L = require(script.Parent.AnimLib)
+local M = {}
+M.Props = { AngryMark = 1, SweatDrop = 1 }   -- parts states show/hide -> resting transparency
+M.States = {
+	Idle   = { Loop = true, Length = 12,  Update = function(t, pose, ctx) end }, -- guarding: gags + show-off move
+	Alert  = { Length = 1.8,              Update = ... },  -- plant stolen! huge rage reaction
+	Chase  = { Loop = true, Length = 0.6, Speed = 22, Update = ... }, -- run cycle; Speed = studs/s the stride matches
+	Attack = { Length = 1.0,              Update = ... },  -- lunge / swipe / peck / slam at the thief
+	Catch  = { Length = 2.0,              Update = ... },  -- caught the thief: victory gloat
+	GiveUp = { Length = 2.4,              Update = ... },  -- thief crossed the line: tantrum / frustration
+	Return = { Loop = true, Length = 1.2, Speed = 8, Update = ... },  -- grumpy walk back home
+}
+M.Base = "Idle"
+M.Reel = { { "Idle" }, { "Alert" }, { "Chase", 3.6 }, { "Attack" }, { "Catch" }, { "Chase", 1.8 }, { "GiveUp" }, { "Return", 3.6 } }
+return L.states(M)
+```
+
+* Each `Update(t, pose, ctx)` gets **t = seconds since that state started** (keeps growing in loops: use
+  `t % Length`, `L.wave(t, hz)` with hz a multiple of 1/Length so the loop is seamless). `ctx.crossed(sec)`
+  uses the state's own clock. One-shots must start and end near a neutral pose; the runtime cross-fades
+  0.2 s between states (`Blend = 0.1` on a state to change it).
+* Props listed in `M.Props` are reset to their resting transparency every frame; a state only sets the
+  ones it shows. Never toggle a prop that is not in `M.Props` from a state.
+* Run/walk cycles: feet must plant and push (no ice-skating) — the `Speed` you declare is how many studs
+  the body travels per second for that stride (stride length × steps per second). In game the stride
+  rate is auto-scaled to the real movement speed.
+* The build bakes `M.Reel` (all states in a row) as the preview loop and prints the reel timeline
+  (`reel (preview times): Idle 0.00-12.00 | Alert 12.00-13.80 | ...`) — use those times for
+  `--times=` close-ups and clipcheck. The showcase place plays the reel; in game the model starts in `Idle`.
+* `monsters/<Id>/pack.txt` (e.g. `Guardian`) adds the monster to `out/<Pack>Showcase.rbxl` and
+  `out/<Pack>Monsters.rbxm`. Render the pack scene with `node tools/preview/shoot.mjs _showcase_<Pack>`.
+* Rarity `Apex` (top-tier boss) allows 680 parts and 44 studs of height.

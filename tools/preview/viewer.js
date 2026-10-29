@@ -473,7 +473,7 @@ function tagSprite(name, rarity) {
 }
 
 async function showcase() {
-  const scene0 = await (await fetch('../../out/preview/_showcase.json')).json();
+  const scene0 = await (await fetch(`../../out/preview/${params.get('scene') || '_showcase'}.json`)).json();
   const datas = await Promise.all(scene0.monsters.map(async (m) => (await fetch(`../../out/preview/${m.id}.json`)).json()));
   const L = scene0.length || 200;
   const fake = { bounds: { min: [-L / 2, 0, -40], max: [L / 2, 30, 40] } };

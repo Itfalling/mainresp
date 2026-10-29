@@ -8,6 +8,7 @@
 --   preview/<Id>.json        geometry + baked animation for the web previewer
 --   Monsters.rbxm            all monsters in one Folder (full build only)
 --   MonsterShowcase.rbxl     ready-to-play showcase place (full build only)
+--   <Pack>Monsters.rbxm / <Pack>Showcase.rbxl   per themed pack (monsters/<Id>/pack.txt)
 
 local fs = require("@lune/fs")
 local luau = require("@lune/luau")
@@ -20,6 +21,7 @@ local Builder = require("../lib/Builder")
 
 local ANIMLIB_SRC = fs.readFile("lib/AnimLib.luau")
 local ANIMATOR_SRC = fs.readFile("lib/Animator.luau")
+local CONTROL_SRC = fs.readFile("lib/Control.luau")
 
 local FPS = 30
 
@@ -29,6 +31,8 @@ do
 	assert(ok, "lib/Animator.luau does not compile: " .. tostring(err))
 	ok, err = pcall(luau.compile, ANIMLIB_SRC)
 	assert(ok, "lib/AnimLib.luau does not compile: " .. tostring(err))
+	ok, err = pcall(luau.compile, CONTROL_SRC)
+	assert(ok, "lib/Control.luau does not compile: " .. tostring(err))
 end
 
 local function readIfExists(p)
@@ -155,6 +159,21 @@ local function buildMonster(id, L)
 
 	-- Motion validation + bake
 	local M = loadMotion(id, motionSrc, L)
+	if M.States then
+		-- gameplay states: ship the Control helper + per-state timing for game scripts
+		local control = Instance.new("ModuleScript")
+		control.Name = "Control"
+		control.Source = CONTROL_SRC
+		control.Parent = model:FindFirstChild("Animation")
+		model:SetAttribute("HasStates", true)
+		model:SetAttribute("AnimState", M.Base)
+		for name, st in M.States do
+			model:SetAttribute("Length_" .. name, st.Length)
+			if st.Speed then
+				model:SetAttribute("Speed_" .. name, st.Speed)
+			end
+		end
+	end
 	local jointNames = {}
 	local jointSet = {}
 	for _, n in B.boneOrder do
@@ -344,10 +363,11 @@ local function buildMonster(id, L)
 	if maxBright > 1.5 then problem(("PointLight brightness %.1f too high (max 1.5)"):format(maxBright)) end
 	if maxCtxLight > 2 then problem(("ctx.light brightness %.1f too high (max 2)"):format(maxCtxLight)) end
 	-- part cap scales with rarity: high tiers must be the most detailed pets
-	local CAPS = { Common = 260, Uncommon = 280, Rare = 320, Epic = 360, Legendary = 440, Mythic = 460, Secret = 460, Cosmic = 480, Divine = 520 }
+	local CAPS = { Common = 260, Uncommon = 280, Rare = 320, Epic = 360, Legendary = 440, Mythic = 460, Secret = 460, Cosmic = 480, Divine = 520, Apex = 680 }
 	local cap = CAPS[spec.Rarity or "Legendary"] or 360
 	if B.partCount > cap then problem(("too many parts: %d (max %d for %s) - get detail from color blocking, not part spam"):format(B.partCount, cap, spec.Rarity or "?")) end
-	if mx.Y - mn.Y > 24 then problem(("too tall: %.1f studs (max 24 - pet pen scale, a player is 5 studs)"):format(mx.Y - mn.Y)) end
+	local maxH = spec.Rarity == "Apex" and 44 or 24
+	if mx.Y - mn.Y > maxH then problem(("too tall: %.1f studs (max %d - a player is 5 studs)"):format(mx.Y - mn.Y, maxH)) end
 
 	-- Report
 	local unused = {}
@@ -376,10 +396,19 @@ local function buildMonster(id, L)
 	if #unused > 0 then
 		print("   NOTE unanimated joints: " .. table.concat(unused, ", "))
 	end
+	if M.ReelSegments then
+		local segs = {}
+		for _, sg in M.ReelSegments do
+			table.insert(segs, ("%s %.2f-%.2f"):format(sg.name, sg.start, sg.start + sg.dur))
+		end
+		print("   reel (preview times): " .. table.concat(segs, " | "))
+	end
 	for _, msg in problems do
 		print("   PROBLEM: " .. msg)
 	end
-	return model, { mn = mn, mx = mx, problems = #problems, spec = spec }
+	local pack = readIfExists(dir .. "/pack.txt")
+	pack = pack and pack:gsub("%s", "") or nil
+	return model, { mn = mn, mx = mx, problems = #problems, spec = spec, pack = pack ~= "" and pack or nil }
 end
 
 ---------------------------------------------------------------------------
@@ -406,6 +435,7 @@ local RARITY_GRADIENTS = {
 	Secret = { "#ffffff", "#9aa0b4" },
 	Cosmic = { "#7b5cff", "#ff5ce1", "#5ce1ff" },
 	Divine = { "#ff8fd8", "#ffe36b", "#8dff8a", "#7fd4ff" },
+	Apex = { "#ff3b3b", "#ffb21a", "#ff3b3b" },
 }
 
 local function colorSeq(list)
@@ -525,7 +555,7 @@ local function makePen(parent, cx, cz, w, d)
 	return pen
 end
 
-local function buildPacks(built)
+local function buildPacks(built, rbxmPath, rbxlPath, scenePath)
 	local sceneMonsters = {}
 	local folder = Instance.new("Folder")
 	folder.Name = "Monsters"
@@ -585,6 +615,9 @@ local function buildPacks(built)
 
 			local placeCopy = b.model:Clone()
 			moveModel(placeCopy, offset)
+			if placeCopy:GetAttribute("HasStates") then
+				placeCopy:SetAttribute("AnimState", "Reel") -- showcase: demo every state
+			end
 			placeCopy.Parent = showcase
 
 			makePen(pens, cx, rowZ[r], w, maxDepth[r])
@@ -593,8 +626,8 @@ local function buildPacks(built)
 		end
 	end
 
-	fs.writeFile("out/Monsters.rbxm", roblox.serializeModel({ folder }))
-	fs.writeFile("out/preview/_showcase.json", serde.encode("json", { monsters = sceneMonsters, parts = sceneParts, length = totalLen }))
+	fs.writeFile(rbxmPath, roblox.serializeModel({ folder }))
+	fs.writeFile(scenePath, serde.encode("json", { monsters = sceneMonsters, parts = sceneParts, length = totalLen }))
 
 	-- Showcase place: studded green baseplate, spawn in the aisle, tuned lighting
 	local base = Instance.new("Part")
@@ -663,8 +696,8 @@ local function buildPacks(built)
 	sky.SunAngularSize = 14
 	sky.Parent = lighting
 
-	fs.writeFile("out/MonsterShowcase.rbxl", roblox.serializePlace(game))
-	print(("Wrote out/Monsters.rbxm and out/MonsterShowcase.rbxl (%d monsters)"):format(#built))
+	fs.writeFile(rbxlPath, roblox.serializePlace(game))
+	print(("Wrote %s and %s (%d monsters)"):format(rbxmPath, rbxlPath, #built))
 end
 
 ---------------------------------------------------------------------------
@@ -717,7 +750,22 @@ for _, id in ids do
 end
 
 if full and #built > 0 then
-	buildPacks(built)
+	buildPacks(built, "out/Monsters.rbxm", "out/MonsterShowcase.rbxl", "out/preview/_showcase.json")
+	-- themed packs: monsters/<Id>/pack.txt names the pack (e.g. Atlantis, Guardian)
+	local packs, packOrder = {}, {}
+	for _, b in built do
+		local p = b.info.pack
+		if p then
+			if not packs[p] then
+				packs[p] = {}
+				table.insert(packOrder, p)
+			end
+			table.insert(packs[p], b)
+		end
+	end
+	for _, p in packOrder do
+		buildPacks(packs[p], "out/" .. p .. "Monsters.rbxm", "out/" .. p .. "Showcase.rbxl", "out/preview/_showcase_" .. p .. ".json")
+	end
 end
 
 if failures > 0 then

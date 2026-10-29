@@ -9,6 +9,14 @@
 --   AnimOffset    (number, default rand) start time offset so copies desync
 --   AnimDistance  (number, default 400)  stop animating beyond this camera distance
 --   AnimEnabled   (bool,   default true) pause/resume
+--
+-- Monsters with gameplay states (guardians) also read:
+--   AnimState     (string) looping state to play: "Idle", "Chase", "Return", ...
+--                 "Reel" plays every state in a demo loop (used by the showcase)
+--   AnimAction    (string) set to "<State>#<n>" to fire a one-shot ("Alert#3",
+--                 "Attack#4"); change n to replay it. See the Control module.
+-- Looping states with a Speed (studs/s) speed their stride up/down to match
+-- how fast the model actually moves, so feet don't skate.
 
 local RunService = game:GetService("RunService")
 
@@ -101,6 +109,45 @@ function ctx.transparency(name, value)
 	end
 end
 
+-- Gameplay state machine (only for monsters whose Motion defines States)
+local runner = Motion.States and AnimLib.runner(Motion) or nil
+local useReel = runner == nil
+local lastAction = nil
+local function syncState()
+	local want = model:GetAttribute("AnimState")
+	if runner == nil then
+		return
+	end
+	if want == "Reel" then
+		useReel = true
+		return
+	end
+	useReel = false
+	if typeof(want) == "string" and Motion.States[want] then
+		runner.setBase(want)
+	end
+end
+local function syncAction()
+	local a = model:GetAttribute("AnimAction")
+	if runner and typeof(a) == "string" and a ~= lastAction then
+		lastAction = a
+		local name = string.match(a, "^([^#]+)")
+		if name and Motion.States[name] then
+			useReel = false
+			runner.play(name)
+		end
+	end
+end
+if runner then
+	syncState()
+	lastAction = model:GetAttribute("AnimAction")
+	model:GetAttributeChangedSignal("AnimState"):Connect(syncState)
+	model:GetAttributeChangedSignal("AnimAction"):Connect(syncAction)
+end
+local lastRootPos = root and root.Position
+local moveSpeed = 0
+local rate = 1
+
 local warned = false
 local function step(dt)
 	if model:GetAttribute("AnimEnabled") == false then
@@ -129,7 +176,26 @@ local function step(dt)
 	prevCycleT = curCycleT
 	curCycleT = clock % cycle
 	table.clear(pose)
-	local ok, err = pcall(Motion.Update, clock, pose, ctx)
+	local ok, err
+	if useReel then
+		ok, err = pcall(Motion.Update, clock, pose, ctx)
+	else
+		-- stride matching: measure how fast the root really travels
+		local scale0 = model:GetScale()
+		if root and lastRootPos and dt > 0 then
+			local d = root.Position - lastRootPos
+			local v = Vector3.new(d.X, 0, d.Z).Magnitude / dt / scale0
+			moveSpeed += (v - moveSpeed) * math.min(1, dt * 8)
+		end
+		lastRootPos = root and root.Position
+		local st = Motion.States[(runner.current())]
+		local want = 1
+		if st and st.Speed and moveSpeed > 0.5 then
+			want = math.clamp(moveSpeed / st.Speed, 0.6, 1.8)
+		end
+		rate += (want - rate) * math.min(1, dt * 6)
+		ok, err = pcall(runner.step, dt * speed * rate, pose, ctx)
+	end
 	if not ok then
 		if not warned then
 			warned = true
