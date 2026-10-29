@@ -28,7 +28,7 @@ return {
 		-- Dome (quill mantle) geometry: a squat ellipsoid over the body
 		------------------------------------------------------------------
 		local YC, ZC = 4.3, 0.6
-		local RX, RY, RZ = 4.7, 3.9, 5.4
+		local RX, RY, RZ = 4.7, 3.6, 5.4
 		local ZF, ZR = -1.3, 2.5 -- slice boundaries: Front | Body | Rump
 
 		local body = B:bone("Body", "Root", v(0, 4.0, 0.6))
@@ -65,10 +65,10 @@ return {
 		-- stepped dome layers, split into the three slices
 		local layers = {
 			{ 3.7, 5.0, VINE0 },
-			{ 5.0, 6.1, VINE1 },
-			{ 6.1, 7.0, VINE2 },
-			{ 7.0, 7.7, VINE3 },
-			{ 7.7, 8.2, VINE2 },
+			{ 5.0, 6.0, VINE1 },
+			{ 6.0, 6.8, VINE2 },
+			{ 6.8, 7.4, VINE3 },
+			{ 7.4, 7.9, VINE2 },
 		}
 		local function halfAt(y, r)
 			local k = math.max(0, (y - YC) / RY)
@@ -114,11 +114,11 @@ return {
 		-- Quills: rows over the dome, grouped on bones (row slice x side)
 		------------------------------------------------------------------
 		local rows = {
-			{ -58, { 0, 34, 68 }, "F", 1.6 },
-			{ -30, { 17, 50, 80 }, "F", 2.0 },
-			{ 2, { 0, 34, 66, 90 }, "M", 2.2 },
-			{ 32, { 17, 50, 80 }, "R", 2.1 },
-			{ 60, { 0, 34, 68 }, "R", 1.7 },
+			{ -58, { 0, 34, 68 }, "F", 1.9 },
+			{ -30, { 17, 50, 80 }, "F", 2.4 },
+			{ 2, { 0, 34, 66, 90 }, "M", 2.5 },
+			{ 32, { 17, 50, 80 }, "R", 2.6 },
+			{ 60, { 0, 34, 68 }, "R", 2.3 },
 		}
 		local groupParent = { F = "Front", M = "Body", R = "Rump" }
 		local groupPivot = {
@@ -138,12 +138,12 @@ return {
 			local d = v(math.sin(ph) * math.cos(ps), math.cos(ph) * math.cos(ps), math.sin(ps))
 			local surf = v(0, YC, ZC) + v(RX * d.X, RY * d.Y, RZ * d.Z)
 			local n = v(d.X / RX, d.Y / RY, d.Z / RZ).Unit
-			local dir = (n + v(0, 0.15, 0.35)).Unit
+			local dir = (n + v(0, 0.1, 0.75)).Unit
 			local base = surf - dir * 0.45
 			local mid = surf + dir * 0.45
 			local tip = surf + dir * len
 			B:beam(boneName, base, mid, 1.15, 1.15, COLLAR)
-			B:spike(boneName, mid - dir * 0.15, tip, 0.95, 0.95, THORN)
+			B:spike(boneName, mid - dir * 0.15, tip, 1.0, 1.0, THORN)
 			if neonTip then
 				B:block(boneName, v(0.3, 0.3, 0.3), CFrame.lookAt(tip - dir * 0.05, tip + dir), NEON, { mat = "Neon" })
 			end
@@ -204,17 +204,17 @@ return {
 		-- Head: cream face, brown cap + eye mask, stepped pointy snout
 		------------------------------------------------------------------
 		local head = B:bone("Head", "Body", v(0, 4.3, -3.4))
-		B:block(head, v(5.4, 3.4, 3.8), cf(0, 4.5, -4.9), CREAM)
-		B:block(head, v(5.8, 1.4, 3.0), cf(0, 6.4, -4.5), BROWN)
-		B:block(head, v(4.4, 0.6, 2.2), cf(0, 7.2, -4.3), DARK)
-		B:block(head, v(2.4, 0.6, 0.4), cf(0, 6.1, -6.85), BROWN) -- widow's peak
+		B:block(head, v(5.4, 3.8, 3.8), cf(0, 4.7, -4.9), CREAM)
+		B:block(head, v(5.8, 1.4, 3.0), cf(0, 6.85, -4.5), BROWN)
+		B:block(head, v(4.4, 0.6, 2.2), cf(0, 7.65, -4.3), DARK)
+		B:block(head, v(2.2, 0.7, 0.4), cf(0, 6.45, -6.85), BROWN) -- widow's peak
 		B:sym(function()
 			B:block(head, v(0.7, 2.2, 2.8), cf(2.75, 3.9, -5.1), TAN) -- cheek fluff
 			B:block(head, v(0.5, 1.2, 1.6), cf(3.15, 3.5, -5.0), CREAM)
-			B:block(head, v(2.0, 1.9, 0.3), cf(1.5, 4.95, -6.9), BROWN) -- eye mask
-			B:block(head, v(1.4, 1.2, 0.2), cf(1.5, 4.9, -7.08), WHITE) -- eye
-			B:block(head, v(0.6, 0.8, 0.15), cf(1.3, 4.8, -7.18), PUPIL)
-			B:block(head, v(0.22, 0.22, 0.1), cf(1.42, 5.02, -7.27), NEON, { mat = "Neon" })
+			B:block(head, v(2.1, 1.9, 0.3), cf(1.5, 5.55, -6.9), BROWN) -- eye mask
+			B:block(head, v(1.5, 1.35, 0.2), cf(1.5, 5.5, -7.08), "#ffffff") -- eye
+			B:block(head, v(0.7, 0.9, 0.15), cf(1.28, 5.38, -7.18), PUPIL)
+			B:block(head, v(0.25, 0.25, 0.1), cf(1.42, 5.62, -7.27), NEON, { mat = "Neon" })
 			-- whiskers
 			B:beam(head, v(1.3, 3.9, -8.1), v(2.7, 4.3, -7.8), 0.12, 0.12, DEEP)
 			B:beam(head, v(1.3, 3.6, -8.1), v(2.7, 3.4, -7.8), 0.12, 0.12, DEEP)
@@ -245,20 +245,20 @@ return {
 
 		-- brows (own bones: scrunch / raise), lids are hidden props
 		B:sym(function(side)
-			local brow = B:bone("Brow" .. side, "Head", v(1.5, 5.9, -7.1))
-			B:block(brow, v(2.2, 0.55, 0.6), cf(1.55, 5.85, -7.2, 0, 0, 18), DEEP)
-			B:block(brow, v(1.5, 0.35, 0.5), cf(1.8, 6.2, -7.1, 0, 0, 18), DARK)
-			local lid = B:bone("Lid" .. side, "Head", v(1.5, 5.4, -7.15))
-			B:block(lid, v(1.5, 0.75, 0.15), cf(1.5, 5.1, -7.19), BROWN, { tr = 1, name = "Eyelid" .. side })
+			local brow = B:bone("Brow" .. side, "Head", v(1.5, 6.45, -7.1))
+			B:block(brow, v(2.3, 0.6, 0.6), cf(1.55, 6.4, -7.2, 0, 0, 18), DEEP)
+			B:block(brow, v(1.5, 0.35, 0.5), cf(1.8, 6.78, -7.1, 0, 0, 18), DARK)
+			local lid = B:bone("Lid" .. side, "Head", v(1.5, 6.0, -7.15))
+			B:block(lid, v(1.6, 1.45, 0.15), cf(1.5, 5.5, -7.19), BROWN, { tr = 1, name = "Eyelid" .. side })
 			-- ears peeking out of the quills
-			local ear = B:bone("Ear" .. side, "Head", v(2.1, 6.8, -4.6))
-			B:block(ear, v(1.3, 1.2, 0.6), cf(2.35, 7.3, -4.7, 0, 0, -15), BROWN)
-			B:block(ear, v(0.7, 0.7, 0.2), cf(2.35, 7.25, -5.05, 0, 0, -15), TAN)
+			local ear = B:bone("Ear" .. side, "Head", v(2.2, 7.2, -4.6))
+			B:block(ear, v(1.3, 1.2, 0.6), cf(2.45, 7.75, -4.7, 0, 0, -15), BROWN)
+			B:block(ear, v(0.7, 0.7, 0.2), cf(2.45, 7.7, -5.05, 0, 0, -15), TAN)
 		end)
 
 		-- anger vein (prop, own bone so it can throb)
-		local vein = B:bone("Vein", "Head", v(2.0, 7.2, -6.0))
-		local VC = CFrame.new(1.9, 7.25, -6.2) * P.ang(0, -20, 0)
+		local vein = B:bone("Vein", "Head", v(2.0, 7.9, -6.0))
+		local VC = CFrame.new(1.9, 8.0, -6.3) * P.ang(0, -20, 0)
 		B:block(vein, v(0.7, 0.22, 0.2), VC * CFrame.new(-0.25, 0.5, 0), ANGER, { tr = 1, name = "AngerMark1" })
 		B:block(vein, v(0.22, 0.7, 0.2), VC * CFrame.new(0.5, 0.25, 0), ANGER, { tr = 1, name = "AngerMark2" })
 		B:block(vein, v(0.7, 0.22, 0.2), VC * CFrame.new(0.25, -0.5, 0), ANGER, { tr = 1, name = "AngerMark3" })
@@ -334,10 +334,10 @@ return {
 		-- Floating voxel cubes: berry cubes + leaf cubes
 		------------------------------------------------------------------
 		local orbit = B:bone("Orbit", "Root", v(0, 5, 0.6))
-		local spots = { { 7.6, 7.8, -2.5 }, { -7.4, 5.6, 1.5 }, { 6.6, 4.4, 5.0 }, { -6.4, 9.0, -4.0 } }
+		local spots = { { 9.0, 7.6, -3.0 }, { -8.8, 5.4, 1.5 }, { 8.2, 4.2, 5.5 }, { -8.0, 8.6, -4.5 } }
 		for i, p in spots do
 			local ob = B:bone("Orb" .. i, "Orbit", v(p[1], p[2], p[3]))
-			local s = i % 2 == 0 and 1.3 or 1.6
+			local s = i % 2 == 0 and 1.1 or 1.3
 			local at = cf(p[1], p[2], p[3])
 			if i % 2 == 1 then
 				B:block(ob, v(s, s, s), at, BERRY)

@@ -234,7 +234,7 @@ return {
 		------------------------------------------------------------------
 		-- JAW = lower trap lobe (+ tongue, drool)
 		------------------------------------------------------------------
-		local jaw = B:bone("Jaw", "Head", v(0, 9.8, 0.4))
+		local jaw = B:bone("Jaw", "Head", v(0, 9.1, -0.5)) -- hinge mid-lobe, in front of the stem
 		B:block(jaw, v(6.2, 0.2, 5.3), cf(0, 9.55, -2.5), INSIDE) -- pink inside
 		B:block(jaw, v(6.6, 0.3, 6.0), cf(0, 9.42, -2.4), RIM)
 		B:block(jaw, v(7.4, 0.3, 3.6), cf(0, 9.42, -2.4), RIM)
@@ -292,7 +292,7 @@ return {
 		B:emitter(dust, "dust", { name = "StepDust", color = { "#d9c7a6", "#b59a74" }, size = { 1.6, 3.0, 3.8 } })
 
 		local orbit = B:bone("Orbit", "Root", v(0, 8, 0))
-		local spots = { { 9.5, 9.5, 2.0 }, { -9.8, 7.0, 2.5 }, { 7.0, 3.5, 6.5 }, { -6.0, 11.0, 6.0 } }
+		local spots = { { 9.5, 9.5, 4.5 }, { -9.8, 7.0, 5.0 }, { 7.0, 3.5, 8.0 }, { -6.0, 11.0, 7.5 } }
 		for i, p in spots do
 			local ob = B:bone("Orb" .. i, "Orbit", v(p[1], p[2], p[3]))
 			local s = i > 2 and 1.0 or 1.3

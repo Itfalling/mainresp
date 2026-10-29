@@ -174,7 +174,7 @@ local function apply(pose, ctx, q, t)
 
 	-- floating harvest cubes
 	-- the cubes sway round the flanks + back (never in front of the face)
-	pose.Orbit = ang(0, 38 * wave(t, 1 / 12) + 10 * q.orbOut * wave(t, 1.5), 0)
+	pose.Orbit = ang(0, 26 * wave(t, 1 / 12) + 8 * q.orbOut * wave(t, 1.5), 0)
 	for i = 1, 4 do
 		local dir = i % 2 == 0 and -1 or 1
 		pose["Orb" .. i] = pa(0, 0.6 * wave(t, 0.5, i * 0.27) + 0.8 * q.orbOut, 0, 50 * t * dir, 80 * t + 30 * i, 15 * i)
@@ -231,14 +231,9 @@ local UP = CFrame.new()
 -- IDLE (12 s): pretending + gags + pitchfork twirl show-off
 ------------------------------------------------------------------------
 local IDLE_LEN = 12
-local DEBUG_REST = false
 local function idle(t, pose, ctx)
 	local c = t % IDLE_LEN
 	local q = Q()
-	if DEBUG_REST then
-		apply(pose, ctx, q, t)
-		return
-	end
 
 	-- envelopes
 	local twitch = env(c, 1.35, 0.05, 1.0, 0.15)
@@ -431,10 +426,10 @@ local function alert(t, pose, ctx)
 	q.toeR = -25 * star
 	q.toeL = -25 * star
 	-- arms: thrown up and out, then wild jerks, then ready
-	q.armR = V(20 * star + 45 * jx, 0, 120 * star + 40 * jy) + V(55, 0, 10) * ready
+	q.armR = V(20 * star + 45 * jx, 0, 98 * star + 40 * jy) + V(55, 0, 10) * ready
 	q.foreR = V(-10 * star + 40 * jz, 0, 0) + V(25, 0, 0) * ready
 	q.handR = V(0, 0, 25 * jw)
-	q.armL = V(20 * star - 50 * jy, 0, 125 * star + 45 * jx) + V(-30, 0, 35) * ready
+	q.armL = V(20 * star - 50 * jy, 0, 108 * star + 45 * jx) + V(-30, 0, 35) * ready
 	q.foreL = V(-10 * star + 50 * jw, 0, 30 * jz) + V(60, 0, 0) * ready
 	q.handL = V(30 * jx, 0, -30 * star)
 	-- head: snaps up, spins 360, glares
@@ -457,7 +452,7 @@ local function alert(t, pose, ctx)
 	-- hat flies off and comes back down
 	q.hatUp = hatFly
 	q.hatZ = 0.75 * hatFly
-	q.hatX = -0.3 * hatFly
+	q.hatX = 0.2 * hatFly
 	q.hatSpin = hatSpin
 	q.hatP = 18 * star
 	q.flop = 2.5

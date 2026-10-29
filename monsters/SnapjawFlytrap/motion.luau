@@ -143,8 +143,8 @@ local function apply(t, pose, ctx, P)
 	pose.Head = pa(0, 0, -P.headFwd, P.head[1] - worldTilt, P.head[2], P.head[3])
 	pose.Jaw = ang(min(P.jaw, 1.5), 0, 0)
 	local out = P.tongue
-	pose.Tongue = pa(0, 0.05 * out, -1.6 * out, -4 * out + P.tonguePitch * 0.5, P.tongueYaw * 0.5, 0)
-	pose.TongueTip = pa(0, 0, -0.6 * out, P.tonguePitch + 10 * out * wave(t, 3), P.tongueYaw, 0)
+	pose.Tongue = pa(0, 0.1 * out, -2.2 * out, -4 * out + P.tonguePitch * 0.5, P.tongueYaw * 0.5, 0)
+	pose.TongueTip = pa(0, 0, -0.9 * out, P.tonguePitch + 10 * out * wave(t, 3), P.tongueYaw, 0)
 
 	-- drool hangs (counter the trap tilt) and swings
 	local tilt = P.head[1] + P.jaw
@@ -188,7 +188,7 @@ end
 -- IDLE (12 s)
 ------------------------------------------------------------------------
 local C1, C2, C3 = 1.75, 2.25, 2.8 -- fly chomps (third one gets it)
-local S1, S2, S3 = 8.95, 9.27, 9.62 -- show-off triple chomp
+local S1, S2, S3 = 8.95, 9.3, 9.7 -- show-off triple chomp
 local function snapEnv(c, at, open)
 	-- open quickly, hold, then SLAM shut exactly at `at`
 	return env(c, at - open, open * 0.75, open * 0.1, open * 0.15, "quadOut", "expoIn")
@@ -219,7 +219,7 @@ local function idle(t, pose, ctx)
 	local burpA = env(c, 5.6, 0.28, 0.04, 0.12, "quadOut", "quadIn")
 	local burp = env(c, 5.98, 0.08, 0.25, 0.45, "backOut", "cubicInOut")
 	local yawn = env(c, 7.0, 0.9, 0.45, 0.4, "cubicOut", "cubicIn")
-	local ch1, ch2, ch3 = snapEnv(c, S1, 0.3), snapEnv(c, S2, 0.26), snapEnv(c, S3, 0.3)
+	local ch1, ch2, ch3 = snapEnv(c, S1, 0.3), snapEnv(c, S2, 0.22), snapEnv(c, S3, 0.26)
 	local hit1 = env(c, S1, 0.04, 0.04, 0.22, "quadOut", "quadOut")
 	local hit2 = env(c, S2, 0.04, 0.04, 0.22, "quadOut", "quadOut")
 	local hit3 = env(c, S3, 0.04, 0.1, 0.3, "quadOut", "quadOut")
@@ -292,12 +292,12 @@ local function idle(t, pose, ctx)
 
 	-- JAW: chomps / chewing / lick / burp / yawn
 	local chewJ = -14 * L.wave01(t, 4) * chew
-	local jawOpen = 48 * max(c1, c2, c3) + 22 * lick + 55 * burp + 85 * yawn + 55 * max(ch1, ch2) + 70 * ch3
+	local jawOpen = 48 * max(c1, c2, c3) + 22 * lick + 55 * burp + 72 * yawn + 55 * max(ch1, ch2) + 70 * ch3
 	local clamp0 = max(burpA, hit1, hit2, hit3, env(c, C1, 0.01, 0.05, 0.1), env(c, C2, 0.01, 0.05, 0.1), env(c, C3, 0.01, 0.12, 0.2))
 	P.jaw = JAW0 * (1 - clamp0) + chewJ - jawOpen - 2 * L.wave01(t, 0.5) * idleW
 	P.tongue = lick * (0.75 + 0.15 * wave(t, 1.5)) + 0.25 * yawn
 	P.tongueYaw = 40 * wave(t, 1.5) * lick
-	P.tonguePitch = 12 * lick - 10 * yawn
+	P.tonguePitch = 28 * lick - 10 * yawn
 
 	-- FACE
 	P.brow = 4 * track - 8 * burp - 10 * yawn + 10 * (ch1 + ch2 + ch3) + 4 * hit3 - 6 * proud
@@ -371,7 +371,7 @@ local function alert(t, pose, ctx)
 	P.n[3] = { -12 * antic + 2 * roar, 0, 0 }
 	local shk = 11 * shake * wave(t, 8)
 	P.head = { -14 * antic + 30 * roar + 4 * shake * wave(t, 11) - 4 * snap, shk, 4 * shake * wave(t, 5) }
-	P.jaw = JAW0 * (1 - antic) - 70 * roar + 8 * shake * wave(t, 13) + 12 * snap
+	P.jaw = JAW0 * (1 - antic) - 62 * roar + 8 * shake * wave(t, 13) + 12 * snap
 	P.tongue = 0.35 * roar
 	P.tongueYaw = 25 * shake * wave(t, 6)
 	P.tonguePitch = 15 * roar

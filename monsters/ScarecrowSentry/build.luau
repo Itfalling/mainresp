@@ -150,9 +150,9 @@ return {
 		B:emitter(aura, "sparkle", { name = "Sparkle", color = { "#ffffff", "#ffd27a" }, rate = 2 })
 
 		-- "!" that pops above the hat when the plant is stolen (prop)
-		local pop = B:bone("Pop", "Chest", v(-2.2, 10.6, -0.6))
-		B:block(pop, v(0.6, 1.3, 0.6), cf(-2.2, 11.35, -0.6), "#ffd12e", { tr = 1, name = "Exclaim" })
-		B:block(pop, v(0.6, 0.55, 0.6), cf(-2.2, 10.3, -0.6), "#ffd12e", { tr = 1, name = "ExclaimDot" })
+		local pop = B:bone("Pop", "Chest", v(-2.9, 10.4, -0.8))
+		B:block(pop, v(0.6, 1.3, 0.6), cf(-2.9, 11.15, -0.8), "#ffd12e", { tr = 1, name = "Exclaim" })
+		B:block(pop, v(0.6, 0.55, 0.6), cf(-2.9, 10.1, -0.8), "#ffd12e", { tr = 1, name = "ExclaimDot" })
 
 		------------------------------------------------------------------
 		-- Neck (wooden pole) + Head (burlap sack)
@@ -346,10 +346,10 @@ return {
 		------------------------------------------------------------------
 		local orbit = B:bone("Orbit", "Root", v(0, 5, 0))
 		local spots = {
-			{ 5.8, 6.6, 0.8, "pumpkin" },
-			{ -5.8, 4.4, 1.2, "corn" },
-			{ 3.4, 2.2, 4.6, "bale" },
-			{ -3.6, 9.4, 3.8, "pumpkin" },
+			{ 6.6, 7.4, 2.8, "pumpkin" },
+			{ -6.6, 4.2, 2.6, "corn" },
+			{ 3.4, 1.9, 5.4, "bale" },
+			{ -4.4, 9.2, 4.8, "pumpkin" },
 		}
 		for i, s in spots do
 			local p = v(s[1], s[2], s[3])

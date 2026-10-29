@@ -194,11 +194,12 @@ end
 -- IDLE (12 s): guarding the garden
 ------------------------------------------------------------------------
 local SALUTE = V(3.3, 14.2, -5.0)
-local PRESENT_R = V(3.4, 8.9, -5.7)
-local RUB_L = V(4.4, 9.6, -6.0)
+local PRESENT_R = V(3.4, 8.1, -5.7)
+local RUB_L = V(4.4, 8.8, -6.0)
 local TWIRL = V(6.4, 11.4, -4.2)
 local SCAN = { { 0.3, 0 }, { 0.75, -26, "backOut" }, { 1.35, -26 }, { 1.85, 24, "cubicInOut" }, { 2.2, 24 }, { 2.55, 0, "cubicInOut" } }
 local SPEAR_FLAT = ang(0, 0, 90)
+local TWIRL_AXIS = V(0.8, 0, -0.6).Unit
 
 local function idle(t, pose, ctx)
 	local c = t % 12
@@ -279,7 +280,7 @@ local function idle(t, pose, ctx)
 
 	-- LANCE: upright -> presented flat -> windmill twirl -> slammed upright
 	local sp = CFrame.new():Lerp(SPEAR_FLAT, pol)
-	sp = sp * ang(-spin * twirl, 0, 0)
+	sp = sp * CFrame.fromAxisAngle(TWIRL_AXIS, rad(-spin) * twirl)
 	q.spear = ang(0, 0, 0) * sp
 	q.slide = 1.5 * twirl
 	q.spearLight = 1.4 * gleam + 0.6 * twirl * (spin > 1 and spin < 719 and 1 or 0) + 1.2 * flare
