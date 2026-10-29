@@ -19,11 +19,12 @@ M.Props = {
 	AngerMark1 = 1, AngerMark2 = 1, AngerMark3 = 1, AngerMark4 = 1,
 	Berry = 1, BerryLeaf = 1, EyelidR = 1, EyelidL = 1,
 	BallCover1 = 1, BallCover2 = 1, BallCover3 = 1, BallCover4 = 1, BallCover5 = 1, BallCover6 = 1,
-	BallCover7 = 1, BallCover8 = 1, BallCover9 = 1, BallCover10 = 1, BallCover11 = 1,
+	BallCover7 = 1, BallCover8 = 1, BallCover9 = 1, BallCover10 = 1, BallCover11 = 1, BallCover12 = 1,
+	BallCover13 = 1, BallCover14 = 1, BallCover15 = 1, BallCover16 = 1, BallCover17 = 1, BallCover18 = 1, BallCover19 = 1,
 }
 local function covers(ctx, k)
 	if k > 0.6 then
-		for i = 1, 11 do
+		for i = 1, 19 do
 			ctx.transparency("BallCover" .. i, 0)
 		end
 	end
@@ -47,12 +48,12 @@ local LEGS = {
 -- curled-ball "radius" (centre height that keeps the lowest point on the
 -- floor) for every 5 degrees of forward roll, measured from the curled pose
 local DBALL = {
-	5.53, 5.57, 5.58, 5.58, 5.56, 5.51, 5.48, 5.39, 5.28, 5.12, 5.15, 5.35, 5.55, 5.66, 5.76, 5.83, 5.88, 5.89,
-	5.89, 5.85, 5.77, 5.65, 5.49, 5.55, 5.62, 5.65, 5.68, 5.69, 5.69, 5.66, 5.58, 5.44, 5.28, 5.17, 5.19, 5.23,
+	5.69, 5.79, 5.86, 5.88, 5.88, 5.86, 5.84, 5.78, 5.68, 5.55, 5.38, 5.17, 4.92, 4.68, 4.75, 4.79, 4.80, 4.80,
+	4.79, 4.94, 5.15, 5.32, 5.46, 5.55, 5.62, 5.65, 5.68, 5.69, 5.69, 5.66, 5.58, 5.44, 5.28, 5.17, 5.19, 5.23,
 	5.32, 5.38, 5.41, 5.41, 5.41, 5.46, 5.48, 5.47, 5.45, 5.38, 5.33, 5.50, 5.67, 5.77, 5.83, 5.85, 5.85, 5.83,
-	5.86, 5.90, 5.91, 5.91, 5.88, 5.81, 5.70, 5.50, 5.30, 5.07, 5.05, 5.24, 5.41, 5.51, 5.57, 5.59, 5.59, 5.58,
+	5.86, 5.90, 5.91, 5.91, 5.88, 5.81, 5.70, 5.50, 5.42, 5.60, 5.74, 5.85, 5.92, 5.93, 5.93, 5.91, 5.85, 5.75,
 }
-local BALL_R = 5.50 -- mean rolling radius
+local BALL_R = 5.48 -- mean rolling radius
 local function dBall(roll)
 	local r = (roll % 360) / 5
 	local i = math.floor(r)
@@ -147,7 +148,7 @@ local function curl(pose, k, extraBristle)
 	end
 	mix("Front", ang(-45, 0, 0))
 	mix("Rump", ang(45, 0, 0))
-	mix("Head", pa(0, 0.3, 5.2, -12, 0, 0))
+	mix("Head", pa(0, 0.8, 6.2, -18, 0, 0))
 	local c, s = quillCF(0.5 + (extraBristle or 0))
 	for _, g in { "F", "M", "R" } do
 		mix("Quill" .. g, c)

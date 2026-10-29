@@ -204,7 +204,7 @@ return {
 			-- the slit pupil sits on the front face only
 			hb(head, v(2.3, 1.7, 1.0), 2.65, 20.95, -13.5, DARK)
 			hb(head, v(1.8, 1.25, 1.0), 2.9, 20.9, -13.75, EYE, { mat = "Neon", name = "Eye" .. side })
-			hb(head, v(0.65, 1.1, 0.2), 2.6, 20.9, -14.32, PUPIL)
+			hb(head, v(0.6, 1.15, 0.3), 2.8, 20.9, -14.35, PUPIL)
 			-- bone horns behind the brow
 			B:spike(head, hp(v(3.2, 22.0, -11.6)), hp(v(4.5, 22.9, -9.6)), 1.1, 1.1, THORN)
 		end)

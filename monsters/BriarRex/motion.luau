@@ -281,7 +281,7 @@ local function idle(t, pose, ctx)
 	s.hx = 0.5 * liftL - 0.5 * liftR - 1.0 * stompUp + 0.3 * wave(t, 0.25) * calm
 	s.hy = 0.25 * breathe - 0.5 * (liftR + liftL) * 0.5 - 0.9 * wind - 1.7 * squash - 0.6 * roar + 0.4 * proud - 0.5 * gag
 	s.hz = 0.8 * wind - 1.4 * roar
-	s.hp = -3 + 7 * wind - 4 * roar - 3 * squash + 4 * proud + 2 * strain
+	s.hp = 7 * wind - 4 * roar - 3 * squash + 4 * proud + 2 * strain
 	s.hyaw = 5 * liftR - 5 * liftL - 6 * stompUp
 	s.hroll = -4 * liftR + 4 * liftL + 10 * stompUp + 2 * wave(t, 0.25) * calm
 	-- feet

@@ -65,10 +65,11 @@ return {
 			B:block(body, size, at, col, { tr = 1, name = "BallCover" .. bc })
 		end
 		cover(v(6.0, 0.6, 4.4), cf(0, 0.95, 0.6), UMBER2)
-		for _, p in { { 1.6, -0.6 }, { -1.6, -0.6 }, { 1.6, 1.8 }, { -1.6, 1.8 } } do
-			local base = v(p[1], 0.7, p[2])
-			local dir = v(p[1] * 0.2, -1, p[2] * 0.1 + 0.3).Unit
-			cover(v(0.8, 0.8, 1.2), CFrame.lookAt(base + dir * 0.4, base + dir * 2), SP2)
+		for _, p in { { 1.7, -1.0 }, { -1.7, -1.0 }, { 0, 0.4 }, { 1.7, 1.8 }, { -1.7, 1.8 }, { 0, 2.6 } } do
+			local base = v(p[1], 0.75, p[2])
+			local dir = v(p[1] * 0.25, -1, (p[2] - 0.6) * 0.3 + 0.35).Unit
+			cover(v(0.95, 0.95, 0.8), CFrame.lookAt(base + dir * 0.2, base + dir * 2), SP1)
+			cover(v(0.6, 0.6, 1.0), CFrame.lookAt(base + dir * 0.9, base + dir * 3), SP2)
 		end
 		for s = 1, -1, -2 do
 			cover(v(0.5, 2.4, 3.6), cf(3.35 * s, 2.4, 0.6), UMBER2)

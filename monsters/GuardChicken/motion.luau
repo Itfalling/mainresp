@@ -120,6 +120,7 @@ local function face(pose, ctx, f)
 	L.both(pose, "Pupil", CFrame.new(lx, ly, 0), CFrame.new(-lx, ly, 0))
 	local by, br = f.browY or 0, f.browR or 0
 	L.both(pose, "Brow", pa(0, by, 0, 0, 0, br), pa(0, f.browYL or by, 0, 0, 0, f.browRL or br))
+	ctx.light("BadgeLight", 0) -- states that want the badge gleam set it after face()
 	local closed = (f.blink or 0) > 0.35
 	local lt = closed and 0 or 1
 	ctx.transparency("EyelidR", lt)
