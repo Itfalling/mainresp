@@ -192,30 +192,33 @@ local function rig(pose, t, ctx, q)
 	pose.Orbit = ang(0, q.orbYaw, 0)
 	for i = 1, 6 do
 		local d = ORB_DIR[i]
-		pose["Orb" .. i] = pa(0, 0.6 * wave(t, q.orbHz, i * 0.25) + q.orbY, 0, q.tumble * d, q.tumble * 1.3, 0)
+		pose["Orb" .. i] = pa(0, 0.6 * wave(t, q.orbHz, i * 0.25) + q.orbY, 0, q.tumble * d, q.tumble * 2, 0)
 	end
 end
 
 -- shared always-on defaults (hover, buzz, dangle, sway)
 local function base(t, q, bobHz)
-	q.y = 0.3 * wave(t, bobHz)
+	local bob = wave(t, bobHz)
+	q.y = 0.3 * bob
 	q.p = 1.5 * wave(t, bobHz, 0.2)
 	q.hp = 4 -- chin a little up: haughty
 	q.wAmp, q.wHz, q.wRaise, q.wSweep = 18, 13, 4, 0
 	q.abdP, q.abdW, q.abdHz = 0, 3, bobHz
-	q.abdS, q.abdSHz = 2.5, bobHz * 0.5
+	q.abdS, q.abdSHz = 2.5, bobHz
 	q.sting = 4
 	q.legX = 6 * wave(t, bobHz * 2, 0.15)
 	q.shinX = -8 + 6 * wave(t, bobHz * 2, 0.35)
-	q.antP = 5 * wave(t, bobHz * 1.5)
+	q.antP = 5 * wave(t, bobHz)
 	q.antR = 4 * wave(t, bobHz * 3, 0.2)
 	q.cape = 4 + 3 * wave(t, bobHz * 2, 0.3)
 	q.cape2 = 3 * wave(t, bobHz * 2, 0.1)
-	q.browA = -4 -- regal arch
+	q.browA = 0
 	q.mand = 3 * wave(t, bobHz * 2, 0.4)
-	q.aRx, q.aLx = 3 * wave(t, bobHz, 0.3), 3 * wave(t, bobHz, 0.5)
+	q.fistR = FI + V(0, 0.12 * bob, 0)
+	q.fistL = FI + V(0, -0.12 * bob, 0.1 * wave(t, bobHz, 0.3))
+	q.scepW = 1
 	q.orbYaw = 0
-	q.orbHz = 0.5
+	q.orbHz = bobHz
 	q.tumble = 0
 end
 
@@ -225,6 +228,12 @@ end
 local SCAN = {
 	{ 0.2, 0 }, { 0.6, -24, "backOut" }, { 1.1, -24 }, { 1.45, 20, "cubicInOut" }, { 1.8, 20 }, { 2.05, 0, "cubicInOut" },
 }
+local INSPECT, LICK = V(3.3, 9.8, -4.1), V(2.0, 8.4, -3.9)
+local WAVE = V(4.3, 11.4, -2.0)
+local FIX = V(4.2, 12.3, -2.0)
+local LOW, TWIRL, UP = V(3.6, 7.6, -1.6), V(5.6, 10.6, -1.6), V(3.6, 12.6, -1.6)
+local BAL, FLOURISH = V(5.3, 9.6, -1.4), V(4.8, 10.6, -2.4)
+local POLE_UP = V(1, -0.5, 0.3)
 
 local function idle(t, pose, ctx)
 	local c = t % 12
@@ -232,54 +241,55 @@ local function idle(t, pose, ctx)
 	base(t, q, 0.5)
 
 	local scan = track(c, SCAN)
-	-- B: inspect scepter (+ lick)
+	-- B: inspect the scepter (+ a sneaky lick)
 	local insp = env(c, 2.1, 0.45, 1.35, 0.45, "backOut", "cubicInOut")
-	local lick = env(c, 3.05, 0.12, 0.35, 0.15)
+	local lick = env(c, 3.0, 0.15, 0.35, 0.2, "cubicOut", "cubicInOut")
 	-- C: royal wave
 	local wv = env(c, 4.3, 0.4, 1.3, 0.4, "backOut", "cubicInOut")
-	-- D: crown slips + fix
-	local slip = env(c, 6.25, 0.12, 0.55, 0.35, "backOut", "elasticOut")
-	local fix = env(c, 6.45, 0.35, 0.55, 0.35, "backOut", "cubicInOut")
-	local tap = env(c, 6.95, 0.06, 0.04, 0.12)
-	-- E: show-off
+	local wag = wave(c, 2.5)
+	-- D: crown slips, she taps it straight with the scepter
+	local slip = env(c, 6.2, 0.12, 0.65, 0.3, "backOut", "elasticOut")
+	local fix = env(c, 6.35, 0.4, 0.6, 0.4, "backOut", "cubicInOut")
+	local tap = env(c, 6.95, 0.06, 0.04, 0.14)
+	-- E: show-off (crouch -> rising spin + scepter windmill -> thrust up + HONEY BURST)
 	local crouch = env(c, 7.75, 0.4, 0.1, 0.3, "cubicOut", "cubicIn")
 	local rise = env(c, 8.15, 0.45, 1.4, 0.9, "backOut", "cubicInOut")
-	local twirl = env(c, 8.2, 0.3, 1.45, 0.3, "backOut", "cubicInOut")
+	local twirl = env(c, 8.2, 0.3, 1.35, 0.25, "backOut", "cubicInOut")
 	local spin = 360 * E.cubicInOut(remap(c, 8.25, 9.75))
-	local scepSpin = 720 * E.quadInOut(remap(c, 8.3, 9.8))
-	local strike = env(c, 9.85, 0.1, 0.9, 0.7, "backOut", "cubicInOut")
-	local burst = env(c, 9.85, 0.06, 0.15, 0.6, "quadOut", "cubicOut")
+	local scepSpin = 720 * E.quadInOut(remap(c, 8.3, 9.75))
+	local strike = env(c, 9.8, 0.12, 0.85, 0.75, "backOut", "cubicInOut")
+	local burst = env(c, 9.86, 0.06, 0.15, 0.6, "quadOut", "cubicOut")
 	local show = max(crouch, twirl, strike)
 	local calm = 1 - max(insp, wv, fix, show)
 
 	-- BODY
-	q.y += -0.5 * crouch + 1.2 * rise + 0.3 * wv
-	q.p += 7 * crouch - 4 * twirl + 6 * strike - 4 * insp
+	q.y += -0.3 * crouch + 1.2 * rise + 0.3 * wv
+	q.p += 7 * crouch - 4 * twirl + 6 * strike - 4 * insp - 4 * lick
 	q.yw = 0.3 * scan - 8 * insp + 10 * wv + spin
 	q.r = 3 * wave(t, 0.25) * calm + 5 * wv - 4 * insp - 6 * slip
 
 	-- HEAD
-	q.hp += 3 * wave(t, 0.5, 0.15) + 6 * wv - 8 * insp + 5 * lick - 8 * crouch + 14 * strike - 6 * fix
-	q.hy = 0.8 * scan - 22 * insp + 8 * wv - 6 * twirl
-	q.hr = 3 * wave(t, 0.25, 0.3) * calm - 10 * insp + 8 * wv + 9 * slip
-	q.pupX = scan / 70 + 0.35 * insp - 0.25 * fix
-	q.pupY = 0.25 * insp + 0.45 * fix + 0.2 * strike
-	q.jaw = 22 * lick + 30 * burst + 12 * strike * max(0, wave(t, 6)) + 10 * wv
+	q.hp += 3 * wave(t, 0.5, 0.15) + 6 * wv - 4 * insp - 8 * lick - 8 * crouch + 14 * strike + 4 * fix
+	q.hy = 0.8 * scan - 16 * insp + 10 * lick + 8 * wv - 6 * twirl
+	q.hr = 3 * wave(t, 0.25, 0.3) * calm - 6 * insp + 8 * wv + 9 * slip * (1 - tap)
+	q.pupX = scan / 70 + 0.35 * insp * (1 - lick) - 0.3 * lick + 0.3 * fix
+	q.pupY = 0.3 * insp - 0.2 * lick + 0.45 * fix + 0.2 * strike
+	q.jaw = 26 * lick + 30 * burst + 12 * strike * max(0, wave(t, 6))
 	q.mand += 10 * lick + 18 * strike
 	q.browY = 0.15 * insp - 0.2 * crouch + 0.2 * strike
-	q.browYL = q.browY + 0.35 * fix + 0.25 * slip
-	q.browA += 10 * crouch + 6 * twirl - 4 * wv
-	q.browAL = q.browA - 10 * fix
+	q.browYL = q.browY + 0.35 * fix
+	q.browA += 6 * crouch + 8 * twirl - 6 * wv + 10 * fix
+	q.browAL = q.browA - 14 * fix
 	local blink = max(env(c, 1.25, 0.04, 0.02, 0.06), env(c, 11.55, 0.04, 0.02, 0.06))
-	q.lid = max(blink, lick > 0.6 and 1 or 0, wv > 0.6 and 1 or 0)
-	q.wide = (slip > 0.3 or burst > 0.2) and 1 or 0
-	q.eyePop = 0.8 * slip
+	q.lid = max(blink, lick > 0.6 and 1 or 0)
+	q.smug = (wv > 0.3 or strike > 0.5) and 1 or 0
+	q.eyePop = 0.8 * slip * (1 - fix)
 
-	-- CROWN: slips sideways, fixed with a tap, pops on the strike
-	q.crR = 16 * slip * (1 - 0.8 * tap) - 4 * tap
-	q.crX = -0.4 * slip
-	q.crY = 0.1 * slip + 0.5 * burst + 0.15 * tap
-	q.cLight = 1.5 * burst + 0.4 * strike
+	-- CROWN: slips sideways, tapped back, pops on the strike
+	q.crR = 16 * slip * (1 - tap) - 5 * tap
+	q.crX = 0.35 * slip * (1 - tap)
+	q.crY = 0.1 * slip + 0.5 * burst + 0.1 * tap
+	q.cLight = 1.5 * burst + 0.4 * strike + tap
 
 	-- ANTENNAE
 	q.antP += 15 * lick - 15 * crouch + 22 * burst + 25 * slip
@@ -290,20 +300,32 @@ local function idle(t, pose, ctx)
 	q.wRaise = 4 - 14 * crouch + 14 * twirl + 18 * strike
 	q.wSweep = 12 * crouch - 6 * strike
 
-	-- RIGHT ARM + SCEPTER: inspect (bring it to the face) / twirl overhead / thrust up
-	q.aRx += 38 * insp + 20 * crouch + 60 * twirl + 115 * strike * (1 - twirl)
-	q.aRz = -14 * insp + 20 * twirl + 10 * strike - 6 * crouch
-	q.fRx = 35 * insp - 10 * crouch + 50 * twirl - 60 * strike * (1 - twirl)
-	q.sz = 28 * insp
-	q.sx = -15 * crouch - scepSpin * twirl
-	q.sLight = 1.0 * twirl + 1.5 * burst + 0.4 * lick
+	-- RIGHT ARM + SCEPTER
+	local f = q.fistR
+	f = lerpV(f, INSPECT, insp)
+	f = lerpV(f, LICK, lick)
+	f = lerpV(f, FIX, fix)
+	f = lerpV(f, LOW, crouch * (1 - twirl))
+	f = lerpV(f, TWIRL, twirl)
+	f = lerpV(f, UP, strike * (1 - twirl))
+	q.fistR = f
+	q.poleR = (twirl > 0.01 or strike > 0.01 or fix > 0.01) and POLE_UP or nil
+	local sc = CFrame.new():Lerp(ang(-12, 0, -12), insp)
+	sc = sc:Lerp(ang(-8, 0, 30), lick)
+	sc = sc:Lerp(ang(-6, 0, 26 + 6 * tap), fix)
+	sc = sc:Lerp(ang(20, 0, 0), crouch * (1 - twirl))
+	sc = sc:Lerp(ang(-scepSpin, 0, -10), twirl)
+	q.scep = sc
+	q.scepW = 0
+	q.sLight = 1.0 * twirl + 1.5 * burst + 0.4 * lick + 0.8 * tap
 
-	-- LEFT ARM: royal wave / crown fix / balance during show-off
-	local wag = wave(c, 2.5)
-	q.aLx += 25 * wv + 150 * fix + 10 * crouch + 15 * strike
-	q.aLz = 65 * wv + 12 * wag * wv - 10 * fix + 45 * twirl + 35 * strike
-	q.fLx = 80 * wv + 55 * fix + 40 * twirl + 30 * strike
-	q.fLy = 25 * wag * wv
+	-- LEFT ARM: royal wave / balance during the show-off
+	local fl = q.fistL
+	fl = lerpV(fl, WAVE + V(0.45 * wag, 0.15 * abs(wag), 0), wv)
+	fl = lerpV(fl, BAL, twirl)
+	fl = lerpV(fl, FLOURISH, strike * (1 - twirl))
+	q.fistL = fl
+	q.poleL = (wv > 0.01 or twirl > 0.01 or strike > 0.01) and POLE_UP or nil
 
 	-- LEGS
 	q.legX += -18 * crouch + 15 * burst + 10 * twirl
@@ -323,12 +345,12 @@ local function idle(t, pose, ctx)
 
 	rig(pose, t, ctx, q)
 
-	if ctx.crossed(3.1) then ctx.emit("HoneyBurst", 6) end
-	if ctx.crossed(6.97) then ctx.emit("CrownSparkle", 10) end
+	if ctx.crossed(3.2) then ctx.emit("HoneyBurst", 6) end
+	if ctx.crossed(6.97) then ctx.emit("CrownSparkle", 12) end
 	for k = 0, 5 do
 		if ctx.crossed(8.4 + k * 0.24) then ctx.emit("HoneyBurst", 4) end
 	end
-	if ctx.crossed(9.86) then
+	if ctx.crossed(9.88) then
 		ctx.emit("HoneyBurst", 40)
 		ctx.emit("RoyalBurst", 30)
 		ctx.emit("CrownSparkle", 20)
@@ -339,6 +361,8 @@ end
 ------------------------------------------------------------------------
 -- ALERT (2.0 s): "MY HONEY!" -> crown pops -> furious buzz -> "GET THEM!"
 ------------------------------------------------------------------------
+local CHEEK, SHAKE, POINT, PUMP = V(3.0, 10.2, -3.6), V(3.0, 9.0, -3.8), V(2.8, 9.4, -4.9), V(4.0, 11.6, -2.0)
+
 local function alert(t, pose, ctx)
 	local q = {}
 	base(t, q, 0.5)
@@ -347,9 +371,9 @@ local function alert(t, pose, ctx)
 	local crownSpin = track(t, { { 0.05, 0 }, { 0.62, 180, "quadOut" } })
 	local fury = env(t, 0.5, 0.12, 0.6, 0.2, "backOut", "cubicInOut")
 	local point = env(t, 1.15, 0.14, 0.45, 0.3, "backOut", "cubicInOut")
-	local shake = fury * (L.noise(t, 3, 16))
+	local shake = fury * L.noise(t, 3, 16)
 
-	q.y += 0.6 * gasp + 0.5 * fury * wave(t, 12) * 0.3 + 0.3 * point
+	q.y += 0.6 * gasp + 0.3 * point
 	q.z = 0.8 * gasp - 0.7 * point
 	q.p += 14 * gasp - 6 * fury - 14 * point
 	q.x = 0.25 * shake
@@ -360,8 +384,7 @@ local function alert(t, pose, ctx)
 	q.jaw = 40 * gasp + 18 * fury * max(0, wave(t, 8)) + 40 * point
 	q.mand += 25 * gasp + 20 * fury * max(0, wave(t, 10))
 	q.browY = 0.4 * gasp - 0.15 * fury
-	q.browA = -10 * gasp + 26 * max(fury, point)
-	q.wide = gasp > 0.1 and 1 or 0
+	q.browA = -12 * gasp + 26 * max(fury, point)
 	q.eyePop = gasp
 	q.pupY = -0.1 * gasp
 	q.excl = (t > 0.08 and t < 1.0) and 1 or 0
@@ -380,15 +403,22 @@ local function alert(t, pose, ctx)
 	q.wRaise = 4 + 16 * gasp + 10 * fury
 	q.wSweep = -8 * gasp + 10 * point
 
-	-- arms: fling up in shock -> fists clenched shaking -> scepter points forward
-	q.aRx += 30 * gasp + 40 * fury + 72 * point
-	q.aRz = 30 * gasp + 15 * fury - 4 * point
-	q.fRx = 30 * gasp + 40 * fury * (1 - point) - 40 * point + 10 * fury * wave(t, 12)
-	q.sx = -95 * point
+	-- arms: fists to the cheeks in shock -> shaking fists -> scepter points forward
+	local sh = V(0.25 * L.noise(t, 7, 14), 0.25 * L.noise(t, 9, 14), 0) * fury
+	local f = q.fistR
+	f = lerpV(f, CHEEK, gasp)
+	f = lerpV(f, SHAKE + sh, fury)
+	f = lerpV(f, POINT, point)
+	q.fistR = f
+	q.scep = CFrame.new():Lerp(ang(0, 0, -15), max(gasp, fury)):Lerp(ang(-88, 0, 0), point)
+	q.scepW = 0
 	q.sLight = 1.2 * point
-	q.aLx += 30 * gasp + 40 * fury + 20 * point
-	q.aLz = 30 * gasp + 15 * fury + 25 * point
-	q.fLx = 40 * gasp + 70 * fury + 60 * point + 12 * fury * wave(t, 12, 0.3)
+	local fl = q.fistL
+	fl = lerpV(fl, CHEEK, gasp)
+	fl = lerpV(fl, SHAKE - sh, fury)
+	fl = lerpV(fl, PUMP, point)
+	q.fistL = fl
+	q.poleL = point > 0.01 and POLE_UP or nil
 
 	q.legX += 25 * gasp - 15 * fury
 	q.shinX += -25 * gasp
@@ -405,8 +435,10 @@ local function alert(t, pose, ctx)
 	rig(pose, t, ctx, q)
 
 	if ctx.crossed(0.08) then ctx.emit("RoyalBurst", 20) end
-	if ctx.crossed(0.62) then ctx.emit("CrownSparkle", 12) end
-	if ctx.crossed(0.6) then ctx.emit("Steam", 10) end
+	if ctx.crossed(0.62) then
+		ctx.emit("CrownSparkle", 12)
+		ctx.emit("Steam", 10)
+	end
 	if ctx.crossed(0.95) then ctx.emit("Steam", 8) end
 	if ctx.crossed(1.25) then
 		ctx.emit("RoyalBurst", 30)
@@ -419,6 +451,7 @@ end
 -- CHASE (0.6 s loop): leaned-forward zoom
 ------------------------------------------------------------------------
 local CH = 1 / 0.6
+local LANCE = V(2.9, 8.4, -4.6)
 local function chase(t, pose, ctx)
 	local q = {}
 	base(t, q, CH)
@@ -429,14 +462,13 @@ local function chase(t, pose, ctx)
 	q.yw = 3 * wave(t, CH, 0.25)
 	q.z = 0
 
-	q.hp = 16 + 3 * wave(t, 2 * CH, 0.1)
+	q.hp = 18 + 3 * wave(t, 2 * CH, 0.1)
 	q.hy = -3 * wave(t, CH, 0.25)
 	q.jaw = 14 + 12 * max(0, wave(t, 2 * CH))
 	q.mand = 12 + 8 * wave(t, 2 * CH)
 	q.browA = 24
 	q.browY = -0.1
-	q.wide = 1
-	q.pupY = 0.2
+	q.pupY = 0.25
 	q.anger = 1
 
 	q.antP = 32 + 6 * wave(t, 2 * CH, 0.3)
@@ -444,14 +476,11 @@ local function chase(t, pose, ctx)
 	q.wAmp, q.wHz, q.wRaise, q.wSweep = 32, 15 * CH, 6, 20
 
 	-- scepter couched forward like a lance, left arm pumping
-	q.aRx = 55 + 5 * wave(t, CH, 0.1)
-	q.aRz = -4
-	q.fRx = -20
-	q.sx = -80 + 6 * wave(t, 2 * CH)
+	q.fistR = LANCE + V(0, 0.15 * bob, 0)
+	q.scep = ang(-78 + 5 * wave(t, 2 * CH), 0, 0)
+	q.scepW = 0
 	q.sLight = 0.4
-	q.aLx = -25 + 30 * wave(t, CH)
-	q.aLz = 12
-	q.fLx = 50 + 20 * wave(t, CH, 0.2)
+	q.fistL = V(3.7, 8.0 + 0.5 * wave(t, CH, 0.25), -2.4 + 1.1 * wave(t, CH))
 
 	q.legX = -30 + 12 * wave(t, 2 * CH, 0.2)
 	q.legXL = -30 + 12 * wave(t, 2 * CH, 0.7)
@@ -466,8 +495,7 @@ local function chase(t, pose, ctx)
 	q.cape = 30 + 10 * wave(t, 2 * CH)
 	q.cape2 = 10 * wave(t, 2 * CH, 0.25)
 
-	q.orbYaw = 0
-	q.tumble = 240 * t
+	q.tumble = 600 * t -- one turn per loop (seamless)
 	rig(pose, t, ctx, q)
 
 	if ctx.crossed(0.05) then ctx.emit("PetalBurst", 3) end
@@ -476,11 +504,13 @@ end
 ------------------------------------------------------------------------
 -- ATTACK (1.2 s): rear back -> scepter BONK + stinger jab -> recoil
 ------------------------------------------------------------------------
+local WIND, BONK = V(3.4, 12.4, -0.2), V(2.6, 8.8, -4.8)
+local WINDL, HITL = V(4.4, 10.0, -1.0), V(4.2, 9.0, 0.2)
 local function attack(t, pose, ctx)
 	local q = {}
 	base(t, q, 0.5)
 	local wind = env(t, 0.0, 0.38, 0.04, 0.1, "cubicOut", "quadIn")
-	local hit = env(t, 0.4, 0.1, 0.22, 0.5, "expoOut", "cubicInOut")
+	local hit = env(t, 0.4, 0.1, 0.22, 0.45, "expoOut", "cubicInOut")
 	local impact = env(t, 0.48, 0.04, 0.08, 0.3, "quadOut", "backOut")
 
 	q.y += 0.9 * wind - 0.2 * hit - 0.3 * impact
@@ -488,12 +518,11 @@ local function attack(t, pose, ctx)
 	q.p += 16 * wind - 24 * hit
 	q.r = 6 * impact * wave(t, 10)
 
-	q.hp += 10 * wind - 4 * hit
+	q.hp += 10 * wind - 2 * hit
 	q.jaw = 8 * wind + 42 * hit
 	q.mand += 20 * wind + 25 * hit
 	q.browA = 28 * max(wind, hit)
 	q.browY = -0.15 * wind
-	q.wide = hit > 0.2 and 1 or 0
 	q.anger = (t > 0.05 and t < 1.0) and 1 or 0
 	q.eyePop = 0.4 * impact
 
@@ -506,15 +535,14 @@ local function attack(t, pose, ctx)
 	q.wRaise = 4 + 18 * wind - 8 * hit
 	q.wSweep = -10 * wind + 16 * hit
 
-	-- scepter raised behind the head -> chops down in front
-	q.aRx += 150 * wind + 40 * hit
-	q.aRz = 10 * wind - 6 * hit
-	q.fRx = 30 * wind - 30 * hit
-	q.sx = 35 * wind - 105 * hit
+	-- scepter raised behind the head -> chops down in front (BONK)
+	q.fistR = lerpV(lerpV(q.fistR, WIND, wind), BONK, hit)
+	q.poleR = wind > 0.01 and POLE_UP or nil
+	q.scep = CFrame.new():Lerp(ang(45, 0, 0), wind):Lerp(ang(-115, 0, 0), hit)
+	q.scepW = 0
 	q.sLight = 1.5 * impact + 0.4 * wind
-	q.aLx += 15 * wind + 20 * hit
-	q.aLz = 30 * wind + 20 * hit
-	q.fLx = 40 * wind + 30 * hit
+	q.fistL = lerpV(lerpV(q.fistL, WINDL, wind), HITL, hit)
+	q.poleL = POLE_UP
 
 	q.legX += -15 * wind + 25 * hit
 	q.shinX += -15 * hit
@@ -537,13 +565,14 @@ local function attack(t, pose, ctx)
 end
 
 ------------------------------------------------------------------------
--- CATCH (2.2 s): royal victory spin -> crown sparkle -> "ho ho ho"
+-- CATCH (2.2 s): royal victory spin -> crown sparkle -> posh "ho ho ho"
 ------------------------------------------------------------------------
+local MOUTHL, OUTL, HOLD = V(1.5, 10.4, -3.9), V(5.2, 10.4, -1.6), V(3.9, 7.6, -3.0)
 local function catch(t, pose, ctx)
 	local q = {}
 	base(t, q, 0.5)
 	local crouch = env(t, 0.0, 0.25, 0.05, 0.2, "cubicOut", "cubicIn")
-	local up = env(t, 0.25, 0.4, 1.15, 0.4, "backOut", "cubicInOut")
+	local up = env(t, 0.25, 0.4, 1.0, 0.35, "backOut", "cubicInOut")
 	local spin = 360 * E.cubicInOut(remap(t, 0.3, 1.25))
 	local spark = env(t, 1.25, 0.08, 0.2, 0.5, "backOut", "cubicInOut")
 	local gloat = env(t, 1.3, 0.2, 0.45, 0.25, "backOut", "cubicInOut")
@@ -562,10 +591,9 @@ local function catch(t, pose, ctx)
 	q.browYL = 0.2 * up + 0.3 * gloat
 	q.browA = -6 * up
 	q.lid = gloat > 0.3 and 1 or 0
-	q.wide = (spark > 0.3 and gloat < 0.3) and 1 or 0
+	q.smug = up > 0.3 and 1 or 0
 
 	q.crY = 0.6 * spark
-	q.crYw = 0
 	q.cLight = 1.5 * spark
 
 	q.antP += 25 * up - 10 * crouch
@@ -573,15 +601,14 @@ local function catch(t, pose, ctx)
 	q.wRaise = 4 + 20 * up - 12 * crouch
 	q.wSweep = 10 * crouch
 
-	-- scepter raised high, then held proudly; left hand to the mouth (posh laugh)
-	q.aRx += 140 * up * (1 - gloat) + 25 * gloat
-	q.aRz = 25 * up * (1 - gloat)
-	q.fRx = 40 * up * (1 - gloat) + 10 * gloat
+	-- scepter raised high during the spin, then held proudly; left hand to the mouth
+	q.fistR = lerpV(lerpV(lerpV(q.fistR, LOW, crouch), UP, up * (1 - gloat)), HOLD, gloat)
+	q.poleR = up > 0.01 and POLE_UP or nil
+	q.scep = CFrame.new():Lerp(ang(20, 0, 0), crouch)
+	q.scepW = 0
 	q.sLight = 1.2 * up
-	q.aLx += 20 * up + 70 * gloat
-	q.aLz = 60 * up * (1 - gloat) - 12 * gloat
-	q.fLx = 30 * up + 75 * gloat
-	q.fLy = -25 * gloat
+	q.fistL = lerpV(lerpV(q.fistL, OUTL, up * (1 - gloat)), MOUTHL, gloat)
+	q.poleL = up > 0.01 and POLE_UP or nil
 
 	q.legX += 20 * up
 	q.shinX += -15 * up
@@ -604,6 +631,8 @@ end
 ------------------------------------------------------------------------
 -- GIVEUP (2.6 s): royal tantrum (stomps the air, scepter shake) -> pout
 ------------------------------------------------------------------------
+local SHAKEUP, PUMPL = V(3.8, 12.0, -1.6), V(3.6, 11.0, -2.6)
+local STAFF, HIPL = V(4.0, 8.0, -2.4), V(4.2, 7.6, -0.6)
 local function giveUp(t, pose, ctx)
 	local q = {}
 	base(t, q, 0.5)
@@ -625,7 +654,6 @@ local function giveUp(t, pose, ctx)
 	q.browA = 28 * tan + 14 * pout
 	q.browY = -0.2 * tan + 0.1 * pout
 	q.lid = pout > 0.4 and 1 or 0
-	q.wide = 0
 	q.anger = tan > 0.2 and 1 or 0
 	q.sweat = pout > 0.3 and 1 or 0
 	q.pupX = -0.3 * pout
@@ -639,17 +667,15 @@ local function giveUp(t, pose, ctx)
 	q.wRaise = 4 + 8 * tan - 14 * pout
 	q.wSweep = 10 * pout
 
-	-- scepter shaken overhead, left fist pumping; then arms folded (pout)
-	q.aRx += 120 * tan + 40 * pout
-	q.aRz = 15 * tan - 12 * pout
-	q.fRx = 20 * tan + 20 * tan * wave(t, 8) + 70 * pout
-	q.fRy = 50 * pout
-	q.sx = 20 * tan * wave(t, 8, 0.2) - 20 * pout
+	-- scepter shaken overhead + left fist pumping -> leans on the scepter, fist on hip
+	local shk = V(0.35 * wave(t, 8), 0.3 * wave(t, 8, 0.25), 0)
+	q.fistR = lerpV(lerpV(q.fistR, SHAKEUP + shk, tan), STAFF, pout)
+	q.poleR = tan > 0.01 and POLE_UP or nil
+	q.scep = ang(0, 0, 22 * wave(t, 8, 0.1) * tan)
+	q.scepW = pout > 0.5 and 1 or 0
 	q.sLight = 0.6 * tan
-	q.aLx += 90 * tan + 40 * pout
-	q.aLz = 25 * tan - 12 * pout
-	q.fLx = 60 * tan + 25 * tan * wave(t, 8, 0.5) + 70 * pout
-	q.fLy = 50 * pout
+	q.fistL = lerpV(lerpV(q.fistL, PUMPL + V(0, 0.4 * wave(t, 8, 0.5), 0), tan), HIPL, pout)
+	q.poleL = tan > 0.01 and POLE_UP or nil
 
 	-- stomping the air: legs kick down alternately
 	q.legX = tan * (-10 + 40 * wave(t, 5)) - 6 * pout
@@ -686,20 +712,21 @@ local function ret(t, pose, ctx)
 	q.hp = 12 + 2 * wave(t, RT, 0.15)
 	q.hr = 3 * wave(t, RT, 0.3)
 	q.browY = 0.1
-	q.browYL = 0.25
-	q.browA = -6
+	q.browYL = 0.3
+	q.browA = -4
+	q.browAL = -10
+	q.smug = 1
 	q.wAmp, q.wHz, q.wRaise, q.wSweep = 16, 16 * RT, 4, 8
 
-	q.aRx = 6 + 4 * wave(t, RT)
-	q.aLx = 10 + 10 * wave(t, RT, 0.25)
-	q.aLz = 10
-	q.fLx = 20 + 10 * wave(t, RT, 0.4)
+	q.fistR = FI + V(0, 0.4 + 0.1 * wave(t, RT), 0)
+	q.scepW = 1
+	q.fistL = V(3.7, 8.0 + 0.3 * wave(t, RT, 0.25), -2.6 + 0.4 * wave(t, RT))
 
 	q.legX = -14 + 6 * wave(t, 2 * RT, 0.15)
 	q.abdP = 4
 	q.abdW = 4
 	q.cape = 12 + 5 * wave(t, 2 * RT, 0.3)
-	q.tumble = 30 * t
+	q.tumble = 360 * RT * t -- one turn per loop (seamless)
 	rig(pose, t, ctx, q)
 end
 

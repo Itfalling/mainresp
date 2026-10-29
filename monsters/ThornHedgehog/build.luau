@@ -24,7 +24,7 @@ return {
 		-- palette ---------------------------------------------------------
 		local SKIN = "#3d2415" -- dark spiny skin (top of the ball)
 		local FUR, FURD = "#a86d3c", "#8a5530" -- warm fur (lower ball, feet, ears)
-		local SP0, SP1, SP2 = "#6a4126", "#b8854f", "#f6e8c8" -- quill base / mid / cream tip
+		local SP0, SP1, SPT, SP2 = "#5c3520", "#8f5c33", "#c99a62", "#f6e8c8" -- quill base / mid / tan / cream tip
 		local CREAM, CREAM2, TAN = "#f7e7c6", "#fff3dd", "#dcbf92" -- face patch
 		local INK, BLACK = "#2a170e", "#141012" -- brows + eye rims / pupils + nose
 		local WHITE = "#fffdf6"
@@ -78,51 +78,75 @@ return {
 			B:bone("Quill" .. g .. "L", "Body", C)
 		end
 		local function groupOf(g, f)
-			local grp = g <= 95 and "F" or "B"
+			local grp = g <= 85 and "F" or "B"
 			if math.abs(f) <= 26 then
 				return "Quill" .. grp
 			end
 			return "Quill" .. grp .. (f > 0 and "R" or "L")
 		end
+		-- Classic cartoon-hedgehog quills: every quill sweeps BACK (+Z), tilted
+		-- up/out by one of three clean angles chosen by its column, layered
+		-- like shingles in rows from the forehead to the back. Each quill is
+		-- 4 axis-aligned cubes tapering dark brown -> tan -> cream tip.
+		local QCOL = { SP0, SP1, SPT, SP2 }
+		-- {width, length along Z}: stepped blocks stretched along the sweep
+		local QSIZE = { { 1.7, 2.4 }, { 1.3, 2.0 }, { 0.95, 1.6 }, { 0.6, 1.2 } }
+		local QSTEP = { 1.9, 1.6, 1.25 }
+		local function sweepDir(g, f)
+			-- up-tilt by row (forehead mane rises, back rows trail straight back),
+			-- out-tilt by column: only a few clean angles
+			local up = g < 90 and 0.42 or (g < 120 and 0.27 or (g < 150 and 0.1 or 0.0))
+			local a, sx = math.abs(f), f >= 0 and 1 or -1
+			if a < 30 then
+				return v(0, up, 1).Unit
+			elseif a < 70 then
+				return v(0.38 * sx, up * 0.8, 1).Unit
+			end
+			return v(0.62 * sx, up * 0.4, 1).Unit
+		end
 		local trails = 0
 		local function quill(g, f, len, neon, trail)
 			local s, n = surf(g, f, 0)
-			local d = (n + v(0, 0.1, 0.6)).Unit
+			s += n * 0.25
+			local d = sweepDir(g, f)
 			local bone = groupOf(g, f)
-			-- axis-aligned cubes stepped along the quill direction (3D pixel art)
-			local function at(dist)
-				return CFrame.new(s + d * dist)
+			local function sz(i)
+				return v(QSIZE[i][1], QSIZE[i][1], QSIZE[i][2])
 			end
-			-- step lengths: as long as possible while the axis-aligned cubes
-			-- still overlap along the diagonal
-			local m = math.max(math.abs(d.X), math.abs(d.Y), math.abs(d.Z))
-			local d1 = math.min(1.6 * len, 0.96 * (1.6 + 1.15) / 2 / m)
-			local d2 = d1 + math.min(1.15 * len, 0.96 * (1.15 + 0.75) / 2 / m)
-			B:block(bone, v(1.6, 1.6, 1.6), at(0.1), SP0)
-			B:block(bone, v(1.15, 1.15, 1.15), at(0.1 + d1), SP1)
-			B:block(bone, v(0.75, 0.75, 0.75), at(0.1 + d2), SP2)
+			local dist = 0.2
+			B:block(bone, sz(1), CFrame.new(s + d * dist), QCOL[1])
+			for i = 2, 4 do
+				-- longest step that keeps the axis-aligned blocks overlapping on every axis
+				local hw = (QSIZE[i - 1][1] + QSIZE[i][1]) / 2
+				local hl = (QSIZE[i - 1][2] + QSIZE[i][2]) / 2
+				local step = QSTEP[i - 1] * len
+				step = math.min(step, 0.92 * hw / math.max(math.abs(d.X), math.abs(d.Y), 1e-3))
+				step = math.min(step, 0.92 * hl / math.abs(d.Z))
+				dist += step
+				B:block(bone, sz(i), CFrame.new(s + d * dist), QCOL[i])
+			end
+			dist += 0.4
 			if neon then
-				B:block(bone, v(0.36, 0.36, 0.36), at(0.1 + d2 + 0.5), NEON, { mat = "Neon" })
+				B:block(bone, v(0.32, 0.32, 0.32), CFrame.new(s + d * (dist + 0.25)), NEON, { mat = "Neon" })
 			end
 			if trail then
 				trails += 1
-				local tip = s + d * (d2 + 0.5)
-				B:trail(bone, tip, tip - d * 0.9, { name = "SpinTrail" .. trails, color = { "#ffffff", NEON }, life = 0.14, trans = { 0.45, 1 } })
+				local tip = s + d * dist
+				B:trail(bone, tip, tip - d * 1.0, { name = "SpinTrail" .. trails, color = { "#ffffff", NEON }, life = 0.14, trans = { 0.45, 1 } })
 			end
 		end
-		-- {gamma, {phi...}, length}
+		-- {gamma, {phi...}, length}: 17 quills in 4 shingled rows
 		local RINGS = {
-			{ 68, { 0, 38, -38, 76, -76 }, 0.55 },
-			{ 92, { 19, -19, 57, -57, 95, -95 }, 0.75 },
-			{ 118, { 0, 38, -38, 76, -76, 112, -112 }, 1.0 },
-			{ 144, { 25, -25, 75, -75, 125, -125 }, 0.92 },
-			{ 168, { 0 }, 0.85 },
+			{ 70, { 0, 40, -40, 82, -82 }, 1.0 }, -- forehead mane
+			{ 104, { 20, -20, 62, -62, 102, -102 }, 1.0 },
+			{ 140, { 0, 45, -45, 92, -92 }, 0.85 },
+			{ 166, { 0 }, 0.75 }, -- back point
 		}
-		local NEONTIP = { ["68:0"] = true, ["92:57"] = true, ["92:-57"] = true, ["118:0"] = true, ["144:75"] = true, ["144:-75"] = true }
+		local NEONTIP = { ["70:0"] = true, ["104:62"] = true, ["104:-62"] = true, ["140:45"] = true, ["140:-45"] = true, ["166:0"] = true }
 		for _, ring in RINGS do
 			for _, f in ring[2] do
 				local key = ring[1] .. ":" .. f
-				quill(ring[1], f, ring[3], NEONTIP[key], f == 0 and (ring[1] == 68 or ring[1] == 118))
+				quill(ring[1], f, ring[3], NEONTIP[key], f == 0 and (ring[1] == 70 or ring[1] == 140))
 			end
 		end
 

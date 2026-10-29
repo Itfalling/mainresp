@@ -52,11 +52,11 @@ local HIP = Vector3.new(1.75, 1.3, 0.0)
 -- floor) for every 5 degrees of forward roll, measured with CAL = true
 local DBALL = {
 	6.39, 6.54, 6.65, 6.70, 6.70, 6.80, 6.97, 7.08, 7.14, 7.18, 7.40, 7.56, 7.66, 7.70, 7.69, 7.62, 7.48, 7.30,
-	7.11, 7.33, 7.51, 7.63, 7.69, 7.69, 7.64, 7.52, 7.35, 7.12, 6.84, 6.51, 6.12, 6.01, 6.11, 6.17, 6.18, 6.15,
-	6.07, 6.36, 6.72, 7.02, 7.28, 7.47, 7.61, 7.70, 7.72, 7.69, 7.59, 7.44, 7.33, 7.31, 7.29, 7.33, 7.31, 7.24,
-	7.12, 7.00, 6.83, 6.90, 7.02, 7.08, 7.09, 7.05, 6.95, 6.99, 7.07, 7.09, 7.06, 6.97, 6.83, 6.64, 6.40, 6.25,
+	7.11, 7.33, 7.51, 7.63, 7.69, 7.69, 7.64, 7.52, 7.35, 7.12, 6.84, 6.51, 6.12, 5.90, 5.73, 5.52, 5.66, 5.82,
+	6.02, 6.19, 6.32, 6.39, 6.42, 6.56, 6.71, 6.81, 6.87, 6.86, 6.91, 7.03, 7.10, 7.12, 7.08, 7.07, 7.12, 7.12,
+	7.07, 6.99, 6.86, 6.90, 7.02, 7.08, 7.09, 7.05, 6.95, 6.99, 7.07, 7.09, 7.06, 6.97, 6.83, 6.64, 6.40, 6.25,
 }
-local BALL_R = 7.06 -- mean rolling radius
+local BALL_R = 6.91 -- mean rolling radius
 local function dBall(roll)
 	local r = (roll % 360) / 5
 	local i = math.floor(r)
@@ -72,6 +72,10 @@ end
 local QDIR = {
 	QuillF = Vector3.new(0, 0.6, 0.2), QuillFR = Vector3.new(0.55, 0.35, 0.1),
 	QuillB = Vector3.new(0, 0.3, 0.6), QuillBR = Vector3.new(0.5, 0.15, 0.4),
+}
+local TUCK = {
+	QuillF = Vector3.new(0, -0.3, -1.6), QuillFR = Vector3.new(-0.5, 0, -1.6),
+	QuillB = Vector3.new(0, -0.3, -2.0), QuillBR = Vector3.new(-0.6, 0, -2.0),
 }
 local function bristle(pose, g, b)
 	local d = QDIR["Quill" .. g]
@@ -117,12 +121,15 @@ local function curl(pose, k, extraBristle)
 		pose[name] = (pose[name] or CFrame.new()):Lerp(target, k)
 	end
 	mix("Head", pa(0, 0, 2.7, 0, 0, 0))
-	local qb = 0.5 + (extraBristle or 0)
+	-- the back-swept quills slide forward/in so the ball stays round
+	local qb = 0.3 + (extraBristle or 0)
 	for g, d in { F = QDIR.QuillF, B = QDIR.QuillB } do
 		local ds = QDIR["Quill" .. g .. "R"]
-		mix("Quill" .. g, CFrame.new(d * qb))
-		mix("Quill" .. g .. "R", CFrame.new(ds * qb))
-		mix("Quill" .. g .. "L", L.mirror(CFrame.new(ds * qb)))
+		local tuck = TUCK["Quill" .. g]
+		local tuckS = TUCK["Quill" .. g .. "R"]
+		mix("Quill" .. g, CFrame.new(d * qb + tuck))
+		mix("Quill" .. g .. "R", CFrame.new(ds * qb + tuckS))
+		mix("Quill" .. g .. "L", L.mirror(CFrame.new(ds * qb + tuckS)))
 	end
 	local arm = pa(-0.4, 0.5, 1.5, 0, 0, 0)
 	local leg = pa(-0.45, 1.1, 0.9, 0, 0, 0)
@@ -301,7 +308,7 @@ local function idle(t, pose, ctx)
 	-- spin-dash show-off (ball), then a flip out of the ball
 	if c >= SPIN_B and c < SPIN_LAND then
 		local roll = dashRoll(c)
-		pose.Body = CFrame.new(-BP) * CFrame.new(0, BC.Y + 3.4 * hop, BC.Z) * CFrame.Angles(rad(-roll), 0, 0) * CFrame.new(-Q)
+		pose.Body = CFrame.new(-BP) * CFrame.new(0, BC.Y + 5.0 * hop, BC.Z) * CFrame.Angles(rad(-roll), 0, 0) * CFrame.new(-Q)
 		L.both(pose, "Arm", pa(0, 0, 0, -30, 0, 70))
 		L.both(pose, "Leg", pa(0.3, -0.2, 0, 0, 0, 25))
 		pose.Jaw = ang(-35, 0, 0)
@@ -310,7 +317,7 @@ local function idle(t, pose, ctx)
 	if k > 0 then
 		local roll = dashRoll(c)
 		local jitter = 0.12 * rev * wave(t, 13)
-		local bt = ballT(roll, jitter, 0.35 * rev, 3.4 * hop + 0.3 * rev)
+		local bt = ballT(roll, jitter, 0.35 * rev, 5.0 * hop + 0.3 * rev)
 		pose.Body = pose.Body:Lerp(bt, k)
 		curl(pose, k, 0.25 * rev)
 		covers(ctx, k)

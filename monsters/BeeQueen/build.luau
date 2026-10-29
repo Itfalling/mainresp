@@ -178,6 +178,9 @@ return {
 		B:block(head, v(4.4, 2.2, 0.3), C(0, 12.3, 1.9), HONEYD) -- back-of-head fuzz
 		B:block(head, v(3.0, 0.5, 0.3), C(0, 13.65, 2.0), BLACK) -- back stripe
 		B:block(head, v(3.0, 0.5, 0.3), C(0, 12.5, 2.0), BLACK)
+		B:sym(function()
+			B:block(head, v(0.3, 2.0, 1.8), C(3.45, 12.0, 0.9), HONEYD) -- shaded head sides
+		end)
 
 		-- EYES (one pair, front face only)
 		B:sym(function(side)
@@ -200,7 +203,7 @@ return {
 			B:block(eye, v(2.1, 0.3, 0.14), C(1.55, EY - 0.3, -3.2), BLACK, { tr = 1, name = "Lash" .. side })
 			-- heavy, regal arched brow (inner low, outer stepped up)
 			local brow = B:bone("Brow" .. side, "Head", V(1.6, 14.1, -2.9))
-			B:block(brow, v(2.2, 0.6, 0.5), C(1.65, 14.12, -2.88, 0, 0, 9), BLACK)
+			B:block(brow, v(2.2, 0.6, 0.5), C(1.65, 14.12, -2.88, 0, 0, 6), BLACK)
 			-- blush
 			B:block(head, v(0.85, 0.4, 0.1), C(2.45, 11.12, -2.63), BLUSH)
 		end)
@@ -255,16 +258,16 @@ return {
 		B:block(crown, v(3.6, 0.65, 3.2), C(0, 14.85, -0.3), GOLD)
 		B:block(crown, v(2.8, 0.55, 2.4), C(0, 15.2, -0.3), VELVET) -- velvet cap
 		B:block(crown, v(1.6, 0.25, 1.4), C(0, 15.5, -0.3), PURPLED)
-		B:block(crown, v(0.4, 0.4, 0.4), C(0, 15.65, -0.3), GOLD) -- top orb
+		B:block(crown, v(0.36, 0.36, 0.36), C(0, 15.55, -0.3), GOLD) -- top orb
 		-- points: {x, z, tall}
 		local PTS = { { 1.5, -1.65, false }, { -1.5, -1.65, false }, { 0, -1.65, true }, { 1.5, 1.05, false }, { -1.5, 1.05, false }, { 0, 1.05, true } }
 		for _, p in PTS do
-			B:block(crown, v(0.6, 0.4, 0.6), C(p[1], 15.35, p[2]), GOLD)
-			B:block(crown, v(0.36, 0.3, 0.36), C(p[1], 15.7, p[2]), p[3] and GOLD or GOLDD)
+			B:block(crown, v(0.6, 0.4, 0.6), C(p[1], 15.3, p[2]), GOLD)
+			B:block(crown, v(0.36, 0.3, 0.36), C(p[1], 15.62, p[2]), p[3] and GOLD or GOLDD)
 		end
 		B:sym(function()
-			B:block(crown, v(0.6, 0.4, 0.6), C(1.65, 15.35, -0.3), GOLD) -- side points
-			B:block(crown, v(0.36, 0.3, 0.36), C(1.65, 15.7, -0.3), GOLDD)
+			B:block(crown, v(0.6, 0.4, 0.6), C(1.65, 15.3, -0.3), GOLD) -- side points
+			B:block(crown, v(0.36, 0.3, 0.36), C(1.65, 15.62, -0.3), GOLDD)
 		end)
 		for k = -1, 1, 2 do
 			B:block(crown, v(0.3, 0.3, 0.1), C(k * 0.55, 14.85, -1.93), GOLDD)
