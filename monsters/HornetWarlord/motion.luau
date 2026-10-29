@@ -81,7 +81,7 @@ local ORB_DIR = { 1, -1, 1, -1 }
 local ORB_XZ = { { 10.5, -3.0 }, { -10.5, -1.5 }, { 8.5, 7.0 }, { -8.5, 5.5 } }
 local SHOCK_N = 10
 local NOCURL = { 0, 0, 0, 0, 0 }
-local ABD_LIFT = -5 -- carried a touch higher than the build pose (hover clearance)
+local ABD_LIFT = -7 -- carried a touch higher than the build pose (hover clearance)
 
 local function rig(pose, t, ctx, q)
 	setmetatable(q, ZERO)
@@ -293,7 +293,7 @@ local function idle(t, pose, ctx)
 	q.footX = 8 * wave(t, 1.0, 0.3)
 
 	-- ABDOMEN: breathing pulse, pumps on the hup, cocks for the flare
-	q.abdP = 2 * pulse - 8 * hup - 6 * crouch - 18 * flare - 7 * sal - 6 * twirl
+	q.abdP = 2 * pulse - 8 * hup - 6 * crouch - 18 * flare - 7 * sal - 6 * twirl - 6 * pol
 	q.abdW = 2.5 + 4 * hup
 	q.abdHz = 1.0
 	q.abdYaw = 3
@@ -503,9 +503,11 @@ local function attack(t, pose, ctx)
 	q.wRaise = 6 + 10 * cock
 
 	local reach = max(cock, k)
-	q.fistR = lerpV(FI, V(5.0, 11.4, -1.8), reach)
+	-- lance: cocked back, then thrust forward-down together with the sting
+	local fr = lerpV(FI, V(4.9, 10.6, -0.4), cock * (1 - k))
+	q.fistR = lerpV(fr, V(4.0, 9.2, -6.6), k)
 	q.poleR = V(1, -0.3, 0.3)
-	q.spear = ang(14 * k, 0, -8 * k)
+	q.spear = CFrame.new():Lerp(ang(30, 0, 0), cock * (1 - k)):Lerp(ang(-100, 0, 0), k)
 	q.fistL = lerpV(FI, V(4.8, 10.2, -3.0), reach)
 
 	q.legX = -12 * cock + 34 * k

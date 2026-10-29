@@ -33,10 +33,10 @@ local BODYP = V3(0, 15, 9)
 local CHESTP = V3(0, 16, 0)
 local LEGS = {
 	-- name, upper bone, knee bone, hoof bone, parent, upper pivot, knee pivot, hoof pivot, bend
-	FR = { "FLegR", "FKneeR", "FHoofR", "Chest", V3(5.6, 14.5, -9), V3(5.6, 8, -9.8), V3(5.6, 2.5, -9), -1 },
-	FL = { "FLegL", "FKneeL", "FHoofL", "Chest", V3(-5.6, 14.5, -9), V3(-5.6, 8, -9.8), V3(-5.6, 2.5, -9), -1 },
-	HR = { "HLegR", "HKneeR", "HHoofR", "Body", V3(5.6, 14.5, 10), V3(5.6, 8, 10.8), V3(5.6, 2.5, 10), 1 },
-	HL = { "HLegL", "HKneeL", "HHoofL", "Body", V3(-5.6, 14.5, 10), V3(-5.6, 8, 10.8), V3(-5.6, 2.5, 10), 1 },
+	FR = { "FLegR", "FKneeR", "FHoofR", "Chest", V3(5.6, 14.5, -9), V3(5.6, 8, -11.2), V3(5.6, 2.5, -9), -1 },
+	FL = { "FLegL", "FKneeL", "FHoofL", "Chest", V3(-5.6, 14.5, -9), V3(-5.6, 8, -11.2), V3(-5.6, 2.5, -9), -1 },
+	HR = { "HLegR", "HKneeR", "HHoofR", "Body", V3(5.6, 14.5, 10), V3(5.6, 8, 12.2), V3(5.6, 2.5, 10), 1 },
+	HL = { "HLegL", "HKneeL", "HHoofL", "Body", V3(-5.6, 14.5, 10), V3(-5.6, 8, 12.2), V3(-5.6, 2.5, 10), 1 },
 }
 local LEG_ORDER = { "FR", "FL", "HR", "HL" }
 for _, g in LEGS do
@@ -347,11 +347,11 @@ local function alert(t, pose, ctx)
 
 	S.bz = 0.6 * jolt - 0.4 * crouch
 	S.by = -1.4 * crouch - 1.0 * rear - 1.6 * hit
-	S.bp = -4 * crouch + 36 * rear - 3 * hit
+	S.bp = -4 * crouch + 33 * rear - 3 * hit
 	S.cp = 2 * jolt + 4 * rear - 3 * hit
-	S.n1 = 10 * jolt - 10 * crouch - 6 * rear + 8 * roar - 8 * hit - 6 * ready
-	S.n2 = 6 * jolt - 4 * crouch + 4 * roar - 4 * hit
-	S.hp = 14 * jolt - 6 * crouch + 16 * roar - 8 * hit
+	S.n1 = 10 * jolt - 10 * crouch - 22 * rear + 6 * roar - 8 * hit - 6 * ready
+	S.n2 = 6 * jolt - 4 * crouch - 8 * rear + 4 * roar - 4 * hit
+	S.hp = 14 * jolt - 6 * crouch + 9 * roar - 8 * hit
 	S.look = 9 * roar * wave(t, 4.5)
 	S.tilt = 6 * roar * wave(t, 4.5, 0.25)
 	S.jaw = -8 * jolt - 58 * roar - 6 * roar * wave(t, 9) - 12 * hit
@@ -391,9 +391,9 @@ end
 -- CHASE (0.8 s loop): rotary gallop
 ------------------------------------------------------------------------
 local CH_LEN = 0.8
-local CH_STRIDE = 8.0 -- hoof travel while planted
-local CH_DUTY = 0.34
-local CH_SPEED = CH_STRIDE / (CH_DUTY * CH_LEN) -- 29.4 studs/s
+local CH_STRIDE = 10.0 -- hoof travel while planted
+local CH_DUTY = 0.38
+local CH_SPEED = CH_STRIDE / (CH_DUTY * CH_LEN) -- 32.9 studs/s
 local GAIT = { HL = 0.0, HR = 0.1, FL = 0.38, FR = 0.48 }
 local DUST = { HL = "HindDust", HR = "HindDust", FL = "DustL", FR = "DustR" }
 
@@ -420,11 +420,11 @@ local function chase(t, pose, ctx)
 	local S = newS()
 	local w = 2 * pi * f
 	S.orbit = 30 * t
-	S.by = -1.1 + 0.9 * cos(w - 2 * pi * 0.9)
-	S.bp = -3 + 4 * cos(w - 2 * pi * 0.2)
+	S.by = -0.9 + 0.8 * cos(w - 2 * pi * 0.9)
+	S.bp = -3 + 6 * cos(w - 2 * pi * 0.2)
 	S.br = 1.2 * sin(w)
 	S.cp = 1.5 * cos(w - 2 * pi * 0.55)
-	S.n1 = -12 + 6 * cos(w - 2 * pi * 0.7)
+	S.n1 = -5 + 6 * cos(w - 2 * pi * 0.7)
 	S.n2 = -2 + 3 * cos(w - 2 * pi * 0.8)
 	S.hp = -4 + 4 * cos(w - 2 * pi * 0.85)
 	S.jaw = -18 - 8 * (0.5 + 0.5 * cos(w - 2 * pi * 0.65))
@@ -508,11 +508,11 @@ local function catch(t, pose, ctx)
 	local bellow = env(t, 0.7, 0.18, 0.85, 0.3, "backOut", "quadInOut")
 	local land = env(t, CATCH_LAND, 0.04, 0.03, 0.2, "linear", "quadOut")
 	S.by = -1.2 * crouch - 0.9 * rear - 0.9 * land
-	S.bp = -3 * crouch + 40 * rear - 2 * land
+	S.bp = -3 * crouch + 37 * rear - 2 * land
 	S.cp = 5 * rear
-	S.n1 = -8 * crouch + 4 * rear + 6 * bellow
-	S.n2 = -3 * crouch + 6 * bellow
-	S.hp = -6 * crouch + 18 * bellow
+	S.n1 = -8 * crouch - 24 * rear + 5 * bellow
+	S.n2 = -3 * crouch - 8 * rear + 4 * bellow
+	S.hp = -6 * crouch + 12 * bellow
 	S.look = 12 * bellow * wave(t, 2.2)
 	S.tilt = 8 * bellow * wave(t, 2.2, 0.2)
 	S.jaw = -62 * bellow - 6 * bellow * wave(t, 8) - 4 * crouch

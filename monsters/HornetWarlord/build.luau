@@ -80,6 +80,7 @@ return {
 			B:block(head, v(0.5, 1.8, 3.8), cf(3.25, 14.6, -2.8), DGOLD)
 			B:block(head, v(0.4, 2.2, 3.0), cf(3.1, 12.2, -3.2), DGOLD)
 			B:spike(head, v(3.2, 15.9, -2.4), v(4.4, 16.9, -1.4), 0.8, 0.8, CREAM)
+			B:gem(head, v(0.35, 0.35, 0.35), cf(4.4, 16.9, -1.4), MAG)
 			B:spike(head, v(3.3, 14.6, -1.6), v(4.5, 14.9, -0.2), 0.7, 0.7, CREAM)
 			-- EYE: big angular dark eye on the front face, gold frame, small
 			-- magenta glints (front face only). It wraps the corner in plain dark.
@@ -118,10 +119,10 @@ return {
 		B:emitter(mouthFX, "burst", { name = "BattleBurst", color = { "#ffffff", YEL, MAG }, size = { 0.8, 0.5, 0 } })
 
 		-- expression props (hidden; states show them)
-		B:block(head, v(1.3, 0.35, 0.35), cf(2.3, 16.9, -5.0, 0, 0, 45), "#ff2b2b", { tr = 1, name = "Anger1" })
-		B:block(head, v(1.3, 0.35, 0.35), cf(2.3, 16.9, -5.0, 0, 0, -45), "#ff2b2b", { tr = 1, name = "Anger2" })
-		B:block(head, v(0.9, 0.35, 0.35), cf(3.1, 17.5, -4.6, 0, 0, 45), "#ff2b2b", { tr = 1, name = "Anger3" })
-		B:block(head, v(0.9, 0.35, 0.35), cf(3.1, 17.5, -4.6, 0, 0, -45), "#ff2b2b", { tr = 1, name = "Anger4" })
+		B:block(head, v(1.7, 0.45, 0.45), cf(2.4, 17.0, -5.0, 0, 0, 45), "#ff2b2b", { tr = 1, name = "Anger1" })
+		B:block(head, v(1.7, 0.45, 0.45), cf(2.4, 17.0, -5.0, 0, 0, -45), "#ff2b2b", { tr = 1, name = "Anger2" })
+		B:block(head, v(1.2, 0.4, 0.4), cf(3.4, 17.8, -4.6, 0, 0, 45), "#ff2b2b", { tr = 1, name = "Anger3" })
+		B:block(head, v(1.2, 0.4, 0.4), cf(3.4, 17.8, -4.6, 0, 0, -45), "#ff2b2b", { tr = 1, name = "Anger4" })
 		B:block(head, v(0.55, 0.9, 0.45), cf(-3.6, 15.0, -4.4), "#8fdcff", { tr = 1, name = "Sweat1" })
 		B:block(head, v(0.4, 0.4, 0.35), cf(-3.6, 14.4, -4.4), "#8fdcff", { tr = 1, name = "Sweat2" })
 		B:block(head, v(0.9, 2.2, 0.9), cf(0, 20.4, -3.4), "#ff3b3b", { tr = 1, name = "Excl1" })
@@ -219,6 +220,7 @@ return {
 			B:block(b, v(w - 1.0, 0.4, 2.0), cf(0, y - h / 2 - 0.15, z - 0.1), DGOLD) -- belly plate
 			if i <= 3 then
 				B:spike(b, v(0, y + h / 2 + 0.6, z + 0.6), v(0, y + h / 2 + 1.7, z + 1.6), 0.8, 0.8, CREAM)
+				B:gem(b, v(0.35, 0.35, 0.35), cf(0, y + h / 2 + 1.7, z + 1.6), MAG)
 			end
 			if i == 2 or i == 3 then
 				B:sym(function()
@@ -230,6 +232,7 @@ return {
 		end
 		local st = B:bone("Stinger", "Abd4", v(0, 4.0, 12.3))
 		B:block(st, v(2.4, 2.2, 1.2), cf(0, 4.0, 12.6), BLK)
+		B:block(st, v(2.5, 0.5, 1.0), cf(0, 4.2, 12.7), YEL)
 		B:block(st, v(1.6, 1.6, 1.2), cf(0, 3.7, 13.6), BLK2)
 		B:block(st, v(1.7, 0.3, 0.6), cf(0, 4.55, 13.7), GOLD)
 		B:spike(st, v(0, 3.6, 14.0), v(0, 2.5, 16.6), 1.2, 1.2, CREAM)

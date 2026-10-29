@@ -23,10 +23,10 @@ M.Props = {
 	AngryMark1 = 1, AngryMark2 = 1, AngryMark3 = 1, AngryMark4 = 1,
 	SweatDrop1 = 1, SweatDrop2 = 1,
 	FlyBody = 1, FlyWingR = 1, FlyWingL = 1,
-	EyelidR = 1, EyelidL = 1, LashR = 1, LashL = 1,
+	EyelidR = 1, EyelidL = 1, EyelidSideR = 1, EyelidSideL = 1, LashR = 1, LashL = 1,
 }
 
-local JAW0 = -12 -- neutral: trap slightly open so the pink inside + teeth read
+local JAW0 = -15 -- neutral: trap slightly open so the pink inside + teeth read
 
 ------------------------------------------------------------------------
 -- rig data (must match build.luau)
@@ -110,7 +110,6 @@ local function newP()
 		armR = { 0, 0, 0 }, armL = { 0, 0, 0 }, handR = { 0, 0, 0 }, handL = { 0, 0, 0 },
 		flare = 0, flutter = 0,
 		feet = { R = { Vector3.zero, Vector3.zero, Vector3.zero }, L = { Vector3.zero, Vector3.zero, Vector3.zero } },
-		sweat = 0,
 	}
 end
 
@@ -155,12 +154,14 @@ local function apply(t, pose, ctx, P)
 	-- FACE
 	L.both(pose, "Brow", pa(0, P.browY, 0, 0, 0, P.brow), pa(0, P.browYL or P.browY, 0, 0, 0, P.browL or P.brow))
 	local close = clamp(P.lid, 0, 1)
-	L.both(pose, "Lid", CFrame.new(0, 1.0 * (1 - close), 0))
+	L.both(pose, "Lid", CFrame.new(0, 1.0 * (1 - close), 0)) -- slides down from under the brow
 	local lidTr = close > 0.15 and 0 or 1
 	ctx.transparency("EyelidR", lidTr)
 	ctx.transparency("EyelidL", lidTr)
 	ctx.transparency("LashR", lidTr)
 	ctx.transparency("LashL", lidTr)
+	ctx.transparency("EyelidSideR", lidTr)
+	ctx.transparency("EyelidSideL", lidTr)
 
 	-- ARMS
 	L.both(pose, "Arm", ang(P.armR[1], P.armR[2], P.armR[3]), ang(P.armL[1], P.armL[2], P.armL[3]))
@@ -505,7 +506,7 @@ local function catch(t, pose, ctx)
 	local P = newP()
 	local smug = env(t, 0.05, 0.25, 0.85, 0.25)
 	local burpA = env(t, 1.15, 0.2, 0.05, 0.1, "quadOut", "quadIn")
-	local burp = env(t, 1.42, 0.08, 0.3, 0.45, "backOut", "cubicInOut")
+	local burp = env(t, 1.42, 0.08, 0.28, 0.4, "backOut", "cubicInOut")
 	local chewJ = (12 - 20 * L.wave01(t, 3)) * smug
 
 	P.pot = { 0, 0.15 * L.bounce(t, 3) * smug - 0.3 * burpA + 0.35 * burp, 0, 4 * smug - 4 * burpA + 6 * burp, 0, 4 * wave(t, 1.5) * smug }
@@ -569,7 +570,6 @@ local function giveup(t, pose, ctx)
 	P.brow = -14 * wilt + 18 * perk
 	P.browY = 0.15 * wilt - 0.15 * perk
 	P.lid = max(0.5 * wilt, 0.7 * sigh * wilt)
-	P.sweat = 0.8 * L.remap(t, 0.4, 1.45)
 	P.armR = { 0, 12 * wilt - 15 * perk, -6 * wilt + 40 * perk - 20 * hit }
 	P.armL = { 0, 12 * wilt - 15 * perk, -6 * wilt + 40 * perk - 20 * hit }
 	P.handR = { 0, 15 * wilt, 15 * perk }

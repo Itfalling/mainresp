@@ -185,6 +185,12 @@ return {
 			B:block(head, v(0.25, 0.4, 0.5), cf(2.75, 11.5, -0.2), GREEN_DK)
 		end)
 		B:block(head, v(0.2, 0.45, 0.2), cf(0, 9.95, -3.6), INSIDE_DK)
+		-- leafy crest spikes down the back of the lobe (lime neon tips)
+		for i, c in { { 12.1, -0.4, 0.75 }, { 11.85, 0.7, 0.75 }, { 11.4, 1.6, 0.65 } } do
+			local base, tip = v(0, c[1], c[2]), v(0, c[1] + c[3], c[2] + 0.75)
+			B:spike(head, base, tip, 0.7, 0.6, i == 1 and GREEN_LT or GREEN)
+			B:block(head, v(0.3, 0.3, 0.3), CFrame.new(tip + (base - tip).Unit * 0.12), LIME, NEON)
+		end
 		-- upper cilia teeth: front row + side rows, pointing down/out
 		for i = 0, 5 do
 			local x = -2.9 + i * 1.16
@@ -201,16 +207,19 @@ return {
 		-- a pupil on the FRONT face only, heavy angry brows on own bones
 		B:sym(function(side)
 			B:block(head, v(2.2, 1.2, 1.6), cf(1.7, 11.75, -3.35), GREEN) -- eye bump
-			B:block(head, v(1.9, 1.0, 0.2), cf(1.7, 11.75, -4.18), PUPIL) -- dark socket frame
-			B:block(head, v(1.6, 0.8, 0.2), cf(1.7, 11.75, -4.24), EYE, { mat = "Neon", name = "Eye" .. side })
-			B:block(head, v(0.45, 0.7, 0.12), cf(1.4, 11.72, -4.37), PUPIL)
-			B:block(head, v(0.3, 0.25, 0.06), cf(1.98, 11.98, -4.36), "#ffffff") -- glint
-			local brow = B:bone("Brow" .. side, "Head", v(1.7, 12.5, -4.0))
-			B:block(brow, v(2.7, 0.6, 1.3), cf(1.75, 12.55, -3.95, 0, 0, 17), BROW)
+			-- one glowing block wraps the bump's outer front corner (reads from the
+			-- front AND the side); pupil + glint on the front face only
+			B:block(head, v(2.1, 1.05, 1.1), cf(1.8, 11.75, -3.75), PUPIL) -- dark socket frame
+			B:block(head, v(1.8, 0.8, 1.0), cf(2.02, 11.75, -3.86), EYE, { mat = "Neon", name = "Eye" .. side })
+			B:block(head, v(0.45, 0.7, 0.12), cf(1.5, 11.72, -4.42), PUPIL)
+			B:block(head, v(0.3, 0.25, 0.06), cf(2.25, 11.98, -4.39), "#ffffff") -- glint
+			local brow = B:bone("Brow" .. side, "Head", v(1.7, 12.4, -4.0))
+			B:block(brow, v(2.7, 0.6, 1.3), cf(1.75, 12.45, -3.95, 0, 0, 17), BROW)
 			-- eyelid (hidden; slides down over the eye for blinks / squints)
 			local lid = B:bone("Lid" .. side, "Head", v(1.7, 11.75, -4.3))
-			B:block(lid, v(1.95, 1.05, 0.3), cf(1.7, 11.75, -4.4), GREEN, { tr = 1, name = "Eyelid" .. side })
-			B:block(lid, v(1.95, 0.2, 0.36), cf(1.7, 11.3, -4.42), BROW, { tr = 1, name = "Lash" .. side }) -- lid edge
+			B:block(lid, v(2.0, 1.05, 0.3), cf(1.95, 11.75, -4.5), GREEN, { tr = 1, name = "Eyelid" .. side })
+			B:block(lid, v(0.3, 1.05, 1.2), cf(3.05, 11.75, -3.85), GREEN, { tr = 1, name = "EyelidSide" .. side })
+			B:block(lid, v(2.0, 0.2, 0.36), cf(1.95, 11.3, -4.52), BROW, { tr = 1, name = "Lash" .. side }) -- lid edge
 		end)
 
 		-- expression props (shown only by the states that use them)
@@ -219,9 +228,8 @@ return {
 		B:block(head, v(0.25, 1.1, 0.25), CFrame.new(AM + v(0.25, 0, 0)) * P.ang(0, 0, -20), "#ff2b2b", { tr = 1, name = "AngryMark2" })
 		B:block(head, v(1.1, 0.25, 0.25), CFrame.new(AM + v(0, 0.25, 0)) * P.ang(0, 0, 10), "#ff2b2b", { tr = 1, name = "AngryMark3" })
 		B:block(head, v(1.1, 0.25, 0.25), CFrame.new(AM + v(0, -0.25, 0)) * P.ang(0, 0, -10), "#ff2b2b", { tr = 1, name = "AngryMark4" })
-		local sweat = head
-		B:block(sweat, v(0.55, 0.8, 0.55), cf(-3.3, 11.8, -2.8), "#8fdcff", { tr = 1, name = "SweatDrop1" })
-		B:block(sweat, v(0.35, 0.4, 0.35), cf(-3.3, 12.35, -2.8), "#c9f0ff", { tr = 1, name = "SweatDrop2" })
+		B:block(head, v(0.55, 0.8, 0.55), cf(3.25, 11.2, -4.4), "#8fdcff", { tr = 1, name = "SweatDrop1" })
+		B:block(head, v(0.35, 0.4, 0.35), cf(3.25, 11.75, -4.4), "#c9f0ff", { tr = 1, name = "SweatDrop2" })
 
 		-- mouth VFX
 		local mouthFX = B:block(head, v(4, 0.6, 1), cf(0, 9.9, -5.9), GREEN, { tr = 1, name = "MouthFX" })

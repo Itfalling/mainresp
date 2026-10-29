@@ -47,9 +47,9 @@ local LEGS = {
 -- floor) for every 5 degrees of forward roll, measured from the curled pose
 local DBALL = {
 	5.60, 5.69, 5.75, 5.78, 5.78, 5.77, 5.75, 5.71, 5.64, 5.52, 5.36, 5.17, 5.02, 4.79, 4.68, 4.68, 4.68, 4.66,
-	4.85, 5.05, 5.26, 5.47, 5.64, 5.76, 5.87, 5.91, 5.91, 5.91, 5.87, 5.80, 5.68, 5.48, 5.27, 5.35, 5.45, 5.52,
-	5.63, 5.67, 5.68, 5.68, 5.65, 5.59, 5.49, 5.30, 5.11, 5.05, 5.06, 5.06, 5.05, 5.10, 5.31, 5.49, 5.63, 5.73,
-	5.80, 5.81, 5.81, 5.79, 5.73, 5.62, 5.48, 5.31, 5.12, 5.08, 5.28, 5.45, 5.59, 5.67, 5.71, 5.71, 5.71, 5.67,
+	4.90, 5.13, 5.36, 5.56, 5.72, 5.84, 5.93, 5.96, 5.96, 5.95, 5.91, 5.82, 5.69, 5.47, 5.26, 5.20, 5.29, 5.38,
+	5.47, 5.50, 5.50, 5.49, 5.45, 5.37, 5.26, 5.06, 4.86, 4.91, 4.92, 4.92, 5.09, 5.34, 5.54, 5.71, 5.84, 5.92,
+	5.97, 5.97, 5.97, 5.93, 5.85, 5.73, 5.60, 5.40, 5.19, 5.08, 5.28, 5.45, 5.59, 5.67, 5.71, 5.71, 5.71, 5.67,
 }
 local BALL_R = 5.41 -- mean rolling radius
 local function dBall(roll)
@@ -64,7 +64,7 @@ end
 -- helpers
 ------------------------------------------------------------------------
 local function quillCF(b)
-	return pa(0, 0.35 * b, 0, -22 * b, 0, 0), pa(0.3 * b, 0.2 * b, 0, -12 * b, 0, -24 * b)
+	return pa(0, 0.35 * b, 0, -30 * b, 0, 0), pa(0.35 * b, 0.2 * b, 0, -16 * b, 0, -32 * b)
 end
 local function bristle(pose, g, b)
 	local c, s = quillCF(b)
@@ -146,7 +146,7 @@ local function curl(pose, k, extraBristle)
 	end
 	mix("Front", ang(-45, 0, 0))
 	mix("Rump", ang(45, 0, 0))
-	mix("Head", pa(0, 1.8, 6.6, -10, 0, 0))
+	mix("Head", pa(0, 0.8, 6.6, -10, 0, 0))
 	local c, s = quillCF(0.5 + (extraBristle or 0))
 	for _, g in { "F", "M", "R" } do
 		mix("Quill" .. g, c)
@@ -317,20 +317,22 @@ local function idle(t, pose, ctx)
 
 	-- spin-dash show-off (ball), then a flip out of the ball
 	pose.Body = stand
-	if k > 0 then
+	if c >= SPIN_B and c < SPIN_LAND then
+		-- the flip out of the ball: uncurled, spread-eagle, still spinning
 		local roll = dashRoll(c)
-		local jitter = 0.12 * rev * wave(t, 13)
-		local bt = ballT(roll, jitter, 0.35 * rev, 3.2 * hop)
-		pose.Body = stand:Lerp(bt, k)
-		curl(pose, k, 0.25 * rev)
-		covers(ctx, k)
-	elseif c >= SPIN_B and c < SPIN_LAND then
-		local roll = dashRoll(c)
-		pose.Body = CFrame.new(-BP) * CFrame.new(0, BP.Y + Q.Y + 3.2 * hop, BP.Z + Q.Z) * CFrame.Angles(rad(-roll), 0, 0) * CFrame.new(-Q)
+		pose.Body = CFrame.new(-BP) * CFrame.new(0, BP.Y + Q.Y + 3.4 * hop, BP.Z + Q.Z) * CFrame.Angles(rad(-roll), 0, 0) * CFrame.new(-Q)
 		L.both(pose, "Arm", pa(0, 0.4, 0, -40, 0, 50))
 		L.both(pose, "Leg", pa(0, 0.4, 0, 30, 0, 20))
 		pose.Jaw = ang(-35, 0, 0)
 		bristleAll(pose, 1.0)
+	end
+	if k > 0 then
+		local roll = dashRoll(c)
+		local jitter = 0.12 * rev * wave(t, 13)
+		local bt = ballT(roll, jitter, 0.35 * rev, 3.4 * hop + 0.3 * rev)
+		pose.Body = pose.Body:Lerp(bt, k)
+		curl(pose, k, 0.25 * rev)
+		covers(ctx, k)
 	end
 
 	-- berry snack prop: appears in front, flicked up, caught, munched
@@ -417,7 +419,7 @@ local function alert(t, pose, ctx)
 	lids(ctx, crouch > 0.6)
 	anger(ctx, pose, t, c > BOOM)
 
-	local b = -0.7 * crouch + 1.5 * boom * settle
+	local b = -0.7 * crouch + 1.7 * boom * settle
 	local qv = 0.15 * rage * wave(t, 9)
 	bristleAll(pose, b + qv, b + 0.2 * boom * settle - qv, b + qv)
 	orbs(pose, t, 1, 90, 1.5 * boom, 1.5 * boom)
@@ -486,7 +488,7 @@ local function attack(t, pose, ctx)
 		curl(pose, k, 0.9 * impact)
 		covers(ctx, k)
 	end
-	anger(ctx, pose, t, true)
+	anger(ctx, pose, t, k < 0.3)
 	orbs(pose, t, 1, 120, -1.5 * impact, 0)
 	shock(pose, ctx, c, HIT, -0.6)
 	if ctx.crossed(0.18) then ctx.emit("RollDust", 6) end
@@ -578,7 +580,8 @@ local function giveUp(t, pose, ctx)
 	fixHead(pose)
 	brows(pose, 1.0 * shockA - 0.4 * sulkHead, 1.3 * rage + 0.5 * sulkHead)
 	L.both(pose, "Ear", ang(0, 0, -25 * plop * rise))
-	lids(ctx, plop > 0.6 and c < 2.15)
+	lids(ctx, plop > 0.3 and c < 2.3)
+	L.both(pose, "Lid", CFrame.new(0, 0.55, 0))
 	anger(ctx, pose, t, c > 0.15 and c < 1.8)
 	local b = 1.2 * (c > 0.2 and 1 or 0) * (1 - plop) * r01(c, 0.15, 0.3) - 0.6 * plop * rise
 	bristleAll(pose, b + 0.1 * wave(t, 8), b, b - 0.1 * wave(t, 8))

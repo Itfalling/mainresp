@@ -20,7 +20,7 @@ return {
 		local v, cf = P.v, P.cf
 
 		-- palette
-		local FOREST, FOREST_D = "#2a6b40", "#18432a"
+		local FOREST, FOREST_D = "#2f7a47", "#1c4a2e"
 		local MOSS, MOSS_L, MOSS_D = "#4c8f2c", "#86c447", "#33661f"
 		local BARK, BARK_D = "#3b302a", "#26201c"
 		local OBSID, OBSID_L = "#25272f", "#3a3e4a"
@@ -78,7 +78,7 @@ return {
 			B:spike(body, v(0, 24.9, z), v(0, 27.6 - i * 0.5, z + 1.6), 1.4, 1.4, BONE)
 		end
 		B:sym(function()
-			box(body, 0.6, 7.0, 8.6, 6.05, 18.4, 9.0, FOREST_D) -- flank shade
+			box(body, 0.6, 3.6, 8.6, 6.05, 15.9, 9.0, FOREST_D) -- lower flank shade
 			-- haunch armour plate (stepped) with a rune glyph
 			box(body, 1, 5.6, 6.4, 6.5, 18.8, 9.0, OBSID)
 			box(body, 1, 1.0, 4.0, 6.5, 15.5, 9.0, OBSID) -- shield point
@@ -107,7 +107,7 @@ return {
 		box(chest, 11.6, 1.0, 7.4, 0, 24.0, 0.8, MOSS_D) -- mossy back
 		box(chest, 8.4, 0.8, 5.4, 0, 24.8, 0.8, MOSS)
 		B:sym(function()
-			box(chest, 0.6, 8, 15, 7.3, 18.6, -4.6, FOREST_D) -- flank shade
+			box(chest, 0.6, 4, 15, 7.3, 15.6, -4.6, FOREST_D) -- lower flank shade
 			for i = 0, 2 do -- stepped obsidian rib plates
 				box(chest, 0.8, 1.6, 4.6 - i * 0.6, 7.65, 21.4 - i * 2.2, -0.6 + i * 0.4, i == 1 and OBSID_L or OBSID)
 			end
@@ -117,16 +117,16 @@ return {
 		box(chest, 8.2, 7.8, 0.6, 0, 19.2, -14.75, STONE_D)
 		box(chest, 13.6, 1.2, 1.8, 0, 25.0, -13.8, STONE) -- collar trim
 		box(chest, 9.4, 0.8, 1.2, 0, 13.7, -14.1, STONE)
-		B:block(chest, v(3.8, 3.8, 0.6), cf(0, 20.4, -15.2, 0, 0, 45), OBSID_L)
-		local core = B:block(chest, v(2.0, 2.0, 0.5), cf(0, 20.4, -15.5, 0, 0, 45), EMER, { mat = "Neon", name = "RuneCore" })
+		B:block(chest, v(3.8, 3.8, 0.6), cf(0, 18.9, -15.2, 0, 0, 45), OBSID_L)
+		local core = B:block(chest, v(2.0, 2.0, 0.5), cf(0, 18.9, -15.5, 0, 0, 45), EMER, { mat = "Neon", name = "RuneCore" })
 		B:light(core, { name = "CoreLight", color = EMER, brightness = 0.6, range = 14 })
 		B:emitter(core, "burst", { name = "RuneBurst", color = { "#ffffff", EMER, PINK }, speed = { 10, 22 }, size = { 1.4, 0.9, 0 }, life = { 0.5, 1.1 } })
-		neon(chest, 0.35, 3.0, 0.2, 0, 17.1, -15.1) -- trunk
-		neon(chest, 4.2, 0.35, 0.2, 0, 15.7, -15.1) -- roots
+		neon(chest, 0.35, 1.6, 0.2, 0, 16.1, -15.1) -- trunk
+		neon(chest, 4.2, 0.35, 0.2, 0, 15.2, -15.1) -- roots
 		B:sym(function()
-			neon(chest, 0.35, 0.9, 0.2, 1.95, 15.2, -15.1)
-			B:block(chest, v(2.8, 0.35, 0.2), cf(2.1, 21.8, -15.1, 0, 0, 35), EMER, { mat = "Neon" })
-			neon(chest, 0.35, 1.4, 0.2, 3.25, 23.2, -15.1)
+			neon(chest, 0.35, 0.9, 0.2, 1.95, 14.7, -15.1)
+			B:block(chest, v(2.8, 0.35, 0.2), cf(2.1, 20.4, -15.1, 0, 0, 35), EMER, { mat = "Neon" })
+			neon(chest, 0.35, 1.8, 0.2, 3.25, 22.0, -15.1)
 		end)
 		-- hidden rune glow overlay (pulses on the show-off / roars)
 		box(chest, 7.8, 7.4, 0.2, 0, 19.2, -15.15, EMER, { mat = "Neon", tr = 1, name = "RuneGlow" })
@@ -179,7 +179,7 @@ return {
 			strand(m2, 5.2, 31.8, -17.0, 2.2)
 		end)
 		local beard = B:bone("Beard", "Neck1", v(0, 23, -18.5))
-		box(beard, 6.8, 3.2, 3.6, 0, 21.8, -19.2, MOSS_D)
+		box(beard, 7.0, 3.8, 3.6, 0, 22.1, -19.2, MOSS_D)
 		box(beard, 5.2, 2.6, 3.0, 0, 19.3, -19.4, MOSS)
 		box(beard, 3.6, 2.0, 2.4, 0, 17.2, -19.6, MOSS_D)
 		box(beard, 1.8, 1.2, 1.6, 0, 15.7, -19.7, MOSS_L)
@@ -232,9 +232,9 @@ return {
 		hb(head, 4.6, 3.0, 2.0, 0, 29.4, -33.0, MASK) -- muzzle 3
 		hb(head, 5.6, 0.6, 3.4, 0, 32.4, -27.0, MASK_D) -- muzzle top step
 		hb(head, 2.4, 0.6, 7.2, 0, 31.8, -30.2, MASK_D) -- nose ridge
-		hb(head, 3.8, 1.4, 1.0, 0, 30.4, -34.1, OBSID) -- nose pad
+		hb(head, 3.2, 1.0, 0.8, 0, 30.6, -34.2, OBSID) -- nose pad
 		B:sym(function(side)
-			hb(head, 1.0, 0.5, 0.2, 1.1, 30.3, -34.65, MOUTH) -- nostril
+			hb(head, 0.8, 0.45, 0.2, 0.85, 30.55, -34.65, MOUTH) -- nostril
 			hb(head, 0.4, 2.6, 3.6, 3.75, 29.6, -27.2, MASK_D) -- muzzle cheek shade
 			hb(head, 0.4, 2.2, 3.0, 3.05, 29.4, -30.6, MASK_D)
 			-- cheek armour + stone trim
@@ -248,11 +248,11 @@ return {
 			-- EYE: dark socket, narrow emerald slit, slit pupil (front face only)
 			-- (socket + slit wrap round the skull's front corner so the eye also
 			-- reads from the side; the pupil is on the FRONT face only)
-			hb(head, 2.9, 1.7, 1.4, 3.5, 33.5, -25.4, MOUTH)
-			hb(head, 2.9, 0.7, 1.3, 3.8, 33.45, -25.45, EMER, { mat = "Neon", name = "Eye" }, 10)
-			hb(head, 0.4, 0.7, 0.15, 3.0, 33.4, -26.2, PUPIL)
+			hb(head, 2.9, 1.9, 1.4, 3.5, 33.25, -25.4, MOUTH)
+			hb(head, 2.9, 0.9, 1.3, 3.8, 33.15, -25.45, EMER, { mat = "Neon", name = "Eye" }, 10)
+			hb(head, 0.45, 0.9, 0.15, 3.0, 33.1, -26.2, PUPIL)
 			-- hidden rage flare: the eye slit blazes wider when enraged
-			hb(head, 3.0, 0.5, 0.2, 3.6, 33.55, -26.25, "#c8ffe4", { mat = "Neon", tr = 1, name = "EyeFlare" .. side }, 10)
+			hb(head, 3.0, 0.5, 0.2, 3.6, 33.35, -26.25, "#c8ffe4", { mat = "Neon", tr = 1, name = "EyeFlare" .. side }, 10)
 		end)
 		hb(head, 5.8, 0.4, 8.6, 0, 27.7, -29.4, MOUTH) -- mouth roof
 		local roarFX = hb(head, 3, 2, 2, 0, 27.0, -34.0, STONE, { tr = 1, name = "RoarFX" })
@@ -261,12 +261,12 @@ return {
 
 		-- heavy brows (own bones: they drop + tilt for the angry squint)
 		B:sym(function(side)
-			local brow = B:bone("Brow" .. side, "Head", hv(3.4, 35.0, -26.2))
-			hb(brow, 4.4, 1.4, 2.6, 3.3, 35.0, -25.9, OBSID, nil, 16)
-			hb(brow, 2.2, 0.8, 2.2, 4.1, 36.0, -25.6, OBSID_L, nil, 16)
+			local brow = B:bone("Brow" .. side, "Head", hv(3.4, 34.8, -26.0))
+			hb(brow, 4.4, 1.2, 1.4, 3.3, 34.8, -26.15, OBSID, nil, 16)
+			hb(brow, 2.2, 0.7, 1.6, 4.1, 35.65, -25.8, OBSID_L, nil, 16)
 			-- blink lid: hidden until the eye is mostly closed
-			local lid = B:bone("Lid" .. side, "Head", hv(3.55, 34.4, -26.2))
-			hb(lid, 3.1, 1.9, 1.6, 3.55, 34.3, -25.45, BARK_D, { tr = 1, name = "Eyelid" .. side })
+			local lid = B:bone("Lid" .. side, "Head", hv(3.55, 34.2, -26.2))
+			hb(lid, 3.1, 1.9, 1.6, 3.55, 34.05, -25.45, BARK_D, { tr = 1, name = "Eyelid" .. side })
 		end)
 
 		-- ears
@@ -378,7 +378,7 @@ return {
 			box(fu, 0.4, 6.0, 4.8, 8.45, 11.4, -9.2, FOREST_D)
 			box(fu, 4.6, 3.0, 0.8, 5.7, 9.2, -12.5, STONE) -- knee guard
 			B:spike(fu, v(5.7, 9.6, -12.8), v(5.7, 10.8, -15.0), 1.3, 1.3, BONE)
-			local fk = B:bone("FKnee" .. side, "FLeg" .. side, v(5.6, 8, -9.8))
+			local fk = B:bone("FKnee" .. side, "FLeg" .. side, v(5.6, 8, -11.2))
 			box(fk, 4.2, 6.6, 4.4, 5.6, 5.0, -9.3, BARK) -- y1.7..8.3
 			box(fk, 3.8, 4.6, 0.8, 5.6, 5.4, -11.8, OBSID)
 			box(fk, 4.0, 0.6, 1.0, 5.6, 7.9, -11.8, STONE)
@@ -396,7 +396,7 @@ return {
 			box(hu, 0.8, 5.0, 5.4, 8.75, 12.4, 10, OBSID) -- thigh armour
 			box(hu, 0.9, 0.6, 5.6, 8.8, 15.1, 10, STONE)
 			algiz(hu, 9.2, 12.2, 10, 0.9)
-			local hk = B:bone("HKnee" .. side, "HLeg" .. side, v(5.6, 8, 10.8))
+			local hk = B:bone("HKnee" .. side, "HLeg" .. side, v(5.6, 8, 12.2))
 			box(hk, 4.2, 6.6, 4.4, 5.6, 5.0, 10.4, BARK)
 			box(hk, 3.8, 4.4, 0.8, 5.6, 5.2, 7.9, OBSID)
 			box(hk, 0.4, 4.4, 3.2, 7.75, 5.2, 10.4, BARK_D)

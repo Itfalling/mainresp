@@ -116,8 +116,8 @@ return {
 		local rows = {
 			{ -58, { 0, 34, 68 }, "F", 1.9 },
 			{ -30, { 17, 50, 80 }, "F", 2.4 },
-			{ 2, { 0, 34, 66, 90 }, "M", 2.5 },
-			{ 32, { 17, 50, 80 }, "R", 2.6 },
+			{ 2, { 0, 34, 66, 90 }, "M", 2.25 },
+			{ 32, { 17, 50, 80 }, "R", 2.4 },
 			{ 60, { 0, 34, 68 }, "R", 2.3 },
 		}
 		local groupParent = { F = "Front", M = "Body", R = "Rump" }
@@ -234,8 +234,8 @@ return {
 		B:block(nose, v(0.35, 0.25, 0.1), cf(0.3, 4.7, -10.32), WHITE)
 		-- huff / sneeze / crumbs FX at the nose
 		local noseFX = B:block(nose, v(1, 1, 1), cf(0, 4.2, -10.6), CREAM, { tr = 1, name = "NoseFX" })
-		B:emitter(noseFX, "smoke", {
-			name = "Huff", rate = 0, color = { "#ffffff", "#e8e2d4" }, size = { 0.8, 1.6, 2.2 }, life = { 0.4, 0.8 },
+		B:emitter(noseFX, "dust", {
+			name = "Huff", drag = 3, color = { "#ffffff", "#e8e2d4" }, size = { 0.8, 1.6, 2.2 }, life = { 0.4, 0.8 },
 			speed = { 4, 7 }, spread = 20, trans = { 0.2, 0.5, 1 }, dir = "Front", accel = { 0, 2, 0 },
 		})
 		B:emitter(noseFX, "burst", {
@@ -259,10 +259,10 @@ return {
 		-- anger vein (prop, own bone so it can throb)
 		local vein = B:bone("Vein", "Head", v(2.0, 7.9, -6.0))
 		local VC = CFrame.new(1.9, 8.0, -6.3) * P.ang(0, -20, 0)
-		B:block(vein, v(0.7, 0.22, 0.2), VC * CFrame.new(-0.25, 0.5, 0), ANGER, { tr = 1, name = "AngerMark1" })
-		B:block(vein, v(0.22, 0.7, 0.2), VC * CFrame.new(0.5, 0.25, 0), ANGER, { tr = 1, name = "AngerMark2" })
-		B:block(vein, v(0.7, 0.22, 0.2), VC * CFrame.new(0.25, -0.5, 0), ANGER, { tr = 1, name = "AngerMark3" })
-		B:block(vein, v(0.22, 0.7, 0.2), VC * CFrame.new(-0.5, -0.25, 0), ANGER, { tr = 1, name = "AngerMark4" })
+		B:block(vein, v(1.0, 0.3, 0.25), VC * CFrame.new(-0.35, 0.7, 0), ANGER, { tr = 1, name = "AngerMark1" })
+		B:block(vein, v(0.3, 1.0, 0.25), VC * CFrame.new(0.7, 0.35, 0), ANGER, { tr = 1, name = "AngerMark2" })
+		B:block(vein, v(1.0, 0.3, 0.25), VC * CFrame.new(0.35, -0.7, 0), ANGER, { tr = 1, name = "AngerMark3" })
+		B:block(vein, v(0.3, 1.0, 0.25), VC * CFrame.new(-0.7, -0.35, 0), ANGER, { tr = 1, name = "AngerMark4" })
 
 		-- jaw: underbite with two little fangs
 		local jaw = B:bone("Jaw", "Head", v(0, 2.95, -4.4))
