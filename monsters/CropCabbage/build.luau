@@ -1,9 +1,9 @@
 --!nocheck
 -- Cabbage (Crop #2, Uncommon): a plump round cabbage head on a tilled soil
 -- patch. The head is a stack of plus-shaped slabs (reads round) in fresh
--- pale lime / cream, wrapped by mint inner leaves and big teal-green outer
--- leaves that curl outward and flop over with violet-tinted rims so it pops
--- on grass. Light vein lines on the leaves and a few dew-drop highlights.
+-- pale lime / cream, hugged by curved stepped mint leaf shells whose tips curl
+-- outward, sitting in a rosette of rounded teal leaves. Subtle light midribs,
+-- a few thin violet hints on leaf edges, and tiny glowing dew drops.
 -- Static prop: no motion.
 return {
 	DisplayName = "Cabbage",
@@ -13,10 +13,10 @@ return {
 		local v, cf = P.v, P.cf
 		-- palette
 		local HEAD, HEADL, HEADD, CREAM = "#acec6c", "#d8f89a", "#8ccf48", "#f2fbcc" -- inner head
-		local MINT, MINTL = "#7ee3a4", "#a8f2c4" -- wrapping inner leaves
-		local OUT, OUTD, OUTL = "#36b07c", "#22805a", "#62d29c" -- outer leaves (teal, NOT grass green)
-		local VIO, VIOD = "#a274e6", "#7650b8" -- violet-tinted leaf rims
-		local VEIN = "#e8ffd8"
+		local MINT, MINTL, MINTD = "#7ee3a4", "#aef4c8", "#58c88a" -- wrapping leaves
+		local OUT, OUTD, OUTL = "#3abb84", "#22805a", "#7ee0b0" -- outer leaves (teal, NOT grass green)
+		local VIO = "#a274e6" -- a few thin violet hints on leaf edges
+		local VEIN, VEIN2 = "#e8ffd8", "#b8f2cc" -- crown veins / subtle leaf midribs
 		local DEW = "#dcf8ff"
 		local DIRT, DIRTD, DIRTL = "#83502b", "#5a331b", "#a8703f"
 		local PEBBLE = "#a9a39a"
@@ -64,63 +64,69 @@ return {
 		B:block(crop, v(0.22, 0.1, 1.4), cf(-1.3, 4.03, 0.05), VEIN)
 		B:block(crop, v(1.0, 0.1, 0.2), cf(-0.1, 4.28, 0.85), VEIN)
 		B:block(crop, v(0.2, 0.1, 0.9), cf(1.62, 3.68, 0.3), VEIN)
-		-- leaf-seam veins on the ball's four faces (midrib + one side rib)
-		for i, a in { 0, 90, 180, 270 } do
-			local rot = CFrame.Angles(0, math.rad(a), 0)
-			B:block(crop, v(0.16, 0.9, 0.06), rot * CFrame.new(-0.55, 3.0, 1.86), VEIN)
-		end
 
-		-- mint wrapper leaves hugging the lower ball, with curled-out lips;
-		-- staggered heights so the layers read
-		for i, a in { 0, 90, 180, 270 } do
+		------------------------------------------------------------------
+		-- Wrapper leaves: curved stepped shells hugging the ball (narrow at
+		-- the base, widest in the middle, side blocks set back to follow the
+		-- ball's curve) with the tip curling outward. Darker at the bottom,
+		-- lighter toward the curled edge.
+		------------------------------------------------------------------
+		local function wrap(a, s, T, push, hint)
 			local rot = CFrame.Angles(0, math.rad(a), 0)
-			local top = (i % 2 == 1) and 2.75 or 2.35
+			local function at(x, y, z)
+				return rot * CFrame.new(x, y, z + push)
+			end
+			B:block(crop, v(1.5 * s, 0.6, 0.4), at(0, 0.88, 1.62), OUT) -- narrow stem end
+			B:block(crop, v(2.5 * s, 0.7, 0.4), at(0, 1.5, 1.98), MINTD)
+			if T - 2.1 > 0.1 then
+				B:block(crop, v(2.7 * s, T - 2.1, 0.4), at(0, (1.85 + T - 0.25) / 2, 2.02), MINT)
+			end
+			B:block(crop, v(0.45, T - 1.6, 0.4), at(1.45 * s, (1.3 + T - 0.3) / 2, 1.78), MINTD) -- sides curving back
+			B:block(crop, v(0.45, T - 1.6, 0.4), at(-1.45 * s, (1.3 + T - 0.3) / 2, 1.78), MINTD)
+			B:block(crop, v(2.1 * s, 0.32, 0.6), at(0, T - 0.12, 2.2), MINTL) -- tip curling outward
+			B:block(crop, v(0.14, T - 1.5, 0.05), at(0, (1.3 + T - 0.2) / 2, 2.24), VEIN2) -- subtle midrib
+			if hint then
+				B:block(crop, v(1.6 * s, 0.07, 0.12), at(0, T + 0.07, 2.42), VIO) -- thin violet hint on the edge
+			end
+		end
+		wrap(0, 1.0, 3.05, 0, false) -- back
+		wrap(90, 1.0, 2.75, 0, true) -- right (+X)
+		wrap(180, 1.0, 2.9, 0, true) -- front
+		wrap(270, 1.0, 2.65, 0, false) -- left (-X)
+
+		------------------------------------------------------------------
+		-- Base rosette: rounded leaves splaying out on the soil, ends curling up
+		------------------------------------------------------------------
+		local function pad(a, r0, s, hint)
+			local rot = CFrame.Angles(0, math.rad(a), 0)
 			local function at(x, y, z)
 				return rot * CFrame.new(x, y, z)
 			end
-			B:block(crop, v(2.6, top - 0.8, 0.3), at(0, (top + 0.8) / 2, 1.92), MINT)
-			B:block(crop, v(1.3, 0.45, 0.3), at(0, top + 0.22, 1.92), MINT) -- pointed leaf tip
-			B:block(crop, v(1.3, 0.1, 0.34), at(0, top + 0.48, 1.92), VIO) -- violet tint on the tip
-			B:block(crop, v(2.6, 0.16, 0.36), at(0, top - 0.08, 1.95), MINTL) -- lighter upper edge
-			B:block(crop, v(0.16, top - 0.95, 0.06), at(0, (top + 1.25) / 2, 2.09), VEIN) -- midrib
-			B:block(crop, v(0.6, 0.12, 0.06), at(0.3, top - 0.5, 2.09) * CFrame.Angles(0, 0, math.rad(35)), VEIN) -- side ribs in a V
-			B:block(crop, v(0.6, 0.12, 0.06), at(-0.3, top - 0.5, 2.09) * CFrame.Angles(0, 0, math.rad(-35)), VEIN)
-		end
-
-		------------------------------------------------------------------
-		-- Outer leaves: big pads splaying out on the soil, tips curling up
-		-- with violet edges. 4 big (diagonal) + 4 smaller (cardinal).
-		------------------------------------------------------------------
-		local function pad(a, r0, s)
-			local rot = CFrame.Angles(0, math.rad(a), 0)
-			local function at(x, y, z)
-				return rot * CFrame.new(x, y, z)
+			B:block(crop, v(1.3 * s, 0.3, 0.8 * s), at(0, 0.72, r0 + 0.4 * s), OUTD) -- narrow base
+			B:block(crop, v(2.1 * s, 0.3, 1.0 * s), at(0, 0.76, r0 + 1.2 * s), OUT) -- wide rounded middle
+			B:block(crop, v(1.5 * s, 0.3, 0.45 * s), at(0, 0.9, r0 + 1.9 * s), OUTL) -- rounded end curling up
+			B:block(crop, v(0.14, 0.05, 1.5 * s), at(0, 0.93, r0 + 1.05 * s), VEIN2) -- subtle midrib
+			if hint then
+				B:block(crop, v(1.0 * s, 0.07, 0.12), at(0, 1.08, r0 + 2.08 * s), VIO)
 			end
-			local L = 1.5 * s
-			B:block(crop, v(2.2 * s, 0.35, L), at(0, 0.78, r0 + L / 2), OUT) -- flat pad
-			B:block(crop, v(1.6 * s, 0.3, 0.6), at(0, 1.05, r0 + 0.2), OUTD) -- where it meets the ball
-			B:block(crop, v(2.0 * s, 0.5, 0.45), at(0, 1.12, r0 + L + 0.1), OUTL) -- curled-up tip
-			B:block(crop, v(2.0 * s, 0.14, 0.5), at(0, 1.42, r0 + L + 0.1), VIO) -- violet edge
-			B:block(crop, v(0.16, 0.06, L), at(0, 0.98, r0 + L / 2), VEIN) -- midrib
-			B:block(crop, v(0.6 * s, 0.06, 0.14), at(0.25 * s, 0.98, r0 + L * 0.62) * CFrame.Angles(0, math.rad(-35), 0), VEIN) -- side rib
 		end
-		for _, a in { 45, 135, 225, 315 } do
-			pad(a, 1.75, 1.0)
+		for i, a in { 45, 135, 225, 315 } do
+			pad(a, 1.75, 1.0, i == 3)
 		end
-		for _, a in { 0, 90, 180, 270 } do
-			pad(a, 1.95, 0.7)
+		for i, a in { 0, 90, 180, 270 } do
+			pad(a, 1.75, 0.8, i == 2)
 		end
 
 		------------------------------------------------------------------
 		-- Dew drops (two tiny glowing ones for Uncommon bling)
 		------------------------------------------------------------------
 		local dews = {
-			{ 0.7, 3.45, -1.82, false },
-			{ -1.93, 3.0, -0.5, true },
-			{ 0.4, 1.09, -2.6, false },
-			{ -1.75, 1.09, -1.95, true },
+			{ 0.75, 3.5, -1.82, false },
+			{ -1.85, 3.38, -0.5, true },
+			{ 0.4, 1.02, -2.65, false },
+			{ -2.05, 1.02, -2.05, true },
 			{ -0.3, 4.53, -0.2, false },
-			{ 0.8, 3.0, 1.93, false },
+			{ -0.8, 3.45, 1.82, false },
 		}
 		for _, d in dews do
 			-- tiny dew glints: the two "true" ones are a touch bigger
