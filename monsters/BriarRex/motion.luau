@@ -297,12 +297,12 @@ local function idle(t, pose, ctx)
 	s.cx = 3 * breathe + 8 * wind - 2 * roar + 10 * proud - 6 * squash + 4 * strain
 	s.cy = -3 * liftR + 3 * liftL + 0.3 * look * calm
 	s.cz = -4 * stompUp
-	s.nx = -2 * breathe + 6 * sniff + 12 * wind + 2 * roar + 6 * gag - 6 * squash + 6 * proud
-	s.ny = 0.4 * look * calm - 6 * gag
+	s.nx = -2 * breathe + 6 * sniff + 12 * wind + 2 * roar + 12 * gag - 6 * squash + 6 * proud
+	s.ny = 0.4 * look * calm - 4 * gag
 	local headShake = 9 * shake * wave(t, 6)
-	s.hdx = 2 * breathe + 8 * sniff + 5 * twitch + 18 * wind + 30 * roar + 4 * gag - 10 * strain - 8 * squash + 12 * proud
-	s.hdy = 0.6 * look * calm + headShake + 32 * lookL - 32 * lookR - 10 * gag
-	s.hdz = -7 * gag + 4 * shake * wave(t, 3) - 6 * proud
+	s.hdx = 2 * breathe + 8 * sniff + 5 * twitch + 18 * wind + 30 * roar + 16 * gag - 5 * strain - 8 * squash + 12 * proud
+	s.hdy = 0.6 * look * calm + headShake + 32 * lookL - 32 * lookR - 8 * gag
+	s.hdz = -5 * gag + 4 * shake * wave(t, 3) - 6 * proud
 	s.jaw = 3 * twitch + 18 * wind + 60 * roar + 6 * shake * wave(t, 11) - 7 * squash + 4 * max(0, breathe) * calm
 	s.beardZ = 10 * wave(t, 0.5, 0.2) + 14 * shake * wave(t, 6, 0.2)
 
@@ -319,12 +319,12 @@ local function idle(t, pose, ctx)
 	-- tiny arms: idle fidget, the scratch attempt (reach + frantic flail, never
 	-- getting there), hide behind back when busted, flung up on the roar
 	local flail = 22 * strain * wave(t, 6)
-	s.aRx = 6 * breathe + 70 * gag + flail - 40 * busted + 30 * roar - 25 * wind
-	s.aLx = 6 * breathe + 70 * gag - flail - 40 * busted + 30 * roar - 25 * wind
-	s.aRz = 55 * gag + 0.6 * flail + 35 * roar + 20 * wind
-	s.aLz = 55 * gag - 0.6 * flail + 35 * roar + 20 * wind
-	s.foRx = 45 * gag + 25 * strain * wave(t, 6, 0.25) + 40 * roar - 20 * busted
-	s.foLx = 45 * gag - 25 * strain * wave(t, 6, 0.25) + 40 * roar - 20 * busted
+	s.aRx = 6 * breathe + 95 * gag + flail - 40 * busted + 30 * roar - 25 * wind
+	s.aLx = 6 * breathe + 95 * gag - flail - 40 * busted + 30 * roar - 25 * wind
+	s.aRz = 30 * gag + 0.6 * flail + 35 * roar + 20 * wind
+	s.aLz = 30 * gag - 0.6 * flail + 35 * roar + 20 * wind
+	s.foRx = 30 * gag + 25 * strain * wave(t, 6, 0.25) + 40 * roar - 20 * busted
+	s.foLx = 30 * gag - 25 * strain * wave(t, 6, 0.25) + 40 * roar - 20 * busted
 	s.foRz = 10 * roar * wave(t, 8)
 	s.foLz = -10 * roar * wave(t, 8)
 
