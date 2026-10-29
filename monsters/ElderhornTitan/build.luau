@@ -54,15 +54,23 @@ return {
 		end
 		-- layered armour on a side face (+X): 3 stepped plates shrinking outward,
 		-- a stone top lip, a moss trim strip under it, and bone ridge spikes
+		-- layered armour on a side face (+X): 3 overlapping shingle plates
+		-- (each lower one juts out further, bone-trimmed bottom edge), a stone
+		-- top lip, moss trim under it and bone ridge spikes on top
 		local function sidePlates(bone, x, y, z, h, d, spikes)
-			box(bone, 1.0, h, d, x, y, z, OBSID)
-			box(bone, 0.8, h * 0.72, d * 0.74, x + 0.6, y - h * 0.06, z + d * 0.04, OBSID_L)
-			box(bone, 0.6, h * 0.46, d * 0.5, x + 1.05, y - h * 0.12, z + d * 0.08, OBSID)
+			local ph = h / 3 + 0.6
+			for i = 0, 2 do
+				local py = y + h / 2 - ph / 2 - i * (h / 3)
+				local pd = d - i * 0.9
+				local px = x + i * 0.3
+				box(bone, 1.0, ph, pd, px, py, z + i * 0.25, i == 1 and OBSID_L or OBSID)
+				box(bone, 1.1, 0.4, pd - 0.6, px + 0.06, py - ph / 2 + 0.2, z + i * 0.25, BONE_DD)
+			end
 			box(bone, 1.4, 0.6, d + 0.4, x + 0.1, y + h / 2 + 0.2, z, STONE)
-			box(bone, 1.4, 0.7, d * 0.9, x + 0.05, y - h / 2 - 0.2, z, MOSS)
-			box(bone, 0.6, 0.5, d * 0.4, x + 0.4, y - h / 2 - 0.7, z - d * 0.15, MOSS_L)
-			for _, s in spikes or {} do
-				B:spike(bone, v(x + 0.4, y + h / 2 + 0.3, z + s[1]), v(x + 2.6, y + h / 2 + s[2], z + s[1] + s[3]), 1.4, 1.4, BONE)
+			box(bone, 1.6, 0.7, d * 0.8, x + 0.5, y - h / 2 - 0.25, z + 0.4, MOSS)
+			box(bone, 0.6, 0.5, d * 0.35, x + 0.9, y - h / 2 - 0.75, z, MOSS_L)
+			for _, sp in spikes or {} do
+				B:spike(bone, v(x + 0.4, y + h / 2 + 0.3, z + sp[1]), v(x + 2.6, y + h / 2 + sp[2], z + sp[1] + sp[3]), 1.4, 1.4, BONE)
 			end
 		end
 
@@ -84,7 +92,7 @@ return {
 		B:sym(function()
 			box(body, 0.6, 3.2, 9.0, 6.05, 17.6, 10.5, BARK_D)
 			sidePlates(body, 6.5, 21.4, 10.4, 6.6, 8.4, { { -2.4, 2.2, -1.6 }, { 1.8, 1.8, -1.2 } })
-			algiz(body, 8.15, 20.6, 11.0, 0.7)
+			algiz(body, 7.62, 20.9, 10.9, 0.55)
 		end)
 		local tail = B:bone("Tail", "Body", v(0, 24, 16))
 		box(tail, 3.6, 3.6, 2.6, 0, 22.8, 17.0, BARK)
@@ -119,13 +127,12 @@ return {
 			box(chest, 0.6, 1.1, 1.1, 7.8, 21.8, 1.6, PINK)
 			box(chest, 0.3, 0.45, 0.45, 8.15, 21.8, 1.6, EMER, { mat = "Neon" })
 			-- hulking layered pauldrons with bone spikes + a small rune
-			box(chest, 2.2, 8.4, 10, 8.6, 24.4, -8.5, OBSID)
-			box(chest, 1.0, 6.6, 7.6, 9.8, 24.6, -8.6, OBSID_L)
-			box(chest, 0.8, 4.2, 5.0, 10.5, 24.2, -8.8, OBSID)
+			box(chest, 1.6, 8.4, 10, 8.3, 24.4, -8.5, OBSID)
+			sidePlates(chest, 9.3, 24.3, -8.5, 8.0, 9.6, {})
 			box(chest, 3.0, 1.0, 10.6, 8.8, 28.9, -8.5, STONE)
 			box(chest, 2.6, 0.7, 10.2, 8.6, 20.2, -8.5, MOSS)
 			box(chest, 1.2, 0.5, 4.0, 9.2, 19.6, -10.0, MOSS_L)
-			algiz(chest, 11.0, 23.8, -8.8, 0.75)
+			algiz(chest, 10.42, 24.1, -8.3, 0.55)
 			B:spike(chest, v(9.4, 29.3, -5.6), v(12.6, 34.0, -3.2), 1.9, 1.9, BONE)
 			B:spike(chest, v(9.4, 29.3, -10.6), v(12.2, 32.8, -12.8), 1.6, 1.6, BONE)
 			B:spike(chest, v(10.6, 27.0, -13.2), v(12.8, 27.8, -16.2), 1.2, 1.2, BONE_D)
@@ -241,9 +248,9 @@ return {
 		hb(head, 5.2, 3.2, 2.0, 0, 32.0, -40.6, BONE) -- muzzle 3
 		hb(head, 6.0, 0.6, 3.6, 0, 35.1, -34.2, MASK_D) -- muzzle top step
 		hb(head, 2.6, 0.6, 7.6, 0, 34.6, -37.6, MASK_D) -- nose ridge
-		hb(head, 3.6, 1.2, 0.8, 0, 33.0, -41.9, OBSID) -- nose pad
+		hb(head, 2.8, 0.9, 0.6, 0, 33.25, -41.8, OBSID) -- nose pad
 		B:sym(function(side)
-			hb(head, 0.9, 0.45, 0.2, 0.9, 33.0, -42.35, MOUTH) -- nostril
+			hb(head, 0.7, 0.4, 0.2, 0.75, 33.2, -42.15, MOUTH) -- nostril
 			hb(head, 0.4, 2.8, 3.8, 4.05, 32.4, -34.4, MASK_D)
 			hb(head, 0.4, 2.4, 3.2, 3.35, 32.2, -38.0, MASK_D)
 			hb(head, 0.3, 1.8, 0.3, 4.3, 33.2, -33.2, BONE_DD) -- ancient crack
@@ -254,7 +261,7 @@ return {
 			hb(head, 1.0, 0.6, 6.6, 5.45, 36.2, -27.6, STONE)
 			B:spike(head, hv(5.6, 32.2, -25.6), hv(8.2, 31.4, -21.6), 1.3, 1.3, BONE)
 			-- upper blunt teeth
-			hb(head, 1.2, 1.1, 1.2, 2.0, 29.9, -40.0, TEETH)
+			hb(head, 1.1, 1.2, 1.0, 1.5, 29.95, -41.3, TEETH)
 			hb(head, 1.1, 0.9, 1.1, 3.0, 30.0, -35.6, TEETH)
 			hb(head, 0.3, 1.4, 9.4, 3.3, 29.9, -36.4, MOUTH) -- cheek wall
 			-- EYE: deep dark socket, emerald slit wrapping the skull corner
@@ -265,6 +272,7 @@ return {
 			hb(head, 3.2, 0.5, 0.2, 3.6, 35.4, -33.5, "#c8ffe4", { mat = "Neon", tr = 1, name = "EyeFlare" .. side }, 10)
 		end)
 		hb(head, 6.8, 0.4, 9.8, 0, 30.2, -36.6, MOUTH) -- mouth roof
+		hb(head, 5.4, 0.45, 0.3, 0, 30.2, -41.75, MOUTH) -- mouth line
 		local roarFX = hb(head, 3, 2, 2, 0, 29.4, -41.6, STONE, { tr = 1, name = "RoarFX" })
 		B:emitter(roarFX, "burst", { name = "RoarBurst", color = { "#ffffff", EMER, MOSS_L }, speed = { 12, 24 }, size = { 1.6, 1.0, 0 }, life = { 0.4, 0.9 }, spread = 35, dir = "Front" })
 		B:light(roarFX, { name = "MouthLight", color = EMER, brightness = 0, range = 18 })
@@ -409,7 +417,7 @@ return {
 			local hu = B:bone("HLeg" .. side, "Body", v(6.2, 17, 11))
 			box(hu, 6.2, 9.6, 7.4, 6.3, 13.2, 11.2, BARK) -- y8.4..18
 			sidePlates(hu, 9.4, 13.8, 11.2, 5.6, 6.0, {})
-			algiz(hu, 11.0, 13.4, 11.4, 0.6)
+			algiz(hu, 10.52, 13.5, 11.4, 0.45)
 			local hk = B:bone("HKnee" .. side, "HLeg" .. side, v(6.2, 9.5, 13.4))
 			box(hk, 4.6, 7.2, 4.8, 6.2, 6.0, 11.6, OBSID) -- y2.4..9.6
 			box(hk, 4.0, 5.0, 0.8, 6.2, 6.0, 8.9, OBSID_L)
