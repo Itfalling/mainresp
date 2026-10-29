@@ -655,7 +655,7 @@ M.States = {
 	Idle = { Loop = true, Length = 12, Update = idle },
 	Alert = { Length = 2.4, Update = alert },
 	Chase = { Loop = true, Length = CH_LEN, Speed = CH_SPEED, Update = chase },
-	Attack = { Length = 1.4, Blend = 0.12, Update = attack },
+	Attack = { Length = 1.4, Blend = 0.3, Update = attack },
 	Catch = { Length = 2.2, Update = catch },
 	GiveUp = { Length = 2.8, Blend = 0.12, Update = giveUp },
 	Return = { Loop = true, Length = RT_LEN, Speed = RT_SPEED, Update = returnWalk },
