@@ -197,7 +197,7 @@ return {
 			local p = e.cf.Position
 			local dir = v(p.X, 0, p.Z).Unit
 			local s = rnd(1.8, 2.05)
-			local ap = p + dir * rnd(0.9, 1.3) + v(0, -1.6 - s / 2 - 0.5 - (i % 2) * 0.7, 0)
+			local ap = p + dir * rnd(0.9, 1.3) + v(0, -1.6 - s / 2 - 0.5 - (i % 2) * 0.4, 0)
 			caramelApple(CFrame.new(ap) * ang(rnd(-6, 6), rnd(0, 90), rnd(-6, 6)), s, KINDS[i])
 		end
 		-- hung on the sides of the crown, sticks leaning back into the leaves

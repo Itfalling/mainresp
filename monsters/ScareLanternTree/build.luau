@@ -25,7 +25,7 @@ return {
 		local BARK_DK, BARK, BARK_LT = "#2e1a10", "#45281a", "#5e3824"
 		local LF_OR, LF_OR_DK, LF_RED, LF_RED_DK = "#f27a1c", "#d9581a", "#d8352a", "#a8231f"
 		local LF_GOLD, LF_GOLD_LT, LF_PLUM = "#f7b52c", "#ffd34f", "#7b2e6e"
-		local PUMP, PUMP_DK, PUMP_LT = "#f58a1f", "#cf6416", "#ffa53a"
+		local PUMP, PUMP_DK, PUMP_LT = "#ff9424", "#e06c18", "#ffb042"
 		local STEM, STEM_DK, VINE = "#6b7d2a", "#4c5c1c", "#3f7a2a"
 		local GLOW, GLOW_HOT = "#ffb12e", "#ffe066"
 		local HAT, HAT_DK, HAT_BAND = "#5b2a86", "#3e1b5e", "#f2a52a"
@@ -58,7 +58,7 @@ return {
 			local h = w * 0.82
 			B:block(bone, v(w, h, w * 0.7), C, PUMP_DK)
 			B:block(bone, v(w * 0.7, h + 0.04, w), C, PUMP)
-			B:block(bone, v(w * 0.86, h - 0.12, w * 0.86), C * CFrame.Angles(0, rad(45), 0), PUMP_DK)
+			B:block(bone, v(w * 0.66, h - 0.12, w * 0.66), C * CFrame.Angles(0, rad(45), 0), PUMP_DK)
 			B:block(bone, v(w * 0.5, 0.2, w * 0.5), C * CFrame.new(0, h * 0.5 + 0.06, 0), PUMP_LT)
 			-- face, slightly proud of the front face
 			local s = w / 2.8
@@ -73,10 +73,10 @@ return {
 				local wink = (kind == "wink" and side == 1)
 				if wink then
 					-- a closed, happy ^ eye
-					B:block(bone, v(0.5 * s, 0.16 * s, 0.12), C * CFrame.new(side * 0.62 * s - 0.14 * s, 0.32 * s, fz) * CFrame.Angles(0, 0, rad(30)), GLOW, { mat = "Neon", name = "JackFace" })
+					B:block(bone, v(0.5 * s, 0.16 * s, 0.12), C * CFrame.new(side * 0.62 * s - 0.14 * s, 0.32 * s, fz) * CFrame.Angles(0, 0, rad(30)), GLOW, { mat = "Neon", name = flickName and (flickName .. "R") or "JackFace" })
 					B:block(bone, v(0.5 * s, 0.16 * s, 0.12), C * CFrame.new(side * 0.62 * s + 0.14 * s, 0.32 * s, fz) * CFrame.Angles(0, 0, rad(-30)), GLOW, { mat = "Neon", name = "JackFace" })
 				else
-					local e = fp(side * 0.62, 0.22, 0.74, 0.26, GLOW, (side == -1 and flickName) or nil)
+					local e = fp(side * 0.62, 0.22, 0.74, 0.26, GLOW, flickName and (flickName .. (side == -1 and "L" or "R")) or nil)
 					if side == -1 then main = e end
 					fp(side * 0.62, 0.44, 0.44, 0.22, GLOW_HOT)
 					fp(side * 0.62, 0.6, 0.16, 0.14, GLOW_HOT)
@@ -86,7 +86,7 @@ return {
 			fp(0, -0.02, 0.3, 0.16, GLOW)
 			-- toothy smile: wide glowing bar, corners curling up, pumpkin teeth over it
 			local mw = (kind == "cheeky") and 1.5 or 1.7
-			fp(0, -0.42, mw, 0.32, GLOW_HOT)
+			fp(0, -0.42, mw, 0.32, GLOW_HOT, flickName and (flickName .. "M") or nil)
 			fp(-mw * 0.5 - 0.06, -0.26, 0.26, 0.3, GLOW)
 			fp(mw * 0.5 + 0.06, -0.26, 0.26, 0.3, GLOW)
 			local tz = fz - 0.04
@@ -313,7 +313,7 @@ return {
 		------------------------------------------------------------------
 		-- TOPPER: a jack-o'-lantern in a little purple witch hat
 		------------------------------------------------------------------
-		local TOPY = 21.3
+		local TOPY = 20.4
 		do
 			local C = facing(0, TOPY, 0, -10)
 			local top = jack(canopy, C, 2.6, "cheeky", "TopFace")
@@ -322,9 +322,9 @@ return {
 			local hc = top * CFrame.Angles(0, 0, rad(-6))
 			B:block(canopy, v(1.9, 0.9, 1.9), hc * CFrame.new(0, 0.65, 0), HAT)
 			B:block(canopy, v(2.0, 0.3, 2.0), hc * CFrame.new(0, 0.38, 0), HAT_BAND)
-			B:block(canopy, v(1.4, 0.8, 1.4), hc * CFrame.new(0.1, 1.45, 0), HAT_DK)
-			B:block(canopy, v(0.9, 0.7, 0.9), hc * CFrame.new(0.3, 2.15, 0) * CFrame.Angles(0, 0, rad(-12)), HAT)
-			B:block(canopy, v(0.5, 0.6, 0.5), hc * CFrame.new(0.75, 2.6, 0) * CFrame.Angles(0, 0, rad(-40)), HAT_DK)
+			B:block(canopy, v(1.4, 0.8, 1.4), hc * CFrame.new(0.1, 1.38, 0), HAT_DK)
+			B:block(canopy, v(0.9, 0.7, 0.9), hc * CFrame.new(0.3, 2.0, 0) * CFrame.Angles(0, 0, rad(-14)), HAT)
+			B:block(canopy, v(0.5, 0.6, 0.5), hc * CFrame.new(0.75, 2.32, 0) * CFrame.Angles(0, 0, rad(-50)), HAT_DK)
 			B:block(canopy, v(0.4, 0.4, 0.15), hc * CFrame.new(0.5, 0.38, -1.02), GLOW_HOT) -- buckle
 		end
 
