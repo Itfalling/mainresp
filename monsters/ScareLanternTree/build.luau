@@ -249,15 +249,15 @@ return {
 			{ 90, 7.6, 15.8, 3.5, LF_OR },
 			{ 210, 7.6, 15.9, 3.5, LF_GOLD_LT },
 			{ 330, 7.7, 15.8, 3.6, LF_PLUM },
-			{ 36, 4.0, 17.4, 5.8, LF_RED_DK },
-			{ 108, 4.1, 17.8, 5.6, LF_OR },
-			{ 180, 3.9, 17.2, 5.9, LF_GOLD },
-			{ 252, 4.1, 17.6, 5.6, LF_OR },
-			{ 324, 4.0, 17.9, 5.5, LF_RED },
-			{ 0, 0.0, 15.6, 6.4, LF_OR_DK },
-			{ 70, 2.2, 19.4, 4.8, LF_GOLD_LT },
-			{ 190, 2.1, 19.2, 5.0, LF_RED },
-			{ 300, 2.0, 19.6, 4.6, LF_OR },
+			{ 60, 4.2, 17.0, 5.6, LF_RED_DK },
+			{ 130, 4.1, 17.3, 5.6, LF_OR },
+			{ 200, 3.9, 16.9, 5.8, LF_GOLD },
+			{ 270, 4.1, 17.2, 5.6, LF_OR },
+			{ 330, 4.2, 17.0, 5.4, LF_RED },
+			{ 0, 0.0, 15.4, 6.4, LF_OR_DK },
+			{ 95, 3.0, 18.9, 4.2, LF_GOLD_LT },
+			{ 205, 2.9, 18.8, 4.4, LF_RED },
+			{ 290, 3.0, 19.0, 4.0, LF_OR },
 		}
 		local cubes = {}
 		for _, c in leafDefs do
@@ -313,9 +313,9 @@ return {
 		------------------------------------------------------------------
 		-- TOPPER: a jack-o'-lantern in a little purple witch hat
 		------------------------------------------------------------------
-		local TOPY = 20.4
+		local TOPY = 20.3
 		do
-			local C = facing(0, TOPY, 0, -10)
+			local C = facing(0, TOPY, -0.6, 15)
 			local top = jack(canopy, C, 2.6, "cheeky", "TopFace")
 			-- hat: brim + stepped cone with a gold band + bent tip
 			B:block(canopy, v(3.4, 0.25, 3.4), top * CFrame.new(0, 0.12, 0) * CFrame.Angles(0, rad(10), rad(-6)), HAT_DK)

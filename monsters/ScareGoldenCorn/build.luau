@@ -115,7 +115,8 @@ return {
 		for i = 1, 9 do
 			local a = i * 40 + jit(12)
 			local x, z = polar(3.2 + rnd() * 3.4, a)
-			local y = (math.sqrt(x * x + z * z) > 5.4) and 1.75 or 2.38
+			local rr = math.sqrt(x * x + z * z)
+			local y = (rr > 4.8) and 0.98 or (rr > 2.9 and 1.78 or 2.38)
 			B:block(soil, v(0.2, 0.18, 1.0 + rnd() * 0.5), cf(x, y, z, 0, rnd() * 180, 0), (i % 3 == 0) and HAY_LT or (i % 2 == 0 and HAY or HAY_DK), S)
 		end
 		-- two little pumpkins at the front
@@ -126,8 +127,8 @@ return {
 			B:block(soil, v(s * 0.86, s * 0.78, s * 0.86), C, PUMPKIN, S)
 			B:block(soil, v(0.3, 0.45, 0.3), C * CFrame.new(0, s * 0.5, 0) * CFrame.Angles(0, 0, rad(12)), PSTEM, S)
 		end
-		pumpkin(2.6, 2.3, -3.9, 1.5, 20)
-		pumpkin(-1.4, 2.3, -4.3, 1.1, -15)
+		pumpkin(2.6, 1.7, -3.9, 1.5, 20)
+		pumpkin(-1.4, 1.7, -4.3, 1.1, -15)
 
 		------------------------------------------------------------------
 		-- STALKS (corn shock: chunky stalks pinched together by the bow)
@@ -212,7 +213,7 @@ return {
 			-- stepped tapering kernel rows: amber grooves between plump gold rows
 			local pitch = L / rows
 			local function taper(t)
-				return 1 - 0.36 * math.clamp((t - 0.62) / 0.38, 0, 1) ^ 1.5
+				return 1 - 0.3 * math.clamp((t - 0.66) / 0.34, 0, 1) ^ 1.6
 			end
 			for r = 0, rows - 1 do
 				local t = r / (rows - 1)
