@@ -198,8 +198,8 @@ return {
 		local crop = B:bone("Crop", "Root", v(0, T1T, 0))
 		local ZA = 0.6 -- arch plane (z)
 		local PX = 4.75 -- pillar centres at x = +-PX
-		local SHAFT0, SHAFT1 = T1T + 1.15, 7.8
-		local AC = 8.65 -- arch springline / centre height
+		local SHAFT0, SHAFT1 = T1T + 1.15, 7.1
+		local AC = 7.95 -- arch springline / centre height
 		local AR = 4.75 -- voussoir mid radius
 		for _, sx in { -1, 1 } do
 			local x = sx * PX
@@ -305,12 +305,12 @@ return {
 			for i = 1, #pts - 1 do
 				local a0 = vpos(pts[i], AR - 0.25 + 0.12 * ((i % 2 == 0) and 1 or -1))
 				local a1 = vpos(pts[i + 1], AR - 0.25 + 0.12 * ((i % 2 == 1) and 1 or -1))
-				B:bar(crop, v(a0.X, a0.Y, z), v(a1.X, a1.Y, z), 0.3, 0.14, (i % 2 == 0) and CY or CY_LT, { up = v(0, 0, 1) })
+				B:bar(crop, v(a0.X, a0.Y, z), v(a1.X, a1.Y, z), 0.5, 0.2, (i % 2 == 0) and CY or CY_LT, { up = v(0, 0, 1) })
 			end
 			local q = { 95, 106, 116 }
 			for i = 1, #q - 1 do
 				local a0, a1 = vpos(q[i], AR + 0.2), vpos(q[i + 1], AR + 0.05 * i)
-				B:bar(crop, v(a0.X, a0.Y, z), v(a1.X, a1.Y, z), 0.24, 0.14, VIO_LT, { up = v(0, 0, 1) })
+				B:bar(crop, v(a0.X, a0.Y, z), v(a1.X, a1.Y, z), 0.4, 0.2, VIO_LT, { up = v(0, 0, 1) })
 			end
 		end
 		-- moss tufts on the arch top
@@ -416,7 +416,7 @@ return {
 		end
 
 		-- lumen crystal floating inside the arch opening
-		local LC = v(0, 7.6, ZA)
+		local LC = v(0, 7.0, ZA)
 		local lumen = B:bone("Lumen", "Crop", LC)
 		do
 			local F = CFrame.new(LC) * ang(0, 45, 0)

@@ -48,20 +48,20 @@ local function spring(dt, k, f)
 	return exp(-k * dt) * sin(f * dt)
 end
 
--- fruit polar angle in the galaxy frame (match build: arms at k*120 + 165*u)
+-- fruit polar angle in the galaxy frame (match build: arms at k*120 + 165*u, u = j/11)
 local FRUIT_DEG = {}
 do
 	local n = 0
 	for k = 0, 2 do
-		for _, j in { 3, 6 } do
+		for _, j in { 4, 8 } do
 			n += 1
-			FRUIT_DEG[n] = k * 120 + 165 * (j / 8)
+			FRUIT_DEG[n] = k * 120 + 165 * (j / 11)
 		end
 	end
 end
 local FRUIT_PH = { 0.0, 0.31, 0.58, 0.12, 0.83, 0.47 }
--- planets: laps per loop (signed), self spins, bob phase
-local PLANETS = { { 1, 1, 0.0 }, { -2, 2, 0.3 }, { 1, -1, 0.6 }, { -2, 3, 0.15 } }
+-- planets: laps per loop (signed), self spins, bob phase, nova fling
+local PLANETS = { { 1, 1, 0.0, 3.0 }, { -2, 2, 0.3, 1.0 }, { 1, -1, 0.6, 2.0 }, { -2, 3, 0.15, 2.6 } }
 local RAYS = { Vector3.new(1, 0, 0), Vector3.new(-1, 0, 0), Vector3.new(0, 1, 0), Vector3.new(0, -1, 0), Vector3.new(0, 0, 1), Vector3.new(0, 0, -1) }
 
 function M.Update(t, pose, ctx)
@@ -100,6 +100,11 @@ function M.Update(t, pose, ctx)
 		ctx.transparency("FruitCore" .. i, clamp((0.3 + 0.15 * w(t, 3, ph + i * 0.13) + 0.35 * gather) * (1 - flash), 0, 0.8))
 	end
 
+	-- galactic bulge glow
+	for i = 1, 4 do
+		ctx.transparency("Bulge" .. i, clamp((0.3 + 0.2 * w(t, 2, i * 0.25)) * (1 - flash), 0, 0.6))
+	end
+
 	-- starforge heart
 	local spin = 90 * c / M.Cycle + 90 * whirl
 	pose.Core = pa(shake * 0.12 * w(t, 70, 0.0), 0.3 * w(t, 2, 0.3) - 0.6 * gather + 0.9 * nova, shake * 0.12 * w(t, 90, 0.2),
@@ -126,7 +131,7 @@ function M.Update(t, pose, ctx)
 	-- planets
 	for n, pl in PLANETS do
 		pose["Orbit" .. n] = ang(0, 360 * (pl[1] * c / M.Cycle + (pl[1] > 0 and 1 or -1) * lap), 0)
-		pose["Planet" .. n] = pa(0, 0.4 * w(t, 2, pl[3]) + 0.8 * nova * w(t, 1, pl[3]), 1.6 * gather - 3.0 * nova,
+		pose["Planet" .. n] = pa(0, 0.4 * w(t, 2, pl[3]) + 0.8 * nova * w(t, 1, pl[3]), 1.4 * gather - pl[4] * nova,
 			6 * w(t, 1, pl[3]), 360 * pl[2] * c / M.Cycle, 0)
 	end
 

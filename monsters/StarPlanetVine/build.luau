@@ -39,7 +39,7 @@ return {
 		local RUNE = "#7fe8ff"
 		local DUST_G, DUST_C = "#ffe27a", "#b8f4ff"
 		local CRYS, CRYS_LT, CRYS_DK = "#9b7bff", "#c9b5ff", "#6f52d6"
-		local NIGHT, NEB_V, NEB_P, NEB_T = "#231d4d", "#5a3fb0", "#a8509e", "#2d6aa0"
+		local NIGHT, NEB_V, NEB_P, NEB_T = "#2a2268", "#6a48c8", "#b0559f", "#3a78b8"
 		local STARW = "#fff8dc"
 		-- vine + bloom
 		local VINE, VINE_DK, VINE_LT = "#3fae8f", "#2c8673", "#6dd2ad"
@@ -217,12 +217,14 @@ return {
 		for i = -4, 4 do
 			local y = i * 1.0
 			local wdt = 2 * math.sqrt(math.max(RI * RI - y * y, 0.3)) + 0.1
-			B:block(crop, v(wdt, 1.02, 0.3), CFrame.new(C + v(0, y, 0)), NIGHT, { name = "Portal", tr = 0.08 })
+			B:block(crop, v(wdt, 1.02, 0.3), CFrame.new(C + v(0, y, 0)), NIGHT, { name = "Portal" })
 		end
-		-- nebula patches (thin plates on both faces)
-		for _, n in { { -1.4, 1.2, 3.4, 1.6, NEB_V }, { 1.3, -0.9, 3.0, 1.4, NEB_P }, { 0.8, 2.3, 2.0, 0.9, NEB_T }, { -1.8, -2.0, 2.2, 1.0, NEB_T } } do
+		-- nebula patches: stepped soft clouds on both faces
+		for _, n in { { -1.5, 1.1, 3.2, 1.4, NEB_V }, { 1.4, -1.0, 3.0, 1.3, NEB_P }, { 1.0, 2.4, 2.0, 0.9, NEB_T }, { -1.9, -2.1, 2.2, 1.0, NEB_T } } do
 			for _, sz in { -1, 1 } do
-				B:block(crop, v(n[3], n[4], 0.1), CFrame.new(C + v(n[1] * sz, n[2], sz * 0.2)) * ang(0, 0, 18 * sz), n[5], { name = "Nebula", tr = 0.25 })
+				local x = n[1] * sz
+				B:block(crop, v(n[3], n[4], 0.1), CFrame.new(C + v(x, n[2], sz * 0.2)), n[5], { name = "Nebula", tr = 0.2 })
+				B:block(crop, v(n[3] * 0.6, n[4] * 1.6, 0.1), CFrame.new(C + v(x + 0.25 * sz, n[2] + 0.1, sz * 0.21)), n[5], { name = "Nebula", tr = 0.35 })
 			end
 		end
 		-- portal stars (front) + a gold constellation joining four of them
@@ -306,11 +308,11 @@ return {
 			local dir = v(math.sin(rad(a)), 0, -math.cos(rad(a)))
 			local p0 = BB + dir * 0.45 + v(0, 0.3, 0)
 			local pet = B:bone("Petal" .. k, "Bloom", p0)
-			local p1 = p0 + dir * 1.3 + v(0, 1.3, 0)
-			local p2 = p1 + dir * 1.25 + v(0, 0.75, 0)
+			local p1 = p0 + dir * 1.6 + v(0, 1.6, 0)
+			local p2 = p1 + dir * 1.6 + v(0, 0.9, 0)
 			local col = (k % 2 == 0) and PET or PET_DK
-			B:bar(pet, p0, p1, 1.25, 0.34, col)
-			B:bar(pet, p1 - (p1 - p0).Unit * 0.15, p2, 1.0, 0.32, (k % 2 == 0) and PET_LT or PET)
+			B:bar(pet, p0, p1, 1.55, 0.36, col)
+			B:bar(pet, p1 - (p1 - p0).Unit * 0.15, p2, 1.3, 0.34, (k % 2 == 0) and PET_LT or PET)
 			B:bar(pet, p2 - (p2 - p1).Unit * 0.1, p2 + (p2 - p1).Unit * 0.5, 0.5, 0.3, PET_HI)
 		end
 		B:block(bloom, v(1.1, 0.5, 1.1), CFrame.new(BB + v(0, 0.6, 0)), GOLD_DK)
@@ -320,7 +322,7 @@ return {
 		end
 
 		-- the star (five stepped arms facing front, spins about Y)
-		local SC = BB + v(0, 3.15, 0)
+		local SC = BB + v(0, 3.3, 0)
 		local star = B:bone("TopStar", "Bloom", SC)
 		do
 			local F = CFrame.new(SC)
@@ -366,10 +368,10 @@ return {
 		}
 		local PL = {
 			-- orbit, local angle (0 = front), size, kind
-			{ 1, 0, 0.78, "ringed" },
-			{ 1, 180, 0.45, "moon" },
-			{ 2, 0, 0.62, "ocean" },
-			{ 2, 180, 0.52, "red" },
+			{ 1, 0, 0.95, "ringed" },
+			{ 1, 180, 0.62, "moon" },
+			{ 2, 0, 0.85, "ocean" },
+			{ 2, 180, 0.72, "red" },
 		}
 		local orbitBones = {}
 		for i, o in ORB do
@@ -387,9 +389,9 @@ return {
 				orb(pb, F, s, "#f2b84a", "#e0953a", "#fff1c0", "PlanetCore1")
 				B:block(pb, v(2.36 * s, 0.35 * s, 1.56 * s), F * CFrame.new(0, 0.4 * s, 0), "#ffe2a0")
 				local RF = F * ang(0, 0, 14)
-				B:block(pb, v(4.6 * s, 0.16, 1.1 * s), RF, "#ffb6e4")
-				B:block(pb, v(1.1 * s, 0.17, 4.6 * s), RF, "#ffb6e4")
-				B:block(pb, v(3.6 * s, 0.15, 3.6 * s), RF * ang(0, 45, 0), "#f7d6ff")
+				B:block(pb, v(4.0 * s, 0.2, 1.1 * s), RF, "#ffb6e4")
+				B:block(pb, v(1.1 * s, 0.21, 4.0 * s), RF, "#ffb6e4")
+				B:block(pb, v(3.2 * s, 0.19, 3.2 * s), RF * ang(0, 45, 0), "#f7d6ff")
 			elseif p[4] == "moon" then
 				orb(pb, F, s, "#d9d6ea", "#b9b4d2", nil)
 				B:block(pb, v(0.55 * s, 0.55 * s, 0.12), F * CFrame.new(0.35 * s, 0.3 * s, -1.0 * s), "#9d97bd")

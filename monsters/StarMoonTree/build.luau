@@ -35,7 +35,7 @@ return {
 		local MOSS_DK, MOSS = "#3f8a72", "#5fb08e"
 		local CRY_DK, CRY, CRY_LT = "#3a8fd8", "#5fc8f5", "#b8f0ff"
 		local BARK_DK, BARK, BARK_LT, BARK_HI = "#767c98", "#9ea4c0", "#c3c8de", "#e6e9f6"
-		local LF_DK, LF, LF_MID, LF_LT, LF_SILV, LF_LIL = "#5d6cc0", "#7f8fdc", "#a2b0ec", "#c6d0f6", "#e4e9fc", "#b39ff0"
+		local LF_DK, LF, LF_MID, LF_LT, LF_SILV, LF_LIL = "#5264cc", "#7689f0", "#9cadff", "#c4d0ff", "#eef1ff", "#ad8cff"
 		local MOON_DK, MOON, MOON_LT, MOON_GLOW = "#e2c25e", "#fbe49a", "#fff4cc", "#fff7d6"
 		local STAR_DK, STAR, STAR_LT, STAR_GLOW = "#f0a01e", "#ffcf3a", "#ffe98a", "#fff6b0"
 		local RUNE = "#8fe8ff"
@@ -240,7 +240,7 @@ return {
 		for i = 0, 7 do
 			local a = i * 45 + 20 + jit(5)
 			local p = at(4.3 + jit(0.2), a, C1 + 1.6)
-			leafCube(can1, p, 2.8 + jit(0.2), 1.2, (i % 2 == 0) and LF_LT or LF_SILV)
+			leafCube(can1, p, 2.8 + jit(0.2), 1.2, (i % 2 == 0) and LF_LT or LF_LIL)
 		end
 		-- leaf tufts hanging under the rim
 		for i = 0, 5 do
@@ -250,7 +250,7 @@ return {
 		local C2 = C1 + 2.7
 		local can2 = B:bone("Canopy2", "Canopy1", v(0, C1 + 1.5, 0))
 		oct(can2, C2 - 1.2, C2 + 1.1, 5.8, LF)
-		local ring2 = { LF_MID, LF_LT, LF_LIL, LF_SILV }
+		local ring2 = { LF_MID, LF_LIL, LF, LF_SILV }
 		for i = 0, 7 do
 			local a = i * 45 + 22 + jit(5)
 			local p = at(3.6 + jit(0.2), a, C2 + jit(0.25))

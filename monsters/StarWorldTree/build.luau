@@ -236,6 +236,15 @@ return {
 		------------------------------------------------------------------
 		-- TRUNK (bone "Crop") with starforge veins
 		------------------------------------------------------------------
+		local function leafCube(bone, p, s, h, col, tilt)
+			tilt = tilt or 8
+			return B:block(bone, v(s, h, s), CFrame.new(p) * ang(jit(tilt), rnd() * 90, jit(tilt)), col)
+		end
+		local nGlint = 0
+		local function glint(bone, p, col)
+			nGlint += 1
+			B:block(bone, v(0.4, 0.4, 0.4), CFrame.new(p) * ang(0, 45, 45), col or STAR_GLOW, { mat = "Neon", name = "Glint" .. nGlint })
+		end
 		local BASE = Y3
 		local crop = B:bone("Crop", "Root", v(0, BASE, 0))
 		for k = 0, 5 do
@@ -273,10 +282,20 @@ return {
 				local t = j / 5
 				local p = at(3.35 - t * 1.25, a0 + t * 110, BASE + 1.0 + t * 12.5)
 				if prev then
-					B:bar(crop, prev, p, 0.34, 0.34, VCOL[k], { mat = "Neon", name = "Vein" .. k .. "_" .. j })
+					B:bar(crop, prev, p, 0.45, 0.45, VCOL[k], { mat = "Neon", name = "Vein" .. k .. "_" .. j })
 				end
 				prev = p
 			end
+		end
+		-- two short side branches with nebula leaf tufts break up the trunk
+		for _, sb in { { 105, BASE + 8.2 }, { 255, BASE + 10.0 } } do
+			local p0 = at(1.6, sb[1], sb[2])
+			local p1 = at(5.2, sb[1] + 6, sb[2] + 2.0)
+			B:bar(crop, p0, p1, 1.2, 1.1, BARK_LT)
+			leafCube(crop, p1 + v(0, 0.6, 0), 2.6, 1.8, NEB_PU)
+			leafCube(crop, at(6.3, sb[1] + 12, sb[2] + 2.1), 2.0, 1.5, NEB_MG)
+			leafCube(crop, at(5.0, sb[1] - 4, sb[2] + 3.0), 1.8, 1.2, NEB_PK)
+			glint(crop, at(6.0, sb[1] + 2, sb[2] + 3.3), PINK_GLOW)
 		end
 		local FORK = BASE + 13.6
 		local limbs = {}
@@ -298,44 +317,42 @@ return {
 			B:bar(can, l.p1 - (l.p1 - l.p0).Unit * 0.5, at(5.6, l.a - 6, CY - 1.0), 1.3, 1.2, BARK_LT)
 		end
 		local gal = B:bone("Galaxy", "Canopy", v(0, CY, 0))
-		local function leafCube(bone, p, s, h, col, tilt)
-			tilt = tilt or 8
-			return B:block(bone, v(s, h, s), CFrame.new(p) * ang(jit(tilt), rnd() * 90, jit(tilt)), col)
-		end
-		local nGlint = 0
-		local function glint(bone, p, col)
-			nGlint += 1
-			B:block(bone, v(0.4, 0.4, 0.4), CFrame.new(p) * ang(0, 45, 45), col or STAR_GLOW, { mat = "Neon", name = "Glint" .. nGlint })
-		end
 		-- nebula dome core
-		oct(gal, CY - 1.7, CY + 1.3, 11.0, NEB_DK)
+		oct(gal, CY - 1.8, CY + 1.4, 12.4, NEB_DK)
 		local domeCols = { NEB_IN, NEB_VI, NEB_PU, NEB_IN, NEB_MG, NEB_VI }
-		for i = 0, 9 do
-			local a = i * 36 + jit(4)
-			leafCube(gal, at(5.0 + jit(0.2), a, CY + jit(0.3)), 3.8 + jit(0.2), 2.6, domeCols[1 + (i % #domeCols)])
+		for i = 0, 10 do
+			local a = i * (360 / 11) + jit(4)
+			leafCube(gal, at(5.2 + jit(0.2), a, CY + 0.2 + jit(0.3)), 4.0 + jit(0.2), 2.8, domeCols[1 + (i % #domeCols)])
 		end
 		for i = 0, 5 do
 			local a = i * 60 + 30
 			leafCube(gal, at(4.6, a, CY - 2.0), 2.4, 1.4, NEB_DK)
 		end
-		-- three spiral arms
-		local ARMCOL = { NEB_VI, NEB_PU, NEB_PU, NEB_MG, NEB_PK, NEB_PK, NEB_BL, NEB_CY, NEB_CY2 }
-		local TOPCOL = { NEB_PU, NEB_MG, NEB_MG, NEB_PK, NEB_PK2, NEB_PK2, NEB_CY, NEB_CY2, "#cdf6ff" }
+		-- three spiral arms: main cubes on the spiral, lighter cubes on top at
+		-- the half steps so each arm reads as one continuous swirl
+		local NA, SWEEP = 12, 165
+		local ARMCOL = { NEB_VI, NEB_VI, NEB_PU, NEB_PU, NEB_MG, NEB_MG, NEB_PK, NEB_PK, NEB_BL, NEB_BL, NEB_CY, NEB_CY }
+		local TOPCOL = { NEB_PU, NEB_MG, NEB_MG, NEB_PK, NEB_PK, NEB_PK2, NEB_PK2, NEB_BL, NEB_CY, NEB_CY2, NEB_CY2, "#cdf6ff" }
+		local function armAt(k, u)
+			local r = 5.8 + 8.2 * u
+			local a = k * 120 + SWEEP * u
+			local y = CY - 0.1 - 1.5 * u * u
+			return r, a, y, 4.1 - 1.6 * u, 2.4 - 1.0 * u
+		end
 		local armPts = {}
 		for k = 0, 2 do
 			armPts[k + 1] = {}
-			for j = 0, 8 do
-				local u = j / 8
-				local r = 6.4 + 7.6 * u
-				local a = k * 120 + 165 * u
-				local y = CY - 0.1 - 1.4 * u * u
-				local s = 3.7 - 1.9 * u
-				local h = 2.2 - 0.9 * u
+			for j = 0, NA - 1 do
+				local u = j / (NA - 1)
+				local r, a, y, sz, h = armAt(k, u)
 				local p = at(r, a, y)
-				leafCube(gal, p, s, h, ARMCOL[j + 1], 6)
-				B:block(gal, v(s * 0.62, h * 0.6, s * 0.62), CFrame.new(at(r - 0.2, a - 4, y + h * 0.55)) * ang(0, rnd() * 90, 0), TOPCOL[j + 1])
-				if j == 2 or j == 5 or j == 8 then
-					glint(gal, at(r + 0.2, a + 5, y + h * 0.55 + 0.4), (j == 8) and CYAN_GLOW or STAR_GLOW)
+				leafCube(gal, p, sz, h, ARMCOL[j + 1], 5)
+				if j < NA - 1 then
+					local r2, a2, y2, sz2, h2 = armAt(k, (j + 0.5) / (NA - 1))
+					B:block(gal, v(sz2 * 0.7, h2 * 0.6, sz2 * 0.7), CFrame.new(at(r2, a2, y2 + h2 * 0.45)) * ang(0, rnd() * 90, 0), TOPCOL[j + 1])
+				end
+				if j == 3 or j == 7 or j == 11 then
+					glint(gal, at(r + 0.3, a + 4, y + h * 0.5 + 0.35), (j == 11) and CYAN_GLOW or STAR_GLOW)
 				end
 				armPts[k + 1][j + 1] = { p = p, a = a, r = r, h = h }
 			end
@@ -352,9 +369,18 @@ return {
 				glint(can2, at(4.9, a, CY2 + 0.5), (i % 4 == 0) and STAR_GLOW or PINK_GLOW)
 			end
 		end
-		for i = 0, 3 do
-			local a = i * 90 + 45
-			leafCube(can2, at(1.9, a, CY2 + 1.5), 2.3, 1.1, (i % 2 == 0) and NEB_PK or NEB_MG)
+		-- third tier + glowing galactic bulge round the spire
+		local CY3 = CY2 + 2.3
+		oct(can2, CY3 - 1.0, CY3 + 0.7, 4.6, NEB_VI)
+		for i = 0, 4 do
+			local a = i * 72 + 10 + jit(5)
+			leafCube(can2, at(2.1, a, CY3 + jit(0.2)), 2.4, 1.7, (i % 2 == 0) and NEB_PK or NEB_MG)
+		end
+		oct(can2, CY3 + 0.7, CY3 + 1.1, 3.0, STAR_LT)
+		oct(can2, CY3 + 1.1, CY3 + 1.35, 2.3, GOLD)
+		for i = 1, 4 do
+			local a = (i - 1) * 90 + 45
+			B:block(can2, v(0.5, 0.5, 0.5), CFrame.new(at(1.55, a, CY3 + 1.0)) * ang(0, 45, 0), STAR_GLOW, { mat = "Neon", name = "Bulge" .. i })
 		end
 
 		------------------------------------------------------------------
@@ -368,13 +394,13 @@ return {
 		local FR = {}
 		local nf = 0
 		for k = 1, 3 do
-			for _, j in { 4, 7 } do
+			for _, j in { 5, 9 } do
 				nf += 1
 				local ap = armPts[k][j]
 				local top = ap.p - v(0, ap.h * 0.5 - 0.1, 0)
 				local bone = B:bone("Fruit" .. nf, "Galaxy", top)
-				local s = (j == 4) and 1.45 or 1.3
-				local stem = (j == 4) and 1.4 or 0.9
+				local s = (j == 5) and 1.5 or 1.3
+				local stem = (j == 5) and 1.3 or 0.9
 				local c = top - v(0, stem + 1.15 * s, 0)
 				B:bar(bone, top + v(0, 0.3, 0), c + v(0, 1.0 * s, 0), 0.3, 0.3, BARK_HI)
 				B:block(bone, v(0.7, 0.4, 0.7), CFrame.new(top - v(0, 0.3, 0)) * ang(0, 45, 0), NEB_DK)
@@ -441,7 +467,7 @@ return {
 			local a = (i - 1) * 45
 			local sb = B:bone("Shard" .. i, "Core", CFrame.new(0, SC, 0) * ang(0, -a, 0))
 			local F = CFrame.new(0, SC, 0) * ang(0, -a, 0) * CFrame.new(0, 0, -2.0)
-			B:block(sb, v(1.4, 0.45, 2.2), F, (i % 2 == 0) and CYAN_GLOW or STAR_GLOW, { mat = "Neon", tr = 1, name = "Shard" .. i })
+			B:block(sb, v(2.0, 0.55, 3.0), F, (i % 2 == 0) and CYAN_GLOW or STAR_GLOW, { mat = "Neon", tr = 1, name = "Shard" .. i })
 		end
 		B:block(core, v(1.1, 14, 1.1), cf(0, SC + 4.6 + 7, 0), STAR_GLOW, { mat = "Neon", tr = 1, name = "BeamCore" })
 		B:block(core, v(2.4, 13, 2.4), cf(0, SC + 4.6 + 6.5, 0, 0, 45, 0), "#bfe9ff", { mat = "Neon", tr = 1, name = "BeamGlow" })

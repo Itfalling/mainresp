@@ -161,6 +161,28 @@ return {
 			B:block(soil, v(0.7, 1.6, 0.7), CFrame.new(base + v(0, 0.7, 0)) * ang(-10, 10, 14), "#8a5cd6", S)
 			B:block(soil, v(0.55, 1.0, 0.55), CFrame.new(base + v(0.6, 0.4, 0.2)) * ang(6, 30, -20), "#b893f0", S)
 		end
+		-- a cute fossil dino skull peeking out of the front-left of the mound
+		do
+			local F = facing(at(5.6, 334, 2.2), 352) * ang(-4, 0, -6)
+			B:block(soil, v(2.4, 1.7, 2.2), F * CFrame.new(0, 0.85, 0.3), BONE, S) -- cranium
+			B:block(soil, v(1.9, 0.5, 1.8), F * CFrame.new(0, 1.85, 0.5), BONE_LT, S) -- brow cap
+			B:block(soil, v(1.8, 1.0, 1.6), F * CFrame.new(0, 0.55, -1.4), BONE, S) -- snout
+			B:block(soil, v(1.4, 0.4, 1.3), F * CFrame.new(0, 1.15, -1.4), BONE_LT, S)
+			for _, sx in { -1, 1 } do
+				-- big round-ish eye sockets with a teal glimmer
+				B:block(soil, v(0.75, 0.75, 0.2), F * CFrame.new(sx * 0.62, 1.15, -0.82), CRACK, S)
+				B:block(soil, v(0.3, 0.3, 0.12), F * CFrame.new(sx * 0.55, 1.22, -0.92), TEAL, SN)
+				-- nostril
+				B:block(soil, v(0.25, 0.2, 0.12), F * CFrame.new(sx * 0.35, 0.85, -2.22), CRACK, S)
+				-- little horn nub
+				B:block(soil, v(0.45, 0.6, 0.45), F * CFrame.new(sx * 0.8, 2.2, 0.6) * ang(0, 0, sx * -20), BONE_TAN, S)
+			end
+			-- row of cute blunt teeth
+			for k = -2, 2 do
+				B:block(soil, v(0.28, 0.32, 0.28), F * CFrame.new(k * 0.34, 0.0, -2.0), BONE_LT, S)
+			end
+			B:block(soil, v(1.7, 0.35, 1.5), F * CFrame.new(0, -0.05, -1.15), BONE_DK, S) -- jaw sunk in the ash
+		end
 		-- dry thorny bramble twigs
 		for _, t in { { v(3.4, 3.05, 2.8), v(5.4, 2.25, 4.4) }, { v(-6.8, 1.15, -4.6), v(-8.6, 1.4, -2.6) } } do
 			B:bar(soil, t[1], t[2], 0.3, 0.3, BARK_LT, S)

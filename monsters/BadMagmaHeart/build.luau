@@ -184,6 +184,15 @@ return {
 			B:bar(soil, base + v(-0.2, 0.2, -0.1), base + v(2.2, 0.2, 1.5), 0.55, 0.55, BONE_DK, S)
 		end
 
+		-- a little side vent cone on the base tier (back-left) with a glowing mouth
+		do
+			local p = at(11.9, 250, 1.2)
+			B:block(soil, v(3.2, 0.9, 3.2), CFrame.new(p + v(0, 0.45, 0)) * ang(0, 20, 0), BASALT_DK, S)
+			B:block(soil, v(2.4, 0.8, 2.4), CFrame.new(p + v(0, 1.25, 0)) * ang(0, -10, 0), RUST_DK, S)
+			B:block(soil, v(1.6, 0.6, 1.6), CFrame.new(p + v(0, 1.9, 0)) * ang(0, 35, 0), BASALT, S)
+			B:block(soil, v(0.9, 0.2, 0.9), CFrame.new(p + v(0, 2.22, 0)) * ang(0, 35, 0), LAVA_YEL, SN)
+		end
+
 		-- CRATER: a rim of chunky rocks (notched where the rivers spill out)
 		local CRATER_Y = 8.0
 		for i = 0, 11 do
@@ -295,6 +304,42 @@ return {
 				prev = p
 			end
 		end
+		-- thorny badland brambles winding up the obsidian
+		local function trunkW(y)
+			local wv = 5.6
+			for _, sg in SEG do
+				if y >= BASE + sg[2] - 0.01 then
+					wv = sg[1]
+				end
+			end
+			return wv
+		end
+		local VINE, VINE_DK, THORN = "#7a3a24", "#5e2a1b", "#efe3c4"
+		local flip = 1
+		for vi, d0 in { 300, 120 } do
+			local pts = {}
+			local n = 11
+			for k = 0, n do
+				local f = k / n
+				local y = BASE + 0.8 + f * 11.6
+				local dd = d0 + (vi == 1 and 1 or -1) * 1.25 * 360 * f
+				local x, z = polar(trunkW(y) * 0.6 + 0.3, dd)
+				pts[k + 1] = { p = v(x, y, z), d = dd }
+			end
+			for k = 1, n do
+				local a, b = pts[k].p, pts[k + 1].p
+				B:bar(crop, a, b + (b - a).Unit * 0.2, 0.6, 0.6, (k % 2 == 0) and VINE or VINE_DK)
+				local o = outward((pts[k].d + pts[k + 1].d) / 2)
+				local m = a:Lerp(b, 0.5)
+				B:bar(crop, m + o * 0.2, m + o * 1.0 + v(0, 0.3 * flip, 0), 0.24, 0.24, THORN)
+				flip = -flip
+				if k % 4 == 2 then
+					-- a tiny glowing ember berry on the bramble
+					B:block(crop, v(0.6, 0.6, 0.6), CFrame.new(b + outward(pts[k + 1].d) * 0.45) * ang(45, 20, 0), LAVA_HOT, { mat = "Neon", name = ("Berry%d_%d"):format(vi, k) })
+				end
+			end
+		end
+
 		-- roots clutching the crater rim
 		for k = 0, 5 do
 			local a = k * 60 + 30
@@ -483,11 +528,11 @@ return {
 		------------------------------------------------------------------
 		for i = 1, 5 do
 			local a = (i - 1) * 72 + 18
-			local p = at(3.2, a, CRATER_Y - 0.9)
+			local p = at(3.2, a, CRATER_Y - 1.1)
 			local bomb = B:bone("Bomb" .. i, "Root", p)
-			B:block(bomb, v(1.1, 1.1, 1.1), CFrame.new(p) * ang(20, 35, 10), "#4a1610", { name = "Bomb" .. i })
-			B:block(bomb, v(0.85, 0.85, 0.85), CFrame.new(p) * ang(45, 10, 45), LAVA_HOT, { mat = "Neon", name = "Bomb" .. i .. "N" })
-			B:trail(bomb, p + v(0, 0.35, 0), p - v(0, 0.35, 0), { name = "BombTrail" .. i, color = { LAVA_YEL, LAVA, "#7a2a1a" }, life = 0.45, width = { 1, 0 }, trans = { 0.1, 1 } })
+			B:block(bomb, v(1.45, 1.45, 1.45), CFrame.new(p) * ang(20, 35, 10), "#4a1610", { name = "Bomb" .. i })
+			B:block(bomb, v(1.1, 1.1, 1.1), CFrame.new(p) * ang(45, 10, 45), LAVA_HOT, { mat = "Neon", name = "Bomb" .. i .. "N" })
+			B:trail(bomb, p + v(0, 0.55, 0), p - v(0, 0.55, 0), { name = "BombTrail" .. i, color = { LAVA_YEL, LAVA, "#7a2a1a" }, life = 0.45, width = { 1, 0 }, trans = { 0.1, 1 } })
 		end
 
 		------------------------------------------------------------------
