@@ -25,6 +25,8 @@ local CONTROL_SRC = fs.readFile("lib/Control.luau")
 local UNIONBAKER_SRC = fs.readFile("lib/UnionBaker.luau")
 local SWINGCLIENT_SRC = fs.readFile("lib/SwingToolClient.luau")
 local SWINGSERVER_SRC = fs.readFile("lib/SwingToolServer.luau")
+local SWINGANIM_SRC = fs.readFile("lib/SwingAnim.luau")
+local SWINGREPL_SRC = fs.readFile("lib/SwingReplicate.luau")
 local AUTOBAKE_SRC = fs.readFile("lib/AutoBake.luau")
 
 local FPS = 30
@@ -37,6 +39,10 @@ do
 	assert(ok, "lib/AnimLib.luau does not compile: " .. tostring(err))
 	ok, err = pcall(luau.compile, SWINGCLIENT_SRC)
 	assert(ok, "lib/SwingToolClient.luau does not compile: " .. tostring(err))
+	ok, err = pcall(luau.compile, SWINGANIM_SRC)
+	assert(ok, "lib/SwingAnim.luau does not compile: " .. tostring(err))
+	ok, err = pcall(luau.compile, SWINGREPL_SRC)
+	assert(ok, "lib/SwingReplicate.luau does not compile: " .. tostring(err))
 	ok, err = pcall(luau.compile, SWINGSERVER_SRC)
 	assert(ok, "lib/SwingToolServer.luau does not compile: " .. tostring(err))
 	ok, err = pcall(luau.compile, CONTROL_SRC)
@@ -421,11 +427,19 @@ local function buildMonster(id, L)
 			server.Name = "SwingServer"
 			server.Source = SWINGSERVER_SRC
 			server.Parent = tool
-			local client = Instance.new("Script")
+			local anim = Instance.new("ModuleScript")
+			anim.Name = "SwingAnim"
+			anim.Source = SWINGANIM_SRC
+			anim.Parent = tool
+			local client = Instance.new("LocalScript")
 			client.Name = "SwingClient"
-			client.RunContext = Enum.RunContext.Client
 			client.Source = SWINGCLIENT_SRC
 			client.Parent = tool
+			local repl = Instance.new("Script")
+			repl.Name = "SwingReplicate"
+			repl.RunContext = Enum.RunContext.Client
+			repl.Source = SWINGREPL_SRC
+			repl.Parent = tool
 		end
 		fs.writeFile("out/models/" .. id .. "Tool.rbxm", roblox.serializeModel({ tool }))
 	end
