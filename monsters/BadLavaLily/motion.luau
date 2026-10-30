@@ -72,7 +72,9 @@ function M.Update(t, pose, ctx)
 		end
 		-- heart glow: brighter when open, flashes on the bloom burst
 		local o = 0.5 + 0.5 * breath
-		ctx.transparency(name .. "Core", clamp((0.45 - 0.35 * o + 0.3 * g) * (1 - flash * bw), 0, 0.7))
+		local tr = clamp((0.45 - 0.35 * o + 0.3 * g) * (1 - flash * bw), 0, 0.7)
+		ctx.transparency(name .. "Core", tr)
+		ctx.transparency(name .. "CoreB", tr)
 	end
 
 	for i, p in PADS do
@@ -80,8 +82,11 @@ function M.Update(t, pose, ctx)
 		pose[p[1]] = pa(0, 0.1 * w(t, 2, ph) + 0.18 * hop * (i == 1 and 1 or 0.7), 0,
 			2.2 * w(t, 1, ph) + 3 * hop, 4 * w(t, 1, ph + 0.4), 2.4 * w(t, 1, ph + 0.25) - 2 * hop)
 	end
-	ctx.transparency("Pad1Core", clamp(0.35 + 0.2 * w(t, 2, 0.2) - 0.3 * flash, 0, 0.6))
-	ctx.transparency("Pad3Core", clamp(0.35 + 0.2 * w(t, 2, 0.7) - 0.3 * flash, 0, 0.6))
+	for _, pc in { { "Pad1Core", 0.2 }, { "Pad3Core", 0.7 } } do
+		local tr = clamp(0.35 + 0.2 * w(t, 2, pc[2]) - 0.3 * flash, 0, 0.6)
+		ctx.transparency(pc[1], tr)
+		ctx.transparency(pc[1] .. "B", tr)
+	end
 
 	-- lights: lava flicker in the pool, the bloom glows up on the burst
 	ctx.light("PoolLight", clamp(1.15 + 0.2 * w(t, 3, 0.1) + 0.1 * w(t, 5, 0.3) + 0.6 * flash, 0, 2))

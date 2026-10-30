@@ -197,15 +197,15 @@ return {
 			local p = pv(rimR + 0.25, a, RIM + h / 2 - 0.15)
 			B:block(coneTop, v(1.5, h, 1.1), facing(p, a) * ang(-22 + jit(6), jit(8), 0), (i % 3 == 0) and RUST or ((i % 3 == 1) and ROCK_DK or ROCK), nil)
 		end
-		disc(coneTop, RIM - 0.1, 0.3, rimR - 0.35, LAVA_DK, nil)
-		B:block(coneTop, v(2.4, 0.3, 2.4), cf(0, RIM + 0.12, 0, 0, 45, 0), LAVA, nil)
-		B:block(coneTop, v(1.6, 0.25, 1.6), cf(0, RIM + 0.2, 0), LAVA_HOT, { mat = "Neon", name = "CraterCore" })
+		disc(coneTop, RIM - 0.1, 0.75, rimR - 0.3, LAVA_DK, nil)
+		B:block(coneTop, v(2.5, 0.3, 2.5), cf(0, RIM + 0.6, 0, 0, 45, 0), LAVA, nil)
+		B:block(coneTop, v(1.7, 0.25, 1.7), cf(0, RIM + 0.68, 0), LAVA_HOT, { mat = "Neon", name = "CraterCore" })
 		-- lava drips over the rim
-		for _, a in { 40, 160, 285 } do
+		for di, a in { 40, 160, 285 } do
 			local p0 = pv(rimR - 0.6, a, RIM + 0.15)
 			local p1 = pv(rimR + 0.45, a, RIM + 0.3)
 			B:bar(coneTop, p0, p1, 0.75, 0.3, LAVA, nil)
-			B:bar(coneTop, p0 + v(0, 0.05, 0), p1 + v(0, 0.05, 0), 0.32, 0.3, LAVA_HOT, { mat = "Neon", name = "LavaGlow" })
+			B:bar(coneTop, p0 + v(0, 0.05, 0), p1 + v(0, 0.05, 0), 0.32, 0.3, LAVA_HOT, { mat = "Neon", name = "Drip" .. di })
 		end
 
 		-- lava channels running down the slopes (plastic bed + neon core)
@@ -224,7 +224,7 @@ return {
 					bone = coneTop
 				end
 				B:bar(bone, p0, p1, 0.85, 0.35, LAVA_DK, nil)
-				B:bar(bone, p0 + (p0 - v(0, p0.Y, 0)).Unit * 0.12, p1 + (p1 - v(0, p1.Y, 0)).Unit * 0.12, 0.34, 0.3, LAVA_HOT, { mat = "Neon", name = "LavaGlow" })
+				B:bar(bone, p0 + (p0 - v(0, p0.Y, 0)).Unit * 0.12, p1 + (p1 - v(0, p1.Y, 0)).Unit * 0.12, 0.34, 0.3, LAVA_HOT, { mat = "Neon", name = "Lava" .. ci .. "_" .. i })
 			end
 			-- lava puddle where it reaches the mound
 			local e = pts[#pts][1]
@@ -275,7 +275,7 @@ return {
 			B:block(bone, v(1.62 * s, 0.6 * s, 0.6 * s), C * CFrame.new(0, -0.2 * s, 0), LAVA_DK)
 			-- glowing cracks
 			B:block(bone, v(0.25 * s, 0.9 * s, 0.25 * s), C * CFrame.new(0.3 * s, 0.1 * s, -0.84 * s) * ang(0, 0, 25), LAVA_HOT, { mat = "Neon", name = coreName })
-			B:block(bone, v(0.86 * s, 0.25 * s, 0.25 * s), C * CFrame.new(-0.84 * s, 0.2 * s, 0.2 * s) * ang(0, 90, 15), LAVA_HOT, { mat = "Neon", name = coreName })
+			B:block(bone, v(0.86 * s, 0.25 * s, 0.25 * s), C * CFrame.new(-0.84 * s, 0.2 * s, 0.2 * s) * ang(0, 90, 15), LAVA_HOT, { mat = "Neon", name = coreName .. "B" })
 			-- dark crust flecks
 			B:block(bone, v(0.55 * s, 0.55 * s, 0.3 * s), C * CFrame.new(-0.45 * s, -0.4 * s, -0.86 * s), ROCK_DK)
 			B:block(bone, v(0.3 * s, 0.5 * s, 0.55 * s), C * CFrame.new(0.88 * s, 0.35 * s, 0.35 * s), ROCK_DK)
@@ -324,7 +324,7 @@ return {
 		B:trail(pop, POPC + v(-0.7, 0, 0), POPC + v(0.7, 0, 0), { name = "PopTrail", color = { LAVA_HOT, LAVA, LAVA_DK }, life = 0.35, width = { 1, 0 }, trans = { 0.1, 1 } })
 		local craterLight = B:block(coneTop, v(0.4, 0.4, 0.4), cf(0, RIM + 1.4, 0), LAVA, { tr = 1, name = "CraterLightCore" })
 		B:light(craterLight, { name = "CraterLight", color = "#ff8a3a", brightness = 1.2, range = 16 })
-		local coneLight = B:block(crop, v(0.4, 0.4, 0.4), cf(0, GY + 4.5, -4.8), LAVA, { tr = 1, name = "ConeLightCore" })
+		local coneLight = B:block(crop, v(0.4, 0.4, 0.4), cf(0, GY + 3.0, -6.8), LAVA, { tr = 1, name = "ConeLightCore" })
 		B:light(coneLight, { name = "ConeLight", color = "#ff7a2a", brightness = 0.9, range = 12 })
 	end,
 }

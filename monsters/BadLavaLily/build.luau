@@ -191,7 +191,7 @@ return {
 			B:block(bone, v(1.05 * s, 1.9 * s, 1.05 * s), C, LAVA_LT)
 			B:block(bone, v(1.05 * s, 1.05 * s, 1.9 * s), C, LAVA)
 			B:block(bone, v(0.7 * s, 0.4 * s, 0.7 * s), C * CFrame.new(0, 0.95 * s, 0), LAVA_HOT, { mat = "Neon", name = coreName })
-			B:block(bone, v(0.5 * s, 0.5 * s, 0.4 * s), C * CFrame.new(-0.35 * s, 0.25 * s, -0.8 * s), LAVA_HOT, { mat = "Neon", name = coreName })
+			B:block(bone, v(0.5 * s, 0.5 * s, 0.4 * s), C * CFrame.new(-0.35 * s, 0.25 * s, -0.8 * s), LAVA_HOT, { mat = "Neon", name = coreName .. "B" })
 			-- dark cooled crust flecks
 			B:block(bone, v(0.6 * s, 0.6 * s, 0.3 * s), C * CFrame.new(0.5 * s, -0.35 * s, -0.85 * s), RUST_DK)
 			B:block(bone, v(0.3 * s, 0.55 * s, 0.6 * s), C * CFrame.new(0.88 * s, 0.3 * s, 0.3 * s), RUST_DK)

@@ -30,7 +30,7 @@ return {
 		local STEM, STEM_DK, STEM_LT = "#2f957b", "#237563", "#6dd2ad"
 		local LEAF, LEAF_DK, LEAF_LT = "#4fc79b", "#309c7d", "#98efc6"
 		local SEPAL, SEPAL_DK = "#7b5ccc", "#5a40a6"
-		local STAR, STAR_DK, STAR_LT, STAR_CORE = "#ffd447", "#eaa526", "#fff0a6", "#fff7d0"
+		local STAR, STAR_DK, STAR_LT, STAR_CORE = "#ffd84a", "#eda928", "#fff3b4", "#fff8d6"
 
 		local seed = 1811
 		local function rnd(a, b)

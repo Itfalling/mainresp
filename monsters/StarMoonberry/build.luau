@@ -28,7 +28,7 @@ return {
 		local DUST_G, DUST_C = "#ffe27a", "#b8f4ff"
 		-- plant
 		local BARK, BARK_DK, BARK_LT = "#5a4a8c", "#433770", "#7564a8"
-		local LEAF_SH, LEAF_DK, LEAF, LEAF_LT, LEAF_HI = "#557f8a", "#6f9ca0", "#9fc4c2", "#c6e0dc", "#e6f3f0"
+		local LEAF_SH, LEAF_DK, LEAF, LEAF_LT, LEAF_HI = "#5b7d8c", "#7c9fa8", "#a7c5c8", "#cbe0e1", "#ecf5f4"
 		local LEAF_LAV = "#a9b3dc"
 		local MOON, MOON_DK, MOON_LT, MOON_GLOW = "#ffe28a", "#efb94e", "#fff3c4", "#fff6d8"
 
@@ -159,16 +159,17 @@ return {
 			B:block(crop, v(R * 1.3, R * 0.95, R * 1.3), CFrame.new(c) * ang(0, off + 22, 0), LEAF_DK)
 			for i = 0, nRing - 1 do
 				local a = rad(off + i * 360 / nRing + rnd(-8, 8))
-				local p = c + v(math.cos(a) * R * 0.76, rnd(-0.25, 0.2), math.sin(a) * R * 0.76)
-				local sz = s * rnd(0.9, 1.1)
-				B:block(crop, v(sz, sz * 0.92, sz), CFrame.new(p) * ang(rnd(-15, 15), rnd(0, 90), rnd(-15, 15)), pick({ LEAF, LEAF, LEAF_LAV, LEAF_DK }))
+				local rr = R * rnd(0.7, 0.84)
+				local p = c + v(math.cos(a) * rr, rnd(-0.35, 0.35), math.sin(a) * rr)
+				local sz = s * rnd(0.85, 1.12)
+				B:block(crop, v(sz, sz * 0.92, sz), CFrame.new(p) * ang(rnd(-12, 12), rnd(0, 90), rnd(-12, 12)), pick({ LEAF, LEAF, LEAF, LEAF_DK }))
 			end
 			local nCap = math.max(3, nRing - 2)
 			for i = 0, nCap - 1 do
 				local a = rad(off + 30 + i * 360 / nCap + rnd(-8, 8))
 				local p = c + v(math.cos(a) * R * 0.38, R * 0.48 + rnd(-0.1, 0.15), math.sin(a) * R * 0.38)
 				local sz = s * rnd(0.85, 1.0)
-				B:block(crop, v(sz, sz * 0.9, sz), CFrame.new(p) * ang(rnd(-15, 15), rnd(0, 90), rnd(-15, 15)), pick({ LEAF_LT, LEAF_LT, LEAF_HI }))
+				B:block(crop, v(sz, sz * 0.9, sz), CFrame.new(p) * ang(rnd(-10, 10), rnd(0, 90), rnd(-10, 10)), LEAF_LT)
 			end
 			B:block(crop, v(s * 0.9, s * 0.8, s * 0.9), CFrame.new(c + v(0, R * 0.78, 0)) * ang(8, off + 40, -6), LEAF_HI)
 			for i = 0, 2 do
@@ -177,8 +178,21 @@ return {
 				B:block(crop, v(s * 0.9, s * 0.8, s * 0.9), CFrame.new(p) * ang(rnd(-15, 15), rnd(0, 90), rnd(-15, 15)), LEAF_SH)
 			end
 		end
-		dome(v(0, 5.5, 0), 3.3, 2.3, 7, 10)
-		dome(v(0.05, 9.7, 0.05), 2.5, 2.0, 6, 35)
+		dome(v(0, 5.5, 0), 3.7, 2.45, 8, 10)
+		-- a few lavender-tinted leaves as a starlight accent
+		B:block(crop, v(2.0, 1.8, 2.0), cf(-2.1, 6.6, -2.2, 14, 30, -10), LEAF_LAV)
+		B:block(crop, v(1.9, 1.7, 1.9), cf(2.6, 5.4, 2.0, -12, 15, 12), LEAF_LAV)
+		dome(v(0.25, 9.7, -0.15), 2.75, 2.1, 6, 35)
+		B:block(crop, v(1.7, 1.5, 1.7), cf(1.6, 10.6, -1.5, 10, 50, 12), LEAF_LAV)
+		-- side sprigs breaking the outline
+		branch({ v(0, 5.8, 0), v(2.2, 6.8, -1.2), v(3.3, 7.4, -1.6) }, 0.45)
+		B:block(crop, v(1.8, 1.6, 1.8), cf(3.5, 7.6, -1.7, 12, 25, -14), LEAF)
+		B:block(crop, v(1.4, 1.3, 1.4), cf(3.9, 8.3, -1.3, -10, 60, 10), LEAF_LT)
+		B:block(crop, v(1.3, 1.2, 1.3), cf(3.1, 7.2, -2.4, 18, 5, 8), LEAF_DK)
+		branch({ v(0, 6.2, 0), v(-2.2, 7.0, 1.2), v(-3.2, 7.5, 1.7) }, 0.45)
+		B:block(crop, v(1.8, 1.6, 1.8), cf(-3.4, 7.7, 1.8, -12, 40, 14), LEAF_LAV)
+		B:block(crop, v(1.4, 1.3, 1.4), cf(-3.8, 8.4, 1.3, 10, 15, -8), LEAF_LT)
+		B:block(crop, v(1.3, 1.2, 1.3), cf(-2.9, 7.3, 2.5, -15, 70, -10), LEAF_DK)
 		-- top tuft
 		B:block(crop, v(1.9, 1.7, 1.9), cf(0.1, 12.0, 0.05, 6, 30, -5), LEAF_LT)
 		B:block(crop, v(1.5, 1.3, 1.5), cf(0.6, 12.5, -0.5, -10, 10, 8), LEAF_HI)
@@ -210,28 +224,28 @@ return {
 			crescent(F * CFrame.Angles(0, math.pi, 0), s, glow, idx)
 		end
 		-- under the big lower dome
-		berry(-10, 3.35, 3.45, 1.4, -18, true, 1)
-		berry(50, 3.5, 3.5, 1.35, 22, false, 2)
-		berry(110, 3.3, 3.45, 1.4, -28, true, 3)
-		berry(170, 3.45, 3.5, 1.35, 12, false, 4)
-		berry(290, 3.4, 3.5, 1.35, -22, false, 5)
+		berry(-10, 3.35, 3.85, 1.4, -18, true, 1)
+		berry(50, 3.5, 3.85, 1.35, 22, false, 2)
+		berry(110, 3.3, 3.85, 1.4, -28, true, 3)
+		berry(170, 3.45, 3.85, 1.35, 12, false, 4)
+		berry(290, 3.4, 3.85, 1.35, -22, false, 5)
 		-- under the upper dome
-		berry(20, 7.6, 2.95, 1.25, 25, true, 6)
-		berry(90, 7.7, 2.95, 1.2, -15, false, 7)
-		berry(160, 7.5, 2.95, 1.2, 30, false, 8)
-		berry(235, 7.7, 2.95, 1.2, -25, false, 9)
-		berry(305, 7.55, 2.95, 1.25, 15, false, 10)
+		berry(20, 7.6, 3.2, 1.25, 25, true, 6)
+		berry(90, 7.7, 3.2, 1.2, -15, false, 7)
+		berry(160, 7.5, 3.2, 1.2, 30, false, 8)
+		berry(235, 7.7, 3.2, 1.2, -25, false, 9)
+		berry(305, 7.55, 3.2, 1.25, 15, false, 10)
 
 		-- the crown: a big glowing crescent moon on a stem rising from the top tuft
-		branch({ v(0.1, 11.5, 0.1), v(0.15, 12.9, 0.0) }, 0.42)
-		local CR = CFrame.new(0.2, 14.0, -0.05) * CFrame.Angles(0, rad(25), 0) * CFrame.Angles(0, 0, rad(-25))
-		crescent(CR, 1.9, true, 12, 1.5)
+		branch({ v(0.1, 11.5, 0.1), v(0.15, 12.5, 0.0) }, 0.42)
+		local CR = CFrame.new(0.2, 13.55, -0.05) * CFrame.Angles(0, rad(25), 0) * CFrame.Angles(0, 0, rad(-25))
+		crescent(CR, 1.8, true, 12, 1.5)
 
 		------------------------------------------------------------ fx
 		local crown = glows[#glows]
 		B:emitter(crown, "glow", { name = "MoonAura", color = "#fff2c0", rate = 1.2, size = { 1.2, 2.2, 0.6 }, life = { 1.2, 2.0 } })
 		B:emitter(crown, "sparkle", { name = "MoonTwinkle", color = { "#ffffff", "#ffe28a" }, rate = 5, size = { 0.12, 0.5, 0 }, speed = { 0.5, 1.6 } })
-		local dustPart = B:block(crop, v(4.6, 0.3, 4.4), cf(0, 7.0, 0), LEAF_DK, { tr = 1, name = "MoonDustZone" })
+		local dustPart = B:block(crop, v(8.2, 0.3, 8.2), cf(0, 9.2, 0), LEAF_DK, { tr = 1, name = "MoonDustZone" })
 		B:emitter(dustPart, "leaf", { name = "MoonDust", color = { "#e6f2ff", "#a9c8ff" }, rate = 4, size = { 0.22, 0.28, 0 }, life = { 2.5, 3.5 }, speed = { 0.2, 0.6 }, accel = { 0, -1.2, 0 }, light = 0.5 })
 		B:emitter(glows[1], "sparkle", { name = "BerryTwinkle", color = { "#ffffff", "#bfe9ff" }, rate = 2, size = { 0.1, 0.35, 0 } })
 		B:light(crown, { name = "MoonLight", color = "#cfe0ff", brightness = 0.9, range = 12 })

@@ -34,7 +34,7 @@ return {
 		local MOSS, MOSS_DK, MOSS_LT = "#4f9e7c", "#367a62", "#78c79a"
 		local RUNE = "#7fe8ff"
 		local DUST_G, DUST_C = "#ffe27a", "#b8f4ff"
-		local VIO_DK, VIO, VIO_LT = "#6a49dc", "#8d6af7", "#bba6ff"
+		local VIO_DK, VIO, VIO_LT = "#7a58ea", "#9b7cff", "#c6b4ff"
 		local CY_DK, CY, CY_LT = "#2aa9cf", "#4fd8f2", "#a8f3ff"
 		local PINK, PINK_LT = "#ff8fd8", "#ffc4ee"
 		local CORE_C, CORE_P, CORE_W = "#c4fbff", "#ffd2f4", "#f4f0ff"
@@ -292,6 +292,32 @@ return {
 			local c = CFrame.new(vpos(th, AR + 0.2)) * CFrame.Angles(0, 0, rad(th - 90))
 			cluster(c, 1.45, 3, VIO, CY, "BreakCore1", CORE_P)
 		end
+		-- left haunch: a smaller cluster growing out of the arch top
+		do
+			local th = 180 - 2.5 * (180 / NV)
+			local c = CFrame.new(vpos(th, AR + 0.6)) * CFrame.Angles(0, 0, rad(th - 90)) * ang(10, 0, 10)
+			cluster(c, 0.8, 2, CY, VIO, "HaunchCore", CORE_C)
+		end
+		-- crystal veins spreading through the arch face from the keystone
+		for _, sz in { -1, 1 } do
+			local z = ZA + sz * 1.23
+			local pts = { 88, 78, 70, 62, 55 }
+			for i = 1, #pts - 1 do
+				local a0 = vpos(pts[i], AR - 0.25 + 0.12 * ((i % 2 == 0) and 1 or -1))
+				local a1 = vpos(pts[i + 1], AR - 0.25 + 0.12 * ((i % 2 == 1) and 1 or -1))
+				B:bar(crop, v(a0.X, a0.Y, z), v(a1.X, a1.Y, z), 0.3, 0.14, (i % 2 == 0) and CY or CY_LT, { up = v(0, 0, 1) })
+			end
+			local q = { 95, 106, 116 }
+			for i = 1, #q - 1 do
+				local a0, a1 = vpos(q[i], AR + 0.2), vpos(q[i + 1], AR + 0.05 * i)
+				B:bar(crop, v(a0.X, a0.Y, z), v(a1.X, a1.Y, z), 0.24, 0.14, VIO_LT, { up = v(0, 0, 1) })
+			end
+		end
+		-- moss tufts on the arch top
+		for _, th in { 140, 118, 35 } do
+			local c = CFrame.new(vpos(th, AR + 0.95)) * CFrame.Angles(0, 0, rad(th - 90))
+			B:block(crop, v(1.5, 0.25, 2.0), c * ang(0, rnd(-10, 10), 0), (th == 118) and MOSS_LT or MOSS)
+		end
 		-- cracked right pillar: crystals burst out sideways (front-right)
 		cluster(CFrame.new(PX + 0.9, SHAFT0 + 2.75, ZA - 0.5) * ang(-35, 25, -62), 1.25, 3, CY, VIO, "BreakCore2", CORE_C)
 		-- left plinth: a small cluster growing at its foot (front)
@@ -321,9 +347,10 @@ return {
 			local p0 = L[1]
 			local p1 = p0 + dir * 1.6 + v(0, 0.6, 0)
 			local p2 = p1 + dir * 1.4 + v(0, 1.0, 0)
-			B:bar(stem, p0, p1, 0.75, 0.38, CY_DK)
-			B:bar(stem, p1 - (p1 - p0).Unit * 0.15, p2, 0.95, 0.36, CY)
-			B:bar(stem, p2 - (p2 - p1).Unit * 0.2, p2 + (p2 - p1).Unit * 0.7, 0.5, 0.32, CY_LT)
+			B:bar(stem, p0, p1, 1.0, 0.4, CY_DK)
+			B:bar(stem, p1 - (p1 - p0).Unit * 0.15, p2, 1.5, 0.38, CY)
+			B:bar(stem, p1 + (p2 - p1) * 0.3, p2, 0.5, 0.42, CY_LT)
+			B:bar(stem, p2 - (p2 - p1).Unit * 0.2, p2 + (p2 - p1).Unit * 0.8, 0.8, 0.34, CY_LT)
 		end
 
 		local BC = s2 + v(0, 0.1, 0) -- bloom centre
@@ -354,7 +381,7 @@ return {
 		end
 
 		-- floating HEART crystal (spins), glowing equator
-		local HC = BC + v(0, 3.9, 0)
+		local HC = BC + v(0, 3.6, 0)
 		local heart = B:bone("Heart", "Bloom", HC)
 		local H = CFrame.new(HC) * ang(0, 45, 0)
 		B:block(heart, v(2.58, 0.6, 2.58), H, CORE_C, { mat = "Neon", name = "HeartCore" })
@@ -373,9 +400,9 @@ return {
 		-- three crystal shards orbiting the heart (with trails)
 		local orbit = B:bone("Orbit", "Bloom", HC)
 		local SH = {
-			{ 0, 4.4, 1.15, PINK, PINK_LT },
-			{ 120, 4.4, 0.7, CY, CY_LT },
-			{ 240, 4.4, 0.95, GOLD, GOLD_LT },
+			{ 0, 4.4, 1.25, PINK, PINK_LT },
+			{ 120, 4.4, 0.85, CY, CY_LT },
+			{ 240, 4.4, 1.05, GOLD, GOLD_LT },
 		}
 		for i, s in SH do
 			local pc = HC + v(math.sin(rad(s[1])) * s[2], s[3], -math.cos(rad(s[1])) * s[2])
@@ -389,16 +416,16 @@ return {
 		end
 
 		-- lumen crystal floating inside the arch opening
-		local LC = v(0, 7.3, ZA)
+		local LC = v(0, 7.6, ZA)
 		local lumen = B:bone("Lumen", "Crop", LC)
 		do
 			local F = CFrame.new(LC) * ang(0, 45, 0)
-			B:block(lumen, v(1.25, 0.32, 1.25), F, CORE_C, { mat = "Neon", name = "LumenCore" })
-			B:block(lumen, v(1.1, 0.5, 1.1), F * CFrame.new(0, 0.4, 0), VIO_LT)
-			B:block(lumen, v(0.65, 0.5, 0.65), F * CFrame.new(0, 0.85, 0), CORE_W)
-			B:block(lumen, v(1.1, 0.5, 1.1), F * CFrame.new(0, -0.4, 0), VIO)
-			B:block(lumen, v(0.65, 0.55, 0.65), F * CFrame.new(0, -0.9, 0), VIO_LT)
-			B:block(lumen, v(0.3, 0.4, 0.3), F * CFrame.new(0, -1.3, 0), PINK_LT)
+			B:block(lumen, v(1.812, 0.464, 1.812), F, CORE_C, { mat = "Neon", name = "LumenCore" })
+			B:block(lumen, v(1.595, 0.725, 1.595), F * CFrame.new(0, 0.58, 0), VIO_LT)
+			B:block(lumen, v(0.943, 0.725, 0.943), F * CFrame.new(0, 1.232, 0), CORE_W)
+			B:block(lumen, v(1.595, 0.725, 1.595), F * CFrame.new(0, -0.58, 0), VIO)
+			B:block(lumen, v(0.943, 0.797, 0.943), F * CFrame.new(0, -1.305, 0), VIO_LT)
+			B:block(lumen, v(0.435, 0.58, 0.435), F * CFrame.new(0, -1.885, 0), PINK_LT)
 		end
 
 		------------------------------------------------------------------
@@ -414,7 +441,7 @@ return {
 		B:emitter(dustZone, "sparkle", { name = "StarDust", color = { DUST_G, "#ffffff", DUST_C }, rate = 7, size = { 0.12, 0.32, 0 }, life = { 2.5, 4 }, speed = { 0.2, 0.6 }, spread = 25, accel = { 0, 0.7, 0 }, light = 1 })
 		local archZone = B:block(crop, v(11, 6, 3), cf(0, AC + 2.6, ZA), CY, { tr = 1, name = "ArchZone" })
 		B:emitter(archZone, "sparkle", { name = "ArchTwinkle", color = { RUNE, "#ffffff", GOLD_LT }, rate = 5, size = { 0.12, 0.42, 0 }, life = { 0.8, 1.5 }, speed = { 0.1, 0.4 }, light = 1 })
-		local lumenFx = B:block(lumen, v(1, 1.5, 1), CFrame.new(LC), CY, { tr = 1, name = "LumenFx" })
+		local lumenFx = B:block(lumen, v(1.4, 2.0, 1.4), CFrame.new(LC), CY, { tr = 1, name = "LumenFx" })
 		B:emitter(lumenFx, "glow", { name = "LumenGlow", color = { CORE_C, VIO_LT }, rate = 1.8, size = { 1.8, 2.8, 1 }, trans = { 0.8, 0.72, 1 }, light = 1 })
 		B:light(heartFx, { name = "HeartLight", color = "#8ff0ff", brightness = 1.3, range = 16 })
 		B:light(lumenFx, { name = "LumenLight", color = "#b99cff", brightness = 1.0, range = 12 })

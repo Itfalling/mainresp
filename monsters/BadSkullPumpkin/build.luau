@@ -177,11 +177,16 @@ return {
 			B:block(sk, v(r[3], r[5], r[4]), cf(r[1], RIMY + r[5] / 2 - 0.15, CZ + r[2], 0, jit(4), 0), BONE_LT)
 		end
 		B:block(sk, v(0.8, 0.5, 0.7), cf(2.4, RIMY + 0.8, CZ + 1.5, 0, 20, -10), BONE)
+		-- side skull openings (dino fenestrae) so it reads as a skull from every side
+		for sg = -1, 1, 2 do
+			B:block(sk, v(0.3, 1.5, 1.9), cf(sg * 3.2, 5.5, 1.9), SOCK)
+			B:block(sk, v(0.45, 0.45, 2.5), cf(sg * 3.3, 6.45, 1.9), BONE_LT)
+			B:block(sk, v(0.45, 1.6, 0.45), cf(sg * 3.3, 5.5, 3.1), BONE_LT)
+			B:block(sk, v(0.45, 0.45, 2.3), cf(sg * 3.3, 4.55, 1.85), BONE)
+		end
 		-- crack lines + fossil stains
-		B:bar(sk, v(3.27, 6.6, 0.4), v(3.3, 5.4, 1.4), 0.14, 0.16, BONE_SH)
-		B:bar(sk, v(3.3, 5.4, 1.4), v(3.28, 4.6, 1.1), 0.14, 0.16, BONE_SH)
-		B:block(sk, v(0.1, 0.9, 1.3), cf(-3.27, 3.9, 2.4), STAIN)
-		B:block(sk, v(0.1, 0.6, 0.7), cf(-3.27, 4.7, 3.1), STAIN)
+		B:bar(sk, v(3.3, 4.2, -0.2), v(3.32, 3.3, 0.6), 0.14, 0.16, BONE_SH)
+		B:block(sk, v(0.1, 0.9, 1.0), cf(-3.27, 3.6, 2.9), STAIN)
 		B:block(sk, v(1.6, 0.1, 1.0), cf(0.8, RIMY - 0.6, CZ + 3.05), STAIN)
 
 		-- big round eye sockets on the face, lit by teal glow crystals
@@ -218,9 +223,9 @@ return {
 		B:block(sk, v(4.8, 0.4, 3.4), cf(0, 3.55, -2.9), BONE_DK)
 		-- nostrils on the snout tip
 		for sg = -1, 1, 2 do
-			B:block(sk, v(0.6, 0.4, 0.12), cf(sg * 0.7, 4.75, -5.22), SOCK)
+			B:block(sk, v(0.4, 0.12, 0.4), cf(sg * 0.55, 5.56, -4.4), SOCK)
 		end
-		local noseFx = B:block(sk, v(2.0, 0.4, 0.3), cf(0, 4.85, -5.4), BONE, { tr = 1, name = "NoseFx" })
+		local noseFx = B:block(sk, v(1.8, 0.3, 0.5), cf(0, 5.8, -4.35), BONE, { tr = 1, name = "NoseFx" })
 		-- mouth interior + gaping lower jaw resting on the mound
 		B:block(sk, v(3.8, 1.0, 3.4), cf(0, 3.0, -2.8), MOUTH)
 		B:block(sk, v(4.4, 0.9, 3.9), cf(0, 2.3, -3.0, -5, 0, 0), BONE)
@@ -262,7 +267,7 @@ return {
 			if glow then
 				-- glowing lava seams in the 4 diagonal grooves
 				for i = 0, 3 do
-					B:block(crop, v(0.3 * s, 1.5 * s, 0.3 * s), at(0, 0, 0, 45 + i * 90) * CFrame.new(0, 0, -1.55 * s), (i % 2 == 0) and LAVA or LAVA_Y, { mat = "Neon", name = "PumpkinSeam" })
+					B:block(crop, v(0.36 * s, 1.45 * s, 0.36 * s), at(0, 0, 0, 45 + i * 90) * CFrame.new(0, 0, -2.0 * s), (i % 2 == 0) and LAVA or LAVA_Y, { mat = "Neon", name = "PumpkinSeam" })
 				end
 			end
 			-- curly stem
@@ -276,13 +281,14 @@ return {
 		-- stepped pumpkin leaf on a short stalk
 		local function leaf(base, dir, s, col)
 			dir = v(dir.X, 0, dir.Z).Unit
-			local c = base + dir * (1.1 * s) + v(0, 0.15, 0)
-			local o = CFrame.lookAt(c, c + dir) * CFrame.Angles(rad(-12), 0, 0)
-			B:bar(crop, base, c, 0.22, 0.22, VINE_DK)
-			B:block(crop, v(1.8 * s, 0.22, 1.6 * s), o, col)
-			B:block(crop, v(1.1 * s, 0.2, 2.3 * s), o * CFrame.new(0, 0.02, -0.15 * s), col)
-			B:block(crop, v(2.3 * s, 0.18, 0.9 * s), o * CFrame.new(0, -0.02, 0.1 * s), col)
-			B:block(crop, v(0.16, 0.24, 1.8 * s), o * CFrame.new(0, 0.04, -0.1 * s), LEAF_DK)
+			local c = base + dir * (1.0 * s) + v(0, 0.15, 0)
+			local o = CFrame.lookAt(c, c + dir) * CFrame.Angles(rad(10), 0, rad(jit(12)))
+			B:bar(crop, base, c, 0.26, 0.26, VINE_DK)
+			B:block(crop, v(1.9 * s, 0.32, 1.7 * s), o, col)
+			B:block(crop, v(1.2 * s, 0.3, 2.4 * s), o * CFrame.new(0, 0.02, -0.15 * s), col)
+			B:block(crop, v(2.5 * s, 0.28, 0.95 * s), o * CFrame.new(0, -0.02, 0.1 * s), col)
+			B:block(crop, v(1.1 * s, 0.3, 1.0 * s), o * CFrame.new(0, 0.2, -0.1 * s) * CFrame.Angles(0, rad(45), 0), LEAF_DK)
+			B:block(crop, v(0.18, 0.34, 2.0 * s), o * CFrame.new(0, 0.06, -0.15 * s), LEAF_DK)
 		end
 
 		-- pumpkin blossom: 5 stepped petals round a golden heart
@@ -299,7 +305,7 @@ return {
 
 		-- the femur stake standing in the back of the skull
 		local SX, SZ = 0.5, CZ + 1.3
-		local STAKE_B, STAKE_T = RIMY - 0.6, 17.0
+		local STAKE_B, STAKE_T = RIMY - 0.6, 15.9
 		B:block(crop, v(1.3, STAKE_T - STAKE_B, 1.3), cf(SX, (STAKE_B + STAKE_T) / 2, SZ, 0, 8, 0), BONE)
 		B:block(crop, v(1.15, STAKE_T - STAKE_B - 1.6, 1.45), cf(SX, (STAKE_B + STAKE_T) / 2, SZ, 0, 53, 0), BONE_DK)
 		B:block(crop, v(1.7, 0.7, 1.7), cf(SX, (STAKE_B + STAKE_T) / 2 + 1.2, SZ, 0, 30, 0), BONE_LT)
@@ -326,8 +332,8 @@ return {
 		end
 		-- the vine tip arches up over the femur into a blossom
 		local tipA = vine[N + 1]
-		local tipB = v(SX - 0.4, STAKE_T + 2.2, SZ - 0.6)
-		local tipC = v(SX - 1.4, STAKE_T + 3.4, SZ - 1.0)
+		local tipB = v(SX - 0.4, STAKE_T + 2.0, SZ - 0.6)
+		local tipC = v(SX - 1.5, STAKE_T + 3.1, SZ - 1.0)
 		B:bar(crop, tipA, tipB, 0.42, 0.42, VINE)
 		B:bar(crop, tipB, tipC, 0.36, 0.36, VINE_DK)
 		blossom(tipC + v(0, 0.3, 0), 1.4, v(-0.5, 1, -0.5))
@@ -346,7 +352,7 @@ return {
 		end
 
 		-- big leaves along the coil (pointing outward from the femur)
-		for _, l in { { 3, LEAF, 1.5 }, { 5, LEAF_LT, 1.55 }, { 8, LEAF, 1.5 }, { 11, LEAF_LT, 1.45 }, { 14, LEAF, 1.35 }, { 16, LEAF_LT, 1.2 } } do
+		for _, l in { { 3, LEAF, 1.9 }, { 5, LEAF_LT, 2.0 }, { 7, LEAF, 1.8 }, { 11, LEAF_LT, 1.8 }, { 13, LEAF, 1.7 }, { 16, LEAF_LT, 1.5 } } do
 			local p = vine[l[1]]
 			leaf(p, p - v(SX, p.Y, SZ), l[3], l[2])
 		end
@@ -357,15 +363,15 @@ return {
 		-- hanging pumpkins on short drop stalks off the coil
 		local function hang(p, dir, drop, s, yaw, glow)
 			local d = v(dir.X, 0, dir.Z).Unit
-			local e = p + d * 1.6 * s + v(0, 0.25, 0)
+			local e = p + d * 3.4 * s + v(0, 0.5, 0)
 			local c = e + v(0, -drop - 1.5 * s, 0)
 			B:bar(crop, p, e, 0.34, 0.34, VINE_DK)
 			B:bar(crop, e, c + v(0, 1.4 * s, 0), 0.3, 0.3, STEM)
 			pumpkin(c, s, yaw, glow)
 		end
-		hang(vine[9], v(1, 0, 0.2), 0.2, 0.8, 20, true)
-		hang(vine[12], v(-1, 0, 0.5), 0.2, 0.72, -30, false)
-		hang(vine[15], v(0.4, 0, -1), 0.1, 0.72, 50, true)
+		hang(vine[9], v(1, 0, -0.1), 0.2, 0.8, 20, true)
+		hang(vine[12], v(-1, 0, 0.6), 0.2, 0.72, -30, false)
+		hang(vine[15], v(-0.6, 0, -1), 0.1, 0.72, 50, true)
 
 		-- the giant pumpkin sitting in the skull
 		local GS = 1.12
@@ -373,7 +379,7 @@ return {
 		leaf(v(-1.2, RIMY + 0.4, CZ + 1.4), v(-1, 0, 0.6), 1.3, LEAF_LT)
 		leaf(v(1.6, RIMY + 0.4, CZ - 0.6), v(1, 0, -0.3), 1.2, LEAF)
 		-- a little pumpkin peeking out of the mouth
-		pumpkin(v(0.9, 2.95, -4.75), 0.45, -25, false, -8)
+		pumpkin(v(0.95, 2.9, -4.8), 0.4, -25, false, -8)
 		-- a vine spilling out of the left socket down to a pumpkin on the mound
 		local sv = { v(-2.0, 6.2, -1.4), v(-3.0, 6.0, -1.9), v(-3.7, 5.0, -2.3), v(-4.1, 4.1, -2.8) }
 		for i = 1, #sv - 1 do

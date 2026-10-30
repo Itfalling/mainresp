@@ -62,7 +62,7 @@ function M.Update(t, pose, ctx)
 
 	-- petals: breathing ripple, draw in on the gather, spring open on the flash
 	for k = 1, 6 do
-		local open = 6 * w(t, 2, (k - 1) / 6) - 13 * gather + 20 * flare + 4 * kick
+		local open = 6 * w(t, 2, (k - 1) / 6) - 13 * gather + 15 * flare + 4 * kick
 		pose["Petal" .. k] = CFrame.fromAxisAngle(PETAL_AXIS[k], rad(open))
 		ctx.transparency("PetalCore" .. k, clamp((0.42 + 0.2 * w(t, 2, (k - 1) / 6 + 0.25) + 0.3 * gather) * (1 - flash), 0, 0.85))
 	end
@@ -93,10 +93,10 @@ function M.Update(t, pose, ctx)
 	ctx.transparency("LumenCore", clamp((0.3 + 0.2 * w(t, 2, 0.5)) * (1 - lumFlash), 0, 0.6))
 
 	-- crystal clusters in the arch breaks: idle pulse, flash in a ripple
-	for i = 1, 3 do
+	for i = 1, 4 do
 		local d0 = BEAT + 0.12 + 0.12 * i
 		local f = L.track(c, { { d0 - 0.05, 0 }, { d0 + 0.1, 1, "quadOut" }, { d0 + 0.6, 0.7 }, { 8.4, 0, "sineInOut" } })
-		ctx.transparency("BreakCore" .. i, clamp((0.4 + 0.22 * w(t, 3, i * 0.29) + 0.25 * gather) * (1 - f), 0, 0.85))
+		ctx.transparency((i == 4) and "HaunchCore" or ("BreakCore" .. i), clamp((0.4 + 0.22 * w(t, 3, i * 0.29) + 0.25 * gather) * (1 - f), 0, 0.85))
 	end
 
 	-- runes: keystone first, then a ripple of light running down the pillars
