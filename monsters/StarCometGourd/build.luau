@@ -147,7 +147,7 @@ return {
 		B:block(crop, v(4.0, 0.18, 4.0), pc(0, TOP + 0.5, 0), GOLD)
 		B:block(crop, v(3.2, 0.5, 3.2), pc(0, TOP + 0.82, 0), MARBLE)
 		B:block(crop, v(2.7, 0.35, 2.7), pc(0, TOP + 1.2, 0), MARBLE_LT)
-		local drums = { { TOP + 1.35, 7.4 }, { 7.75, 12.0 } }
+		local drums = { { TOP + 1.35, 6.6 }, { 6.95, 10.6 } }
 		for di, d in drums do
 			local y0, y1 = d[1], d[2]
 			B:block(crop, v(2.2, y1 - y0, 2.2), pc(0, (y0 + y1) / 2, 0), (di == 1) and MARBLE or MARBLE_LT)
@@ -159,17 +159,17 @@ return {
 			end
 		end
 		-- gold band between the drums
-		B:block(crop, v(2.55, 0.4, 2.55), pc(0, 7.57, 0), GOLD)
-		B:block(crop, v(2.35, 0.2, 2.35), pc(0, 7.57, 0, 45), GOLD_DK)
+		B:block(crop, v(2.55, 0.4, 2.55), pc(0, 6.77, 0), GOLD)
+		B:block(crop, v(2.35, 0.2, 2.35), pc(0, 6.77, 0, 45), GOLD_DK)
 		-- broken, jagged top
-		B:block(crop, v(1.2, 1.6, 1.1), pc(-0.5, 12.75, 0.5, 4), MARBLE_LT)
-		B:block(crop, v(1.0, 0.9, 1.0), pc(0.6, 12.4, 0.55, -6), MARBLE)
-		B:block(crop, v(0.9, 0.6, 1.2), pc(0.55, 12.25, -0.5, 3), MARBLE_DK)
-		B:block(crop, v(0.7, 1.1, 0.6), pc(-0.65, 13.6, 0.6, 10), MARBLE)
-		B:block(crop, v(1.0, 0.7, 0.8), cf(PX - 0.2, 12.6, PZ - 0.55, 18, 0, -12), MARBLE_LT)
+		B:block(crop, v(1.2, 1.6, 1.1), pc(-0.5, 11.35, 0.5, 4), MARBLE_LT)
+		B:block(crop, v(1.0, 0.9, 1.0), pc(0.6, 11.0, 0.55, -6), MARBLE)
+		B:block(crop, v(0.9, 0.6, 1.2), pc(0.55, 10.85, -0.5, 3), MARBLE_DK)
+		B:block(crop, v(0.7, 1.1, 0.6), pc(-0.65, 12.2, 0.6, 10), MARBLE)
+		B:block(crop, v(1.0, 0.7, 0.8), cf(PX - 0.2, 11.2, PZ - 0.55, 18, 0, -12), MARBLE_LT)
 		-- crack running down the upper drum
-		B:block(crop, v(0.14, 1.6, 0.06), cf(PX + 0.25, 11.0, PZ - 1.13, 0, 0, 14), MARBLE_DK)
-		B:block(crop, v(0.14, 1.2, 0.06), cf(PX + 0.05, 9.7, PZ - 1.13, 0, 0, -10), MARBLE_DK)
+		B:block(crop, v(0.14, 1.6, 0.06), cf(PX + 0.25, 9.6, PZ - 1.13, 0, 0, 14), MARBLE_DK)
+		B:block(crop, v(0.14, 1.2, 0.06), cf(PX + 0.05, 8.3, PZ - 1.13, 0, 0, -10), MARBLE_DK)
 		-- constellation rune carved on the front of the lower drum
 		do
 			local pts = { { -0.55, 5.6 }, { 0.1, 6.1 }, { 0.45, 5.2 }, { 0.0, 4.4 }, { -0.5, 3.9 } }
@@ -193,15 +193,15 @@ return {
 		for k = 0, N do
 			local t = k / N
 			local r = R0 + 0.1 * math.sin(t * 9)
-			vinePts[k] = dirOf(vineAng(k)) * r + v(PX, TOP + 1.1 + t * (12.4 - TOP - 1.1), PZ)
+			vinePts[k] = dirOf(vineAng(k)) * r + v(PX, TOP + 1.1 + t * (11.0 - TOP - 1.1), PZ)
 		end
 		-- vine climbs over the broken top and arches forward into a hook
 		local crest = {
-			v(PX + 0.5, 13.9, PZ - 0.2),
-			v(PX + 0.3, 15.6, PZ - 0.5),
-			v(PX - 0.9, 16.7, PZ - 1.2),
-			v(PX - 1.8, 16.5, PZ - 2.1),
-			v(PX - 2.2, 15.8, PZ - 2.5),
+			v(PX + 0.5, 12.4, PZ - 0.2),
+			v(PX + 0.3, 14.0, PZ - 0.5),
+			v(PX - 0.9, 15.0, PZ - 1.2),
+			v(PX - 1.8, 14.8, PZ - 2.1),
+			v(PX - 2.2, 14.1, PZ - 2.5),
 		}
 		B:block(crop, v(1.4, 0.7, 1.4), CFrame.new(vinePts[0] - v(0, 0.35, 0)) * ang(0, 25, 0), VINE_DK)
 		local function seg(a, b, w, col)

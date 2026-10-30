@@ -151,32 +151,33 @@ return {
 		branch({ v(0.1, 2.3, 0), v(1.0, 3.4, -0.4) }, 0.6)
 		branch({ v(-0.1, 2.4, 0.1), v(-1.0, 3.5, 0.4) }, 0.6)
 
-		-- orderly leaf dome: big core cube, a ring of big studded leaf cubes turned to
-		-- face outward, a cap and a slightly darker underside ring
-		local function dome(c, core, nRing, rRing, sRing, ringY, nCap, rCap, sCap, capY, off, hiMask)
+		-- orderly rounded leaf dome: core cube, a waist ring of big studded leaf cubes,
+		-- a staggered shoulder ring tipped outward, silver-lilac top cubes and a
+		-- darker tucked underside. Cubes face outward with only a little jitter.
+		local function dome(c, core, n, rW, sW, rS, sS, yS, tops, off)
 			B:block(crop, v(core, core * 0.9, core), CFrame.new(c) * ang(0, off, 0), LEAF_DK)
-			for i = 0, nRing - 1 do
-				local a = off + i * 360 / nRing
-				local p = c + v(math.sin(rad(a)) * rRing, ringY, -math.cos(rad(a)) * rRing)
-				B:block(crop, v(sRing, sRing * 0.9, sRing), CFrame.new(p) * CFrame.Angles(0, -rad(a), 0) * ang(rnd(-5, 5), rnd(-8, 8), rnd(-5, 5)), (i % 2 == 0) and LEAF or LEAF_MID)
-				-- underside: tucked darker cube beneath every other ring cube
-				if i % 2 == 0 then
-					local q = c + v(math.sin(rad(a + 30)) * rRing * 0.7, ringY - sRing * 0.55, -math.cos(rad(a + 30)) * rRing * 0.7)
-					B:block(crop, v(sRing * 0.85, sRing * 0.7, sRing * 0.85), CFrame.new(q) * CFrame.Angles(0, -rad(a + 30), 0), LEAF_SH)
-				end
+			local function ringCube(a, r, y, sz, tilt, col)
+				local p = c + v(math.sin(rad(a)) * r, y, -math.cos(rad(a)) * r)
+				B:block(crop, v(sz, sz * 0.9, sz), CFrame.new(p) * CFrame.Angles(0, -rad(a), 0) * ang(tilt + rnd(-4, 4), rnd(-6, 6), rnd(-4, 4)), col)
 			end
-			for i = 0, nCap - 1 do
-				local a = off + 360 / nRing / 2 + i * 360 / nCap
-				local p = c + v(math.sin(rad(a)) * rCap, capY, -math.cos(rad(a)) * rCap)
-				local col = hiMask[i + 1] and LEAF_HI or LEAF_MID
-				B:block(crop, v(sCap, sCap * 0.9, sCap), CFrame.new(p) * CFrame.Angles(0, -rad(a), 0) * ang(rnd(-5, 5), rnd(-8, 8), rnd(-5, 5)), col)
+			for i = 0, n - 1 do
+				local a = off + i * 360 / n
+				ringCube(a, rW, -0.25, sW, -6, (i % 2 == 0) and LEAF or LEAF_MID)
+				ringCube(a + 180 / n, rS, yS, sS, -24, (i % 3 == 0) and LEAF_HI or ((i % 2 == 0) and LEAF_MID or LEAF))
+				ringCube(a + 180 / n, rW * 0.72, -sW * 0.6, sW * 0.82, 24, (i % 2 == 0) and LEAF_SH or LEAF_DK)
+			end
+			for _, t in tops do
+				local p = c + v(t[1], t[2], t[3])
+				B:block(crop, v(t[4], t[4] * 0.85, t[4]), CFrame.new(p) * ang(rnd(-6, 6), off + t[5], rnd(-6, 6)), t[6])
 			end
 		end
 		-- lower dome (wide) and upper dome (smaller), two tiers only
-		dome(v(0, 5.6, 0), 4.2, 7, 2.35, 2.9, -0.2, 4, 1.15, 2.6, 1.45, 10, { true, false, true, false })
-		B:block(crop, v(2.3, 2.0, 2.3), cf(0.1, 7.6, 0.05, 0, 30, 0), LEAF_HI)
-		dome(v(0.05, 9.6, 0.05), 3.2, 5, 1.6, 2.4, -0.15, 3, 0.75, 2.1, 1.2, 46, { true, false, false })
-		B:block(crop, v(1.8, 1.6, 1.8), cf(0.1, 11.4, 0.05, 0, 15, 0), LEAF_HI)
+		dome(v(0, 5.5, 0), 4.2, 7, 2.45, 2.9, 1.85, 2.5, 1.3, {
+			{ 0.7, 2.15, -0.4, 2.3, 10, LEAF_HI }, { -0.8, 2.05, 0.3, 2.2, 40, LEAF_MID }, { 0.2, 2.0, 1.0, 2.1, 25, LEAF },
+		}, 10)
+		dome(v(0.05, 9.3, 0.05), 3.0, 5, 1.6, 2.4, 1.15, 2.1, 1.05, {
+			{ 0.0, 1.8, 0.0, 1.9, 20, LEAF_HI },
+		}, 46)
 
 		-- stepped crescent moon in frame F (local +Z faces out, arc opens toward local +X)
 		local function crescent(F, s, glow, idx, thick)
@@ -217,8 +218,8 @@ return {
 		berry(288, 8.5, 3.75, 1.45, -22, false, 9, 2.6, 9.4)
 
 		-- the crown: a big glowing crescent moon on a stem rising from the top tuft
-		branch({ v(0.1, 11.8, 0.05), v(0.15, 12.6, 0.0) }, 0.42)
-		local CR = CFrame.new(0.2, 13.55, -0.05) * CFrame.Angles(0, rad(25), 0) * CFrame.Angles(0, 0, rad(-25))
+		branch({ v(0.1, 11.6, 0.05), v(0.15, 12.7, 0.0) }, 0.42)
+		local CR = CFrame.new(0.2, 13.75, -0.05) * CFrame.Angles(0, rad(25), 0) * CFrame.Angles(0, 0, rad(-25))
 		crescent(CR, 1.8, true, 12, 1.5)
 
 		------------------------------------------------------------ fx

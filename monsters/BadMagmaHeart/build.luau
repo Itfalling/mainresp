@@ -37,11 +37,11 @@ return {
 		local OBS_BK, OBS_DK, OBS, OBS_LT, OBS_SHEEN = "#0f0c13", "#18131e", "#221b2a", "#30263b", "#54447a"
 		local BONE, BONE_LT, BONE_DK = "#e6d9b8", "#f5eddb", "#c4b088"
 		-- canopy heat gradient (bottom -> top)
-		local LF_OBS1, LF_OBS2, LF_OBS3 = "#2a2231", "#3a2f45", "#4b3b5a"
+		local LF_OBS1, LF_OBS2, LF_OBS3 = "#241e26", "#332a36", "#463848"
 		local LF_CRIM, LF_CRIM2, LF_RUST = "#7c1c1f", "#952422", "#b23a1e"
 		local LF_ORG, LF_ORG2, LF_AMB, LF_YEL = "#dd5a1c", "#ea7320", "#f59a2a", "#ffc54a"
 		-- the heart
-		local HRT_DK, HRT, HRT_LT, HRT_CORE = "#5c0d16", "#8f1622", "#c0302a", "#ffcf5a"
+		local HRT_DK, HRT, HRT_LT, HRT_CORE = "#8a1420", "#c4202a", "#ff5a46", "#ffd66a"
 
 		local seed = 1800180
 		local function rnd()
@@ -93,10 +93,10 @@ return {
 		local TIERS = {
 			-- y0, y1, width, colour
 			{ 0.0, 1.2, 24.0, BASALT_BK },
-			{ 1.2, 2.8, 20.0, BASALT_DK },
-			{ 2.8, 4.6, 16.0, RUST_DK },
-			{ 4.6, 6.4, 12.4, BASALT },
-			{ 6.4, 8.0, 9.4, BASALT_DK },
+			{ 1.2, 2.8, 20.0, RUST_DK },
+			{ 2.8, 4.6, 16.4, BASALT },
+			{ 4.6, 6.4, 13.2, RUST },
+			{ 6.4, 8.0, 10.6, BASALT_DK },
 		}
 		for _, t in TIERS do
 			oct(t[1], t[2], t[3], t[4])
@@ -112,26 +112,26 @@ return {
 			return false
 		end
 		-- chunky rock blocks around the tier edges (kept clear of the rivers)
-		for ti, n in { 18, 14, 11 } do
+		for ti, n in { 14, 11, 9 } do
 			local t = TIERS[ti]
 			for i = 0, n - 1 do
 				local a = i * 360 / n + jit(5) + 9
 				if not nearRiver(a, 13) then
 					local r = edgeR(t[3], a) - 0.6 + jit(0.2)
 					local x, z = polar(r, a)
-					local h = (t[2] - t[1]) + 0.3 + rnd() * 0.6
-					local col = ({ BASALT_LT, BASALT, RUST, BASALT_DK, RUST_DK })[1 + (i + ti) % 5]
-					B:block(soil, v(2.6 + rnd() * 0.8, h, 1.9 + rnd() * 0.5), cf(x, t[1] + h / 2, z, 0, -a + jit(10), jit(4)), col, S)
+					local h = (t[2] - t[1]) + 0.1 + rnd() * 0.3
+					local col = (ti % 2 == 1) and ({ BASALT_LT, BASALT, BASALT_DK })[1 + i % 3] or ({ RUST, RUST_LT, RUST_DK })[1 + i % 3]
+					B:block(soil, v(2.6 + rnd() * 0.8, h, 1.7 + rnd() * 0.4), cf(x, t[1] + h / 2, z, 0, -a + jit(8), 0), col, S)
 				end
 			end
 		end
 		-- rust strata bands on the risers of the upper tiers
 		for i = 0, 7 do
 			local a = i * 45 + 22.5
-			local r = edgeR(12.4, a) + 0.05
+			local r = edgeR(13.2, a) + 0.05
 			B:block(soil, v(3.0, 0.35, 0.3), facing(at(r, a, 5.5), a), RUST_LT, S)
-			r = edgeR(16.0, a) + 0.05
-			B:block(soil, v(3.6, 0.4, 0.3), facing(at(r, a, 3.5), a), RUST, S)
+			r = edgeR(16.4, a) + 0.05
+			B:block(soil, v(3.6, 0.4, 0.3), facing(at(r, a, 3.5), a), BASALT_LT, S)
 		end
 		-- ash drifts on the tier tops
 		for _, m in { { 45, 11.0, 1.2, 2.8, ASH }, { 135, 10.6, 1.2, 2.4, ASH_LT }, { 225, 11.0, 1.2, 2.8, ASH }, { 315, 10.6, 1.2, 2.2, ASH_DK },
@@ -188,14 +188,18 @@ return {
 		local CRATER_Y = 8.0
 		for i = 0, 11 do
 			local a = i * 30 + 15
-			local r = 3.9 + jit(0.15)
+			local r = 4.6 + jit(0.15)
 			local h = 1.0 + rnd() * 0.6
 			B:block(soil, v(2.3 + rnd() * 0.4, h, 1.5), facing(at(r, a, CRATER_Y + h / 2 - 0.1), a) * ang(jit(6), jit(8), jit(5)),
 				({ BASALT_LT, BASALT, RUST_DK, BASALT_DK })[1 + i % 4], S)
 		end
 		-- lava pool inside the crater (plastic body, small neon hot spots)
-		B:block(soil, v(7.0, 0.3, 7.0), cf(0, CRATER_Y + 0.1, 0, 0, 45, 0), LAVA_DK, S)
-		B:block(soil, v(6.4, 0.3, 6.4), cf(0, CRATER_Y + 0.16, 0), LAVA, S)
+		B:block(soil, v(8.2, 0.3, 8.2), cf(0, CRATER_Y + 0.1, 0, 0, 45, 0), LAVA_DK, S)
+		B:block(soil, v(7.6, 0.3, 7.6), cf(0, CRATER_Y + 0.16, 0), LAVA, S)
+		for i = 0, 5 do
+			local a = i * 60 + 30
+			B:block(soil, v(1.0, 0.3, 0.7), facing(at(3.6, a, CRATER_Y + 0.22), a), LAVA_YEL, SN)
+		end
 
 		------------------------------------------------------------------
 		-- LAVA RIVERS (bone "Lava": static bodies + rippling neon cores)
@@ -210,7 +214,7 @@ return {
 				B:block(lava, size + bodyGrow, cfr, LAVA, { name = "LavaBody" })
 				B:block(lava, coreSize, cfr * coreOff, LAVA_HOT, { mat = "Neon", name = ("Flow%d_%d"):format(ri, k) })
 			end
-			local prevR = 2.9
+			local prevR = 3.6
 			for ti = 5, 1, -1 do
 				local t = TIERS[ti]
 				local e = edgeR(t[3], d)
@@ -248,13 +252,13 @@ return {
 		local crop = B:bone("Crop", "Root", v(0, BASE, 0))
 		local SEG = {
 			-- width, y0 (above BASE), x off, yaw, colour
-			{ 6.0, 0.0, 0.0, 8, OBS_DK },
-			{ 5.4, 2.0, 0.1, 22, OBS },
-			{ 5.0, 4.0, 0.2, 38, OBS_DK },
-			{ 4.6, 6.0, 0.1, 54, OBS },
-			{ 4.3, 8.0, -0.1, 70, OBS_DK },
-			{ 4.0, 10.0, -0.3, 86, OBS },
-			{ 3.7, 12.0, -0.3, 102, OBS_DK },
+			{ 5.6, 0.0, 0.0, 8, OBS_DK },
+			{ 5.3, 1.75, 0.1, 22, OBS },
+			{ 5.0, 3.5, 0.2, 38, OBS_DK },
+			{ 4.8, 5.25, 0.1, 54, OBS },
+			{ 4.6, 7.0, -0.1, 70, OBS_DK },
+			{ 4.4, 8.75, -0.3, 86, OBS },
+			{ 4.2, 10.5, -0.3, 102, OBS_DK },
 		}
 		for _, s in SEG do
 			B:block(crop, v(s[1], 2.25, s[1]), cf(s[3], BASE + s[2] + 1.1, 0, 0, s[4], 0), s[5])
@@ -305,7 +309,7 @@ return {
 		end
 
 		-- crooked branches
-		local TOPY = BASE + 13.6
+		local TOPY = BASE + 11.8
 		local branchTips = {}
 		for k = 0, 5 do
 			local a = k * 60 + 10
@@ -321,7 +325,7 @@ return {
 		local CPY = TOPY + 0.6
 		local canopy = B:bone("Canopy", "Crop", v(0, CPY, 0))
 		for _, b in branchTips do
-			local x2, z2 = polar(6.0, b.a + 4)
+			local x2, z2 = polar(6.6, b.a + 4)
 			local tip = v(x2, CPY + 2.4, z2)
 			B:bar(canopy, b.p1 - (b.p1 - b.p0).Unit * 0.4, tip, 1.2, 1.1, OBS_LT)
 			b.tip = tip
@@ -332,13 +336,13 @@ return {
 		end
 		local AY = CPY + 3.2
 		local cubes = {}
-		local ringA = { LF_OBS1, LF_OBS2, LF_CRIM, LF_OBS3, LF_OBS1, LF_CRIM2, LF_OBS2, LF_OBS3, LF_CRIM, LF_OBS1, LF_OBS2, LF_CRIM2 }
+		local ringA = { LF_CRIM, LF_OBS2, LF_CRIM2, LF_RUST, LF_OBS3, LF_CRIM, LF_CRIM2, LF_OBS2, LF_RUST, LF_CRIM, LF_OBS3, LF_CRIM2 }
 		for i = 0, 11 do
 			local a = i * 30 + jit(5)
 			local up = (i % 2 == 0) and 0.4 or -0.35
-			local x, z = polar(6.4 + jit(0.4), a)
+			local x, z = polar(7.1 + jit(0.4), a)
 			local p = v(x, AY + up + jit(0.2), z)
-			local s = 4.2 + rnd() * 0.7
+			local s = 4.6 + rnd() * 0.7
 			leaf(canopy, p, s, ringA[i + 1])
 			table.insert(cubes, { p = p, s = s, a = a })
 		end
@@ -346,15 +350,15 @@ return {
 			local c = cubes[k]
 			leaf(canopy, c.p + outward(c.a) * 0.7 + v(0, -c.s * 0.55 - 0.7, 0), 2.0, LF_OBS2)
 		end
-		for _, d in { { 3.0, 0, 1.0, 5.0, LF_OBS2 }, { 3.0, 120, 1.1, 5.0, LF_CRIM }, { 3.0, 240, 1.0, 5.0, LF_OBS3 } } do
+		for _, d in { { 3.4, 0, 1.0, 5.4, LF_OBS2 }, { 3.4, 120, 1.1, 5.4, LF_CRIM }, { 3.4, 240, 1.0, 5.4, LF_OBS3 } } do
 			local x, z = polar(d[1], d[2])
 			leaf(canopy, v(x, AY + d[3], z), d[4], d[5])
 		end
 		local capA = { LF_CRIM, LF_RUST, LF_CRIM2, LF_RUST, LF_CRIM, LF_ORG, LF_CRIM2, LF_RUST, LF_CRIM, LF_RUST, LF_ORG }
 		for i = 0, 10 do
 			local a = i * (360 / 11) + 15
-			local x, z = polar(5.0 + jit(0.3), a)
-			leaf(canopy, v(x, AY + 2.4 + jit(0.3), z), 3.0 + rnd() * 0.5, capA[i + 1])
+			local x, z = polar(5.6 + jit(0.3), a)
+			leaf(canopy, v(x, AY + 2.5 + jit(0.3), z), 3.2 + rnd() * 0.5, capA[i + 1])
 		end
 		-- half-sunk ember glints on the lower ring
 		for n, idx in { 1, 4, 7, 10 } do
@@ -375,21 +379,21 @@ return {
 		local ringB = { LF_RUST, LF_ORG, LF_ORG2, LF_RUST, LF_ORG, LF_ORG2, LF_AMB, LF_ORG }
 		for i = 0, 7 do
 			local a = i * 45 + 20 + jit(5)
-			local x, z = polar(4.0 + jit(0.3), a)
-			leaf(canopyTop, v(x, BY + jit(0.3), z), 3.8 + rnd() * 0.4, ringB[i + 1])
+			local x, z = polar(4.5 + jit(0.3), a)
+			leaf(canopyTop, v(x, BY + jit(0.3), z), 4.0 + rnd() * 0.4, ringB[i + 1])
 		end
 		leaf(canopyTop, v(0, BY + 0.3, 0), 4.4, LF_ORG)
 		for i = 0, 6 do
 			local a = i * (360 / 7) + 5
-			local x, z = polar(3.1, a)
-			leaf(canopyTop, v(x, BY + 2.0 + jit(0.2), z), 2.3 + rnd() * 0.4, ({ LF_AMB, LF_YEL, LF_ORG2, LF_AMB, LF_YEL, LF_AMB, LF_ORG2 })[i + 1])
+			local x, z = polar(3.4, a)
+			leaf(canopyTop, v(x, BY + 2.0 + jit(0.2), z), 2.5 + rnd() * 0.4, ({ LF_AMB, LF_YEL, LF_ORG2, LF_AMB, LF_YEL, LF_AMB, LF_ORG2 })[i + 1])
 		end
 
 		------------------------------------------------------------------
 		-- THE MAGMA HEART + obsidian claws
 		------------------------------------------------------------------
-		local HS = 3.0
-		local HY = BY + 6.2
+		local HS = 3.5
+		local HY = BY + 6.6
 		local HC = v(0, HY, 0)
 		-- stalk + charred leaf collar at its base
 		B:block(canopyTop, v(1.2, 3.0, 1.2), cf(0, BY + 3.4, 0, 0, 30, 0), OBS_DK)
@@ -399,7 +403,7 @@ return {
 		end
 		local heart = B:bone("Heart", "CanopyTop", HC)
 		local F = CFrame.new(HC)
-		local d = 0.9 * HS
+		local d = 1.05 * HS
 		-- inner magma core (shows through the gaps when the lobes pump apart)
 		B:block(heart, v(1.0 * HS, 1.0 * HS, d * 0.8), F * CFrame.new(0, -0.05 * HS, 0) * ang(0, 0, 45), LAVA_HOT, { mat = "Neon", name = "HeartInner" })
 		local hL = B:bone("HeartL", "Heart", HC + v(-0.4 * HS, 0.22 * HS, 0))
@@ -433,14 +437,14 @@ return {
 			local a = (i - 1) * 72 + 36
 			local p0 = at(1.6, a, BY + 3.0)
 			local claw = B:bone("Claw" .. i, "CanopyTop", p0)
-			local p1 = at(3.4, a, HY - 1.6)
-			local p2 = at(3.9, a + 6, HY + 1.2)
-			local p3 = at(2.6, a + 12, HY + 3.6)
-			B:bar(claw, p0, p1 + (p1 - p0).Unit * 0.3, 1.1, 1.0, OBS)
-			B:bar(claw, p1, p2 + (p2 - p1).Unit * 0.25, 0.9, 0.85, OBS_DK)
-			B:bar(claw, p2, p3, 0.7, 0.65, OBS_LT)
+			local p1 = at(4.2, a, HY - 1.8)
+			local p2 = at(4.7, a + 6, HY + 1.0)
+			local p3 = at(3.4, a + 12, HY + 3.4)
+			B:bar(claw, p0, p1 + (p1 - p0).Unit * 0.3, 0.95, 0.9, OBS)
+			B:bar(claw, p1, p2 + (p2 - p1).Unit * 0.25, 0.8, 0.75, OBS_DK)
+			B:bar(claw, p2, p3, 0.6, 0.6, OBS_LT)
 			B:block(claw, v(0.55, 0.55, 0.55), CFrame.new(p3) * ang(45, a, 0), OBS_SHEEN)
-			B:bar(claw, p1 + v(0, 0, 0), p2, 0.2, 0.2, LAVA, { mat = "Neon", name = "ClawVein" .. i })
+			B:bar(claw, p1 - outward(a) * 0.4, p2 - outward(a + 6) * 0.35, 0.22, 0.22, LAVA, { mat = "Neon", name = "ClawVein" .. i })
 		end
 
 		------------------------------------------------------------------
@@ -457,16 +461,16 @@ return {
 			B:block(bone, v(0.5 * s, 0.3 * s, 0.5 * s), F2 * CFrame.new(0, 0.55 * s, 0) * ang(0, 45, 0), OBS)
 		end
 		local FRUITS = {
-			{ 30, 1.5, 1.35 },
-			{ 90, 2.4, 1.3 },
-			{ 150, 1.6, 1.35 },
-			{ 210, 2.3, 1.3 },
-			{ 270, 1.5, 1.35 },
-			{ 330, 2.4, 1.3 },
+			{ 30, 1.5, 1.6 },
+			{ 90, 2.4, 1.5 },
+			{ 150, 1.6, 1.6 },
+			{ 210, 2.3, 1.5 },
+			{ 270, 1.5, 1.6 },
+			{ 330, 2.4, 1.5 },
 		}
 		for i, f in FRUITS do
-			local x, z = polar(5.6, f[1])
-			local top = v(x, AY - 1.9, z)
+			local x, z = polar(6.2, f[1])
+			local top = v(x, AY - 2.1, z)
 			local bone = B:bone("Fruit" .. i, "Canopy", top)
 			local s = f[3]
 			local c = top + v(0, -f[2] - 0.9 * s, 0) + outward(f[1]) * 0.3

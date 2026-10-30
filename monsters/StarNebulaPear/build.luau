@@ -34,7 +34,7 @@ return {
 		local MOSS, MOSS_DK, MOSS_LT = "#5e9c74", "#457f5e", "#7dbb86"
 		local STAR_W, STAR_C, STAR_G, STAR_P = "#ffffff", "#7fe8ff", "#ffe27a", "#ffb8f0"
 		local CRYS, CRYS_LT, CRYS_C = "#8f6bf0", "#b9a2ff", "#7fd9ff"
-		local BARK_DK, BARK, BARK_LT, BARK_HI = "#5e5390", "#7a6db0", "#9a8ecb", "#c4bce6"
+		local BARK_DK, BARK, BARK_LT, BARK_HI = "#7a70b0", "#968ccc", "#b4aae0", "#dcd6f4"
 		local L1 = { "#3a52c0", "#4560d0", "#5a4cc8" }
 		local L2 = { "#5076e0", "#5c6ae8", "#4a8ce0" }
 		local L3 = { "#6c9cf4", "#7c8cf8", "#6ab0f4" }

@@ -154,9 +154,9 @@ return {
 		local crop = B:bone("Crop", "Root", v(0, TOP, 0))
 		-- x0,z0 base, x1,z1 top, top height, width
 		local stalks = {
-			{ 0.3, -0.3, 0.5, -0.3, 17.6, 1.75 },
-			{ -1.4, 0.9, -2.9, 1.6, 14.4, 1.45 },
-			{ 1.7, 1.1, 3.3, 2.1, 12.4, 1.35 },
+			{ 0.3, -0.3, 0.5, -0.3, 15.3, 1.75 },
+			{ -1.4, 0.9, -2.9, 1.6, 12.9, 1.45 },
+			{ 1.7, 1.1, 3.3, 2.1, 11.2, 1.35 },
 		}
 		local stalkAt = {}
 		for si, s in stalks do
@@ -210,12 +210,12 @@ return {
 			-- stalk, y, deg, len, width, palette, rise
 			{ 1, 5.0, 200, 8.4, 1.8, L2, -3 },
 			{ 1, 5.2, 15, 8.2, 1.8, L1, -3 },
-			{ 1, 7.8, 115, 7.6, 1.7, L1, -2 },
-			{ 1, 10.8, 275, 7.0, 1.6, L2, 4 },
-			{ 1, 13.6, 80, 6.0, 1.5, L1, 8 },
-			{ 1, 15.6, 230, 5.0, 1.35, L2, 12 },
+			{ 1, 7.4, 115, 7.6, 1.7, L1, -2 },
+			{ 1, 10.0, 275, 7.0, 1.6, L2, 4 },
+			{ 1, 12.1, 80, 6.0, 1.5, L1, 8 },
+			{ 1, 13.7, 230, 5.0, 1.35, L2, 12 },
 			{ 2, 5.2, 290, 7.4, 1.6, L1, -6 },
-			{ 2, 9.6, 165, 6.2, 1.5, L2, 4 },
+			{ 2, 8.9, 165, 6.2, 1.5, L2, 4 },
 			{ 3, 4.8, 100, 7.0, 1.6, L2, -6 },
 			{ 3, 8.4, 20, 5.8, 1.45, L1, 4 },
 		}
@@ -284,11 +284,11 @@ return {
 		local orion = { { -0.45, 1.3 }, { -0.05, 2.0, true }, { 0.15, 2.25 }, { 0.4, 2.5, true }, { 0.45, 3.4 } }
 		local lyra = { { 0.0, 3.3, true }, { -0.4, 2.55 }, { -0.3, 1.6 }, { 0.35, 1.45, true }, { 0.4, 2.4 } }
 		local swan = { { 0.0, 1.2 }, { 0.0, 2.2, true }, { -0.5, 2.6 }, { 0.0, 2.2 }, { 0.5, 2.0 }, { 0.05, 3.5, true } }
-		local big = cob(stalkAt[1](6.4) + dirOf(330) * 1.2, 330, 38, 1.4, dipper)
-		cob(stalkAt[1](9.9) + dirOf(65) * 1.1, 65, 36, 1.15, cassio)
-		cob(stalkAt[1](12.8) + dirOf(195) * 1.0, 195, 34, 1.05, orion)
-		cob(stalkAt[2](7.6) + dirOf(255) * 0.9, 255, 40, 1.05, lyra)
-		cob(stalkAt[3](7.0) + dirOf(130) * 0.9, 130, 40, 1.0, swan)
+		local big = cob(stalkAt[1](6.0) + dirOf(330) * 1.2, 330, 38, 1.4, dipper)
+		cob(stalkAt[1](8.9) + dirOf(65) * 1.1, 65, 36, 1.15, cassio)
+		cob(stalkAt[1](11.4) + dirOf(195) * 1.0, 195, 34, 1.05, orion)
+		cob(stalkAt[2](7.0) + dirOf(255) * 0.9, 255, 40, 1.05, lyra)
+		cob(stalkAt[3](6.6) + dirOf(130) * 0.9, 130, 40, 1.0, swan)
 
 		---------------------------------------------------------------- tassels
 		local function tassel(top, s, n, rot)
@@ -303,12 +303,12 @@ return {
 				B:block(crop, v(0.26, 0.26, 0.26), CFrame.new(t) * ang(45, 0, 45), STAR_C, NEON)
 			end
 		end
-		local top1 = stalkAt[1](17.6)
+		local top1 = stalkAt[1](15.3)
 		tassel(top1, 1.25, 5, 15)
-		tassel(stalkAt[2](14.4), 0.95, 3, 40)
-		tassel(stalkAt[3](12.4), 0.85, 3, 0)
+		tassel(stalkAt[2](12.9), 0.95, 3, 40)
+		tassel(stalkAt[3](11.2), 0.85, 3, 0)
 		-- the crown star on the main tassel (four-point star + glowing core)
-		local crownC = CFrame.new(top1 + v(0, 3.4, 0)) * ang(0, 20, 0)
+		local crownC = CFrame.new(top1 + v(0, 3.2, 0)) * ang(0, 20, 0)
 		B:block(crop, v(2.2, 0.5, 0.5), crownC * ang(0, 0, 45), GOLD, {})
 		B:block(crop, v(2.2, 0.5, 0.5), crownC * ang(0, 0, -45), GOLD_DK, {})
 		B:block(crop, v(0.5, 2.6, 0.5), crownC, GOLD_LT, {})
