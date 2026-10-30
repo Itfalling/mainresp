@@ -10,6 +10,7 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { Brush, Evaluator, ADDITION, SUBTRACTION } from 'three-bvh-csg';
 
 const params = new URLSearchParams(location.search);
 const id = params.get('m');
@@ -180,6 +181,33 @@ function materialFor(p) {
   return m;
 }
 
+// ---------- unions (CSG) ----------
+const csgEval = new Evaluator();
+csgEval.useGroups = true;
+csgEval.attributes = ['position', 'normal'];
+function csgBrush(p) {
+  let g = geometryFor(p).clone();
+  if (g.index) g = g.toNonIndexed();
+  for (const name of Object.keys(g.attributes)) if (name !== 'position' && name !== 'normal') g.deleteAttribute(name);
+  if (!g.attributes.normal) g.computeVertexNormals();
+  // negate parts are invisible before baking; their colour shows on the carved faces
+  const b = new Brush(g, materialFor(p.neg ? { ...p, tr: 0 } : p));
+  b.matrixAutoUpdate = false;
+  b.matrix.copy(cfToMatrix(p.cf));
+  b.updateMatrixWorld(true);
+  return b;
+}
+function csgMesh(ps) {
+  const pos = ps.filter((p) => !p.neg), neg = ps.filter((p) => p.neg);
+  if (!pos.length) return null;
+  let acc = csgBrush(pos[0]);
+  for (const p of pos.slice(1)) acc = csgEval.evaluate(acc, csgBrush(p), ADDITION);
+  for (const p of neg) acc = csgEval.evaluate(acc, csgBrush(p), SUBTRACTION);
+  const mesh = new THREE.Mesh(acc.geometry, acc.material);
+  mesh.matrixAutoUpdate = false;
+  return mesh;
+}
+
 // ---------- scene ----------
 async function load() {
   const res = await fetch(dataUrl);
@@ -218,7 +246,14 @@ function buildRig(data, scene) {
   }
   const trans = (data.anim && data.anim.trans) || {};
   const animated = [];
+  const unionGroups = new Map();
   for (const p of data.parts) {
+    if (p.union) {
+      const key = `${p.bone}\u0000${p.union}`;
+      if (!unionGroups.has(key)) unionGroups.set(key, []);
+      unionGroups.get(key).push(p);
+      continue;
+    }
     let mat = materialFor(p);
     if (trans[p.name]) { mat = mat.clone(); mat.transparent = true; }
     const mesh = new THREE.Mesh(geometryFor(p), mat);
@@ -230,6 +265,14 @@ function buildRig(data, scene) {
     mesh.receiveShadow = true;
     if (p.tr > 0) mesh.renderOrder = 2;
     bones.get(p.bone).group.add(mesh);
+  }
+  // union groups: real CSG, like the UnionBaker does in Roblox
+  for (const ps of unionGroups.values()) {
+    const mesh = csgMesh(ps);
+    if (!mesh) continue;
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    bones.get(ps[0].bone).group.add(mesh);
   }
   // effects (approximate)
   let lights = 0;

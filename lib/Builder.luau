@@ -259,6 +259,10 @@ end
 local SHAPES = {
 	block = { class = "Part", shape = Enum.PartType.Block, studs = true },
 	wedge = { class = "WedgePart", studs = true },
+	-- round pieces: only usable inside unions (see Builder:make)
+	ball = { class = "Part", shape = Enum.PartType.Ball },
+	cyl = { class = "Part", shape = Enum.PartType.Cylinder },
+	cwedge = { class = "CornerWedgePart" },
 }
 
 -- Stud style: these game monsters are built ONLY from studded blocks and
@@ -274,10 +278,15 @@ local BANNED = {
 local ALLOWED_MATS = { Plastic = true, Neon = true }
 
 -- Core part factory. opts: mat, tr (transparency), refl, name, studs (bool),
--- glow (alias for mat="Neon").
+-- glow (alias for mat="Neon"), union (group name: parts sharing it are merged
+-- into one UnionOperation by the UnionBaker), negate (subtract this part from
+-- its union group). Round shapes (ball/cyl/...) are allowed only as union pieces.
 function Builder:make(kind, bone, size, cf, color, opts)
 	opts = opts or {}
-	if BANNED[kind] then
+	if opts.negate then
+		assert(opts.union, ("[%s] negate parts need opts.union"):format(self.id))
+	end
+	if BANNED[kind] and not opts.union then
 		error(("[%s] %s is not allowed: stud style uses only blocks and wedges (B:block, B:wedge, B:beam, B:spike, B:tri, B:poly, B:ring)"):format(self.id, BANNED[kind]), 0)
 	end
 	local spec = SHAPES[kind]
@@ -301,7 +310,7 @@ function Builder:make(kind, bone, size, cf, color, opts)
 		error(("[%s] material '%s' is not allowed: stud style uses Plastic (studded) and small Neon accents only"):format(self.id, matName), 0)
 	end
 	p.Material = mat
-	p.Transparency = opts.tr or 0
+	p.Transparency = opts.negate and 1 or (opts.tr or 0)
 	p.Reflectance = opts.refl or 0
 	p.CanCollide = false
 	p.CanTouch = false
@@ -310,7 +319,8 @@ function Builder:make(kind, bone, size, cf, color, opts)
 	p.CastShadow = opts.shadow ~= false and matName ~= "Neon"
 
 	-- Studs on EVERY face of every plastic part ("stud texture all around").
-	local studs = matName == "Plastic"
+	-- Unions render without surface studs in Roblox, so union pieces are smooth.
+	local studs = matName == "Plastic" and not opts.union
 	local st = studs and Enum.SurfaceType.Studs or Enum.SurfaceType.Smooth
 	p.TopSurface = st
 	p.BottomSurface = st
@@ -340,6 +350,13 @@ function Builder:make(kind, bone, size, cf, color, opts)
 	if kind == "wedge" then
 		area *= 0.75
 	end
+	if opts.union then
+		p:SetAttribute("Union", opts.union)
+		if opts.negate then
+			p:SetAttribute("Negate", true)
+		end
+		self.hasUnions = true
+	end
 	if p.Transparency < 0.95 then
 		self.totalArea += area
 		if matName == "Neon" then
@@ -348,7 +365,7 @@ function Builder:make(kind, bone, size, cf, color, opts)
 		end
 	end
 	table.insert(self.parts, p)
-	self.partInfo[p] = { kind = kind, bone = bonePart.Name, studs = studs }
+	self.partInfo[p] = { kind = kind, bone = bonePart.Name, studs = studs, union = opts.union, negate = opts.negate or nil }
 	return p
 end
 

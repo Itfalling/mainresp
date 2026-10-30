@@ -22,6 +22,8 @@ local Builder = require("../lib/Builder")
 local ANIMLIB_SRC = fs.readFile("lib/AnimLib.luau")
 local ANIMATOR_SRC = fs.readFile("lib/Animator.luau")
 local CONTROL_SRC = fs.readFile("lib/Control.luau")
+local UNIONBAKER_SRC = fs.readFile("lib/UnionBaker.luau")
+local AUTOBAKE_SRC = fs.readFile("lib/AutoBake.luau")
 
 local FPS = 30
 
@@ -156,6 +158,18 @@ local function buildMonster(id, L)
 	spec.Build(B, Builder.P)
 
 	local model = B:finish(motionSrc, ANIMLIB_SRC, ANIMATOR_SRC)
+	if B.hasUnions then
+		-- union groups are baked into real UnionOperations in Roblox (CSG can't run offline)
+		local baker = Instance.new("ModuleScript")
+		baker.Name = "UnionBaker"
+		baker.Source = UNIONBAKER_SRC
+		baker.Parent = model
+		local auto = Instance.new("Script")
+		auto.Name = "AutoBake"
+		auto.Source = AUTOBAKE_SRC
+		auto.Parent = model
+		model:SetAttribute("HasUnions", true)
+	end
 
 	-- Motion validation + bake
 	local M = motionSrc and loadMotion(id, motionSrc, L) or { Cycle = 1, Update = function() end }
@@ -295,6 +309,8 @@ local function buildMonster(id, L)
 			mat = materialName(p.Material),
 			tr = r4(p.Transparency),
 			studs = info.studs and true or false,
+			union = info.union,
+			neg = info.negate,
 		})
 	end
 	local effects = {}

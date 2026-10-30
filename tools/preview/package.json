@@ -10,6 +10,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "three": "^0.169.0"
+    "three": "^0.169.0",
+    "three-bvh-csg": "^0.0.16",
+    "three-mesh-bvh": "^0.8.3"
   }
 }
