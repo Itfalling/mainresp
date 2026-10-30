@@ -1,66 +1,55 @@
--- Wooden Axe ("sprout hatchet"): a common garden hatchet with a bearded,
--- crescent-edged wooden head. Curved shapes are Roblox unions: parts that share
--- an opts.union name are merged by the UnionBaker, opts.negate parts carve.
--- Stands on its pommel; handle runs up Y, blade points +X. Static model.
+-- Wooden Axe: the starter tool. A chunky stud-built axe, sized for a player's
+-- hand. Built standing up: haft along +Y (pommel at Y=0), blade facing +X.
+-- spec.Tool turns it into a Roblox Tool (the part named "Handle" is gripped).
 return {
 	DisplayName = "Wooden Axe",
 	Rarity = "Common",
 	Element = "Tool",
+	Tool = { Name = "Wooden Axe", ToolTip = "Wooden Axe", GripY = -1.25, Swing = true },
 	Build = function(B, P)
-		local v, cf, ang = P.v, P.cf, P.ang
-		local WOOD, WOOD_D = "#a8693a", "#7a4a26"
-		local HEAD, EDGE, SOCKET = "#d9a462", "#f3dba8", "#c48a4c"
-		local WRAP, WRAP_D, ROPE = "#4a8f3a", "#356b2b", "#d6b67c"
-		local LEAF = "#5cc93f"
-		local AXIS_Y, AXIS_Z = ang(0, 0, 90), ang(0, 90, 0)
+		local v, cf = P.v, P.cf
+		local HAFT, HAFT_D, HAFT_L = "#a5703f", "#7a4f2a", "#c48d58"
+		local WRAP, WRAP_D = "#3f7a3a", "#2d5a2a"
+		local HEAD, HEAD_D, HEAD_L, EDGE = "#d9a35e", "#a8743c", "#ebc283", "#f6e2b8"
+		local ROPE = "#e0c27e"
 
-		-- round haft with a knob pommel and a ball cap
-		local H = { union = "Haft" }
-		B:cyl("Root", v(5.3, 0.46, 0.46), cf(0, 2.95, 0) * AXIS_Y, WOOD, H)
-		B:cyl("Root", v(0.3, 0.64, 0.64), cf(0, 0.55, 0) * AXIS_Y, WOOD_D, H)
-		B:ball("Root", 0.72, cf(0, 0.36, 0), WOOD_D, H)
-		B:ball("Root", 0.5, cf(0, 5.62, 0), WOOD_D, H)
+		-- haft (the Handle): runs from the pommel up through the head
+		B:block("Root", v(0.36, 4.0, 0.36), cf(0, 2.3, 0), HAFT, { name = "Handle" })
+		-- grain strips on the front and back faces
+		B:block("Root", v(0.08, 1.5, 0.06), cf(0.06, 2.55, 0.2), HAFT_D)
+		B:block("Root", v(0.08, 1.1, 0.06), cf(-0.06, 2.75, -0.2), HAFT_D)
+		-- pommel knob
+		B:block("Root", v(0.5, 0.26, 0.5), cf(0, 0.17, 0), HAFT_D)
+		B:block("Root", v(0.42, 0.12, 0.42), cf(0, 0.36, 0), HAFT_L)
 
-		-- green cloth grip: three raised rings over a wrap
-		local G = { union = "Grip" }
-		B:cyl("Root", v(1.15, 0.54, 0.54), cf(0, 1.4, 0) * AXIS_Y, WRAP_D, G)
-		for _, y in { 0.95, 1.4, 1.85 } do
-			B:cyl("Root", v(0.2, 0.62, 0.62), cf(0, y, 0) * AXIS_Y, WRAP, G)
+		-- green cloth grip with raised bands
+		B:block("Root", v(0.44, 1.2, 0.44), cf(0, 1.15, 0), WRAP)
+		for _, y in { 0.62, 1.15, 1.68 } do
+			B:block("Root", v(0.5, 0.13, 0.5), cf(0, y, 0), WRAP_D)
 		end
 
-		-- studded socket block the head is mounted in, with rope bindings
-		B:block("Root", v(0.85, 1.1, 0.7), cf(0, 4.9, 0), SOCKET)
-		local R = { union = "Rope" }
-		for _, y in { 4.25, 5.52 } do
-			B:cyl("Root", v(0.16, 0.66, 0.66), cf(0, y, 0) * AXIS_Y, ROPE, R)
-		end
+		-- head socket wrapped round the top of the haft, rope bindings + cap
+		B:block("Root", v(0.66, 1.05, 0.54), cf(0, 3.95, 0), HEAD_D)
+		B:block("Root", v(0.48, 0.16, 0.48), cf(0, 4.4, 0), HAFT_D)
+		B:block("Root", v(0.72, 0.12, 0.6), cf(0, 3.48, 0), ROPE)
+		B:block("Root", v(0.72, 0.12, 0.6), cf(0, 4.4, 0), ROPE)
 
-		-- bearded head: a disc trimmed flat on top, cut away behind the haft,
-		-- and scooped underneath so the beard sweeps down
-		local cx, cy = 0.95, 4.75
-		local function headShape(group, color, thick, keepFrom)
-			local o = { union = group }
-			local n = { union = group, negate = true }
-			B:cyl("Root", v(thick, 3.0, 3.0), cf(cx, cy - 0.35, 0) * AXIS_Z, color, o)
-			B:block("Root", v(4, 2, 2), cf(cx, cy + 1.55, 0), color, n) -- flat top edge
-			B:block("Root", v(2, 6, 2), cf(keepFrom - 1, cy, 0), color, n) -- nothing behind
-			B:cyl("Root", v(2, 1.6, 1.6), cf(0.55, cy - 1.45, 0) * AXIS_Z, color, n) -- beard scoop
-			B:block("Root", v(1.3, 3, 2), cf(-0.35, cy - 1.9, 0), color, n) -- clear the haft below the socket
-			return o, n
-		end
-		headShape("Head", HEAD, 0.42, -0.3)
-		B:block("Root", v(0.95, 0.95, 0.5), cf(0.7, cy + 0.07, 0), HEAD, { union = "Head" }) -- neck into the socket
-		-- pale cutting edge: the same outline, hollowed out to a thin crescent
-		local _, en = headShape("Edge", EDGE, 0.46, cx + 0.35)
-		B:cyl("Root", v(2, 2.6, 2.6), cf(cx - 0.12, cy - 0.35, 0) * AXIS_Z, EDGE, en)
+		-- back poll (blunt end)
+		B:block("Root", v(0.36, 0.66, 0.48), cf(-0.48, 3.95, 0), HEAD)
+		B:block("Root", v(0.16, 0.46, 0.4), cf(-0.72, 3.95, 0), HEAD_D)
 
-		-- a little sprout growing from the cap
-		B:block("Root", v(0.1, 0.42, 0.1), cf(0, 5.98, 0), "#3f9a35")
-		local L = { union = "Leaves" }
-		for _, s in { { -1, 6.13, 28 }, { 1, 6.24, -28 } } do
-			local base = cf(0.27 * s[1], s[2], 0) * ang(0, 0, s[3])
-			B:cyl("Root", v(0.08, 0.5, 0.5), base * AXIS_Z, LEAF, L)
-			B:block("Root", v(0.36, 0.36, 0.08), base * CFrame.new(0.2 * s[1], 0.05, 0) * ang(0, 0, 45), LEAF, L)
+		-- bearded blade: steps out and down toward a pale cutting edge
+		B:block("Root", v(0.5, 0.8, 0.46), cf(0.52, 3.98, 0), HEAD)
+		B:block("Root", v(0.42, 1.12, 0.42), cf(0.93, 3.9, 0), HEAD)
+		B:block("Root", v(0.36, 1.5, 0.38), cf(1.3, 3.8, 0), HEAD_L)
+		B:block("Root", v(0.3, 0.42, 0.36), cf(1.28, 2.92, 0), HEAD) -- beard
+		B:block("Root", v(0.2, 1.86, 0.32), cf(1.56, 3.72, 0), EDGE) -- cutting edge
+		B:block("Root", v(0.2, 0.32, 0.3), cf(1.48, 2.66, 0), EDGE) -- beard tip
+		B:block("Root", v(0.2, 0.22, 0.3), cf(1.62, 4.72, 0), EDGE) -- top horn
+		-- darker grain lines on both blade faces
+		for _, z in { 0.205, -0.205 } do
+			B:block("Root", v(0.62, 0.08, 0.04), cf(0.95, 4.18, z), HEAD_D)
+			B:block("Root", v(0.46, 0.08, 0.04), cf(1.05, 3.62, z), HEAD_D)
 		end
 	end,
 }

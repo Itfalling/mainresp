@@ -23,6 +23,8 @@ local ANIMLIB_SRC = fs.readFile("lib/AnimLib.luau")
 local ANIMATOR_SRC = fs.readFile("lib/Animator.luau")
 local CONTROL_SRC = fs.readFile("lib/Control.luau")
 local UNIONBAKER_SRC = fs.readFile("lib/UnionBaker.luau")
+local SWINGCLIENT_SRC = fs.readFile("lib/SwingToolClient.luau")
+local SWINGSERVER_SRC = fs.readFile("lib/SwingToolServer.luau")
 local AUTOBAKE_SRC = fs.readFile("lib/AutoBake.luau")
 
 local FPS = 30
@@ -33,6 +35,10 @@ do
 	assert(ok, "lib/Animator.luau does not compile: " .. tostring(err))
 	ok, err = pcall(luau.compile, ANIMLIB_SRC)
 	assert(ok, "lib/AnimLib.luau does not compile: " .. tostring(err))
+	ok, err = pcall(luau.compile, SWINGCLIENT_SRC)
+	assert(ok, "lib/SwingToolClient.luau does not compile: " .. tostring(err))
+	ok, err = pcall(luau.compile, SWINGSERVER_SRC)
+	assert(ok, "lib/SwingToolServer.luau does not compile: " .. tostring(err))
 	ok, err = pcall(luau.compile, CONTROL_SRC)
 	assert(ok, "lib/Control.luau does not compile: " .. tostring(err))
 end
@@ -363,6 +369,67 @@ local function buildMonster(id, L)
 	fs.writeDir("out/models")
 	fs.writeFile("out/models/" .. id .. ".rbxm", roblox.serializeModel({ model }))
 
+	-- Hand-held tools: spec.Tool turns the (static) model into a Roblox Tool.
+	-- The part named "Handle" is gripped; everything else is welded to it.
+	local tool = nil
+	if spec.Tool then
+		local cfg = spec.Tool
+		tool = Instance.new("Tool")
+		tool.Name = cfg.Name or (spec.DisplayName or id)
+		tool.ToolTip = cfg.ToolTip or tool.Name
+		tool.RequiresHandle = true
+		tool.CanBeDropped = false
+		local src = model:Clone()
+		local handle = nil
+		for _, d in src:GetDescendants() do
+			if d:IsA("BasePart") and d.Name == "Handle" then
+				handle = d
+			end
+		end
+		assert(handle, id .. ": spec.Tool needs a part named 'Handle'")
+		for _, d in src:GetDescendants() do
+			if d:IsA("BasePart") and d.Transparency < 1 then
+				local w = d:FindFirstChild("W")
+				if w then
+					w:Destroy()
+				end
+				d.Anchored = false
+				d.CanCollide = false
+				d.Massless = d ~= handle
+				d.Parent = tool
+				if d ~= handle then
+					local weld = Instance.new("Weld")
+					weld.Name = "W"
+					weld.Part0 = handle
+					weld.Part1 = d
+					weld.C0 = handle.CFrame:Inverse() * d.CFrame
+					weld.Parent = d
+				end
+			end
+		end
+		handle.CanTouch = true
+		-- default grip assumes the R15 RightGripAttachment (rotated -90 deg on X);
+		-- the server script refits it to the real attachment on equip
+		local hold = CFrame.fromMatrix(Vector3.new(0, 0, 0), Vector3.new(0, -1, 0), Vector3.new(0, 0, -1), Vector3.new(1, 0, 0))
+		tool.Grip = CFrame.new(0, cfg.GripY or 0, 0) * hold:Inverse() * CFrame.Angles(math.rad(-90), 0, 0)
+		tool:SetAttribute("GripY", cfg.GripY or 0)
+		if cfg.Swing then
+			local ev = Instance.new("RemoteEvent")
+			ev.Name = "SwingEvent"
+			ev.Parent = tool
+			local server = Instance.new("Script")
+			server.Name = "SwingServer"
+			server.Source = SWINGSERVER_SRC
+			server.Parent = tool
+			local client = Instance.new("Script")
+			client.Name = "SwingClient"
+			client.RunContext = Enum.RunContext.Client
+			client.Source = SWINGCLIENT_SRC
+			client.Parent = tool
+		end
+		fs.writeFile("out/models/" .. id .. "Tool.rbxm", roblox.serializeModel({ tool }))
+	end
+
 	-- Style / glow budget checks (stud style, "calm glow")
 	local nLights, maxBright = 0, 0
 	for _, e in B.effects do
@@ -424,7 +491,7 @@ local function buildMonster(id, L)
 	end
 	local pack = readIfExists(dir .. "/pack.txt")
 	pack = pack and pack:gsub("%s", "") or nil
-	return model, { mn = mn, mx = mx, problems = #problems, spec = spec, pack = pack ~= "" and pack or nil }
+	return model, { mn = mn, mx = mx, problems = #problems, spec = spec, pack = pack ~= "" and pack or nil, tool = tool }
 end
 
 ---------------------------------------------------------------------------
@@ -635,6 +702,10 @@ local function buildPacks(built, rbxmPath, rbxlPath, scenePath)
 				placeCopy:SetAttribute("AnimState", "Reel") -- showcase: demo every state
 			end
 			placeCopy.Parent = showcase
+			if b.info.tool then
+				-- every player spawns holding it
+				b.info.tool:Clone().Parent = game:GetService("StarterPack")
+			end
 
 			makePen(pens, cx, cz, w, d)
 			table.insert(sceneMonsters, { id = b.id, cf = cfArr(offset), name = b.info.spec.DisplayName or b.id, rarity = b.info.spec.Rarity or "Legendary", tag = { cx, b.info.mx.Y + 2.5, cz } })

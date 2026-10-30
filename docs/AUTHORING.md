@@ -240,3 +240,12 @@ return L.states(M)
 Leave out `motion.luau` and the model ships with no animation scripts at all (particle emitters
 and lights still work). Parts can sit directly on the `"Root"` bone, or on a few bones if you
 want sub-groups (e.g. a `Soil` base the game can remove). Preview/clipcheck work as usual.
+
+## Hand-held tools (`spec.Tool`)
+
+`Tool = { Name, ToolTip, GripY, Swing = true }` in build.luau exports a Roblox **Tool** to
+`out/models/<Id>Tool.rbxm` (and puts it in the pack showcase's StarterPack). Build the item standing
+up: handle along +Y, blade/business end facing +X; name the gripped part `Handle` (`opts.name`).
+`GripY` = where the hand holds it, as a Y offset from the Handle's centre. `Swing = true` adds a
+two-handed overhead swing (lib/SwingToolClient.luau + lib/SwingToolServer.luau, R15): held one-handed
+normally, click swings; replicated to all players through the tool's `SwingCount` attribute.
