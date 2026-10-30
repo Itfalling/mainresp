@@ -123,50 +123,59 @@ return {
 			K = { col = VOID, d = 0.44 },
 			M = { col = PURP_D, d = 0.44 },
 			P = { col = PURP, d = 0.54 },
-			L = { col = LAV, d = 0.36 },
-			E = { col = VIOLET, d = 0.2, mat = "Neon" },
+			L = { col = LAV, d = 0.34 },
 		}
 		local blade = {
-			".....LLE",
-			"....LMLE",
-			"...PMMLE",
-			"..PKMMLE",
-			".PKKKMLE",
-			"PKKKKMLE",
-			"PKKKKM..",
-			"PKKKKMLE",
-			"PKKKKMLE",
-			"PKKKKMLE",
-			"PKKKKMLE",
-			"PKKKKMLE",
-			"PKKKKM..",
-			"PKKKKMLE",
-			".PKKKMLE",
-			"..PKMMLE",
-			"...PMMLE",
-			"....LMLE",
-			".....LLE",
+			"......LL",
+			".....LML",
+			"....PMML",
+			"...PKMML",
+			"..PKKMML",
+			".PKKKMML",
+			"PKKKKKML",
+			"PKKKKKML",
+			"PKKKKK..",
+			"PKKKKKML",
+			"PKKKKKML",
+			"PKKKKKML",
+			"PKKKKK..",
+			"PKKKKKML",
+			"PKKKKKML",
+			".PKKKMML",
+			"..PKKMML",
+			"...PKMML",
+			"....PMML",
+			".....LML",
+			"......LL",
 		}
-		-- neon runes carved into both faces
-		local runes = {
-			"........", "........", "........", "........", "........",
-			".r.r....",
-			".rrr....",
-			"..r.....",
-			"........",
-			"..rr....",
-			"..r.....",
-			".rr.....",
-			"........",
-			"..r.....",
-		}
-		local face = { r = { col = VIOLET, d = 0.04, face = 0.23, mat = "Neon" } }
-		local CELL = 0.2
+		local CELL, X0 = 0.2, 0.34
 		local yTop = HY + #blade * CELL / 2
-		pixels(blade, CELL, 0.36, yTop, 1, pal)
-		pixels(blade, CELL, -0.36, yTop, -1, pal)
-		pixels(runes, CELL, 0.36, yTop, 1, face)
-		pixels(runes, CELL, -0.36, yTop, -1, face)
+		-- thin neon edge strip hugging the outer side of every row (incl. the teeth notches)
+		local function edgeStrip(sx)
+			local r = 1
+			while r <= #blade do
+				local last = #(blade[r]:match("^(.-)%.*$"))
+				local h = 1
+				while r + h <= #blade and #(blade[r + h]:match("^(.-)%.*$")) == last do
+					h += 1
+				end
+				local x = X0 + last * CELL + 0.025
+				local y = yTop - ((r - 1) + h / 2) * CELL
+				B:block("Root", v(0.05, h * CELL, 0.14), cf(sx * x, y, 0), VIOLET, { mat = "Neon", name = "Edge" })
+				r += h
+			end
+		end
+		for _, sx in { 1, -1 } do
+			pixels(blade, CELL, X0, yTop, sx, pal)
+			edgeStrip(sx)
+			-- glowing runes on both faces: trident, eye, inverted trident
+			local rf = { r = { col = VIOLET, d = 0.03, face = 0.235, mat = "Neon" } }
+			local RC = 0.14
+			local gx = X0 + 0.66
+			pixels({ "r.r.r", "r.r.r", ".rrr.", "..r.." }, RC, gx, yTop - 1.3, sx, rf)
+			pixels({ ".r.", "r.r", ".r." }, RC, gx + 0.14, HY + 0.21, sx, rf)
+			pixels({ "..r..", ".rrr.", "r.r.r", "r.r.r" }, RC, gx, HY - 0.73, sx, rf)
+		end
 
 		------------------------------------------------------------------
 		-- top: stepped spear tip flanked by demon horns
