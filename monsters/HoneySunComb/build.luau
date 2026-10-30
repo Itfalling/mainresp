@@ -190,11 +190,11 @@ return {
 
 		-- side sunflower (right) on a branch
 		do
-			local a, b = v(0.4, 8.0, 0.55), v(3.5, 11.2, 0.0)
+			local a, b = v(0.5, 6.6, 0.55), v(4.8, 8.4, 0.1)
 			B:bar(crop, a, b, 0.75, 0.75, STEM)
 			B:block(crop, v(1.0, 0.4, 1.0), CFrame.new(a + v(0.2, 0.2, 0)) * ang(0, 30, 0), STEM_DK)
 			local bud = B:bone("BudR", "Crop", b)
-			local H = CFrame.new(b + v(0.5, 0.8, -0.5)) * ang(10, -28, 0)
+			local H = CFrame.new(b + v(0.8, 0.9, -0.6)) * ang(12, -32, 0)
 			B:bar(bud, b - v(0, 0.2, 0), H * v(0, 0, 0.5), 0.65, 0.65, STEM)
 			B:block(bud, v(2.6, 1.7, 0.4), H * CFrame.new(0, 0, 0.4), STEM_DK)
 			B:block(bud, v(1.7, 2.6, 0.42), H * CFrame.new(0, 0, 0.4), STEM_DK)

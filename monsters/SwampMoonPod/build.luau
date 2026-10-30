@@ -288,6 +288,15 @@ return {
 			clump(c, 2.2, 4, 2.3, 10)
 		end
 		clump(v(0.3, FORK + 8.4, TZ + 0.2), 2.0, 4, 2.2, 8)
+		-- crooked bare twigs poking out of the canopy (spooky swamp silhouette)
+		for k = 0, 4 do
+			local a = 72 * k + 72 + 20
+			local p0 = at(5.6, a, FORK + 6.6) + v(0, 0, TZ)
+			local p1 = at(7.6, a + 6, FORK + 8.6) + v(0, 0, TZ)
+			local p2 = p1 + at(1.0, a + 70, 0.9)
+			B:bar(canopy, p0, p1, 0.5, 0.5, BARK_LT)
+			B:bar(canopy, p1, p2, 0.35, 0.35, BARK_HI)
+		end
 		-- violet leaf tips + small top caps scattered over the canopy
 		for k = 0, 9 do
 			local a = k * 36 + 10
@@ -301,14 +310,14 @@ return {
 		local PX = 0.6
 		local MC = v(0.3, FORK + 9.0 + 3 * PX, TZ + 0.2)
 		local crown = B:bone("CrownMoon", "Canopy", MC - v(0, 3 * PX, 0))
-		local ROWS = { "..XXX.", ".XX...", "XXX...", "XX....", "XXX...", ".XX...", "..XXX." }
+		local ROWS = { "..XXX", ".XXX.", "XXX..", "XXX..", "XXX..", ".XXX.", "..XXX" }
 		for r, row in ROWS do
 			local c0, c1 = string.find(row, "X+")
 			local n = c1 - c0 + 1
-			local cx = ((c0 - 1) + n / 2 - 3) * PX - 0.3
+			local cx = ((c0 - 1) + n / 2 - 2.5) * PX - 0.1
 			local cy = (4 - r) * PX
-			B:block(crown, v(n * PX, PX, 0.9), CFrame.new(MC + v(cx, cy, 0)), (r % 2 == 0) and MOON_CR or MOON_CR2)
-			B:block(crown, v(0.24, PX + 0.02, 0.95), CFrame.new(MC + v(cx + n * PX / 2 - 0.1, cy, 0)), MOON_RIM,
+			B:block(crown, v(n * PX, PX, 1.3), CFrame.new(MC + v(cx, cy, 0)), (r % 2 == 0) and MOON_CR or MOON_CR2)
+			B:block(crown, v(0.24, PX + 0.02, 1.35), CFrame.new(MC + v(cx + n * PX / 2 - 0.1, cy, 0)), MOON_RIM,
 				{ mat = "Neon", name = "CrownGlow" })
 		end
 		-- leafy cradle under the moon
@@ -332,11 +341,11 @@ return {
 		------------------------------------------------------------------
 		local PODS = {
 			-- deg, radius, top y, stem length, scale
-			{ 0, 5.3, FORK + 4.4, 2.2, 1.1 },
+			{ 0, 5.3, FORK + 4.4, 2.2, 1.2 },
 			{ 60, 4.9, FORK + 5.0, 3.4, 1.0 },
-			{ 120, 5.3, FORK + 4.4, 2.3, 1.1 },
+			{ 120, 5.3, FORK + 4.4, 2.3, 1.2 },
 			{ 180, 4.9, FORK + 5.0, 3.3, 1.0 },
-			{ 240, 5.3, FORK + 4.4, 2.2, 1.1 },
+			{ 240, 5.3, FORK + 4.4, 2.2, 1.2 },
 			{ 300, 4.9, FORK + 5.0, 3.5, 1.0 },
 		}
 		for i, pd in PODS do
