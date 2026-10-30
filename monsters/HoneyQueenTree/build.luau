@@ -39,9 +39,10 @@ return {
 		local CLOVER, CLOVER_LT = "#4fae3e", "#6fcf4c"
 		local BARK_DK, BARK, BARK_LT, BARK_HI = "#6b3f1f", "#8a5428", "#a86c34", "#c48848"
 		local LF_DK, LF, LF_MID, LF_LT, LF_LIME = "#3f9a2c", "#55b23a", "#6cc444", "#8fd64e", "#b5e05a"
+		local LF_GOLD, LF_GOLD2 = "#cfdc4e", "#e6d24a"
 		local COMB_DK, COMB_BASE, COMB, COMB_LT, COMB_CAP = "#7c3f0c", "#a55a12", "#eea21a", "#ffc93a", "#ffe7a0"
 		local HONEY_DK, HONEY, HONEY_LT, HONEY_GLOW = "#c7740c", "#f0a215", "#ffc23a", "#ffd95a"
-		local HIVE_GR, HIVE_DK, HIVE, HIVE_LT = "#8f5414", "#c4832a", "#e5a83e", "#f6c95e"
+		local HIVE_GR, HIVE_DK, HIVE, HIVE_LT = "#94561a", "#d4922e", "#f2b648", "#ffd66e"
 		local GOLD_DK, GOLD, GOLD_LT = "#f0b020", "#ffd23a", "#ffea8a"
 		local GEM_PINK, GEM_LAV = "#ff6fb5", "#b98cff"
 		local BLOS, BLOS_LT, BLOS_LAV = "#ff9fcf", "#ffd0e6", "#cfa8ff"
@@ -296,8 +297,8 @@ return {
 		-- TIER 2
 		local can2 = B:bone("Canopy2", "Canopy1", v(0, C1 + 2.4, 0))
 		B:block(can2, v(2.2, 3.4, 2.2), cf(0, T2Y - 1.4, 0, 0, 40, 0), BARK_DK)
-		tier(can2, { cy = T2Y, R = 7.4, n = 10, r = 6.0, s = 4.1, h = 2.4, cols = { LF_MID, LF, LF_LT }, phase = 80, combEvery = 3,
-			ni = 3, ri = 2.4, si = 4.4, nb = 8, rb = 4.6, bs = 2.6, bh = 1.3, top = { LF_LIME, LF_LT } })
+		tier(can2, { cy = T2Y, R = 7.4, n = 10, r = 6.0, s = 4.1, h = 2.4, cols = { LF_MID, LF_LT, LF_LIME }, phase = 80, combEvery = 3,
+			ni = 3, ri = 2.4, si = 4.4, nb = 8, rb = 4.6, bs = 2.6, bh = 1.3, top = { LF_LIME, LF_GOLD } })
 		local T3Y = T2Y + 4.0
 		for k = 0, 2 do
 			local a = 80 + k * 120
@@ -305,8 +306,8 @@ return {
 		end
 		-- TIER 3
 		local can3 = B:bone("Canopy3", "Canopy2", v(0, T2Y + 2.0, 0))
-		tier(can3, { cy = T3Y, R = 5.0, n = 8, r = 4.1, s = 3.5, h = 2.2, cols = { LF_LT, LF_MID }, phase = 8, combEvery = 4,
-			ni = 1, ri = 0, si = 3.8, nb = 6, rb = 3.0, bs = 2.2, bh = 1.1, top = { LF_LIME, LF_LT } })
+		tier(can3, { cy = T3Y, R = 5.0, n = 8, r = 4.1, s = 3.5, h = 2.2, cols = { LF_LIME, LF_GOLD, LF_LT }, phase = 8, combEvery = 4,
+			ni = 1, ri = 0, si = 3.8, nb = 6, rb = 3.0, bs = 2.2, bh = 1.1, top = { LF_GOLD2, LF_GOLD } })
 
 		------------------------------------------------------------------
 		-- CROWN HIVE (bone "Hive" on top of tier 3) + queen's CROWN
@@ -362,7 +363,7 @@ return {
 		for i = 0, 3 do
 			local a = i * 90
 			local F = facing(at(1.75, a, CY + 0.95), a) * CFrame.new(0, 0, -0.25)
-			B:block(crown, v(0.5, 0.5, 0.2), F * ang(0, 0, 45), (i % 2 == 0) and GEM_PINK or GEM_LAV, { mat = "Neon", name = "CrownGem" .. (i + 1) })
+			B:block(crown, v(0.5, 0.5, 0.2), F * ang(0, 0, 45), GEM_PINK, { mat = "Neon", name = "CrownGem" .. (i + 1) })
 		end
 		B:block(crown, v(0.8, 0.8, 0.8), cf(0, CY + 1.2, 0, 0, 45, 0), GEM_PINK, { mat = "Neon", name = "CrownJewel" })
 
@@ -419,7 +420,7 @@ return {
 			local segH = (topY - botY) / NSEG
 			for j = 1, NSEG do
 				local y = topY - (j - 0.5) * segH
-				local wide = ((j % 2 == 0) and 2.1 or 2.45) + 0.3 * (j / NSEG)
+				local wide = ((j % 2 == 0) and 2.0 or 2.65) + 0.35 * (j / NSEG)
 				local sx = ((j % 3) - 1) * 0.15
 				B:block(falls, v(wide, segH + 0.1, 1.15), F * CFrame.new(sx, y, 0), (j % 2 == 0) and HONEY or HONEY_LT,
 					{ name = "Fall" .. k .. "Seg" .. j })
@@ -489,6 +490,8 @@ return {
 		B:emitter(pollen, "sparkle", { name = "PollenSparkle", color = { "#ffffff", GOLD_LT, HONEY_GLOW }, rate = 22, size = { 0.2, 0.7, 0 }, life = { 1.0, 2.0 }, speed = { 0.2, 0.7 }, light = 0.9 })
 		local petalZone = B:block(can1, v(18, 1, 18), cf(0, C1 + 1.0, 0), BLOS, { tr = 1, name = "PetalZone" })
 		B:emitter(petalZone, "leaf", { name = "BlossomPetals", color = { BLOS, BLOS_LT, BLOS_LAV }, rate = 2.5, size = { 0.5, 0.5, 0.35 }, life = { 3.5, 5.5 }, speed = { 0.3, 0.9 }, accel = { 0.6, -1.4, 0.2 }, dir = "Bottom" })
+		local crownFx = B:block(crown, v(4, 2.5, 4), cf(0, CY + 1.4, 0), GOLD, { tr = 1, name = "CrownFx" })
+		B:emitter(crownFx, "sparkle", { name = "CrownSparkle", color = { "#ffffff", GEM_PINK, GOLD_LT }, rate = 7, size = { 0.2, 0.7, 0 }, life = { 0.7, 1.3 }, speed = { 0.3, 1.0 }, light = 1 })
 		local hl = B:block(hive, v(0.4, 0.4, 0.4), cf(0, HB + 1.2, -2.0), HONEY, { tr = 1, name = "HiveLightCore" })
 		B:light(hl, { name = "HiveLight", color = "#ffc24a", brightness = 1.3, range = 18 })
 		local cl = B:block(can1, v(0.4, 0.4, 0.4), cf(0, UNDER - 2.5, 0), HONEY, { tr = 1, name = "CanopyLightCore" })

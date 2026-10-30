@@ -186,42 +186,53 @@ return {
 
 		-- PEARL: stepped near-round pearl (cube + 45deg cube + highlight)
 		local pearls = {}
-		local function pearl(c, s, col)
+		local function pearl(c, s, col, noShade)
 			B:block(crop, v(s, s * 0.86, s), c, col)
 			B:block(crop, v(s * 0.82, s * 1.0, s * 0.82), c * ang(0, 45, 0), col)
-			B:block(crop, v(s * 1.04, s * 0.3, s * 1.04), c * CFrame.new(0, -s * 0.18, 0), PEARL_SH)
+			if not noShade then
+				B:block(crop, v(s * 1.04, s * 0.3, s * 1.04), c * CFrame.new(0, -s * 0.18, 0), PEARL_SH)
+			end
 			local h = B:block(crop, v(s * 0.26, s * 0.26, s * 0.26), c * CFrame.new(-s * 0.22, s * 0.44, -s * 0.22), "#ffffff", { mat = "Neon", name = "PearlGlint" })
 			table.insert(pearls, h)
 		end
 		local PCOLS = { PEARL, PEARL_PK, PEARL_CY }
 
-		-- PEARL POD: a long seed pod split open like a pea pod, a row of pearl
+		-- PEARL POD: a slim crescent pea pod (5 stepped segments bending up at
+		-- both ends, pointed tip), split along the top with a row of pearl
 		-- "peas" inside. c: frame at the stem end, pod runs along local -Z,
-		-- opens toward local +Y.
+		-- the split faces local +Y.
 		local function pearlPod(c, k, n)
-			local L = (n * 1.0 + 0.9) * k
-			local function at(x, y, z, rz)
-				return c * CFrame.new(x * k, y * k, z) * ang(0, 0, rz or 0)
+			local SEG, sl = 5, 1.0 * k
+			local function yAt(sd) -- height of the pod's spine at distance sd
+				local u = (sd / (SEG * sl)) * 2 - 1
+				return 0.85 * k * u * u
 			end
-			-- stem cap + keel (stepped, tapering at both ends)
-			B:block(crop, v(0.9 * k, 0.9 * k, 0.9 * k), at(0, 0, -0.2), STM_DK)
-			B:block(crop, v(1.2 * k, 0.6 * k, L * 0.8), at(0, -0.2, -L / 2), POD_DK)
-			B:block(crop, v(0.7 * k, 0.5 * k, L), at(0, -0.1, -L / 2), POD_DK)
-			B:block(crop, v(1.5 * k, 0.4 * k, L * 0.9), at(0, 0.1, -L / 2), POD)
-			-- two split halves leaning open
-			for sd = -1, 1, 2 do
-				B:block(crop, v(0.35 * k, 1.2 * k, L * 0.86), at(sd * 0.85, 0.55, -L / 2, -sd * 32), POD)
-				B:block(crop, v(0.38 * k, 0.3 * k, L * 0.7), at(sd * 1.2, 1.12, -L / 2, -sd * 32), PET_LT)
-				B:block(crop, v(0.2 * k, 0.9 * k, L * 0.8), at(sd * 0.68, 0.5, -L / 2, -sd * 32), POD_IN)
+			local function frameAt(sd)
+				local th = math.atan2(yAt(sd + 0.1) - yAt(sd - 0.1), 0.2)
+				return c * CFrame.new(0, yAt(sd), -sd) * CFrame.Angles(th, 0, 0)
 			end
-			-- curled tip
-			B:block(crop, v(0.5 * k, 0.5 * k, 0.9 * k), c * CFrame.new(0, 0.1 * k, -L - 0.2 * k) * ang(30, 0, 0), POD_DK)
-			B:block(crop, v(0.3 * k, 0.6 * k, 0.3 * k), c * CFrame.new(0, 0.55 * k, -L - 0.5 * k) * ang(-20, 0, 0), POD)
-			-- pearl peas
+			B:block(crop, v(0.6 * k, 0.6 * k, 0.6 * k), c * CFrame.new(0, yAt(0) + 0.1 * k, 0) * ang(0, 45, 0), STM_DK)
+			for i = 1, SEG do
+				local f = frameAt((i - 0.5) * sl)
+				local mid = (i > 1 and i < SEG)
+				local w = mid and 0.85 or 0.6
+				B:block(crop, v(w * k, 0.5 * k, sl + 0.1 * k), f * CFrame.new(0, 0.1 * k, 0), (i % 2 == 0) and POD or POD_DK)
+				if mid then
+					for sd = -1, 1, 2 do
+						B:block(crop, v(0.24 * k, 0.75 * k, sl + 0.06 * k), f * CFrame.new(sd * 0.5 * k, 0.5 * k, 0) * ang(0, 0, -sd * 20), (i == 3) and POD_DK or POD)
+					end
+				else
+					B:block(crop, v(0.5 * k, 0.4 * k, sl * 0.8), f * CFrame.new(0, 0.45 * k, 0), POD)
+				end
+			end
+			-- pointed tip hooking upward
+			local tf = frameAt(SEG * sl) * CFrame.Angles(rad(28), 0, 0)
+			B:block(crop, v(0.32 * k, 0.32 * k, 0.8 * k), tf * CFrame.new(0, 0.3 * k, -0.35 * k), POD_DK)
+			-- pearl peas in a row along the split
 			for i = 1, n do
-				local z = -(0.45 + (i - 0.5) * 1.0) * k
-				local sz = (i == math.ceil(n / 2)) and 1.05 or 0.92
-				pearl(c * CFrame.new(0, 0.75 * k, z) * ang(0, i * 25, 0), sz * k, PCOLS[(i - 1) % 3 + 1])
+				local sd = (0.95 + (i - 1) * ((SEG - 1.9) / math.max(1, n - 1))) * sl
+				local sz = (i == 2 or i == 3) and 0.78 or 0.7
+				pearl(frameAt(sd) * CFrame.new(0, 0.62 * k, 0) * ang(0, i * 25, 0), sz * k, PCOLS[(i - 1) % 3 + 1], true)
 			end
 		end
 
@@ -332,9 +343,9 @@ return {
 		end
 		-- pearl seed heads
 		local SH = {
-			{ v(0.6, WY + 0.4, -0.2), v(3.0, WY + 8.4, -1.6), v(0.8, 0.8, 0), 0.7, ang(-8, 0, 38), 1.05 },
-			{ v(-0.6, WY + 0.4, 0.2), v(-3.0, WY + 6.4, -0.8), v(-0.6, 1.2, -0.4), 0.64, ang(-8, 0, -38), 1.0 },
-			{ v(0.4, WY + 0.4, 0.8), v(2.2, WY + 5.0, 2.6), v(0.2, 1.2, 0.6), 0.58, ang(-8, 0, 32), 0.95 },
+			{ v(0.6, WY + 0.4, -0.2), v(3.0, WY + 8.4, -1.6), v(0.8, 0.8, 0), 0.7, ang(-30, 0, 22), 1.35 },
+			{ v(-0.6, WY + 0.4, 0.2), v(-3.0, WY + 6.4, -0.8), v(-0.6, 1.2, -0.4), 0.64, ang(-30, 0, -22), 1.3 },
+			{ v(0.4, WY + 0.4, 0.8), v(2.2, WY + 5.0, 2.6), v(0.2, 1.2, 0.6), 0.58, ang(-22, 0, 20), 1.2 },
 		}
 		local heads = {}
 		local podPearl = #pearls + 2

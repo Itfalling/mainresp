@@ -11,7 +11,7 @@
 -- * HONEY RUSH (pop at 6.0 s): the hive starts to tremble and its entrance
 --   glows hotter (4.9-5.95 s, the hive sinks a little), then POPS: a springy
 --   hive kick, the entrance + fruit flash, both lights flare, the canopy
---   puffs up, the hive bees zoom (extra 70 deg whirl) and lift, and 45
+--   puffs up, the hive bees zoom (one extra lap, eased) and lift, and 45
 --   honey sparks + 35 blossom petals burst out; everything settles by ~8.5 s
 -- Every wave uses whole cycles per loop; envelopes are 0 at both loop ends.
 local L = require(script.Parent.AnimLib)
@@ -50,11 +50,9 @@ function M.Update(t, pose, ctx)
 	local sink = L.track(c, { { 4.9, 0 }, { 5.9, 1, "sineInOut" }, { 6.05, 0, "quadOut" } })
 	local pop = L.track(c, { { 5.95, 0 }, { 6.2, 1, "backOut" }, { 6.9, 0.7, "sineInOut" }, { 8.5, 0, "sineInOut" } })
 	local flash = L.track(c, { { 5.95, 0 }, { 6.05, 1, "quadOut" }, { 6.6, 0.75 }, { 8.0, 0, "sineInOut" } })
-	local whirl = L.track(c, { { 5.95, 0 }, { 7.0, 1, "cubicOut" }, { 8.6, 1 } })
-	-- whirl must be a pure offset that returns to 0 by the loop end:
-	-- ramp 0->1 over the pop, then hold; subtract it back smoothly afterwards
-	local unwhirl = L.track(c, { { 7.2, 0 }, { 8.9, 1, "sineInOut" } })
-	whirl = whirl * (1 - unwhirl)
+	-- the rush: hive bees gain ONE extra full lap (360 deg) between the pop
+	-- and 8.55 s, so the offset is invisible again at the loop end
+	local whirl = L.track(c, { { 5.95, 0 }, { 8.55, 1, "sineInOut" } })
 	local dt = c - POP
 	local kick = 0
 	if dt > 0 then
@@ -72,13 +70,13 @@ function M.Update(t, pose, ctx)
 
 	-- the hive: pendulum swing + tremble + springy kick on the pop
 	pose.Hive = pa(0, -0.25 * sink + 0.15 * pop, 0,
-		4 * w(t, 2, 0.0) + 3 * tremble + 9 * kick,
+		4 * w(t, 2, 0.0) + 3 * tremble + 7 * kick,
 		2 * w(t, 1, 0.4) + 4 * w(t, 54, 0.25) * rumble,
-		3.5 * w(t, 2, 0.25) - 2.5 * tremble - 6 * kick)
+		3.5 * w(t, 2, 0.25) - 2.5 * tremble - 5 * kick)
 
 	-- hive bees: laps + bob + zoom
 	for i, b in HIVE_BEES do
-		local theta = 360 * b[1] * c / M.Cycle + 70 * whirl
+		local theta = 360 * b[1] * c / M.Cycle + 360 * whirl
 		local bob = 0.3 * w(t, 6, b[2]) + 0.9 * pop - 0.3 * sink
 		pose["Bee" .. i] = ang(0, theta, 0) * CFrame.new(0, bob, 0)
 	end

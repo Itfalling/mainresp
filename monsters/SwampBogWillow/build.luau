@@ -306,6 +306,22 @@ return {
 			B:block(bone, v(1.8, 0.8, 1.8), CFrame.new(at(r, a, y) + v(0, 0, CZ)) * ang(jit(12), rnd() * 90, jit(12)), col)
 		end
 
+		-- violet catkin tufts + pale new-leaf caps + tiny glowing spirit buds
+		for k = 0, 11 do
+			local a = k * 30 + 8
+			local r = (k % 3 == 0) and 10.6 or ((k % 3 == 1) and 8.4 or 5.4)
+			local y = (k % 3 == 0) and (Y1 + 1.55) or ((k % 3 == 1) and (Y1 + 3.85) or (Y1 + 6.3))
+			local bone = (k % 3 == 2) and canopyTop or canopy
+			local p = at(r, a, y) + v(0, 0, CZ)
+			if k % 2 == 0 then
+				B:block(bone, v(1.8, 0.8, 1.8), CFrame.new(p) * ang(0, rnd() * 90, 0), W_VIO[1 + (k % 4 == 0 and 1 or 0)])
+				B:block(bone, v(0.9, 0.5, 0.9), CFrame.new(p + v(0, 0.55, 0)) * ang(0, 45, 0), "#c7b2f2")
+			else
+				B:block(bone, v(2.0, 0.7, 2.0), CFrame.new(p) * ang(0, rnd() * 90, 0), "#c9e8a8")
+				B:block(bone, v(0.55, 0.55, 0.55), CFrame.new(p + v(0.2, 0.55, 0.1)) * ang(0, 45, 0), "#9ff8ff", { mat = "Neon", name = "SpiritBud" })
+			end
+		end
+
 		------------------------------------------------------------------
 		-- LEAF CURTAINS (CurtNa -> CurtNb, facing outward) + inner strands
 		------------------------------------------------------------------
@@ -405,8 +421,8 @@ return {
 		------------------------------------------------------------------
 		-- VFX: 8 emitters, 3 lights, 6 trails
 		------------------------------------------------------------------
-		local pond = B:block(soil, v(10, 0.4, 5.5), cf(PX, PY + 0.6, PZ), WATER, { tr = 1, name = "PondZone" })
-		B:emitter(pond, "smoke", { name = "PondFog", color = { "#d5f1ec", "#aed8dc" }, rate = 3.5, size = { 1.2, 3.0, 4.2 }, trans = { 0.68, 0.78, 1 }, life = { 3, 5 }, speed = { 0.2, 0.6 }, spread = 70, accel = { 0.25, 0.15, 0 } })
+		local pond = B:block(soil, v(12, 0.4, 7), cf(PX, PY + 0.6, PZ), WATER, { tr = 1, name = "PondZone" })
+		B:emitter(pond, "smoke", { name = "PondFog", color = { "#d5f1ec", "#aed8dc" }, rate = 4, size = { 1.2, 3.0, 4.2 }, trans = { 0.68, 0.78, 1 }, life = { 3, 5 }, speed = { 0.2, 0.6 }, spread = 70, accel = { 0.25, 0.15, 0 } })
 		B:emitter(pond, "bubble", { name = "PondBubbles", color = { "#bff7ee", "#8fe3d6" }, rate = 3, size = { 0.2, 0.35, 0.45 }, life = { 0.8, 1.6 }, speed = { 0.3, 0.9 }, accel = { 0, 1.5, 0 } })
 		local under = B:block(canopy, v(22, 10, 22), cf(0, CTOP - 4.5, CZ), WISP_SHELL, { tr = 1, name = "WispZone" })
 		B:emitter(under, "sparkle", { name = "WispSparkles", color = { "#ffffff", "#9ff8ff", "#d9b0ff" }, rate = 18, size = { 0.2, 0.7, 0 }, life = { 1.0, 2.0 }, speed = { 0.2, 0.7 }, light = 1 })
