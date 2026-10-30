@@ -28,8 +28,8 @@ return {
 		local DUST_G, DUST_C = "#ffe27a", "#b8f4ff"
 		-- plant
 		local BARK, BARK_DK, BARK_LT = "#5a4a8c", "#433770", "#7564a8"
-		local LEAF_SH, LEAF_DK, LEAF, LEAF_LT, LEAF_HI = "#7f88ad", "#9ea8c9", "#bcc6e0", "#d8dff0", "#eef2fb"
-		local LEAF_LAV = "#b6aedb"
+		local LEAF_SH, LEAF_DK, LEAF, LEAF_LT, LEAF_HI = "#7489a8", "#95a8c2", "#b9cbd8", "#d9e5ec", "#f1f6f9"
+		local LEAF_LAV = "#b4b0de"
 		local MOON, MOON_DK, MOON_LT, MOON_GLOW = "#ffe28a", "#efb94e", "#fff3c4", "#fff6d8"
 
 		local seed = 1823
@@ -145,82 +145,85 @@ return {
 				B:bar(crop, pts[i], pts[i + 1] + (pts[i + 1] - pts[i]).Unit * 0.15, ww, ww, (i % 2 == 1) and BARK or BARK_DK)
 			end
 		end
-		B:block(crop, v(1.5, 0.7, 1.5), cf(0, 1.85, 0, 0, 20, 0), BARK_DK)
-		branch({ v(0, 1.6, 0), v(0.2, 4.5, 0.1), v(-0.1, 8.0, 0.0), v(0.1, 11.5, 0.1) }, 0.95)
-		branch({ v(0.1, 2.4, 0), v(1.6, 4.2, -0.6), v(2.4, 6.0, -0.9) }, 0.65)
-		branch({ v(-0.1, 2.6, 0.1), v(-1.6, 4.4, 0.7), v(-2.3, 6.3, 0.9) }, 0.65)
-		branch({ v(0, 6.0, 0), v(-1.3, 7.6, -0.8), v(-1.8, 9.0, -1.0) }, 0.5)
-		branch({ v(0, 6.6, 0), v(1.3, 8.2, 0.8), v(1.7, 9.6, 1.0) }, 0.5)
+		B:block(crop, v(1.6, 0.7, 1.6), cf(0, 1.85, 0, 0, 20, 0), BARK_DK)
+		B:block(crop, v(1.2, 0.9, 1.2), cf(0, 2.0, 0, 0, 65, 0), BARK)
+		branch({ v(0, 1.6, 0), v(0.25, 4.0, 0.1), v(-0.1, 7.5, 0.0), v(0.1, 10.5, 0.1) }, 1.0)
+		branch({ v(0.1, 2.2, 0), v(1.5, 3.4, -0.5), v(2.6, 4.6, -0.8) }, 0.7)
+		branch({ v(-0.1, 2.3, 0.1), v(-1.5, 3.5, 0.6), v(-2.6, 4.8, 0.9) }, 0.7)
+		branch({ v(0, 5.6, 0), v(-1.4, 7.0, -0.5), v(-2.0, 8.3, -0.6) }, 0.55)
+		branch({ v(0, 6.2, 0), v(1.4, 7.7, 0.5), v(2.0, 9.0, 0.6) }, 0.55)
 
-		-- leaf masses: clusters of big rotated studded leaf cubes, darker underneath
-		local function mass(c, rx, ry, rz, n, s)
-			-- core
-			B:block(crop, v(rx * 1.3, ry * 1.2, rz * 1.3), CFrame.new(c) * ang(0, rnd(0, 90), 0), LEAF_DK)
+		-- leaf clumps: a few big rotated studded leaf cubes, light on top, dark underneath
+		local function clump(c, R, n, s, lift)
+			B:block(crop, v(R * 1.25, R * 1.0, R * 1.25), CFrame.new(c) * ang(0, rnd(0, 90), 0), LEAF_DK)
 			for i = 1, n do
 				local u = (i - 0.5) / n
-				local y = 1 - 2 * u
-				local r = math.sqrt(1 - y * y)
-				local a = i * 2.39996 + rnd(-0.3, 0.3)
+				local y = (lift or 0.85) - 1.45 * u
+				local r = math.sqrt(math.max(0, 1 - y * y))
+				local a = i * 2.39996 + rnd(-0.25, 0.25)
 				local d = v(math.cos(a) * r, y, math.sin(a) * r)
-				local p = c + v(d.X * rx, d.Y * ry, d.Z * rz) * rnd(0.82, 0.95)
+				local p = c + d * R * rnd(0.72, 0.85)
 				local col
-				if d.Y > 0.45 then col = pick({ LEAF_LT, LEAF_HI, LEAF_LT })
-				elseif d.Y > -0.2 then col = pick({ LEAF, LEAF_LT, LEAF_LAV, LEAF })
-				else col = pick({ LEAF_DK, LEAF_SH, LEAF_DK }) end
-				local sz = s * rnd(0.85, 1.15)
-				B:block(crop, v(sz, sz * rnd(0.75, 0.95), sz), CFrame.new(p) * ang(rnd(-25, 25), rnd(0, 90), rnd(-25, 25)), col)
+				if d.Y > 0.5 then col = pick({ LEAF_LT, LEAF_HI })
+				elseif d.Y > 0.0 then col = pick({ LEAF, LEAF_LT, LEAF_LAV })
+				elseif d.Y > -0.4 then col = pick({ LEAF, LEAF_DK, LEAF_LAV })
+				else col = pick({ LEAF_DK, LEAF_SH }) end
+				local sz = s * rnd(0.88, 1.12)
+				B:block(crop, v(sz, sz * 0.9, sz), CFrame.new(p) * ang(rnd(-18, 18), rnd(0, 90), rnd(-18, 18)), col)
 			end
 		end
-		mass(v(0, 5.6, 0), 3.4, 2.0, 3.2, 20, 2.0)
-		mass(v(0.1, 8.7, 0.05), 2.7, 1.8, 2.6, 15, 1.8)
-		mass(v(0, 11.3, 0), 1.9, 1.3, 1.9, 9, 1.6)
+		clump(v(0, 4.6, 0), 3.3, 12, 2.6, 0.8)
+		clump(v(-1.9, 8.2, -0.3), 2.2, 7, 2.2)
+		clump(v(1.9, 8.9, 0.4), 2.2, 7, 2.2)
+		clump(v(0.0, 7.6, 1.6), 1.9, 5, 2.1)
+		clump(v(0.1, 10.8, 0.0), 2.0, 7, 2.0)
 
 		-- stepped crescent moon in frame F (local +Z faces out, arc opens toward local +X)
-		local function crescent(F, s, glow, idx)
+		local function crescent(F, s, glow, idx, thick)
 			local r = 0.72 * s
-			local arc = { { 180, 0.62, 0.78, MOON }, { 135, 0.52, 0.66, MOON }, { 225, 0.52, 0.66, MOON_DK },
-				{ 95, 0.4, 0.55, MOON_LT }, { 265, 0.4, 0.55, MOON_DK }, { 62, 0.28, 0.36, MOON_LT }, { 298, 0.28, 0.36, MOON } }
+			local th = (thick or 1) * 0.55 * s
+			local arc = { { 180, 0.62, 0.8, MOON }, { 135, 0.52, 0.68, MOON_LT }, { 225, 0.52, 0.68, MOON_DK },
+				{ 95, 0.4, 0.56, MOON_LT }, { 265, 0.4, 0.56, MOON_DK }, { 62, 0.27, 0.36, MOON_LT }, { 298, 0.27, 0.36, MOON } }
 			for _, q in arc do
 				local A = F * CFrame.Angles(0, 0, rad(q[1]))
-				B:block(crop, v(q[2] * s, q[3] * s, 0.55 * s * (q[2] / 0.62 * 0.4 + 0.6)), A * CFrame.new(r, 0, 0), q[4])
+				B:block(crop, v(q[2] * s, q[3] * s, th * (q[2] / 0.62 * 0.4 + 0.6)), A * CFrame.new(r, 0, 0), q[4])
 			end
 			if glow then
-				local g = B:block(crop, v(0.16 * s, 0.6 * s, 0.4 * s), F * CFrame.new(-r + 0.32 * s, 0, 0.12 * s), MOON_GLOW, { mat = "Neon", name = "MoonGlow" .. idx })
+				local g = B:block(crop, v(0.16 * s, 0.62 * s, th * 0.75), F * CFrame.new(-r + 0.36 * s, 0, 0), MOON_GLOW, { mat = "Neon", name = "MoonGlow" .. idx })
 				table.insert(glows, g)
 			end
 		end
-		-- hang a crescent off the bush: anchor inside the leaves, berry outside facing outward
+		-- hang a crescent off the bush: stem from inside the leaves, berry outside facing outward
 		local function berry(a, y, rOut, s, roll, glow, idx)
 			local out = v(math.sin(rad(a)), 0, -math.cos(rad(a)))
 			local C = out * rOut + v(0, y, 0)
-			local F = CFrame.lookAt(C, C - out) * CFrame.Angles(0, 0, rad(roll))
-			-- stem from inside the leaf mass to the crescent's upper horn
-			local top = C + v(0, 0.55 * s, 0)
-			B:bar(crop, out * (rOut - 1.3) + v(0, y + 1.0, 0), top + v(0, 0.2, 0), 0.22, 0.22, BARK_LT)
+			local F = CFrame.lookAt(C, C + out) * CFrame.Angles(0, 0, rad(roll))
+			B:bar(crop, out * (rOut - 1.4) + v(0, y + 1.1, 0), C + v(0, 0.75 * s, 0), 0.24, 0.24, BARK_LT)
+			B:block(crop, v(0.4, 0.3, 0.4), CFrame.new(C + v(0, 0.75 * s, 0)), BARK, {})
 			crescent(F * CFrame.Angles(0, math.pi, 0), s, glow, idx)
 		end
-		berry(-20, 4.1, 3.7, 1.25, -15, true, 1)
-		berry(55, 5.0, 3.9, 1.15, 25, false, 2)
-		berry(125, 3.9, 3.7, 1.2, -30, true, 3)
-		berry(200, 4.6, 3.8, 1.2, 10, false, 4)
-		berry(275, 4.2, 3.8, 1.15, -25, false, 5)
-		berry(20, 7.6, 3.1, 1.1, 30, false, 6)
-		berry(100, 8.0, 3.0, 1.05, -20, true, 7)
-		berry(-110, 7.7, 3.1, 1.1, 15, false, 8)
-		berry(170, 8.4, 3.0, 1.0, -35, false, 9)
-		berry(-60, 10.4, 2.3, 0.95, 20, false, 10)
+		berry(-15, 3.4, 4.0, 1.45, -15, true, 1)
+		berry(60, 4.2, 4.1, 1.4, 25, false, 2)
+		berry(130, 3.3, 3.9, 1.4, -30, true, 3)
+		berry(185, 4.0, 4.0, 1.35, 10, false, 4)
+		berry(280, 4.4, 4.0, 1.35, -25, false, 5)
+		berry(-75, 7.6, 3.7, 1.3, 30, true, 6)
+		berry(25, 7.4, 2.9, 1.25, -20, false, 7)
+		berry(95, 8.5, 3.6, 1.3, 15, false, 8)
+		berry(160, 8.0, 3.0, 1.25, -35, false, 9)
+		berry(-130, 8.6, 3.4, 1.2, 20, false, 10)
+		berry(40, 10.6, 2.5, 1.1, -10, false, 11)
 
 		-- the crown: a big glowing crescent moon on a stem rising from the top
-		branch({ v(0.1, 11.4, 0.1), v(0.2, 13.0, 0.0) }, 0.4)
-		local CR = CFrame.new(0.15, 14.3, -0.05) * CFrame.Angles(0, rad(28), 0) * CFrame.Angles(0, 0, rad(-20))
-		crescent(CR, 2.1, true, 11)
-		crescent(CR * CFrame.Angles(0, math.pi, 0) * CFrame.new(0, 0, 0.02), 2.06, false, 12)
+		branch({ v(0.1, 10.6, 0.1), v(0.15, 12.4, 0.0) }, 0.42)
+		local CR = CFrame.new(0.2, 13.5, -0.05) * CFrame.Angles(0, rad(25), 0) * CFrame.Angles(0, 0, rad(-25))
+		crescent(CR, 2.0, true, 12, 1.5)
 
 		------------------------------------------------------------ fx
 		local crown = glows[#glows]
 		B:emitter(crown, "glow", { name = "MoonAura", color = "#fff2c0", rate = 1.2, size = { 1.2, 2.2, 0.6 }, life = { 1.2, 2.0 } })
 		B:emitter(crown, "sparkle", { name = "MoonTwinkle", color = { "#ffffff", "#ffe28a" }, rate = 5, size = { 0.12, 0.5, 0 }, speed = { 0.5, 1.6 } })
-		local dustPart = B:block(crop, v(4.6, 0.3, 4.4), cf(0, 7.2, 0), LEAF_DK, { tr = 1, name = "MoonDustZone" })
+		local dustPart = B:block(crop, v(4.6, 0.3, 4.4), cf(0, 7.0, 0), LEAF_DK, { tr = 1, name = "MoonDustZone" })
 		B:emitter(dustPart, "leaf", { name = "MoonDust", color = { "#e6f2ff", "#a9c8ff" }, rate = 4, size = { 0.22, 0.28, 0 }, life = { 2.5, 3.5 }, speed = { 0.2, 0.6 }, accel = { 0, -1.2, 0 }, light = 0.5 })
 		B:emitter(glows[1], "sparkle", { name = "BerryTwinkle", color = { "#ffffff", "#bfe9ff" }, rate = 2, size = { 0.1, 0.35, 0 } })
 		B:light(crown, { name = "MoonLight", color = "#cfe0ff", brightness = 0.9, range = 12 })

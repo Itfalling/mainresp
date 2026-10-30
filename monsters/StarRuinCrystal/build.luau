@@ -34,7 +34,7 @@ return {
 		local MOSS, MOSS_DK, MOSS_LT = "#4f9e7c", "#367a62", "#78c79a"
 		local RUNE = "#7fe8ff"
 		local DUST_G, DUST_C = "#ffe27a", "#b8f4ff"
-		local VIO_DK, VIO, VIO_LT = "#5b3fc4", "#8160f0", "#b49cff"
+		local VIO_DK, VIO, VIO_LT = "#6a49dc", "#8d6af7", "#bba6ff"
 		local CY_DK, CY, CY_LT = "#2aa9cf", "#4fd8f2", "#a8f3ff"
 		local PINK, PINK_LT = "#ff8fd8", "#ffc4ee"
 		local CORE_C, CORE_P, CORE_W = "#c4fbff", "#ffd2f4", "#f4f0ff"
@@ -198,8 +198,8 @@ return {
 		local crop = B:bone("Crop", "Root", v(0, T1T, 0))
 		local ZA = 0.6 -- arch plane (z)
 		local PX = 4.75 -- pillar centres at x = +-PX
-		local SHAFT0, SHAFT1 = T1T + 1.15, 8.9
-		local AC = 9.75 -- arch springline / centre height
+		local SHAFT0, SHAFT1 = T1T + 1.15, 7.8
+		local AC = 8.65 -- arch springline / centre height
 		local AR = 4.75 -- voussoir mid radius
 		for _, sx in { -1, 1 } do
 			local x = sx * PX
@@ -290,12 +290,12 @@ return {
 		do
 			local th = 180 - 6.5 * (180 / NV)
 			local c = CFrame.new(vpos(th, AR + 0.2)) * CFrame.Angles(0, 0, rad(th - 90))
-			cluster(c, 0.95, 3, VIO, CY, "BreakCore1", CORE_P)
+			cluster(c, 1.45, 3, VIO, CY, "BreakCore1", CORE_P)
 		end
 		-- cracked right pillar: crystals burst out sideways (front-right)
-		cluster(CFrame.new(PX + 0.9, SHAFT0 + 2.75, ZA - 0.5) * ang(-35, 25, -62), 0.85, 3, CY, VIO, "BreakCore2", CORE_C)
+		cluster(CFrame.new(PX + 0.9, SHAFT0 + 2.75, ZA - 0.5) * ang(-35, 25, -62), 1.25, 3, CY, VIO, "BreakCore2", CORE_C)
 		-- left plinth: a small cluster growing at its foot (front)
-		cluster(CFrame.new(-PX + 0.4, T1T + 0.5, ZA - 1.7) * ang(-30, 0, 12), 0.6, 2, VIO, CY, "BreakCore3", CORE_P)
+		cluster(CFrame.new(-PX + 0.4, T1T + 0.5, ZA - 1.7) * ang(-30, 0, 12), 0.85, 2, VIO, CY, "BreakCore3", CORE_P)
 
 		------------------------------------------------------------------
 		-- CRYSTAL FLOWER (out of the keystone)
@@ -337,12 +337,12 @@ return {
 			local dir = v(math.sin(rad(a)), 0, -math.cos(rad(a)))
 			local p0 = BC + dir * 0.75 + v(0, 0.25, 0)
 			local pet = B:bone("Petal" .. k, "Bloom", p0)
-			local tip = p0 + dir * 2.7 + v(0, 2.5, 0)
-			crystal(pet, p0 - dir * 0.2, tip, 1.35, (k % 2 == 0) and VIO or VIO_DK, VIO_LT, PINK_LT, { "PetalCore" .. k, CORE_P })
+			local tip = p0 + dir * 3.2 + v(0, 3.0, 0)
+			crystal(pet, p0 - dir * 0.2, tip, 1.6, (k % 2 == 0) and VIO or VIO_DK, VIO_LT, PINK_LT, { "PetalCore" .. k, CORE_P })
 			-- a pink side-spur on every petal
 			local side = dir:Cross(v(0, 1, 0)).Unit
 			local sp0 = p0 + dir * 0.9 + v(0, 0.7, 0)
-			crystal(pet, sp0, sp0 + dir * 0.8 + v(0, 1.0, 0) + side * ((k % 2 == 0) and 0.6 or -0.6), 0.6, PINK, PINK_LT, CORE_W)
+			crystal(pet, sp0, sp0 + dir * 1.0 + v(0, 1.2, 0) + side * ((k % 2 == 0) and 0.7 or -0.7), 0.72, PINK, PINK_LT, CORE_W)
 		end
 		-- inner crown: six cyan crystals that slowly turn
 		local crown = B:bone("Crown", "Bloom", BC)
@@ -350,32 +350,32 @@ return {
 			local a = k * 60
 			local dir = v(math.sin(rad(a)), 0, -math.cos(rad(a)))
 			local p0 = BC + dir * 0.45 + v(0, 0.3, 0)
-			crystal(crown, p0, p0 + dir * 0.9 + v(0, 2.0, 0), 0.8, (k % 2 == 0) and CY or CY_DK, CY_LT, CORE_W)
+			crystal(crown, p0, p0 + dir * 1.0 + v(0, 2.5, 0), 0.9, (k % 2 == 0) and CY or CY_DK, CY_LT, CORE_W)
 		end
 
 		-- floating HEART crystal (spins), glowing equator
-		local HC = BC + v(0, 3.55, 0)
+		local HC = BC + v(0, 3.9, 0)
 		local heart = B:bone("Heart", "Bloom", HC)
 		local H = CFrame.new(HC) * ang(0, 45, 0)
-		B:block(heart, v(2.15, 0.5, 2.15), H, CORE_C, { mat = "Neon", name = "HeartCore" })
-		B:block(heart, v(1.9, 0.6, 1.9), H * CFrame.new(0, 0.55, 0), CY)
-		B:block(heart, v(1.4, 0.6, 1.4), H * CFrame.new(0, 1.1, 0), CY_LT)
-		B:block(heart, v(0.85, 0.5, 0.85), H * CFrame.new(0, 1.6, 0), CORE_W)
-		B:block(heart, v(0.4, 0.4, 0.4), H * CFrame.new(0, 2.0, 0), CY_LT)
-		B:block(heart, v(1.9, 0.6, 1.9), H * CFrame.new(0, -0.55, 0), VIO)
-		B:block(heart, v(1.35, 0.6, 1.35), H * CFrame.new(0, -1.1, 0), VIO_LT)
-		B:block(heart, v(0.8, 0.6, 0.8), H * CFrame.new(0, -1.65, 0), PINK)
-		B:block(heart, v(0.36, 0.5, 0.36), H * CFrame.new(0, -2.1, 0), PINK_LT)
+		B:block(heart, v(2.58, 0.6, 2.58), H, CORE_C, { mat = "Neon", name = "HeartCore" })
+		B:block(heart, v(2.28, 0.72, 2.28), H * CFrame.new(0, 0.66, 0), CY)
+		B:block(heart, v(1.68, 0.72, 1.68), H * CFrame.new(0, 1.32, 0), CY_LT)
+		B:block(heart, v(1.02, 0.6, 1.02), H * CFrame.new(0, 1.92, 0), CORE_W)
+		B:block(heart, v(0.48, 0.48, 0.48), H * CFrame.new(0, 2.4, 0), CY_LT)
+		B:block(heart, v(2.28, 0.72, 2.28), H * CFrame.new(0, -0.66, 0), VIO)
+		B:block(heart, v(1.62, 0.72, 1.62), H * CFrame.new(0, -1.32, 0), VIO_LT)
+		B:block(heart, v(0.96, 0.72, 0.96), H * CFrame.new(0, -1.98, 0), PINK)
+		B:block(heart, v(0.432, 0.6, 0.432), H * CFrame.new(0, -2.52, 0), PINK_LT)
 		-- facet highlights (thin plates on two faces)
-		B:block(heart, v(0.9, 0.42, 0.12), H * CFrame.new(0, 0.6, -0.97), CY_LT)
-		B:block(heart, v(0.9, 0.42, 0.12), H * CFrame.new(0, -0.6, 0.97), VIO_LT)
+		B:block(heart, v(1.08, 0.504, 0.144), H * CFrame.new(0, 0.72, -1.164), CY_LT)
+		B:block(heart, v(1.08, 0.504, 0.144), H * CFrame.new(0, -0.72, 1.164), VIO_LT)
 
 		-- three crystal shards orbiting the heart (with trails)
 		local orbit = B:bone("Orbit", "Bloom", HC)
 		local SH = {
-			{ 0, 3.05, 0.55, PINK, PINK_LT },
-			{ 120, 3.05, -0.15, CY, CY_LT },
-			{ 240, 3.05, 0.25, GOLD, GOLD_LT },
+			{ 0, 4.4, 1.15, PINK, PINK_LT },
+			{ 120, 4.4, 0.7, CY, CY_LT },
+			{ 240, 4.4, 0.95, GOLD, GOLD_LT },
 		}
 		for i, s in SH do
 			local pc = HC + v(math.sin(rad(s[1])) * s[2], s[3], -math.cos(rad(s[1])) * s[2])
@@ -389,7 +389,7 @@ return {
 		end
 
 		-- lumen crystal floating inside the arch opening
-		local LC = v(0, 7.9, ZA)
+		local LC = v(0, 7.3, ZA)
 		local lumen = B:bone("Lumen", "Crop", LC)
 		do
 			local F = CFrame.new(LC) * ang(0, 45, 0)

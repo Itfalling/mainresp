@@ -154,71 +154,84 @@ return {
 		-- CUTE DINO SKULL PLANTER (bone "Skull")
 		------------------------------------------------------------------
 		local sk = B:bone("Skull", "Root", v(0, TOP, 0))
-		-- cranium: stepped rounded box  (y 2.1 .. 7.1, z -1.5 .. 3.9)
-		local CY, CZ = 4.6, 1.2
-		B:block(sk, v(5.8, 4.4, 5.0), cf(0, CY, CZ), BONE)
-		B:block(sk, v(5.0, 5.0, 4.4), cf(0, CY + 0.05, CZ), BONE_LT)
-		B:block(sk, v(6.3, 3.2, 4.4), cf(0, CY - 0.2, CZ), BONE)
-		B:block(sk, v(5.0, 3.4, 5.6), cf(0, CY - 0.1, CZ + 0.05), BONE_DK)
-		-- back of the skull (occipital bump) + jaw hinge knobs
-		B:block(sk, v(3.6, 2.6, 1.0), cf(0, CY - 0.2, CZ + 3.0), BONE_DK)
-		B:block(sk, v(2.4, 1.6, 0.6), cf(0, CY - 0.4, CZ + 3.6), BONE_SH)
+		-- cranium: stepped rounded box  (y 2.7 .. 7.7, z -1.2 .. 4.0)
+		local CY, CZ = 5.2, 1.4
+		B:block(sk, v(6.0, 4.6, 5.0), cf(0, CY, CZ), BONE)
+		B:block(sk, v(5.2, 5.0, 4.6), cf(0, CY, CZ + 0.05), BONE_LT)
+		B:block(sk, v(6.5, 3.4, 4.2), cf(0, CY - 0.3, CZ + 0.2), BONE)
+		B:block(sk, v(5.0, 3.6, 5.6), cf(0, CY - 0.2, CZ + 0.15), BONE_DK)
+		B:block(sk, v(5.4, 0.8, 4.6), cf(0, 2.5, CZ + 0.2), BONE_SH)
+		-- back of the skull (occipital bump) + jaw hinge knobs + cheek horns
+		B:block(sk, v(3.6, 2.6, 1.0), cf(0, CY - 0.3, CZ + 3.0), BONE_DK)
+		B:block(sk, v(2.2, 1.4, 0.6), cf(0, CY - 0.5, CZ + 3.6), BONE_SH)
 		for sg = -1, 1, 2 do
-			B:block(sk, v(0.8, 1.6, 1.8), cf(sg * 3.2, 3.2, 0.2), BONE_DK)
-			-- cheek horn bumps
-			B:block(sk, v(0.7, 0.7, 0.7), cf(sg * 3.25, 5.3, 2.0, 0, 0, sg * 20), BONE_LT)
+			B:block(sk, v(0.9, 1.5, 1.8), cf(sg * 3.3, 3.5, -0.2), BONE_DK)
+			B:block(sk, v(0.8, 0.8, 0.8), cf(sg * 3.4, 5.6, 2.2, 0, 0, sg * 20), BONE_LT)
+			B:block(sk, v(0.5, 0.6, 0.5), cf(sg * 3.75, 6.1, 2.2, 0, 0, sg * 35), BONE)
 		end
 		-- open top full of ash soil, with a broken bone rim
-		local RIMY = CY + 2.5
-		B:block(sk, v(4.0, 0.3, 3.6), cf(0, RIMY + 0.05, CZ + 0.1), SOIL_DK)
-		B:block(sk, v(3.2, 0.3, 2.8), cf(0, RIMY + 0.2, CZ + 0.1, 0, 20, 0), "#4a3c36")
-		for _, r in { { -2.3, 0, 0.5, 3.4, 0.9 }, { 2.3, 0, 0.6, 3.0, 0.7 }, { 0, -1.85, 3.2, 0.5, 0.75 }, { 0.3, 1.95, 3.6, 0.5, 0.6 } } do
+		local RIMY = CY + 2.55
+		B:block(sk, v(4.2, 0.3, 3.8), cf(0, RIMY + 0.05, CZ + 0.3), SOIL_DK)
+		B:block(sk, v(3.4, 0.3, 3.0), cf(0, RIMY + 0.2, CZ + 0.3, 0, 20, 0), "#4a3c36")
+		for _, r in { { -2.45, 0.2, 0.6, 3.8, 0.9 }, { 2.45, 0.3, 0.6, 3.4, 0.7 }, { 0.2, 2.25, 3.8, 0.55, 0.65 } } do
 			B:block(sk, v(r[3], r[5], r[4]), cf(r[1], RIMY + r[5] / 2 - 0.15, CZ + r[2], 0, jit(4), 0), BONE_LT)
 		end
-		B:block(sk, v(0.8, 0.5, 0.7), cf(-2.2, RIMY + 0.95, CZ + 1.2, 0, 20, 10), BONE)
+		B:block(sk, v(0.8, 0.5, 0.7), cf(2.4, RIMY + 0.8, CZ + 1.5, 0, 20, -10), BONE)
 		-- crack lines + fossil stains
-		B:bar(sk, v(2.95, 6.3, 0.2), v(3.0, 5.2, 1.3), 0.14, 0.16, BONE_SH)
-		B:bar(sk, v(3.0, 5.2, 1.3), v(2.98, 4.5, 1.0), 0.14, 0.16, BONE_SH)
-		B:block(sk, v(0.1, 0.9, 1.3), cf(-3.17, 3.6, 2.2), STAIN)
-		B:block(sk, v(0.1, 0.6, 0.7), cf(-3.17, 4.4, 2.9), STAIN)
-		B:block(sk, v(1.6, 0.1, 1.0), cf(0.8, RIMY - 0.1, CZ + 2.95), STAIN)
+		B:bar(sk, v(3.27, 6.6, 0.4), v(3.3, 5.4, 1.4), 0.14, 0.16, BONE_SH)
+		B:bar(sk, v(3.3, 5.4, 1.4), v(3.28, 4.6, 1.1), 0.14, 0.16, BONE_SH)
+		B:block(sk, v(0.1, 0.9, 1.3), cf(-3.27, 3.9, 2.4), STAIN)
+		B:block(sk, v(0.1, 0.6, 0.7), cf(-3.27, 4.7, 3.1), STAIN)
+		B:block(sk, v(1.6, 0.1, 1.0), cf(0.8, RIMY - 0.6, CZ + 3.05), STAIN)
 
-		-- big eye sockets at the front corners, lit by teal glow crystals
+		-- big round eye sockets on the face, lit by teal glow crystals
 		local sockets = {}
+		local FZ = CZ - 2.5 -- cranium front face
 		for sg = -1, 1, 2 do
-			local sc = CFrame.new(sg * 2.15, 5.55, -1.2) * CFrame.Angles(0, rad(sg * 32), 0)
-			B:block(sk, v(2.4, 2.4, 0.6), sc * CFrame.new(0, 0, 0.1), BONE_LT)
-			B:block(sk, v(1.8, 1.9, 0.6), sc * CFrame.new(0, 0, -0.12), SOCK)
-			B:block(sk, v(1.3, 1.3, 0.3), sc * CFrame.new(0, 0, -0.32), SOCK)
-			local g = B:block(sk, v(0.7, 0.7, 0.3), sc * CFrame.new(-sg * 0.2, -0.2, -0.36) * CFrame.Angles(0, 0, rad(45)), TEAL, { mat = "Neon", name = "SocketGlow" })
-			B:block(sk, v(0.3, 0.3, 0.3), sc * CFrame.new(sg * 0.35, 0.35, -0.4), TEAL_LT, { mat = "Neon", name = "SocketGlow" })
-			-- heavy brow ridge
-			B:block(sk, v(2.7, 0.7, 1.2), sc * CFrame.new(0, 1.4, 0.15) * CFrame.Angles(0, 0, rad(-sg * 8)), BONE)
-			B:block(sk, v(0.6, 0.6, 0.6), sc * CFrame.new(sg * 0.7, 1.95, 0.3) * CFrame.Angles(0, rad(30), rad(-sg * 15)), BONE_DK)
+			local x, y = sg * 1.55, 6.55
+			B:block(sk, v(2.0, 2.0, 0.3), cf(x, y, FZ - 0.1), SOCK)
+			-- stepped bone frame (4 bars + corner fillers = rounded socket)
+			B:block(sk, v(2.0, 0.5, 0.6), cf(x, y + 1.2, FZ - 0.3), BONE_LT)
+			B:block(sk, v(2.0, 0.5, 0.6), cf(x, y - 1.2, FZ - 0.3), BONE_LT)
+			B:block(sk, v(0.5, 2.0, 0.6), cf(x + 1.2, y, FZ - 0.3), BONE_LT)
+			B:block(sk, v(0.5, 2.0, 0.6), cf(x - 1.2, y, FZ - 0.3), BONE_LT)
+			for cx = -1, 1, 2 do
+				for cy = -1, 1, 2 do
+					B:block(sk, v(0.5, 0.5, 0.6), cf(x + cx * 0.82, y + cy * 0.82, FZ - 0.32), BONE)
+				end
+			end
+			local g = B:block(sk, v(0.75, 0.75, 0.3), cf(x - sg * 0.1, y - 0.1, FZ - 0.25, 0, 0, 45), TEAL, { mat = "Neon", name = "SocketGlow" })
+			B:block(sk, v(0.3, 0.3, 0.3), cf(x + sg * 0.45, y + 0.45, FZ - 0.3), TEAL_LT, { mat = "Neon", name = "SocketGlow" })
+			B:block(sk, v(0.45, 0.3, 0.3), cf(x - sg * 0.5, y - 0.6, FZ - 0.2, 0, 0, 30), "#1f8f86")
+			-- heavy brow ridge (front of the planter rim)
+			B:block(sk, v(2.9, 0.7, 1.3), cf(x + sg * 0.1, y + 1.65, FZ - 0.05, 0, 0, sg * 6), BONE)
 			table.insert(sockets, g)
 		end
+		-- bridge between the sockets
+		B:block(sk, v(0.7, 2.6, 0.5), cf(0, 6.4, FZ - 0.2), BONE)
 
-		-- upper jaw / snout (y 4.1 .. 5.9, z -5.4 .. -1.2)
-		B:block(sk, v(4.4, 1.8, 4.2), cf(0, 5.0, -3.3), BONE)
-		B:block(sk, v(3.8, 0.5, 3.6), cf(0, 6.0, -3.0), BONE_LT)
-		B:block(sk, v(3.6, 1.6, 0.6), cf(0, 4.95, -5.55), BONE_LT)
-		B:block(sk, v(4.6, 0.5, 3.6), cf(0, 4.25, -3.1), BONE_DK)
-		-- nostrils
+		-- upper jaw / snout (y 3.4 .. 5.2, z -4.8 .. -1.2)
+		B:block(sk, v(4.6, 1.8, 3.6), cf(0, 4.3, -3.0), BONE)
+		B:block(sk, v(4.0, 0.5, 3.4), cf(0, 5.3, -2.9), BONE_LT)
+		B:block(sk, v(3.8, 1.5, 0.5), cf(0, 4.35, -4.95), BONE_LT)
+		B:block(sk, v(2.8, 0.4, 0.4), cf(0, 5.2, -4.95), BONE_LT)
+		B:block(sk, v(4.8, 0.4, 3.4), cf(0, 3.55, -2.9), BONE_DK)
+		-- nostrils on the snout tip
 		for sg = -1, 1, 2 do
-			B:block(sk, v(0.7, 0.3, 0.6), cf(sg * 0.85, 6.2, -4.5), SOCK)
+			B:block(sk, v(0.6, 0.4, 0.12), cf(sg * 0.7, 4.75, -5.22), SOCK)
 		end
-		local noseFx = B:block(sk, v(2.4, 0.3, 0.6), cf(0, 6.4, -4.5), BONE, { tr = 1, name = "NoseFx" })
+		local noseFx = B:block(sk, v(2.0, 0.4, 0.3), cf(0, 4.85, -5.4), BONE, { tr = 1, name = "NoseFx" })
 		-- mouth interior + gaping lower jaw resting on the mound
-		B:block(sk, v(3.6, 1.6, 3.6), cf(0, 3.4, -3.0), MOUTH)
-		B:block(sk, v(4.2, 1.1, 4.4), cf(0, 2.25, -3.2, -4, 0, 0), BONE)
-		B:block(sk, v(3.6, 0.5, 4.0), cf(0, 1.85, -3.3, -4, 0, 0), BONE_DK)
-		B:block(sk, v(3.4, 0.12, 3.4), cf(0, 2.86, -3.05, -4, 0, 0), "#7a3a3e")
+		B:block(sk, v(3.8, 1.0, 3.4), cf(0, 3.0, -2.8), MOUTH)
+		B:block(sk, v(4.4, 0.9, 3.9), cf(0, 2.3, -3.0, -5, 0, 0), BONE)
+		B:block(sk, v(3.8, 0.5, 3.7), cf(0, 1.95, -3.05, -5, 0, 0), BONE_DK)
+		B:block(sk, v(3.4, 0.12, 3.1), cf(0, 2.76, -2.85, -5, 0, 0), "#7a3a3e")
 		-- teeth: upper row hanging down, lower row pointing up
-		for _, t in { { -1.35, -5.15 }, { -0.45, -5.15 }, { 0.45, -5.15 }, { 1.35, -5.15 }, { -1.95, -4.2 }, { 1.95, -4.2 }, { -1.95, -3.0 }, { 1.95, -3.0 } } do
-			B:block(sk, v(0.4, 0.6, 0.4), cf(t[1], 3.75, t[2], 0, 45, 0), "#ffffff")
+		for _, t in { { -1.4, -4.55 }, { -0.47, -4.55 }, { 0.47, -4.55 }, { 1.4, -4.55 }, { -2.05, -3.6 }, { 2.05, -3.6 }, { -2.05, -2.5 }, { 2.05, -2.5 } } do
+			B:block(sk, v(0.42, 0.6, 0.42), cf(t[1], 3.15, t[2], 0, 45, 0), "#ffffff")
 		end
-		for _, t in { { -0.9, -5.15 }, { 0.0, -5.2 }, { -1.85, -3.6 }, { 1.85, -3.6 } } do
-			B:block(sk, v(0.38, 0.5, 0.38), cf(t[1], 3.0, t[2], 0, 45, 0), "#ffffff")
+		for _, t in { { -0.95, -4.5 }, { 1.85, -3.1 }, { -1.85, -3.1 } } do
+			B:block(sk, v(0.38, 0.5, 0.38), cf(t[1], 2.85, t[2], 0, 45, 0), "#ffffff")
 		end
 
 		------------------------------------------------------------------
