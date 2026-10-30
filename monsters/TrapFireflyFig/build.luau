@@ -210,7 +210,7 @@ return {
 		end
 		-- 2) figs half-sunk into the sides of the crown (neck in the leaves)
 		tries = 0
-		while #placed < 20 and tries < 4000 do
+		while #placed < 18 and tries < 4000 do
 			tries += 1
 			local c = cubes[math.floor(rnd(1, #cubes + 0.999))]
 			local fdir = FACES[math.floor(rnd(1, 4.999))]

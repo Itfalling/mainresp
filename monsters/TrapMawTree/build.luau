@@ -293,11 +293,12 @@ return {
 			bk(lid, TL, 2.4, 0.8, 0.8, 0, 0.55, 0.35, GREEN_DK)
 			-- the juicy maw-fruit sitting on the lower pad
 			local fz = o.fz or -2.0
-			bk(body, T, 2.2, 1.0, 1.5, 0, 0.5, fz, FRUIT)
-			bk(body, T, 1.5, 1.02, 2.2, 0, 0.5, fz, FRUIT)
-			bk(body, T, 1.9, 0.9, 1.9, 0, 0.48, fz, FRUIT_DK, 0, 45, 0)
-			local cap = bk(body, T, 1.3, 0.32, 1.3, 0, 1.12, fz, GLOW_PINK, 0, 0, 0, { mat = "Neon", name = "MawGlow" .. o.idx })
-			bk(body, T, 0.55, 0.4, 0.12, -0.45, 0.62, fz - 1.12, SHINE, 0, 0, 0, { mat = "Neon", name = "MawShine" .. o.idx })
+			local fh = o.fh or 1
+			bk(body, T, 2.2, 1.0 * fh, 1.5, 0, 0.5 * fh, fz, FRUIT)
+			bk(body, T, 1.5, 1.0 * fh + 0.02, 2.2, 0, 0.5 * fh, fz, FRUIT)
+			bk(body, T, 1.9, 0.9 * fh, 1.9, 0, 0.48 * fh, fz, FRUIT_DK, 0, 45, 0)
+			local cap = bk(body, T, 1.3, 0.32, 1.3, 0, 1.0 * fh + 0.12, fz, GLOW_PINK, 0, 0, 0, { mat = "Neon", name = "MawGlow" .. o.idx })
+			bk(body, T, 0.55, 0.4 * fh, 0.12, -0.45, 0.62 * fh, fz - 1.12, SHINE, 0, 0, 0, { mat = "Neon", name = "MawShine" .. o.idx })
 			-- digest seam: a lime glow line across the lips, shown while shut
 			if o.seam then
 				bk(body, T, 3.4, 0.16, 0.16, 0, 0.02, -3.82, LIME, 0, 0, 0, { mat = "Neon", tr = 1, name = "Seam" .. o.idx })
@@ -359,7 +360,7 @@ return {
 		-- CROWN: a big upright maw on the very top holding the biggest fruit
 		------------------------------------------------------------------
 		local CR = v(0, 20.0, 0.6)
-		local CT = CFrame.new(CR) * CFrame.Angles(rad(25), 0, 0)
+		local CT = CFrame.new(CR) * CFrame.Angles(rad(12), 0, 0)
 		-- thick stem + leafy collar the crown sits in (canopy bone)
 		B:block(canopy, v(2.0, 2.4, 2.0), CFrame.new(CR + v(0, -1.3, 0.6)) * ang(0, 20, 0), GREEN_DK)
 		for i = 0, 4 do
@@ -367,7 +368,7 @@ return {
 			local c = CFrame.new(CR + v(0, -0.6, 0.3)) * CFrame.Angles(0, rad(a), 0) * CFrame.new(0, 0, -1.4) * ang(-30, 0, 0)
 			B:block(canopy, v(1.4, 0.35, 1.8), c, (i % 2 == 0) and GREEN_TOP or LF_LIME)
 		end
-		local crownBody, _, _, cat = pod({ name = "Crown", parent = "Canopy", pivot = CT * CFrame.new(0, -0.6, 0.6), T = CT, s = 0.9, open = 40, idx = 0, deg = 0, stem = false, fz = -2.05 })
+		local crownBody, _, _, cat = pod({ name = "Crown", parent = "Canopy", pivot = CT * CFrame.new(0, -0.6, 0.6), T = CT, s = 0.9, open = 40, idx = 0, deg = 0, stem = false, fz = -2.05, fh = 1.6 })
 		local crownCore = B:block(crownBody, v(0.4, 0.4, 0.4), cat(CT, 0, 0.6, -2.05), FRUIT_DK, { name = "CrownCore", tr = 1 })
 		B:emitter(crownCore, "glow", { name = "CrownGlow", color = { GLOW_PINK, "#ffb0c4" }, rate = 1.6, size = { 1.6, 2.4, 0 }, trans = { 0.7, 0.6, 1 } })
 		B:light(crownCore, { name = "CrownLight", color = "#ff7d9a", brightness = 1.0, range = 10 })
