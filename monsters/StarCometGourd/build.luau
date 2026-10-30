@@ -231,9 +231,19 @@ return {
 		B:block(crop, v(1.7, 1.3, 1.7), CFrame.new(crest[2] + v(1.0, 0.4, 0.4)) * ang(10, 15, 25), LEAF[2])
 		B:block(crop, v(1.4, 1.1, 1.4), CFrame.new(crest[3] + v(0.2, 0.75, 0.3)) * ang(15, 40, -10), LEAF_SILVER)
 		B:block(crop, v(1.1, 0.9, 1.1), CFrame.new(crest[4] + v(-0.6, 0.5, 0)) * ang(-10, 10, 20), LEAF[1])
-		-- curly tendril off the hook
-		seg(crest[3] + v(0, 0.2, 0), crest[3] + v(0.9, 1.0, 0.2), 0.22, MOSS_LT)
-		seg(crest[3] + v(0.9, 1.0, 0.2), crest[3] + v(1.4, 0.7, -0.3), 0.2, MOSS_LT)
+		B:block(crop, v(1.8, 1.3, 1.8), CFrame.new(crest[1] + v(-1.1, -0.6, -0.5)) * ang(-20, 10, 15), LEAF_SILVER)
+		B:block(crop, v(1.7, 1.3, 1.7), CFrame.new(crest[1] + v(0.4, -0.7, 1.4)) * ang(25, 50, 10), LEAF[1])
+		B:block(crop, v(1.5, 1.1, 1.5), CFrame.new(crest[2] + v(0.1, 1.0, 1.0)) * ang(-20, 70, -15), LEAF[2])
+		-- curly tendril rising off the hook, tipped with a little gold star
+		local t1 = crest[3] + v(0.1, 0.2, 0.1)
+		local t2 = t1 + v(0.5, 0.75, 0.3)
+		local t3 = t2 + v(-0.2, 0.5, 0.4)
+		seg(t1, t2, 0.24, MOSS_LT)
+		seg(t2, t3, 0.2, MOSS_LT)
+		local st = CFrame.new(t3 + v(0, 0.45, 0)) * ang(0, 30, 0)
+		B:block(crop, v(1.0, 0.24, 0.24), st * ang(0, 0, 45), GOLD_LT, NEON)
+		B:block(crop, v(1.0, 0.24, 0.24), st * ang(0, 0, -45), GOLD_LT, NEON)
+		B:block(crop, v(0.36, 0.36, 0.36), st, "#fffbe0", NEON)
 
 		-- pale star flowers (crossed petals + gold neon centre)
 		local function flower(p, s, ry)

@@ -129,7 +129,7 @@ return {
 			B:block(soil, v(s[4] * 1.35, s[4], s[4] * 1.05), cf(s[1], s[2], s[3], jit(6), s[5], jit(6)), s[6], S)
 		end
 		-- obsidian shards with purple glints
-		for _, o in { { 5.9, 0.9, -1.4, 1.5, 10 }, { -4.6, 1.6, 3.4, 1.2, -15 } } do
+		for _, o in { { -6.0, 0.9, -1.2, 1.5, 10 }, { 4.6, 1.6, 0.9, 1.2, -15 } } do
 			local base = cf(o[1], o[2], o[3], jit(10), o[5], jit(12))
 			B:block(soil, v(0.7, o[4], 0.6), base * CFrame.new(0, o[4] / 2, 0), OBS, S)
 			B:block(soil, v(0.42, 0.5, 0.36), base * CFrame.new(0, o[4] + 0.2, 0), OBS_PU, S)
@@ -297,39 +297,40 @@ return {
 			B:block(crop, v(0.3 * s, 0.4 * s, 0.3 * s), o * CFrame.new(0, 0.35 * s, 0), LAVA_Y, { mat = "Neon", name = "BlossomHeart" })
 		end
 
-		-- the femur stake standing in the skull
-		local SX, SZ = 0.9, 1.9
-		local STAKE_B, STAKE_T = RIMY - 0.6, 17.4
-		B:block(crop, v(1.0, STAKE_T - STAKE_B, 1.0), cf(SX, (STAKE_B + STAKE_T) / 2, SZ, 0, 8, 0), BONE)
-		B:block(crop, v(0.9, STAKE_T - STAKE_B - 1.2, 1.1), cf(SX, (STAKE_B + STAKE_T) / 2, SZ, 0, 53, 0), BONE_DK)
+		-- the femur stake standing in the back of the skull
+		local SX, SZ = 0.5, CZ + 1.3
+		local STAKE_B, STAKE_T = RIMY - 0.6, 17.0
+		B:block(crop, v(1.3, STAKE_T - STAKE_B, 1.3), cf(SX, (STAKE_B + STAKE_T) / 2, SZ, 0, 8, 0), BONE)
+		B:block(crop, v(1.15, STAKE_T - STAKE_B - 1.6, 1.45), cf(SX, (STAKE_B + STAKE_T) / 2, SZ, 0, 53, 0), BONE_DK)
+		B:block(crop, v(1.7, 0.7, 1.7), cf(SX, (STAKE_B + STAKE_T) / 2 + 1.2, SZ, 0, 30, 0), BONE_LT)
 		-- femur head: two knobbly condyles
-		B:block(crop, v(2.4, 1.0, 1.4), cf(SX, STAKE_T + 0.1, SZ, 0, 8, 0), BONE)
+		B:block(crop, v(2.8, 1.1, 1.6), cf(SX, STAKE_T + 0.1, SZ, 0, 8, 0), BONE)
 		for sg = -1, 1, 2 do
-			B:block(crop, v(1.1, 1.3, 1.5), cf(SX, STAKE_T + 0.55, SZ, 0, 8, 0) * CFrame.new(sg * 0.75, 0, 0), BONE_LT)
+			B:block(crop, v(1.3, 1.5, 1.7), cf(SX, STAKE_T + 0.6, SZ, 0, 8, 0) * CFrame.new(sg * 0.85, 0, 0), BONE_LT)
 		end
-		B:block(crop, v(1.6, 0.8, 1.6), cf(SX, STAKE_T - 0.6, SZ, 0, 30, 0), BONE_DK)
+		B:block(crop, v(1.9, 0.9, 1.9), cf(SX, STAKE_T - 0.7, SZ, 0, 30, 0), BONE_DK)
 
 		-- main vine: coils up the femur
 		local vine = {}
 		local N = 15
 		for i = 0, N do
 			local f = i / N
-			local a = 200 + f * 2.4 * 360
-			local r = 0.95 + 0.15 * math.sin(i)
+			local a = 160 + f * 2.4 * 360
+			local r = 1.1 + 0.12 * math.sin(i)
 			local x, z = polar(r, a)
-			table.insert(vine, v(SX + x, RIMY + 0.3 + f * (STAKE_T - RIMY - 0.6), SZ + z))
+			table.insert(vine, v(SX + x, RIMY + 0.3 + f * (STAKE_T - RIMY + 0.2), SZ + z))
 		end
 		for i = 1, N do
-			local w = 0.55 - 0.2 * (i / N)
+			local w = 0.62 - 0.22 * (i / N)
 			B:bar(crop, vine[i] - (vine[i + 1] - vine[i]).Unit * 0.12, vine[i + 1] + (vine[i + 1] - vine[i]).Unit * 0.12, w, w, (i % 2 == 0) and VINE or VINE_DK)
 		end
 		-- the vine tip arches up over the femur into a blossom
 		local tipA = vine[N + 1]
-		local tipB = v(SX - 0.6, STAKE_T + 2.0, SZ - 0.3)
-		local tipC = v(SX - 1.6, STAKE_T + 3.3, SZ - 0.6)
-		B:bar(crop, tipA, tipB, 0.4, 0.4, VINE)
-		B:bar(crop, tipB, tipC, 0.34, 0.34, VINE_DK)
-		blossom(tipC + v(0, 0.3, 0), 1.3, v(-0.5, 1, -0.4))
+		local tipB = v(SX - 0.4, STAKE_T + 2.2, SZ - 0.6)
+		local tipC = v(SX - 1.4, STAKE_T + 3.4, SZ - 1.0)
+		B:bar(crop, tipA, tipB, 0.42, 0.42, VINE)
+		B:bar(crop, tipB, tipC, 0.36, 0.36, VINE_DK)
+		blossom(tipC + v(0, 0.3, 0), 1.4, v(-0.5, 1, -0.5))
 		-- curly tendrils
 		local function tendril(p, dir, s)
 			local d = v(dir.X, 0, dir.Z).Unit
@@ -338,61 +339,63 @@ return {
 			local b = a + d * 0.5 * s + v(0, 0.55, 0) * s
 			local c = b - side * 0.45 * s + v(0, 0.2, 0)
 			local e = c - d * 0.35 * s - v(0, 0.3, 0) * s
-			B:bar(crop, p, a, 0.14, 0.14, VINE)
-			B:bar(crop, a, b, 0.14, 0.14, VINE)
-			B:bar(crop, b, c, 0.13, 0.13, VINE_DK)
-			B:bar(crop, c, e, 0.12, 0.12, VINE_DK)
+			B:bar(crop, p, a, 0.16, 0.16, VINE)
+			B:bar(crop, a, b, 0.16, 0.16, VINE)
+			B:bar(crop, b, c, 0.15, 0.15, VINE_DK)
+			B:bar(crop, c, e, 0.14, 0.14, VINE_DK)
 		end
 
-		-- leaves along the coil
-		local leafAt = { { 2, LEAF }, { 5, LEAF_LT }, { 8, LEAF }, { 11, LEAF_LT }, { 13, LEAF } }
-		for _, l in leafAt do
+		-- big leaves along the coil (pointing outward from the femur)
+		for _, l in { { 3, LEAF, 1.5 }, { 5, LEAF_LT, 1.55 }, { 8, LEAF, 1.5 }, { 11, LEAF_LT, 1.45 }, { 14, LEAF, 1.35 }, { 16, LEAF_LT, 1.2 } } do
 			local p = vine[l[1]]
-			local out = (p - v(SX, p.Y, SZ))
-			leaf(p, out, 1.15, l[2])
+			leaf(p, p - v(SX, p.Y, SZ), l[3], l[2])
 		end
-		tendril(vine[4], v(-1, 0, 0.3), 1.2)
-		tendril(vine[10], v(0.8, 0, -0.6), 1.1)
-		tendril(vine[14], v(0.2, 0, 1), 1.0)
+		tendril(vine[6], v(-1, 0, 0.3), 1.3)
+		tendril(vine[12], v(0.8, 0, -0.6), 1.2)
+		tendril(tipB, v(1, 0, 0.6), 1.1)
 
 		-- hanging pumpkins on short drop stalks off the coil
 		local function hang(p, dir, drop, s, yaw, glow)
 			local d = v(dir.X, 0, dir.Z).Unit
-			local e = p + d * 1.5 * s + v(0, 0.2, 0)
+			local e = p + d * 1.6 * s + v(0, 0.25, 0)
 			local c = e + v(0, -drop - 1.5 * s, 0)
-			B:bar(crop, p, e, 0.3, 0.3, VINE_DK)
-			B:bar(crop, e, c + v(0, 1.4 * s, 0), 0.26, 0.26, STEM)
+			B:bar(crop, p, e, 0.34, 0.34, VINE_DK)
+			B:bar(crop, e, c + v(0, 1.4 * s, 0), 0.3, 0.3, STEM)
 			pumpkin(c, s, yaw, glow)
 		end
-		hang(vine[7], v(1, 0, -0.4), 0.3, 0.62, 20, true)
-		hang(vine[10], v(-1, 0, 0.2), 0.3, 0.55, -30, false)
-		hang(vine[13], v(0.5, 0, -1), 0.2, 0.6, 50, true)
+		hang(vine[9], v(1, 0, 0.2), 0.2, 0.8, 20, true)
+		hang(vine[12], v(-1, 0, 0.5), 0.2, 0.72, -30, false)
+		hang(vine[15], v(0.4, 0, -1), 0.1, 0.72, 50, true)
 
 		-- the giant pumpkin sitting in the skull
-		pumpkin(v(-0.8, RIMY + 0.35 + 1.6 * 0.95, CZ - 0.35), 0.95, 15, true)
-		leaf(v(-0.4, RIMY + 0.35, CZ + 1.2), v(-1, 0, 1), 1.0, LEAF_LT)
-		leaf(v(0.6, RIMY + 0.35, CZ - 1.0), v(1, 0, -0.7), 1.0, LEAF)
+		local GS = 1.12
+		pumpkin(v(-0.4, RIMY + 0.35 + 1.6 * GS, CZ - 0.6), GS, 15, true)
+		leaf(v(-1.2, RIMY + 0.4, CZ + 1.4), v(-1, 0, 0.6), 1.3, LEAF_LT)
+		leaf(v(1.6, RIMY + 0.4, CZ - 0.6), v(1, 0, -0.3), 1.2, LEAF)
 		-- a little pumpkin peeking out of the mouth
-		pumpkin(v(0.85, 3.3, -4.7), 0.42, -25, false, -8)
+		pumpkin(v(0.9, 2.95, -4.75), 0.45, -25, false, -8)
 		-- a vine spilling out of the left socket down to a pumpkin on the mound
-		local sv = { v(-2.5, 5.2, -1.5), v(-3.3, 4.6, -2.3), v(-3.9, 3.2, -2.6), v(-4.3, 2.0, -3.0), v(-4.5, 1.75, -3.8) }
+		local sv = { v(-2.0, 6.2, -1.4), v(-3.0, 6.0, -1.9), v(-3.7, 5.0, -2.3), v(-4.1, 4.1, -2.8) }
 		for i = 1, #sv - 1 do
 			B:bar(crop, sv[i], sv[i + 1] + (sv[i + 1] - sv[i]).Unit * 0.1, 0.36, 0.36, (i % 2 == 0) and VINE or VINE_DK)
 		end
-		leaf(sv[3], v(-1, 0, 0.4), 0.95, LEAF_LT)
-		tendril(sv[2], v(-0.3, 0, -1), 0.9)
-		pumpkin(v(-4.4, 1.6 + 0.62 * 1.55, -4.1), 0.62, 35, true)
-		blossom(v(-1.9, 2.6, -4.6), 0.9, v(-0.3, 1, -0.6))
-		B:bar(crop, v(-1.9, 2.3, -4.6), v(-3.0, 1.85, -4.2), 0.2, 0.2, VINE_DK)
+		leaf(sv[2], v(-1, 0, 0.5), 1.1, LEAF_LT)
+		tendril(sv[3], v(-0.3, 0, -1), 0.9)
+		pumpkin(v(-4.0, 1.6 + 0.72 * 1.55, -3.3), 0.72, 35, true)
+		-- a second ground pumpkin + a blossom by the jaw
+		pumpkin(v(4.3, 1.6 + 0.56 * 1.55, -2.1), 0.56, -20, false)
+		B:bar(crop, v(4.3, 3.0, -2.1), v(3.4, 2.4, -0.9), 0.24, 0.24, VINE_DK)
+		blossom(v(2.9, 2.35, -4.1), 0.95, v(0.3, 1, -0.6))
+		B:bar(crop, v(2.9, 2.05, -4.1), v(4.0, 1.75, -3.2), 0.2, 0.2, VINE_DK)
 		-- dry leaf litter
-		for _, l in { { 3.9, 1.65, -3.2, 30 }, { -3.0, 1.65, 4.3, -20 } } do
+		for _, l in { { 1.6, 1.65, -5.3, 30 }, { -3.0, 1.65, 4.3, -20 } } do
 			B:block(soil, v(1.0, 0.16, 0.8), cf(l[1], l[2], l[3], 0, l[4], 6), LEAF_RUST, S)
 		end
 
 		------------------------------------------------------------------
 		-- VFX
 		------------------------------------------------------------------
-		local pz = B:block(crop, v(2.6, 2.6, 2.6), cf(-0.8, RIMY + 1.9, CZ - 0.35), PUMP, { tr = 1, name = "PumpkinZone" })
+		local pz = B:block(crop, v(2.6, 2.6, 2.6), cf(-0.4, RIMY + 2.1, CZ - 0.6), PUMP, { tr = 1, name = "PumpkinZone" })
 		B:emitter(pz, "glow", { name = "PumpkinGlow", color = { "#ffa040", "#ff6a2a" }, rate = 1.4, size = { 3.0, 4.4, 0.8 } })
 		B:emitter(pz, "ember", { name = "PumpkinEmbers", color = { "#ffe27a", "#ff8a24", "#e8401f" }, rate = 5, size = { 0.24, 0.16, 0 }, speed = { 0.5, 1.2 }, life = { 1.6, 2.8 }, spread = 35, accel = { 0, 1.0, 0 } })
 		B:light(pz, { name = "PumpkinLight", color = "#ff8a3a", brightness = 1.3, range = 18 })

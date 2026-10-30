@@ -209,13 +209,15 @@ return {
 			B:block(bone, v(w * 0.8, 0.3, w * 0.7), F * CFrame.new(0, 0.6, 0), BONE_LT)
 			B:block(bone, v(w * 0.72, 0.4, w * 0.62), F * CFrame.new(0, -0.65, 0), BONE_DK)
 			-- teal fossil glint on the front face
-			B:block(bone, v(w * 0.5, 0.26, 0.14), F * CFrame.new(0, 0.02, -w * 0.43 - 0.06), TEAL, { mat = "Neon", name = "Glint" .. i })
+			B:block(bone, v(w * 0.62, 0.34, 0.14), F * CFrame.new(0, 0.02, -w * 0.43 - 0.06), TEAL, { mat = "Neon", name = "Glint" .. i })
 			-- side processes (stepped bars ending in knobs)
+			-- (each on its own bone so they can flex up as the pulse passes)
 			for _, sx in { -1, 1 } do
 				local a = (F * CFrame.new(sx * w * 0.42, 0.05, 0.2)).Position
 				local b = (F * CFrame.new(sx * (w * 0.5 + 2.3 - 1.3 * t), 0.55, 0.5)).Position
-				B:bar(bone, a, b, 0.6, 0.6, BONE)
-				B:block(bone, v(0.75, 0.75, 0.75), CFrame.new(b) * F.Rotation * ang(0, 0, 45), BONE_TAN)
+				local sb = B:bone("Side" .. i .. (sx > 0 and "R" or "L"), i <= SPLIT and "Crop" or "Upper", a)
+				B:bar(sb, a - (b - a).Unit * 0.3, b, 0.6, 0.6, BONE)
+				B:block(sb, v(0.75, 0.75, 0.75), CFrame.new(b) * F.Rotation * ang(0, 0, 45), BONE_TAN)
 			end
 		end
 		-- dorsal plates: one bone each (pivot at the back of the centrum)

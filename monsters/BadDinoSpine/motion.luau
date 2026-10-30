@@ -77,8 +77,12 @@ function M.Update(t, pose, ctx)
 		local idle = 3 * w(t, 2, -i * 0.08)
 		-- extending backward: -X lifts the plate
 		pose["Plate" .. i] = ang(-(idle + 22 * p), 0, 2 * w(t, 1, i * 0.1))
-		local glow = 0.45 + 0.15 * w(t, 3, -i * 0.09)
-		ctx.transparency("Glint" .. i, clamp(glow * (1 - p) - 0.2 * flash, 0, 0.8))
+		-- side processes flex up like little wings as the pulse passes
+		local flex = 4 * w(t, 2, -i * 0.08 + 0.2) + 26 * p
+		pose["Side" .. i .. "R"] = ang(0, 0, flex)
+		pose["Side" .. i .. "L"] = ang(0, 0, -flex)
+		local glow = 0.62 + 0.12 * w(t, 3, -i * 0.09)
+		ctx.transparency("Glint" .. i, clamp(glow * (1 - 1.15 * p) - 0.3 * flash, 0, 0.8))
 		sparkle += p
 	end
 	if ctx.crossed(WAVE0 + 0.05) then

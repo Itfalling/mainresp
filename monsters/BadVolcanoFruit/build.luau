@@ -143,9 +143,9 @@ return {
 		-- THE VOLCANO PLANT
 		------------------------------------------------------------------
 		local crop = B:bone("Crop", "Root", v(0, GY, 0))
-		local NT = 9 -- cone tiers
+		local NT = 10 -- cone tiers
 		local TH = 1.6 -- tier height
-		local SPLIT = 5 -- tiers >= SPLIT ride on the ConeTop bone
+		local SPLIT = 6 -- tiers >= SPLIT ride on the ConeTop bone
 		local function tierR(k)
 			return 2.05 + 3.0 * (1 - k / (NT - 1)) ^ 1.8
 		end
@@ -194,8 +194,8 @@ return {
 		for i = 0, 9 do
 			local a = i * 36 + jit(5)
 			local h = 1.0 + rnd() * 0.6
-			local p = pv(rimR, a, RIM + h / 2 - 0.15)
-			B:block(coneTop, v(1.45, h, 1.1), facing(p, a) * ang(-12 + jit(6), jit(8), 0), (i % 3 == 0) and RUST or ((i % 3 == 1) and ROCK_DK or ROCK), nil)
+			local p = pv(rimR + 0.25, a, RIM + h / 2 - 0.15)
+			B:block(coneTop, v(1.5, h, 1.1), facing(p, a) * ang(-22 + jit(6), jit(8), 0), (i % 3 == 0) and RUST or ((i % 3 == 1) and ROCK_DK or ROCK), nil)
 		end
 		disc(coneTop, RIM - 0.1, 0.3, rimR - 0.35, LAVA_DK, nil)
 		B:block(coneTop, v(2.4, 0.3, 2.4), cf(0, RIM + 0.12, 0, 0, 45, 0), LAVA, nil)
@@ -211,7 +211,7 @@ return {
 		-- lava channels running down the slopes (plastic bed + neon core)
 		for ci, a0 in { 40, 160, 285 } do
 			local pts = {}
-			for _, k in { NT, NT - 2, NT - 4, NT - 6, NT - 8, 0 } do
+			for _, k in { NT, NT - 2, NT - 4, NT - 6, NT - 8, NT - 10 } do
 				local kk = math.min(k, NT - 1)
 				local r = tierR(kk) + ((k == NT) and 0.55 or 0.45)
 				local a = a0 + 5 * math.sin(k * 1.3 + ci)
@@ -238,15 +238,16 @@ return {
 		------------------------------------------------------------------
 		local FR = {
 			-- deg, base pitch, length scale
-			{ 0, -14, 1.0 }, { 60, -22, 0.92 }, { 120, -12, 1.05 }, { 180, -18, 0.95 }, { 240, -14, 1.0 }, { 300, -24, 0.9 },
+			{ 75, -46, 1.0 }, { 125, -54, 0.9 }, { 197, -44, 1.05 }, { 247, -52, 0.92 }, { 317, -46, 1.0 }, { 7, -54, 0.9 },
 		}
 		for fi, f in FR do
-			local deg = f[1] + 30
-			local base = pv(rimR - 0.2, deg, RIM + 0.5)
+			local deg = f[1]
+			local fk = NT - 3
+			local base = pv(tierR(fk) - 0.1, deg, tierY(fk) + TH * 0.7)
 			local Pb = facing(base, deg)
 			local fb = B:bone("Frond" .. fi, "ConeTop", Pb)
 			local F = Pb * CFrame.Angles(rad(f[2]), 0, 0)
-			local segs = { { 2.0, 1.3, 0 }, { 2.0, 1.1, -24 }, { 1.7, 0.85, -30 }, { 1.1, 0.55, -32 } }
+			local segs = { { 2.0, 1.3, 0 }, { 2.0, 1.1, -16 }, { 1.7, 0.85, -22 }, { 1.1, 0.55, -26 } }
 			for si, sg in segs do
 				F = F * CFrame.Angles(rad(sg[3]), 0, 0)
 				local len = sg[1] * f[3]
@@ -288,7 +289,7 @@ return {
 		-- slope fruits on short stalks (own bones -> jiggle)
 		local SF = {
 			-- deg, tier, size
-			{ 95, 2, 1.2 }, { 215, 1, 1.25 }, { 335, 3, 1.15 }, { 150, 6, 1.05 }, { 270, 5, 1.1 },
+			{ 100, 3, 1.2 }, { 222, 2, 1.25 }, { 342, 3, 1.15 }, { 130, 0, 1.05 }, { 252, 5, 1.05 },
 		}
 		for i, f in ipairs(SF) do
 			local k = f[2]
