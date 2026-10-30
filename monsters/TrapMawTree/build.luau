@@ -230,9 +230,19 @@ return {
 			{ 180, 3.0, 18.5, 4.0, LF_LT },
 			{ 290, 3.3, 18.4, 3.6, LF_LIME },
 		}
+		local cubes = {}
 		for _, c in leafDefs do
 			local x, z = polar(c[2], c[1])
 			B:block(canopy, v(c[4], c[4], c[4]), cf(x, c[3], z, jit(20), rnd() * 90, jit(20)), c[5])
+			table.insert(cubes, { pos = v(x, c[3], z), size = c[4], deg = c[1] })
+		end
+		-- ripe maw-fruits half-sunk in the leaves (reads as a fruit tree from afar)
+		for _, f in { { 7, 0.9, 30 }, { 8, 0.4, 150 }, { 9, 1.0, 270 }, { 10, 0.2, 90 }, { 11, 0.6, 210 }, { 12, 0.8, 330 }, { 14, 1.2, 20 }, { 16, 1.0, 165 } } do
+			local c = cubes[f[1]]
+			local a = rad(f[3])
+			local out = v(math.sin(a), 0, -math.cos(a))
+			local p = c.pos + out * (c.size * 0.5 + 0.1) + v(0, f[2], 0)
+			B:block(canopy, v(1.3, 1.2, 1.3), CFrame.new(p) * ang(jit(15), rnd() * 90, jit(15)), FRUIT)
 		end
 		-- a few lime "new leaf" caps on the outer cubes for a lit-from-above look
 		for _, c in { { 45, 7.2, 17.8, 2.0 }, { 165, 7.0, 17.6, 2.2 }, { 255, 7.0, 17.7, 2.0 } } do
@@ -272,8 +282,7 @@ return {
 				bk(bone, F, 3.2, 0.5, 2.7, 0, 1.3 * k, -1.75, k > 0 and GREEN_TOP or GREEN_DK)
 				bk(bone, F, 2.8, 0.45, 0.4, 0, 0.75 * k, -3.72, GREEN_DK)
 				if k > 0 then
-					bk(bone, F, 0.3, 0.3, 2.2, 1.0, 1.6, -1.7, GREEN_LT) -- vein speckles
-					bk(bone, F, 0.3, 0.3, 1.4, -1.0, 1.6, -2.0, GREEN_LT)
+					bk(bone, F, 0.3, 0.3, 2.2, 1.0, 1.6, -1.7, GREEN_LT) -- vein speckle
 				end
 				-- cilia teeth, rows offset half a step so they interlock when shut
 				local ty = -0.3 * k
@@ -301,7 +310,7 @@ return {
 			bk(body, T, 0.55, 0.4 * fh, 0.12, -0.45, 0.62 * fh, fz - 1.12, SHINE, 0, 0, 0, { mat = "Neon", name = "MawShine" .. o.idx })
 			-- digest seam: a lime glow line across the lips, shown while shut
 			if o.seam then
-				bk(body, T, 3.4, 0.16, 0.16, 0, 0.02, -3.82, LIME, 0, 0, 0, { mat = "Neon", tr = 1, name = "Seam" .. o.idx })
+				bk(body, T, 3.6, 0.24, 0.2, 0, 0.0, -4.02, LIME, 0, 0, 0, { mat = "Neon", tr = 1, name = "Seam" .. o.idx })
 			end
 			-- curly stem from the pivot (in the canopy) to the back of the hinge
 			if o.stem then
