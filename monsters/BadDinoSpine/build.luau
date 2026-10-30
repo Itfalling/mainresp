@@ -337,7 +337,7 @@ return {
 		local AY = CPY + 2.6
 		local cubes = {}
 		-- lower ring: varied sizes / heights so the crown is a soft dome, not a drum
-		local ringCols = { LF_DK, LF, LF_MID, LF_DK, LF_RUST, LF, LF_MID, LF_DK, LF, LF_OCHRE, LF_MID }
+		local ringCols = { LF_DK, LF, LF_DK, LF, LF_RUST, LF_DK, LF, LF_DK, LF, LF_OCHRE, LF_DK }
 		for i = 0, 10 do
 			local a = i * (360 / 11) + jit(5)
 			local up = (i % 2 == 0) and 0.45 or -0.35
@@ -362,20 +362,20 @@ return {
 		for i = 0, 8 do
 			local a = i * 40 + 20
 			local x, z = polar(3.6 + jit(0.3), a)
-			leaf(canopy, v(CX + x, AY + 2.0 + jit(0.3), CZ + z), 2.5 + rnd() * 0.5, ({ LF_LT, LF_MID, LF_OLIVE, LF_MID, LF_LT, LF_OLIVE, LF_MID, LF_LT, LF_OLIVE })[i + 1])
+			leaf(canopy, v(CX + x, AY + 2.0 + jit(0.3), CZ + z), 2.5 + rnd() * 0.5, ({ LF_MID, LF_LT, LF_MID, LF_OLIVE, LF_MID, LF_LT, LF_MID, LF_OLIVE, LF_LT })[i + 1])
 		end
 		local canopyTop = B:bone("CanopyTop", "Canopy", v(CX, AY + 1.8, CZ))
 		local BY = AY + 3.1
 		for i = 0, 5 do
 			local a = i * 60 + 10 + jit(5)
 			local x, z = polar(2.3, a)
-			leaf(canopyTop, v(CX + x, BY + jit(0.25), CZ + z), 2.9, ({ LF, LF_MID, LF_LT, LF_MID, LF, LF_OLIVE })[i + 1])
+			leaf(canopyTop, v(CX + x, BY + jit(0.25), CZ + z), 2.9, ({ LF_LT, LF_OLIVE, LF_LT, LF_OCHRE, LF_LT, LF_OLIVE })[i + 1])
 		end
-		leaf(canopyTop, v(CX, BY + 1.0, CZ), 2.6, LF_LT)
+		leaf(canopyTop, v(CX, BY + 1.0, CZ), 2.6, LF_OLIVE)
 		for i = 0, 4 do
 			local a = i * 72 + 40
 			local x, z = polar(1.5, a)
-			leaf(canopyTop, v(CX + x, BY + 1.3, CZ + z), 1.6, ({ LF_OLIVE, LF_LT, LF_OCHRE, LF_LT, LF_RUST })[i + 1])
+			leaf(canopyTop, v(CX + x, BY + 1.3, CZ + z), 1.6, ({ "#c4c25a", LF_OCHRE, "#c4c25a", LF_RUST, "#c4c25a" })[i + 1])
 		end
 		-- small fossil "buds" half-sunk into the canopy (teal glints)
 		for n, idx in { 2, 6, 9 } do
