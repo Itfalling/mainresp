@@ -34,7 +34,7 @@ return {
 		local LILY, LILY_DK, LILY_PINK, LILY_PINK_LT, LILY_Y = "#4f9150", "#3b7542", "#f08cc8", "#ffc4e6", "#ffe27a"
 		local REED, REED_DK, CATTAIL = "#6f9146", "#557236", "#5a3a26"
 		local STONE_DK, STONE, STONE_LT = "#454e4d", "#5d6968", "#7b8986"
-		local BARK_DK, BARK, BARK_LT, BARK_HI = "#3b352c", "#4d463a", "#625a4a", "#7a705c"
+		local BARK_DK, BARK, BARK_LT, BARK_HI = "#463f34", "#5a5244", "#706653", "#887d66"
 		local W_UNDER = "#2f5e47"
 		local W1 = { "#4e8c5f", "#5d9e68", "#447f57" }
 		local W2 = { "#68a96f", "#79b878", "#5d9c68" }
@@ -44,8 +44,9 @@ return {
 		local W_VIO = { "#7a62b8", "#9479cf" }
 		local TWIG = "#5d6b45"
 		local SHROOM, SHROOM_DK, SHROOM_STEM, SHROOM_DOT = "#2a8f8a", "#1f706c", "#d7e6d4", "#8ff8ef"
-		local WISP_SHELL = "#c8f7ff"
-		local WISP_C = { "#9ff8ff", "#d9b0ff" }
+		local WISP_SHELL = "#9eeeff"
+		local WISP_SHELLS = { "#8feaff", "#c9a6ff" }
+		local WISP_C = { "#7ff6ff", "#cf9bff" }
 		local WISP_TAIL = { "#bdf3ff", "#e3c9ff" }
 		local FLY, FLY_BODY = "#eaff6e", "#3a3a2a"
 
@@ -213,6 +214,7 @@ return {
 			{ 4.4, 9.4, -1.6, 72, BARK },
 			{ 4.1, 11.3, -2.1, 90, BARK_DK },
 			{ 3.8, 13.1, -2.6, 108, BARK },
+			{ 3.6, 14.9, -3.0, 126, BARK_DK },
 		}
 		for _, s in SEG do
 			B:block(crop, v(s[1], 2.0, s[1]), cf(0, BASE + s[2] + 1.0, TZ + s[3], 0, s[4], 0), s[5])
@@ -245,8 +247,8 @@ return {
 			B:block(crop, v(1.6, 0.1, 0.9), c * CFrame.new(0, -0.25, 0), SHROOM_DOT, { mat = "Neon", name = "FungusGlow" })
 		end
 		-- big boughs reaching out under the canopy
-		local TOPY = BASE + 15.2 -- 18.7
-		local TOPZ = TZ - 3.0
+		local TOPY = BASE + 17.0 -- 20.5
+		local TOPZ = TZ - 3.4
 		local BOUGHS = {}
 		for k = 0, 4 do
 			local a = k * 72 + 36
@@ -283,6 +285,13 @@ return {
 		ring(canopy, 16, 10.0, Y1, 4.4, 2.8, W1, 0)
 		ring(canopy, 12, 7.2, Y1 + 2.3, 4.6, 2.8, W2, 12)
 		B:block(canopy, v(9, 3.0, 9), cf(0, Y1 + 1.6, CZ, 0, 15, 0), W1[3])
+		-- drooping outer lip that rolls into the curtains
+		for i = 0, 13 do
+			local a = i * 360 / 14 + 180 / 14
+			local p = at(11.2, a, Y1 - 0.9) + v(0, 0, CZ)
+			B:block(canopy, v(3.4, 1.6, 2.2), CFrame.new(p) * CFrame.Angles(0, -rad(a), 0) * ang(-28, 0, jit(6)), W1[1 + (i % 3)])
+		end
+
 		local canopyTop = B:bone("CanopyTop", "Canopy", v(0, Y1 + 3.6, CZ))
 		ring(canopyTop, 8, 4.4, Y1 + 4.9, 4.2, 2.6, W3, 30)
 		ring(canopyTop, 4, 1.6, Y1 + 7.0, 3.8, 2.4, W_TOP, 10)
@@ -314,16 +323,19 @@ return {
 			end
 		end
 		for i = 1, NC do
-			local a = (i - 1) * 360 / NC + 6
+			local a = (i - 1) * 360 / NC + 180 / NC
+			if i == 1 or i == NC then
+				continue -- open "stage curtain" over the pond in front
+			end
 			local top = at(10.6, a, CTOP) + v(0, 0, CZ)
 			local F = CFrame.new(top) * CFrame.Angles(0, -rad(a), 0)
-			local La = 5.6 + ((i % 3 == 0) and 0.8 or 0)
-			local Lb = 5.0 + ((i % 2 == 0) and 1.0 or 0)
+			local La = 6.6 + ((i % 3 == 0) and 0.8 or 0)
+			local Lb = 6.2 + ((i % 2 == 0) and 1.2 or 0)
 			local ba = B:bone("Curt" .. i .. "a", "Canopy", F)
-			leaves(ba, F, 0, -La, 3, 2.3, i)
+			leaves(ba, F, 0, -La, 4, 2.4, i)
 			local Fb = F * CFrame.new(0, -La + 0.2, 0)
 			local bb = B:bone("Curt" .. i .. "b", "Curt" .. i .. "a", Fb)
-			leaves(bb, Fb, 0, -Lb, 3, 1.9, i + 1)
+			leaves(bb, Fb, 0, -Lb, 4, 2.0, i + 1)
 			B:block(bb, v(0.9, 0.9, 0.45), Fb * CFrame.new(0, -Lb - 0.3, 0) * ang(0, 0, 45), CURT[1 + (i % #CURT)])
 		end
 		for i = 1, 6 do
@@ -344,10 +356,11 @@ return {
 			B:bar(bone, (F * CFrame.new(0, 0.5, 0)).Position, (F * CFrame.new(0, c + 0.6 * s, 0)).Position, 0.3, 0.3, TWIG)
 			B:block(bone, v(1.3 * s, 0.25, 0.6 * s), F * CFrame.new(0, -L + 0.05, 0) * ang(0, 30, 16), CURT[2])
 			B:block(bone, v(1.1 * s, 0.25, 0.55 * s), F * CFrame.new(0, -L + 0.1, 0) * ang(0, -60, -16), CURT[4])
-			B:block(bone, v(0.95 * s, 0.95 * s, 0.95 * s), F * CFrame.new(0, c, 0) * ang(0, 45, 0), WISP_C[k], { mat = "Neon", name = name .. "Core" })
-			B:block(bone, v(1.7 * s, 1.15 * s, 1.15 * s), F * CFrame.new(0, c, 0), WISP_SHELL, { tr = 0.45 })
-			B:block(bone, v(1.15 * s, 1.7 * s, 1.15 * s), F * CFrame.new(0, c, 0), WISP_SHELL, { tr = 0.45 })
-			B:block(bone, v(1.15 * s, 1.15 * s, 1.7 * s), F * CFrame.new(0, c, 0), WISP_SHELL, { tr = 0.45 })
+			B:block(bone, v(1.2 * s, 1.0 * s, 1.2 * s), F * CFrame.new(0, c, 0) * ang(0, 45, 0), WISP_C[k], { mat = "Neon", name = name .. "Core" })
+			local SH = WISP_SHELLS[k]
+			B:block(bone, v(1.7 * s, 1.15 * s, 1.15 * s), F * CFrame.new(0, c, 0), SH, { tr = 0.5 })
+			B:block(bone, v(0.55 * s, 1.9 * s, 0.55 * s), F * CFrame.new(0, c + 0.1 * s, 0), WISP_C[k], { mat = "Neon", name = name .. "Pillar" })
+			B:block(bone, v(1.15 * s, 1.15 * s, 1.7 * s), F * CFrame.new(0, c, 0), SH, { tr = 0.5 })
 			-- curling wisp tail
 			B:block(bone, v(0.6 * s, 0.6 * s, 0.6 * s), F * CFrame.new(0.3 * s, c - 1.05 * s, 0), WISP_TAIL[k], { tr = 0.15 })
 			B:block(bone, v(0.42 * s, 0.42 * s, 0.42 * s), F * CFrame.new(0.65 * s, c - 1.5 * s, 0.1), WISP_TAIL[k], { tr = 0.2 })
@@ -355,16 +368,16 @@ return {
 			return bone
 		end
 		local WISPS = {
-			-- deg, length, scale
-			{ 20, 2.4, 1.15 }, { 72, 4.0, 1.0 }, { 124, 2.6, 1.15 }, { 176, 3.8, 1.0 },
-			{ 228, 2.4, 1.15 }, { 280, 4.0, 1.0 }, { 332, 2.6, 1.15 },
+			-- deg, length, scale (in the gaps between the curtains)
+			{ 360 / 14 * 1, 3.4, 1.3 }, { 360 / 14 * 3, 5.2, 1.15 }, { 360 / 14 * 5, 3.2, 1.3 }, { 360 / 14 * 7, 5.0, 1.15 },
+			{ 360 / 14 * 9, 3.2, 1.3 }, { 360 / 14 * 11, 5.2, 1.15 }, { 360 / 14 * 13, 3.4, 1.3 },
 		}
 		for i, wd in WISPS do
-			local top = at(8.4, wd[1], CTOP - 0.1) + v(0, 0, CZ)
+			local top = at(11.2, wd[1], CTOP - 0.3) + v(0, 0, CZ)
 			wisp("Wisp" .. i, "Canopy", top, wd[1], wd[2], wd[3], 1 + (i % 2))
 		end
-		local gw = wisp("GrandWisp", "Canopy", v(0.2, CTOP - 0.1, CZ - 4.6), 0, 3.0, 1.75, 1)
-		local gF = CFrame.new(0.2, CTOP - 0.1 - 3.0 - 1.75, CZ - 4.6)
+		local gw = wisp("GrandWisp", "Canopy", v(0.2, CTOP - 0.1, CZ - 4.8), 0, 4.4, 1.8, 1)
+		local gF = CFrame.new(0.2, CTOP - 0.1 - 4.4 - 1.8, CZ - 4.8)
 		for k = 0, 3 do
 			B:block(gw, v(1.2, 0.3, 0.5), gF * CFrame.Angles(0, rad(k * 90 + 45), 0) * CFrame.new(0, 1.6, -0.9) * ang(-30, 0, 0), W_VIO[1 + (k % 2)])
 		end

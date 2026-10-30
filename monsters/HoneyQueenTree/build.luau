@@ -87,14 +87,18 @@ return {
 		oct(soil, 2.95, 3.2, 11.1, GRASS_LT, S)
 		local Y1, Y2, Y3 = 1.3, 2.3, 3.2
 		-- chunky edge blocks (soil with a grass top)
+		local POOLS = { { deg = 35, r = 9.0 }, { deg = 215, r = 9.0 } }
 		for i = 0, 15 do
 			local a = i * 22.5 + jit(4)
 			local x, z = polar(10.5 + jit(0.25), a)
 			local h = 0.8 + rnd() * 0.6
 			local yaw = -a + jit(10)
 			local w = 2.4 + rnd() * 0.7
-			B:block(soil, v(w, h, 1.8), cf(x, h / 2, z, 0, yaw, 0), (i % 3 == 0) and SOIL or SOIL_DK, S)
-			B:block(soil, v(w + 0.1, 0.3, 1.9), cf(x, h + 0.12, z, 0, yaw, 0), (i % 2 == 0) and GRASS or GRASS_DK, S)
+			local nearPool = math.abs(((a - 35) + 540) % 180 - 0) < 15 or math.abs(((a - 35) + 540) % 180 - 180) < 15
+			if not nearPool then
+				B:block(soil, v(w, h, 1.8), cf(x, h / 2, z, 0, yaw, 0), (i % 3 == 0) and SOIL or SOIL_DK, S)
+				B:block(soil, v(w + 0.1, 0.3, 1.9), cf(x, h + 0.12, z, 0, yaw, 0), (i % 2 == 0) and GRASS or GRASS_DK, S)
+			end
 		end
 		for i = 0, 8 do
 			local a = i * 40 + 12 + jit(7)
@@ -129,10 +133,8 @@ return {
 			end
 		end
 		clover(-5.6, Y2, -2.6, true)
-		clover(9.6, Y1, 2.0, false)
 		clover(-1.4, Y1, 9.8, true)
 		clover(5.8, Y2, 5.6, false)
-		clover(-9.0, Y1, 5.0, false)
 		for _, p in { { 5.0, Y2, -3.6 }, { -7.6, Y1, -2.6 }, { 8.8, Y1, -6.2 }, { -2.6, Y3, 3.8 }, { 1.0, Y1, -10.0 }, { -9.6, Y1, 4.0 }, { 7.6, Y1, 3.4 } } do
 			B:block(soil, v(0.7, 0.42, 0.6), cf(p[1], p[2] + 0.18, p[3], 0, rnd() * 90, 0), rnd() > 0.5 and PEB or PEB_LT, S)
 		end
@@ -157,7 +159,6 @@ return {
 		end
 
 		-- honey pools (where the falls land)
-		local POOLS = { { deg = 32, r = 8.7 }, { deg = 212, r = 8.7 } }
 		for k, pl in POOLS do
 			local p = at(pl.r, pl.deg, Y1)
 			local F = facing(p, pl.deg)
@@ -167,8 +168,9 @@ return {
 			B:block(soil, v(3.0, 0.24, 3.8), F * CFrame.new(0, 0.15, 0.2), HONEY, S)
 			B:block(soil, v(1.0, 0.07, 0.4), F * CFrame.new(-1.0, 0.3, -0.7), HONEY_GLOW, { name = "Soil", mat = "Neon" })
 			B:block(soil, v(0.4, 0.07, 0.4), F * CFrame.new(1.1, 0.3, 0.6), HONEY_GLOW, { name = "Soil", mat = "Neon" })
-			-- splash ring blocks at the fall foot
-			B:block(soil, v(1.9, 0.4, 1.9), F * CFrame.new(0, 0.35, 0.2) * ang(0, 45, 0), HONEY_LT, S)
+			-- honey spilling over the mound edge
+			B:block(soil, v(2.6, 1.1, 0.5), F * CFrame.new(0.2, -0.45, -1.75), HONEY, S)
+			B:block(soil, v(1.0, 0.7, 0.6), F * CFrame.new(-0.4, -0.95, -1.8), HONEY_LT, S)
 		end
 
 		------------------------------------------------------------------
@@ -227,16 +229,19 @@ return {
 		-- a honeycomb block whose outward face shows stepped cells
 		local function combCube(bone, p, deg, s, h)
 			local F = facing(p, deg) * ang(jit(5), 0, jit(5))
-			-- dark wax body; the raised golden cells leave dark seams = honeycomb
-			B:block(bone, v(s, h + 0.3, s * 0.9), F, COMB_DK)
-			B:block(bone, v(s + 0.1, 0.35, s * 0.9 + 0.1), F * CFrame.new(0, h * 0.5 + 0.05, 0), COMB)
-			local cw = (s - 0.5) / 3 - 0.18
-			local ch = (h + 0.1) / 2 - 0.18
-			local cells = { { -1, -0.5 }, { 0, -0.5 }, { 1, -0.5 }, { -0.5, 0.5 }, { 0.5, 0.5 } }
+			-- amber wax body; raised golden cells in a 2-3-2 hex cluster leave
+			-- dark seams between them = honeycomb
+			local H = h + 0.8
+			B:block(bone, v(s, H, s * 0.9), F, COMB_BASE)
+			local cw = (s - 0.4) / 3 - 0.2
+			local ch = (H - 0.3) / 3 - 0.2
+			local cells = { { -0.5, 1 }, { 0.5, 1 }, { -1, 0 }, { 0, 0 }, { 1, 0 }, { -0.5, -1 }, { 0.5, -1 } }
 			for k, c in cells do
-				local col = (k == 2 or k == 5) and COMB_CAP or ((k % 2 == 0) and COMB or COMB_LT)
-				B:block(bone, v(cw, ch, 0.36), F * CFrame.new(c[1] * (cw + 0.18), c[2] * (ch + 0.18), -s * 0.45 - 0.08), col)
+				local col = (k == 4) and HONEY_GLOW or ((k == 1 or k == 7) and COMB_CAP or ((k % 2 == 0) and COMB or COMB_LT))
+				B:block(bone, v(cw, ch, 0.4), F * CFrame.new(c[1] * (cw + 0.2), c[2] * (ch + 0.2), -s * 0.45 - 0.12), col)
 			end
+			-- a honey drip hanging off the bottom
+			B:block(bone, v(0.7, 1.0, 0.6), F * CFrame.new(0.4, -H * 0.5 - 0.35, -s * 0.3), HONEY)
 		end
 		local function blossom(bone, p, col)
 			local yaw = rnd() * 90
@@ -249,9 +254,10 @@ return {
 			oct(bone, d.cy - d.h * 0.5 - 0.2, d.cy - d.h * 0.5 + 0.5, d.R * 1.7, COMB_DK)
 			oct(bone, d.cy - d.h * 0.5 + 0.5, d.cy + d.h * 0.5 + 0.2, d.R * 1.25, COMB)
 			for i = 0, d.n - 1 do
-				local a = i * 360 / d.n + d.phase + jit(4)
+				local isComb = (i % d.combEvery == 0)
+				local a = i * 360 / d.n + d.phase + (isComb and 0 or jit(4))
 				local p = at(d.r + jit(0.25), a, d.cy + jit(0.25))
-				if i % d.combEvery == 0 then
+				if isComb then
 					combCube(bone, p, a, d.s, d.h)
 				else
 					leafCube(bone, p, d.s + jit(0.25), d.h, d.cols[1 + (i % #d.cols)])
@@ -280,7 +286,7 @@ return {
 		end
 		B:block(can1, v(3.0, 4.0, 3.0), cf(0, FORK + 2.6, 0, 0, 20, 0), BARK_DK)
 		local C1 = FORK + 3.6
-		tier(can1, { cy = C1, R = 9.8, n = 14, r = 8.3, s = 4.6, h = 2.6, cols = { LF, LF_MID, LF_DK }, phase = 0, combEvery = 3,
+		tier(can1, { cy = C1, R = 9.4, n = 12, r = 7.7, s = 4.6, h = 2.6, cols = { LF, LF_MID, LF_DK }, phase = 35, combEvery = 3,
 			ni = 6, ri = 4.4, si = 5.0, nb = 10, rb = 6.8, bs = 3.0, bh = 1.3, top = { LF_LT, LF_LIME, LF_MID } })
 		local T2Y = C1 + 4.6
 		for k = 0, 2 do
@@ -290,7 +296,7 @@ return {
 		-- TIER 2
 		local can2 = B:bone("Canopy2", "Canopy1", v(0, C1 + 2.4, 0))
 		B:block(can2, v(2.2, 3.4, 2.2), cf(0, T2Y - 1.4, 0, 0, 40, 0), BARK_DK)
-		tier(can2, { cy = T2Y, R = 7.4, n = 11, r = 6.1, s = 4.1, h = 2.4, cols = { LF_MID, LF, LF_LT }, phase = 16, combEvery = 3,
+		tier(can2, { cy = T2Y, R = 7.4, n = 10, r = 6.0, s = 4.1, h = 2.4, cols = { LF_MID, LF, LF_LT }, phase = 80, combEvery = 3,
 			ni = 3, ri = 2.4, si = 4.4, nb = 8, rb = 4.6, bs = 2.6, bh = 1.3, top = { LF_LIME, LF_LT } })
 		local T3Y = T2Y + 4.0
 		for k = 0, 2 do
@@ -299,7 +305,7 @@ return {
 		end
 		-- TIER 3
 		local can3 = B:bone("Canopy3", "Canopy2", v(0, T2Y + 2.0, 0))
-		tier(can3, { cy = T3Y, R = 5.0, n = 8, r = 4.1, s = 3.5, h = 2.2, cols = { LF_LT, LF_MID }, phase = 8, combEvery = 2,
+		tier(can3, { cy = T3Y, R = 5.0, n = 8, r = 4.1, s = 3.5, h = 2.2, cols = { LF_LT, LF_MID }, phase = 8, combEvery = 4,
 			ni = 1, ri = 0, si = 3.8, nb = 6, rb = 3.0, bs = 2.2, bh = 1.1, top = { LF_LIME, LF_LT } })
 
 		------------------------------------------------------------------
@@ -405,25 +411,27 @@ return {
 		local falls = B:bone("Falls", "Root", v(0, 0, 0))
 		local NSEG = 9
 		for k, pl in POOLS do
-			local topY = C1 - 0.6
-			local botY = Y1 + 0.35
-			local base = at(pl.r - 0.1, pl.deg, 0)
-			local F = facing(base, pl.deg)
+			-- pours out of the comb block below the tier-1 rim
+			local topY = C1 - 2.2
+			local botY = Y1 + 0.3
+			local FR = 9.55
+			local F = facing(at(FR, pl.deg, 0), pl.deg)
 			local segH = (topY - botY) / NSEG
 			for j = 1, NSEG do
 				local y = topY - (j - 0.5) * segH
-				local wide = ((j % 2 == 0) and 2.0 or 2.3) + 0.25 * (j / NSEG)
-				local sx = ((j % 3) - 1) * 0.12
-				B:block(falls, v(wide, segH + 0.08, 1.1), F * CFrame.new(sx, y, 0), (j % 2 == 0) and HONEY or HONEY_LT,
+				local wide = ((j % 2 == 0) and 2.1 or 2.45) + 0.3 * (j / NSEG)
+				local sx = ((j % 3) - 1) * 0.15
+				B:block(falls, v(wide, segH + 0.1, 1.15), F * CFrame.new(sx, y, 0), (j % 2 == 0) and HONEY or HONEY_LT,
 					{ name = "Fall" .. k .. "Seg" .. j })
 			end
 			-- glossy streak + hidden neon core revealed on the burst
-			B:block(falls, v(0.45, topY - botY - 0.4, 1.16), F * CFrame.new(-0.5, (topY + botY) / 2, -0.02), HONEY_GLOW, { mat = "Neon", tr = 1, name = "FallCore" .. k })
-			B:block(falls, v(0.25, topY - botY - 1.6, 1.14), F * CFrame.new(0.45, (topY + botY) / 2 + 0.5, -0.03), GOLD_LT)
-			-- lip where it pours off the canopy + splash crown at the foot
-			B:block(falls, v(2.8, 0.8, 1.8), F * CFrame.new(0, topY + 0.2, 0.1), HONEY_DK)
-			B:block(falls, v(3.0, 0.5, 1.6), F * CFrame.new(0, botY - 0.05, 0), HONEY_LT)
-			B:block(falls, v(1.6, 0.45, 2.6), F * CFrame.new(0, botY - 0.1, 0), HONEY)
+			B:block(falls, v(0.5, topY - botY - 0.4, 1.2), F * CFrame.new(-0.5, (topY + botY) / 2, -0.02), HONEY_GLOW, { mat = "Neon", tr = 1, name = "FallCore" .. k })
+			B:block(falls, v(0.28, topY - botY - 1.8, 1.18), F * CFrame.new(0.5, (topY + botY) / 2 + 0.5, -0.03), GOLD_LT)
+			-- pour lip under the comb + splash crown at the foot
+			B:block(falls, v(3.0, 0.9, 2.2), F * CFrame.new(0, topY + 0.35, 0.6), HONEY)
+			B:block(falls, v(2.2, 0.6, 1.6), F * CFrame.new(0.2, topY + 0.85, 0.9), HONEY_LT)
+			B:block(falls, v(3.2, 0.5, 1.6), F * CFrame.new(0, botY - 0.05, 0), HONEY_LT)
+			B:block(falls, v(1.6, 0.45, 2.8), F * CFrame.new(0, botY - 0.1, 0), HONEY)
 		end
 
 		------------------------------------------------------------------

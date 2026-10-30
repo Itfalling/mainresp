@@ -66,7 +66,7 @@ return {
 			return CFrame.new(p) * CFrame.Angles(0, -rad(deg), 0)
 		end
 
-		local HIVE_DEG, HIVE_R = 60, 6.4
+		local HIVE_DEG, HIVE_R = 60, 6.8
 
 		------------------------------------------------------------------
 		-- MEADOW MOUND (bone "Soil", every part named "Soil")
@@ -295,12 +295,13 @@ return {
 		local EDEG = 25
 		do
 			local F = face(v(HP.X, layerY[5] + 0.1, HP.Z), EDEG)
-			B:block(hive, v(1.7, 1.2, 0.5), F * CFrame.new(0, 0, -2.3), HOLE)
-			B:block(hive, v(1.15, 0.8, 0.3), F * CFrame.new(0, 0, -2.45), GLOW, { mat = "Neon", name = "HiveGlow" })
-			B:block(hive, v(2.1, 0.3, 0.9), F * CFrame.new(0, -0.72, -2.4), HIVE_LT)
+			B:block(hive, v(2.3, 1.7, 0.6), F * CFrame.new(0, 0.05, -2.55), HIVE_DK)
+			B:block(hive, v(1.9, 1.1, 0.5), F * CFrame.new(0, 0, -2.75), HOLE)
+			B:block(hive, v(1.4, 0.6, 0.3), F * CFrame.new(0, -0.05, -2.92), GLOW, { mat = "Neon", name = "HiveGlow" })
+			B:block(hive, v(2.4, 0.35, 1.1), F * CFrame.new(0, -0.85, -2.8), HIVE_LT)
 			-- a small second hole higher on the side
 			local G = face(v(HP.X, layerY[2], HP.Z), EDEG + 120)
-			B:block(hive, v(0.8, 0.6, 0.4), G * CFrame.new(0, 0, -1.8), HOLE)
+			B:block(hive, v(0.8, 0.6, 0.4), G * CFrame.new(0, 0, -2.0), HOLE)
 		end
 		-- honey drips running down the hive
 		for k, d in { { 100, 3, 1.4 }, { 220, 4, 1.1 }, { 330, 2, 1.0 } } do
@@ -366,11 +367,11 @@ return {
 		end
 		-- the hive swarm: name, centre y offset, radius, start angle, tilt
 		local HIVE_BEES = {
-			{ 0.3, 3.8, 0, 14 },
-			{ -0.6, 4.0, 72, 10 },
-			{ 0.9, 3.7, 144, 16 },
-			{ -0.2, 4.2, 216, 8 },
-			{ 0.5, 3.9, 288, 12 },
+			{ 0.3, 3.6, 0, 14 },
+			{ -0.6, 3.8, 72, 10 },
+			{ 0.9, 3.5, 144, 16 },
+			{ -0.2, 3.75, 216, 8 },
+			{ 0.5, 3.6, 288, 12 },
 		}
 		for i, b in HIVE_BEES do
 			bee("Bee" .. i, "Canopy", tilted(HC + v(0, b[1], 0), HIVE_DEG, b[4]), b[2], b[3], 0.9)
@@ -384,7 +385,7 @@ return {
 		------------------------------------------------------------------
 		local dripPart = B:block(hive, v(0.5, 0.3, 0.5), CFrame.new(HP.X, HBOT - 1.2, HP.Z), HONEY, { tr = 1, name = "DripPoint" })
 		B:emitter(dripPart, "drip", { name = "HoneyDrip", color = { HONEY_LT, HONEY }, rate = 2.5, size = { 0.45, 0.4, 0.2 }, life = { 0.5, 0.7 }, accel = { 0, -20, 0 } })
-		local mouth = B:block(hive, v(1.0, 0.7, 0.3), face(v(HP.X, layerY[5] + 0.1, HP.Z), EDEG) * CFrame.new(0, 0, -2.7), GLOW, { tr = 1, name = "HiveMouth" })
+		local mouth = B:block(hive, v(1.0, 0.7, 0.3), face(v(HP.X, layerY[5] + 0.1, HP.Z), EDEG) * CFrame.new(0, 0, -3.3), GLOW, { tr = 1, name = "HiveMouth" })
 		B:emitter(mouth, "burst", { name = "HoneyBurst", color = { "#fff3a8", HONEY_LT, HONEY }, size = { 0.7, 0.5, 0 }, speed = { 6, 13 }, life = { 0.6, 1.2 }, drag = 2.5, accel = { 0, -6, 0 }, light = 1 })
 		local hiveFx = B:block(hive, v(4, 5, 4), CFrame.new(HC), HIVE, { tr = 1, name = "HiveFx" })
 		B:emitter(hiveFx, "glow", { name = "HiveAura", color = { "#ffe08a", HIVE }, rate = 2, size = { 3.0, 4.6, 1.5 }, trans = { 0.8, 0.72, 1 }, light = 1 })

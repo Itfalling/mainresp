@@ -5,10 +5,12 @@
 -- middle a tall jointed stem rises to one GIANT swamp lily: six recurved
 -- lavender-to-pearl petals spotted with violet, a deep violet throat that
 -- glows soft cyan and breathes out a slow plume of lilac mist, and long
--- stamens tipped with pearls. Arching side stems carry the fruits: calyx
--- cups heaped with big stepped pearl seeds (white, blush pink, sea-glass
--- cyan). Raised lily pads and lance leaves fill the middle. VFX: mist
--- breath from the throat, low fog rolling over the pond, pearl shimmer,
+-- stamens tipped with pearls; pearl seeds drip from the outer petal tips.
+-- Arching side stems carry the fruits: long seed pods split open like pea
+-- pods, each holding a row of stepped pearl seeds (white, blush pink,
+-- sea-glass cyan). A second smaller lily opens at the back; raised lily pads
+-- and lance leaves fill the middle. VFX: mist breath from the throat, mist
+-- spilling down over the petal rim, low fog over the pond, pearl shimmer,
 -- throat glow, rising mist motes, fireflies, pond bubbles, two soft lights.
 -- Static prop: no motion.luau.
 return {
@@ -34,6 +36,7 @@ return {
 		local PEARL, PEARL_PK, PEARL_CY, PEARL_SH = "#f4f0ff", "#ffd2ea", "#c8f4ff", "#ddd4f4"
 		local POD_DK, POD, POD_IN = "#1f4f45", "#2f7560", "#e3d8ff"
 		local GLOW, GLOW_LT = "#7ff0ff", "#d8fffb"
+		local MIST_C = "#efeaff"
 		local NEON = { mat = "Neon" }
 
 		local seed = 8191
@@ -256,7 +259,7 @@ return {
 				B:bar(crop, (q * CFrame.new(0, 0.6 * g, -0.7 * g)).Position, (q * CFrame.new(0, 1.3 * g, -2.4 * g)).Position, 1.2 * g, 0.34 * g, LF, { up = (q * CFrame.new(0, 0, -1)).Position - q.Position })
 			end
 			-- throat: deep violet tube with a glowing heart
-			B:block(crop, v(2.4 * g, 1.6 * g, 2.4 * g), Fr * CFrame.new(0, 1.7 * g, 0), VIO_DK)
+			B:block(crop, v(2.4 * g, 1.6 * g, 2.4 * g), Fr * CFrame.new(0, 1.7 * g, 0), VIO)
 			B:block(crop, v(1.9 * g, 0.3 * g, 1.9 * g), Fr * CFrame.new(0, 2.5 * g, 0) * ang(0, 45, 0), "#24164a")
 			local heart = B:block(crop, v(1.2 * g, 0.8 * g, 1.2 * g), Fr * CFrame.new(0, 2.6 * g, 0), GLOW, { mat = "Neon", name = main and "ThroatGlow" or "BudGlow" })
 			-- six recurved petals (3 outer + 3 inner)
@@ -271,13 +274,13 @@ return {
 				local p0, p1, p2, p3, p4 = P3(0.7, 1.3), P3(1.45, 3.3), P3(2.75, 5.0), P3(4.05, 5.45), P3(4.85, 4.5)
 				local t = 0.5 * math.max(g, 0.7)
 				local w = s * g
-				B:bar(crop, p0, p1, 1.9 * w, t, VIO_MD, { up = out })
+				B:bar(crop, p0, p1, 1.9 * w, t, inner and VIO_MD or PET, { up = out })
 				B:bar(crop, p1 - (p1 - p0).Unit * 0.25, p2, 3.0 * w, t * 0.96, inner and PET_LT or PET, { up = out })
 				B:bar(crop, p2 - (p2 - p1).Unit * 0.25, p3, 2.3 * w, t * 0.92, PET_LT, { up = out })
 				B:bar(crop, p3 - (p3 - p2).Unit * 0.25, p4, 1.2 * w, t * 0.88, PET_HI, { up = out })
 				B:bar(crop, p4 - (p4 - p3).Unit * 0.2, p4 + (p4 - p3).Unit * 0.5 * g - v(0, 0.35 * g, 0), 0.6 * w, t * 0.8, PET_HI, { up = out })
 				-- darker outer layer at the base for a stepped, chunky petal
-				B:bar(crop, p0:Lerp(p1, 0.4) + out * 0.24 * g, p1:Lerp(p2, 0.6) + out * 0.24 * g, 1.9 * w, 0.2, VIO, { up = out })
+				B:bar(crop, p0:Lerp(p1, 0.4) + out * 0.24 * g, p1:Lerp(p2, 0.6) + out * 0.24 * g, 1.9 * w, 0.2, inner and VIO or VIO_MD, { up = out })
 				if main then
 					-- violet spots + a glowing vein on the inner face
 					local f = P.aim(p1:Lerp(p2, 0.35), p1:Lerp(p2, 0.35) + out)
@@ -320,7 +323,7 @@ return {
 			return heart, pistil
 		end
 
-		local throat, pistil = lily(CFrame.new(mainPts[#mainPts]) * CFrame.Angles(rad(-12), rad(10), 0), 1.0, true)
+		local throat, pistil = lily(CFrame.new(mainPts[#mainPts]) * CFrame.Angles(rad(-20), rad(10), 0), 1.0, true)
 
 		---------------------------------------------------------------- side stems: pearl fruit + pads
 		local function sideStem(base, head, bend, w)
@@ -334,6 +337,7 @@ return {
 			{ v(0.4, WY + 0.4, 0.8), v(2.2, WY + 5.0, 2.6), v(0.2, 1.2, 0.6), 0.58, ang(-8, 0, 32), 0.95 },
 		}
 		local heads = {}
+		local podPearl = #pearls + 2
 		for _, h in SH do
 			sideStem(h[1], h[2], h[3], h[4])
 			local out = (v(h[2].X, 0, h[2].Z).Unit + v(0, 0, -0.5)).Unit
@@ -363,6 +367,9 @@ return {
 		local ff = B:block(crop, v(13, 8, 13), cf(0, WY + 10, 0), GLOW, { tr = 1, name = "FireflyZone" })
 		B:emitter(ff, "sparkle", { name = "Fireflies", color = { "#e6ff7a", "#9dff6a" }, rate = 3.5, size = { 0.12, 0.3, 0 }, speed = { 0.1, 0.4 }, life = { 2, 3.5 } })
 		B:light(throat, { name = "FogLight", color = "#b9e8ff", brightness = 1.3, range = 18 })
-		B:light(pearls[1], { name = "PearlLight", color = "#ffd6f0", brightness = 0.8, range = 12 })
+		B:light(pearls[podPearl], { name = "PearlLight", color = "#ffd6f0", brightness = 0.9, range = 12 })
+		-- mist spilling over the petal rim and sinking down toward the pond
+		local rim = B:block(crop, v(7, 0.6, 7), CFrame.new(mainPts[#mainPts] + v(0, 5.6, -1.4)), MIST_C, { tr = 1, name = "MistRim" })
+		B:emitter(rim, "smoke", { name = "MistSpill", color = { "#f2edff", "#d3e9ff" }, rate = 2, size = { 1.0, 2.2, 3.2 }, trans = { 0.68, 0.78, 1 }, speed = { 0.2, 0.6 }, life = { 2.5, 4 }, spread = 70, accel = { 0, -1.1, 0 }, rot = { -30, 30 } })
 	end,
 }
