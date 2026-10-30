@@ -159,7 +159,9 @@ return {
 		---------------------------------------------------------------- durians
 		local mouths, shines = {}, {}
 		-- c = center, k = scale, ry = facing (mouth toward local -Z), open = gape degrees
-		local function durian(c, k, ry, open, stalkTo)
+		local function durian(c, k, bias, open, stalkTo)
+			-- mouth faces outward from the vine, nudged toward the front by `bias`
+			local ry = math.deg(math.atan2(-c.X, -c.Z)) + bias
 			local F = CFrame.new(c) * ang(0, ry, 0)
 			local hz = 1.3 * k
 			local Hb = F * CFrame.new(0, 0, hz)
@@ -201,9 +203,10 @@ return {
 			-- juicy golden flesh peeking out of the gaping seam
 			local M = Hb * ang(open * 0.2, 0, 0) * CFrame.new(0, 0, -hz)
 			bk(M, 2.4, 0.9, 2.3, 0, 0.05, 0.25, FLESH)
-			bk(M, 0.85, 0.75, 0.8, -0.6, 0.15, -0.85, FLESH, 20, 30, 10)
-			bk(M, 0.8, 0.7, 0.8, 0.55, 0.2, -0.8, FLESH_DK, -15, 15, -10)
-			local shine = bk(M, 0.45, 0.32, 0.45, -0.1, 0.38, -1.0, FLESH_HI, 10, 35, 0, { mat = "Neon", name = "DurianShine" .. (#shines + 1) })
+			bk(M, 1.0, 0.95, 0.95, -0.68, 0.12, -0.95, FLESH, 20, 30, 10)
+			bk(M, 1.05, 1.0, 0.95, 0.05, 0.18, -1.05, FLESH_DK, -10, 20, 5)
+			bk(M, 0.95, 0.9, 0.95, 0.72, 0.1, -0.92, FLESH, -15, 15, -10)
+			local shine = bk(M, 0.45, 0.32, 0.45, -0.2, 0.62, -1.15, FLESH_HI, 10, 35, 0, { mat = "Neon", name = "DurianShine" .. (#shines + 1) })
 			table.insert(shines, shine)
 			table.insert(mouths, (M * CFrame.new(0, -0.2 * k, -1.4 * k)).Position)
 			if stalkTo then
@@ -215,12 +218,12 @@ return {
 		local function vineAt(s, j)
 			return strandPts[s][j]
 		end
-		durian(v(3.6, Y0 + 9.6, -1.4), 1.15, 70, 30, vineAt(0, 8) + v(0, 0.4, 0))
-		durian(v(-3.4, Y0 + 11.0, 1.8), 1.05, 120, 26, vineAt(1, 9) + v(0, 0.2, 0))
-		durian(v(-2.6, Y0 + 7.2, -2.6), 1.0, 35, 28, vineAt(1, 6))
-		durian(v(2.2, Y0 + 6.4, 3.0), 0.95, 150, 26, vineAt(0, 5))
+		durian(v(3.6, Y0 + 9.6, -1.4), 1.15, 25, 30, vineAt(0, 8) + v(0, 0.4, 0))
+		durian(v(-3.4, Y0 + 11.0, 1.8), 1.0, -20, 26, vineAt(1, 9) + v(0, 0.2, 0))
+		durian(v(-2.6, Y0 + 7.2, -2.6), 1.05, -10, 28, vineAt(1, 6))
+		durian(v(2.2, Y0 + 6.4, 3.0), 0.9, 25, 26, vineAt(0, 5))
 		-- the fat one resting on the mound, front-left
-		durian(v(-2.9, Y0 + 1.25, -3.0), 1.25, 20, 30, nil)
+		durian(v(-2.9, Y0 + 1.25, -3.0), 1.3, -15, 30, nil)
 
 		---------------------------------------------------------------- vfx
 		local spark = B:block(crop, v(10, 8, 10), cf(0, Y0 + 9.5, 0), LEAF, { tr = 1, name = "GoldDust" })
