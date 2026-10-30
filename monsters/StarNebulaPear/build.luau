@@ -243,7 +243,7 @@ return {
 		local function cube(bone, p, s, h, col)
 			return B:block(bone, v(s, h, s), CFrame.new(p) * ang(jit(9), rnd() * 90, jit(9)), col)
 		end
-		local function ring(bone, y, r, n, s, cols, phase, specks)
+		local function ring(bone, y, r, n, s, cols, phase, specks, capCol)
 			for i = 0, n - 1 do
 				local a = i * 360 / n + phase + jit(6)
 				local p = at(r + jit(0.3), a, y + jit(0.35))
@@ -252,6 +252,8 @@ return {
 				cube(bone, p, s + jit(0.2), h, col)
 				if i % 3 == 1 then
 					B:block(bone, v(1.4, 0.5, 1.4), CFrame.new(p + v(jit(0.4), h * 0.5 + 0.15, jit(0.4))) * ang(0, rnd() * 90, 0), (i % 2 == 0) and NEB or NEB2)
+				elseif capCol then
+					B:block(bone, v(s * 0.6, 0.45, s * 0.6), CFrame.new(p + v(jit(0.3), h * 0.5 + 0.12, jit(0.3))) * ang(0, rnd() * 90, 0), capCol)
 				end
 				if specks and i % 2 == 0 and starN < 10 then
 					starN += 1
@@ -267,12 +269,12 @@ return {
 		B:block(canopy, v(7, 0.82, 11), cf(0, C0 + 0.3, 0), L_UNDER)
 		B:block(canopy, v(9.4, 0.78, 9.4), cf(0, C0 + 0.3, 0, 0, 45, 0), L_UNDER)
 		B:block(canopy, v(10, 3.8, 10), cf(0, C0 + 2.4, 0, 0, 20, 0), L1[2])
-		ring(canopy, C0 + 1.1, 6.3, 11, 3.4, L1, 0, true)
-		ring(canopy, C0 + 3.3, 5.7, 10, 3.4, L2, 16, true)
+		ring(canopy, C0 + 1.1, 6.3, 11, 3.4, L1, 0, true, L2[3])
+		ring(canopy, C0 + 3.3, 5.7, 10, 3.4, L2, 16, true, L3[3])
 		local top = B:bone("CanopyTop", "Canopy", v(0, C0 + 4.4, 0))
 		B:block(top, v(6.6, 3.0, 6.6), cf(0, C0 + 5.2, 0, 0, 40, 0), L2[1])
-		ring(top, C0 + 5.4, 3.8, 8, 3.0, L3, 8, true)
-		ring(top, C0 + 7.0, 1.6, 4, 2.6, L4, 30, false)
+		ring(top, C0 + 5.4, 3.8, 8, 3.0, L3, 8, true, L4[1])
+		ring(top, C0 + 7.0, 1.6, 4, 2.6, L4, 30, false, "#cfe4ff")
 		-- little gold star crowning the tree
 		B:block(top, v(0.9, 0.9, 0.9), cf(0, C0 + 8.9, 0, 0, 45, 0), STAR_G, { mat = "Neon", name = "CrownStar" })
 		B:block(top, v(1.6, 0.5, 0.5), cf(0, C0 + 8.9, 0), GOLD_LT)
