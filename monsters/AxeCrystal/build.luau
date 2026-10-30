@@ -23,8 +23,11 @@ return {
 
 		-- haft (the Handle): pommel up through the socket
 		B:block("Root", v(0.42, 4.6, 0.42), cf(0, 2.75, 0), HAFT, { name = "Handle" })
-		B:block("Root", v(0.08, 1.2, 0.06), cf(0.08, 2.95, 0.22), HAFT_L)
-		B:block("Root", v(0.08, 0.7, 0.06), cf(-0.08, 3.05, -0.22), HAFT_L)
+		for _, s in { 1, -1 } do
+			-- amethyst inlay strips up the haft, front and back
+			B:block("Root", v(0.1, 1.0, 0.04), cf(0, 3.08, s * 0.22), AM_D)
+			B:block("Root", v(0.04, 1.0, 0.1), cf(s * 0.22, 3.08, 0), HAFT_L)
+		end
 
 		-- pommel: silver cap holding a little amethyst cube
 		B:block("Root", v(0.4, 0.3, 0.4), cf(0, 0.15, 0), AM)
@@ -38,6 +41,12 @@ return {
 			B:block("Root", v(0.54, 0.12, 0.54), cf(0, y, 0), WRAP_D)
 		end
 		B:block("Root", v(0.56, 0.16, 0.56), cf(0, 2.36, 0), SIL)
+		-- little lavender diamonds woven into the wrap
+		for _, y in { 1.0, 1.5, 2.0 } do
+			for _, s in { 1, -1 } do
+				B:block("Root", v(0.16, 0.16, 0.04), cf(0, y, s * 0.26), AM_L)
+			end
+		end
 		-- silver ring with a tiny crystal partway up the haft
 		B:block("Root", v(0.5, 0.14, 0.5), cf(0, 3.12, 0), SIL_D)
 		B:block("Root", v(0.16, 0.2, 0.08), cf(0, 3.12, -0.27), AM_L)
@@ -57,10 +66,14 @@ return {
 		B:block("Root", v(0.16, 0.22, 0.16), cf(0, CY + 1.66, 0), ICE)
 		shard(v(-0.05, CY + 0.95, 0), v(-0.42, CY + 1.4, 0), 0.24, 0.24, AM_M)
 
-		-- back: silver poll with a short crystal spur
-		B:block("Root", v(0.36, 0.8, 0.56), cf(-0.5, CY, 0), SIL_D)
-		B:block("Root", v(0.34, 0.52, 0.42), cf(-0.8, CY, 0), AM)
-		B:block("Root", v(0.24, 0.32, 0.32), cf(-1.06, CY, 0), AM_L)
+		-- back: silver poll with a fanned cluster of crystal spurs
+		B:block("Root", v(0.36, 0.9, 0.56), cf(-0.5, CY, 0), SIL_D)
+		shard(v(-0.55, CY + 0.05, 0), v(-1.12, CY + 0.05, 0.001), 0.46, 0.4, AM)
+		shard(v(-1.0, CY + 0.05, 0), v(-1.24, CY + 0.05, 0.001), 0.26, 0.26, ICE)
+		shard(v(-0.5, CY + 0.25, 0), v(-0.98, CY + 0.78, 0), 0.3, 0.3, AM_M)
+		shard(v(-0.9, CY + 0.68, 0), v(-1.06, CY + 0.88, 0), 0.18, 0.2, ICE_L)
+		shard(v(-0.5, CY - 0.25, 0), v(-0.9, CY - 0.7, 0), 0.26, 0.28, AM_D)
+		shard(v(-0.82, CY - 0.6, 0), v(-0.96, CY - 0.78, 0), 0.16, 0.18, AM_L)
 
 		-- silver setting + claws gripping the crystal
 		B:block("Root", v(0.4, 1.1, 0.58), cf(0.54, CY, 0), SIL_D)
