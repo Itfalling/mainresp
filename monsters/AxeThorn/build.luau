@@ -97,39 +97,41 @@ return {
 		B:bar("Root", v(0.04, 6.3, -0.02), v(0.4, 6.6, -0.06), 0.22, 0.07, LEAF_L)
 		B:bar("Root", v(0, 6.26, 0.06), v(-0.06, 6.52, 0.36), 0.2, 0.07, LEAF)
 		B:bar("Root", v(0, 6.26, -0.06), v(0.06, 6.5, -0.36), 0.2, 0.07, LEAF_L)
-		B:block("Root", v(0.22, 0.24, 0.22), cf(0.08, 6.7, 0), ROSE_D)
-		B:block("Root", v(0.14, 0.16, 0.14), cf(0.08, 6.86, 0), ROSE)
+		B:block("Root", v(0.34, 0.2, 0.34), cf(0.08, 6.68, 0), ROSE_D)
+		B:block("Root", v(0.36, 0.16, 0.36), cf(0.08, 6.8, 0, 0, 45, 0), ROSE)
+		B:block("Root", v(0.24, 0.14, 0.24), cf(0.08, 6.92, 0), ROSE)
+		B:block("Root", v(0.12, 0.1, 0.12), cf(0.08, 7.02, 0), ROSE_L)
 
 		-- back poll: a thorny branch with one big stepped thorn
 		B:block("Root", v(0.36, 0.9, 0.56), cf(-0.56, HY, 0), BARK)
 		B:block("Root", v(0.1, 1.0, 0.6), cf(-0.42, HY, 0), BARK_D)
-		spike(-0.7, HY + 0.05, -62, {
-			{ 0.2, 0.6, BARK_D, 0.44 }, { 0.18, 0.42, BARK, 0.34 }, { 0.16, 0.26, THORN, 0.24 }, { 0.14, 0.12, THORN, 0.14 },
+		spike(-0.68, HY + 0.05, -58, {
+			{ 0.2, 0.6, BARK_D, 0.44 }, { 0.18, 0.42, BARK, 0.34 }, { 0.16, 0.26, THORN, 0.24 }, { 0.1, 0.12, THORN, 0.14 },
 		})
 
 		-- heartwood blade: columns step out and grow taller toward the crystal edge
 		local cols = {
-			{ 0.66, 0.54, 1.6, 0.54, BARK },
-			{ 1.12, 0.46, 2.3, 0.5, WOOD },
-			{ 1.56, 0.44, 2.9, 0.46, WOOD },
-			{ 1.98, 0.42, 3.35, 0.42, WOOD_L },
+			{ 0.66, 0.54, 1.7, 0.54, BARK },
+			{ 1.12, 0.46, 2.5, 0.5, WOOD },
+			{ 1.56, 0.44, 3.15, 0.46, WOOD },
+			{ 1.98, 0.42, 3.6, 0.42, WOOD_L },
 		}
 		local blade = {}
 		for i, c in cols do
 			blade[i] = B:block("Root", v(c[2] + 0.02, c[3], c[4]), cf(c[1], HY, 0), c[5])
 		end
 		-- moss on the inner steps, emerald crystals sprouting on the outer ones
-		B:block("Root", v(0.58, 0.14, 0.6), cf(0.66, HY + 0.83, 0), LEAF)
-		B:block("Root", v(0.5, 0.14, 0.56), cf(1.12, HY + 1.18, 0), LEAF_L)
-		spike(1.56, HY + 1.4, 6, { { 0.16, 0.24, EM }, { 0.14, 0.14, EM_L } })
-		spike(1.98, HY + 1.62, -8, { { 0.18, 0.26, EM }, { 0.16, 0.14, EM_L } })
+		B:block("Root", v(0.58, 0.14, 0.6), cf(0.66, HY + 0.88, 0), LEAF)
+		B:block("Root", v(0.5, 0.14, 0.56), cf(1.12, HY + 1.28, 0), LEAF_L)
+		spike(1.56, HY + 1.52, 6, { { 0.16, 0.24, EM }, { 0.14, 0.14, EM_L } })
+		spike(1.98, HY + 1.74, -8, { { 0.18, 0.26, EM }, { 0.16, 0.14, EM_L } })
 
 		-- broad emerald crystal edge with glowing seams, crystal horns top and bottom
-		B:block("Root", v(0.32, 3.6, 0.4), cf(2.34, HY, 0), EM_D)
-		B:block("Root", v(0.24, 3.85, 0.32), cf(2.6, HY, 0), EM)
-		B:block("Root", v(0.1, 3.5, 0.22), cf(2.76, HY, 0), EM_L)
-		spike(2.56, HY + 1.88, 18, { { 0.2, 0.3, EM }, { 0.18, 0.18, EM_L } })
-		spike(2.56, HY - 1.88, 162, { { 0.22, 0.3, EM }, { 0.2, 0.2, EM_L }, { 0.16, 0.1, EM_L } })
+		B:block("Root", v(0.32, 3.85, 0.4), cf(2.34, HY, 0), EM_D)
+		B:block("Root", v(0.24, 4.1, 0.32), cf(2.6, HY, 0), EM)
+		B:block("Root", v(0.1, 3.75, 0.22), cf(2.76, HY, 0), EM_L)
+		spike(2.56, HY + 2.0, 18, { { 0.2, 0.3, EM }, { 0.18, 0.18, EM_L } })
+		spike(2.56, HY - 2.0, 162, { { 0.22, 0.3, EM }, { 0.2, 0.2, EM_L }, { 0.16, 0.1, EM_L } })
 
 		-- blade faces: tree-ring grain, glowing seams and a creeping vine with a rose
 		for _, s in { 1, -1 } do
@@ -138,10 +140,14 @@ return {
 			B:block("Root", v(0.36, 0.06, 0.04), cf(1.12, HY - 0.7, z(0.5)), BARK_D)
 			B:block("Root", v(0.34, 0.06, 0.04), cf(1.56, HY + 0.95, z(0.46)), BARK_D)
 			B:block("Root", v(0.34, 0.06, 0.04), cf(1.56, HY - 1.0, z(0.46)), BARK_D)
-			B:block("Root", v(0.32, 0.06, 0.04), cf(1.98, HY + 1.25, z(0.42)), BARK_D)
-			B:block("Root", v(0.32, 0.06, 0.04), cf(1.98, HY - 1.25, z(0.42)), BARK_D)
-			B:block("Root", v(0.06, 3.2, 0.04), cf(2.3, HY, z(0.4)), GLOW, { mat = "Neon" })
-			B:block("Root", v(0.05, 2.6, 0.04), cf(2.6, HY, z(0.32)), GLOW, { mat = "Neon" })
+			B:block("Root", v(0.32, 0.06, 0.04), cf(1.98, HY + 1.35, z(0.42)), GLOW, { mat = "Neon" })
+			B:block("Root", v(0.32, 0.06, 0.04), cf(1.98, HY - 1.35, z(0.42)), GLOW, { mat = "Neon" })
+			B:block("Root", v(0.06, 3.4, 0.04), cf(2.3, HY, z(0.4)), GLOW, { mat = "Neon" })
+			B:block("Root", v(0.05, 2.8, 0.04), cf(2.6, HY, z(0.32)), GLOW, { mat = "Neon" })
+			-- pale crystal facets on the emerald edge
+			B:block("Root", v(0.14, 0.9, 0.04), cf(2.42, HY + 1.2, z(0.4)), EM_L)
+			B:block("Root", v(0.14, 0.7, 0.04), cf(2.42, HY - 1.3, z(0.4)), EM_L)
+			B:block("Root", v(0.12, 0.6, 0.04), cf(2.66, HY + 0.2, z(0.32)), EM_L)
 			-- vine creeping out from the heart across the blade
 			local a, b, c = v(0.42, HY - 0.45, z(0.54)), v(1.15, HY - 0.1, z(0.5)), v(1.9, HY - 0.4, z(0.42))
 			B:bar("Root", a, b, 0.09, 0.09, VINE)

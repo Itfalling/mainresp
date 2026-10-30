@@ -78,8 +78,8 @@ return {
 		-- back poll: navy block with a long stepped ice spike
 		B:block("Root", v(0.36, 0.8, 0.54), cf(-0.52, 4.7, 0), NAVY)
 		B:block("Root", v(0.1, 0.9, 0.58), cf(-0.38, 4.7, 0), SILVER)
-		icicle(-0.66, 4.72, -84, {
-			{ 0.18, 0.64, ICE_D, 0.46 }, { 0.16, 0.46, ICE, 0.38 }, { 0.14, 0.28, ICE_L, 0.28 }, { 0.12, 0.14, EDGE, 0.2 },
+		icicle(-0.64, 4.72, -84, {
+			{ 0.18, 0.64, ICE_D, 0.46 }, { 0.16, 0.46, ICE, 0.38 }, { 0.14, 0.28, ICE_L, 0.28 }, { 0.1, 0.14, EDGE, 0.2 },
 		})
 
 		-- the big ice blade: columns step out and grow taller toward a pale edge
