@@ -208,6 +208,12 @@ return {
 			B:block(crop, v(3.25, 0.3, 3.25), cf(0, y, 0, 0, 30, 0), GOLD)
 			B:block(crop, v(0.5, 0.36, 0.5), cf(0, y, -1.65, 0, 0, 45), GOLD_LT)
 		end
+		-- glowing star runes carved into the bark (front + back)
+		for k, yaw in { 0, 180 } do
+			local F = CFrame.new(0, DY + 4.0, 0) * ang(0, yaw + 44, 0) * CFrame.new(0, 0, -1.4)
+			B:block(crop, v(1.2, 1.2, 0.2), F * ang(0, 0, 45), GOLD_DK)
+			B:block(crop, v(0.55, 0.55, 0.24), F * CFrame.new(0, 0, -0.02) * ang(0, 0, 45), STAR_C, { mat = "Neon", name = "TrunkRune" .. k })
+		end
 		-- silver spiral ridges
 		for _, a0 in { 30, 210 } do
 			local prev
@@ -251,7 +257,7 @@ return {
 					starN += 1
 					local o = (p - v(0, p.Y, 0)).Unit
 					local sp = p + o * (s * 0.5 + 0.05) + v(0, jit(0.6), 0)
-					B:block(bone, v(0.32, 0.32, 0.32), CFrame.new(sp) * ang(45, -a, 45), (starN % 3 == 0) and STAR_P or (starN % 2 == 0 and STAR_C or STAR_W),
+					B:block(bone, v(0.42, 0.42, 0.12), CFrame.new(sp) * ang(0, -a, 0) * ang(0, 0, 45), (starN % 3 == 0) and STAR_P or (starN % 2 == 0 and STAR_C or STAR_W),
 						{ mat = "Neon", name = "LeafStar" .. starN })
 				end
 			end
@@ -291,8 +297,8 @@ return {
 			band(v(2.0 * s, 1.65 * s, 2.0 * s), 2.85, 45, pal[2])
 			band(v(1.5 * s, 0.5 * s, 1.5 * s), 3.8, 45, pal[2])
 			-- neon swirl stripes wrapping diagonally across the faces
-			band(v(1.5 * s, 0.38 * s, 2.5 * s), 2.75, 0, pal[5], { mat = "Neon", name = coreName }, 24)
-			band(v(2.5 * s, 0.38 * s, 1.3 * s), 2.2, 0, pal[5], { mat = "Neon", name = coreName .. "B" }, 0)
+			band(v(1.7 * s, 0.36 * s, 3.0 * s), 2.65, 0, pal[5], { mat = "Neon", name = coreName }, 26)
+			B:block(bone, v(3.0 * s, 0.36 * s, 1.7 * s), CFrame.new(c0 - v(0, 3.05 * s, 0)) * ang(0, yaw0, 0) * ang(-26, 0, 0), pal[5], { mat = "Neon", name = coreName .. "B" })
 			-- glossy highlight
 			B:block(bone, v(0.45 * s, 0.45 * s, 0.12), CFrame.new(c0 - v(0, 3.25 * s, 0)) * ang(0, yaw0, 0) * CFrame.new(-0.55 * s, 0, -1.17 * s), STONE_HI)
 		end
@@ -320,10 +326,10 @@ return {
 		local COMETS = { { 0, 8.6, 1.0, STAR_G }, { 120, 8.4, -1.2, STAR_C }, { 240, 8.8, 0.2, STAR_P } }
 		for i, m in COMETS do
 			local p = at(m[2], m[1], OY + m[3])
-			B:block(orbit, v(0.6, 0.6, 0.6), CFrame.new(p) * ang(45, 45, 0), m[4], { mat = "Neon", name = "Comet" .. i })
-			B:block(orbit, v(1.1, 0.3, 0.3), CFrame.new(p) * ang(0, -m[1], 0), STAR_W)
-			B:block(orbit, v(0.3, 1.1, 0.3), CFrame.new(p) * ang(0, -m[1], 0), STAR_W)
-			B:trail(orbit, p + v(0, 0.45, 0), p - v(0, 0.45, 0), { name = "CometTrail" .. i, color = { STAR_W, m[4] }, life = 0.8, width = { 1, 0 }, trans = { 0.2, 1 } })
+			B:block(orbit, v(0.85, 0.85, 0.85), CFrame.new(p) * ang(45, 45, 0), m[4], { mat = "Neon", name = "Comet" .. i })
+			B:block(orbit, v(1.7, 0.4, 0.4), CFrame.new(p) * ang(0, -m[1], 0), STAR_W)
+			B:block(orbit, v(0.4, 1.7, 0.4), CFrame.new(p) * ang(0, -m[1], 0), STAR_W)
+			B:trail(orbit, p + v(0, 0.7, 0), p - v(0, 0.7, 0), { name = "CometTrail" .. i, color = { STAR_W, m[4] }, life = 0.8, width = { 1, 0 }, trans = { 0.2, 1 } })
 		end
 
 		------------------------------------------------------------------

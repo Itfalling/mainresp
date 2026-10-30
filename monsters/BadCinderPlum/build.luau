@@ -134,7 +134,7 @@ return {
 			B:block(soil, v(s[4] * 1.35, s[4], s[4] * 1.05), cf(s[1], s[2], s[3], jit(6), s[5], jit(6)), s[6], S)
 		end
 		-- obsidian shards with purple glints
-		for _, o in { { -5.9, 0.9, 0.9, 1.6, 10 }, { 3.0, 1.6, -4.1, 1.3, -15 }, { 4.3, 0.9, 4.9, 1.1, 20 } } do
+		for _, o in { { -5.9, 0.9, 0.9, 1.6, 10 }, { 3.9, 1.6, 0.6, 1.3, -15 }, { 4.3, 0.9, 4.9, 1.1, 20 } } do
 			local base = cf(o[1], o[2], o[3], jit(10), o[5], jit(12))
 			B:block(soil, v(0.7, o[4], 0.6), base * CFrame.new(0, o[4] / 2, 0), OBS, S)
 			B:block(soil, v(0.42, 0.5, 0.36), base * CFrame.new(0, o[4] + 0.2, 0), OBS_PU, S)
@@ -340,10 +340,10 @@ return {
 		end
 
 		-- a fallen cinder plum split open on the mound, its ember core showing
-		local fp = cf(3.2, 1.6 + 0.55, -3.3, 0, 35, 0)
+		local fp = cf(3.2, 1.6 + 0.6, -3.3, 0, 20, 0) * ang(-40, 0, 0)
 		B:block(crop, v(1.3, 1.1, 1.3), fp * CFrame.new(0, 0, 0) * ang(0, 0, 8), PL)
 		B:block(crop, v(1.0, 0.2, 1.0), fp * CFrame.new(0.05, 0.58, 0) * ang(0, 0, 8), PL_DK)
-		B:block(crop, v(0.7, 0.24, 0.7), fp * CFrame.new(0.05, 0.62, 0) * ang(0, 0, 8), LAVA_Y, { mat = "Neon", name = "FallenCore" })
+		B:block(crop, v(0.75, 0.3, 0.75), fp * CFrame.new(0.05, 0.66, 0) * ang(0, 0, 8), LAVA_Y, { mat = "Neon", name = "FallenCore" })
 		B:block(crop, v(0.9, 0.7, 0.8), fp * CFrame.new(-1.1, -0.2, 0.3) * ang(0, 25, -40), PL_LT)
 		B:block(crop, v(0.5, 0.22, 0.5), fp * CFrame.new(-0.95, 0.12, 0.3) * ang(0, 25, -40), LAVA, { mat = "Neon", name = "FallenCore" })
 

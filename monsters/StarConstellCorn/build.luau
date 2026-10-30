@@ -33,12 +33,12 @@ return {
 		local CRYS, CRYS_LT = "#8a6cff", "#b9a4ff"
 		local MARBLE, MARBLE_LT, MARBLE_DK = "#efeae0", "#faf7f0", "#cfc8ba"
 		local STALK, STALK_LT, STALK_DK = "#2f8a70", "#43a184", "#236a57"
-		local NODE = "#c6e4d6"
-		local L1 = { "#2f8f7a", "#2c7d98", "#4659b4" }
-		local L2 = { "#3aa58a", "#3a8fb2", "#6a58c8" }
+		local NODE = "#e6d08a"
+		local L1 = { "#2b9a90", "#2c7fa6", "#4a5cc0" }
+		local L2 = { "#38ad9c", "#3a92bc", "#6c5ad0" }
 		local COB, COB_DK, COB_LT, COB_BAND = "#3b37a6", "#2b2886", "#4f4ac2", "#5c57d0"
 		local STAR_G, STAR_C, LINE = "#ffe27a", "#9ff6ff", "#d8f6ff"
-		local HUSK, HUSK_DK, HUSK_LT = "#c9c0ea", "#a798d8", "#e4def8"
+		local HUSK, HUSK_DK, HUSK_LT = "#d3bff2", "#ab92e0", "#efe6ff"
 		local SILK, SILK_DK = "#ff9fd6", "#ffd27a"
 		local TASSEL, TASSEL_DK, TASSEL_LT = "#e8b84a", "#c9952e", "#ffd970"
 		local NEON = { mat = "Neon" }
@@ -208,8 +208,8 @@ return {
 		end
 		local leafs = {
 			-- stalk, y, deg, len, width, palette, rise
-			{ 1, 4.3, 200, 8.4, 1.8, L2, -8 },
-			{ 1, 4.5, 15, 8.2, 1.8, L1, -8 },
+			{ 1, 5.0, 200, 8.4, 1.8, L2, -3 },
+			{ 1, 5.2, 15, 8.2, 1.8, L1, -3 },
 			{ 1, 7.8, 115, 7.6, 1.7, L1, -2 },
 			{ 1, 10.8, 275, 7.0, 1.6, L2, 4 },
 			{ 1, 13.6, 80, 6.0, 1.5, L1, 8 },
@@ -248,7 +248,7 @@ return {
 			local first
 			for k, st in stars do
 				local col = st[3] and STAR_G or STAR_C
-				local sz = st[3] and 0.46 or 0.34
+				local sz = st[3] and 0.52 or 0.38
 				local part = B:block(crop, v(sz * s, sz * s, 0.12), at(st[1], st[2], fz) * ang(0, 0, 45), col, NEON)
 				first = first or part
 				if k > 1 then
@@ -284,11 +284,11 @@ return {
 		local orion = { { -0.45, 1.3 }, { -0.05, 2.0, true }, { 0.15, 2.25 }, { 0.4, 2.5, true }, { 0.45, 3.4 } }
 		local lyra = { { 0.0, 3.3, true }, { -0.4, 2.55 }, { -0.3, 1.6 }, { 0.35, 1.45, true }, { 0.4, 2.4 } }
 		local swan = { { 0.0, 1.2 }, { 0.0, 2.2, true }, { -0.5, 2.6 }, { 0.0, 2.2 }, { 0.5, 2.0 }, { 0.05, 3.5, true } }
-		local big = cob(stalkAt[1](6.6) + dirOf(330) * 1.0, 330, 34, 1.3, dipper)
-		cob(stalkAt[1](9.8) + dirOf(60) * 0.9, 60, 32, 1.1, cassio)
-		cob(stalkAt[1](12.6) + dirOf(200) * 0.8, 200, 30, 1.0, orion)
-		cob(stalkAt[2](7.6) + dirOf(250) * 0.7, 250, 36, 1.0, lyra)
-		cob(stalkAt[3](7.0) + dirOf(130) * 0.7, 130, 36, 0.95, swan)
+		local big = cob(stalkAt[1](6.4) + dirOf(330) * 1.2, 330, 38, 1.4, dipper)
+		cob(stalkAt[1](9.9) + dirOf(65) * 1.1, 65, 36, 1.15, cassio)
+		cob(stalkAt[1](12.8) + dirOf(195) * 1.0, 195, 34, 1.05, orion)
+		cob(stalkAt[2](7.6) + dirOf(255) * 0.9, 255, 40, 1.05, lyra)
+		cob(stalkAt[3](7.0) + dirOf(130) * 0.9, 130, 40, 1.0, swan)
 
 		---------------------------------------------------------------- tassels
 		local function tassel(top, s, n, rot)

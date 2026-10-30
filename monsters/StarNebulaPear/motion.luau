@@ -86,6 +86,9 @@ function M.Update(t, pose, ctx)
 	for i = 1, 3 do
 		ctx.transparency("Comet" .. i, clamp(0.15 + 0.15 * w(t, 4, i / 3) - 0.3 * flash, 0, 0.4))
 	end
+	for k = 1, 2 do
+		ctx.transparency("TrunkRune" .. k, clamp(0.25 + 0.25 * w(t, 2, k * 0.5) - 0.4 * flash, 0, 0.6))
+	end
 	ctx.transparency("CrownStar", clamp(0.2 + 0.15 * w(t, 2, 0.5) - 0.3 * flash, 0, 0.5))
 
 	ctx.light("CrownLight", clamp(1.2 + 0.2 * w(t, 2, 0.1) - 0.4 * gather + 0.8 * flash, 0, 2))
