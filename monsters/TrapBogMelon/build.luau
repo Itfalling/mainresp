@@ -26,10 +26,10 @@ return {
 		local REED, CATTAIL = "#7f8f3a", "#5a3a1e"
 		local WOOD_DK, WOOD, WOOD_LT = "#4a2f1c", "#64422a", "#7d5636"
 		local VINE_DK, VINE = "#2c6e2a", "#3f8f34"
-		local LEAF_DK, LEAF, LEAF_LT, LEAF_TOP = "#1f6e2a", "#3caa3c", "#6cc94a", "#58c447"
-		local MEL_DK, MEL, MEL_LT = "#2f6a24", "#4c9534", "#5fae3c"
-		local STRIPE = "#24541d"
-		local SPOT, SPOT_N = "#b6e65a", "#a6ff4a"
+		local LEAF_DK, LEAF, LEAF_LT, LEAF_TOP = "#1f6e2a", "#2f8f34", "#4caa3c", "#3c9a38"
+		local MEL_DK, MEL, MEL_LT = "#5f8f2c", "#8cc04a", "#a9d65e"
+		local STRIPE = "#3a6b22"
+		local SPOT, SPOT_N = "#e2ff7a", "#c8ff4a"
 		local LILY, LILY_DK = "#5cb83a", "#3f8f2a"
 		local FLOWER = "#ff8cb4"
 
@@ -113,32 +113,36 @@ return {
 		end
 
 		----------------------------------------------------- mossy melons
-		-- c: centre; local Z = long axis, local X = flank.
+		-- c: centre; local Z = long axis, local X = flank. Horizontal stepped
+		-- slabs give a round cross-section; the dark bands are the stripes
+		-- running end to end.
 		local glowSpots = {}
 		local function melon(c, s, glow)
-			local H, L = s * 0.86, s * 1.25
-			B:block(crop, v(s, H * 0.68, L * 0.88), c, MEL)
-			B:block(crop, v(s * 0.74, H, L * 0.88), c, MEL_LT)
-			B:block(crop, v(s * 0.88, H * 0.86, L * 0.96), c, MEL)
-			B:block(crop, v(s * 0.6, H * 0.6, L), c, MEL_DK)
-			-- dark stripes running the length over the top
-			for _, x in { -0.24, 0.24 } do
-				B:block(crop, v(0.13 * s, H + 0.06, L * 0.82), c * CFrame.new(x * s, 0, 0), STRIPE)
+			local H, L = s * 0.86, s * 1.3
+			local function slab(y0, y1, w, l, col)
+				return B:block(crop, v(w * s, (y1 - y0) * H, l * L), c * CFrame.new(0, ((y0 + y1) / 2 - 0.5) * H, 0), col)
 			end
-			-- lime spots on the flanks + one on top
-			for _, e in { -1, 1 } do
-				local fx = e * (s * 0.44 + 0.03)
-				B:block(crop, v(0.14 * s, 0.2 * s, 0.22 * s), c * CFrame.new(fx, 0.12 * H, 0.22 * L * e), SPOT)
-				local n = B:block(crop, v(0.13 * s, 0.14 * s, 0.14 * s), c * CFrame.new(fx, -0.18 * H, -0.18 * L * e),
-					glow and SPOT_N or SPOT, glow and { mat = "Neon", name = "MelonSpot" } or nil)
-				if glow then table.insert(glowSpots, n) end
+			slab(0.0, 0.2, 0.62, 0.78, MEL_DK)
+			slab(0.2, 0.38, 0.88, 0.94, MEL)
+			slab(0.38, 0.62, 1.0, 1.0, STRIPE)
+			slab(0.62, 0.8, 0.88, 0.94, MEL)
+			slab(0.8, 0.92, 0.66, 0.84, STRIPE)
+			slab(0.92, 1.0, 0.4, 0.66, MEL_LT)
+			-- rounded ends poking out
+			B:block(crop, v(0.56 * s, 0.5 * H, 1.08 * L), c, MEL)
+			-- scattered lime spots on the flanks (irregular, never a pair)
+			for _, q in { { 0.2, 0.3, 0.2 }, { -0.2, -0.06, 0.15 }, { 0.06, -0.36, 0.12 } } do
+				B:block(crop, v(0.9 * s + 0.08, q[3] * s * 0.8, q[3] * s * 1.2), c * CFrame.new(0, q[1] * H, q[2] * L), SPOT)
 			end
-			B:block(crop, v(0.2 * s, 0.1 * s, 0.24 * s), c * CFrame.new(0, H / 2 + 0.03, 0.18 * L), SPOT)
+			-- one softly glowing spot on top
+			local n = B:block(crop, v(0.16 * s, 0.1, 0.22 * s), c * CFrame.new(0.05 * s, H / 2 + 0.02, -L * 0.04),
+				glow and SPOT_N or SPOT, glow and { mat = "Neon", name = "MelonSpot" } or nil)
+			if glow then table.insert(glowSpots, n) end
 			-- moss tuft + curly stem on top
-			B:block(crop, v(0.42 * s, 0.14 * s + 0.1, 0.42 * s), c * CFrame.new(0, H / 2 + 0.05, -L * 0.24) * ang(0, 30, 0), MOSS)
-			B:block(crop, v(0.3, 0.6, 0.3), c * CFrame.new(0, H / 2 + 0.3, -L * 0.28), WOOD_DK)
-			B:block(crop, v(0.6, 0.24, 0.24), c * CFrame.new(0.22, H / 2 + 0.6, -L * 0.28), VINE)
-			return (c * CFrame.new(0, H / 2 + 0.3, -L * 0.28)).Position
+			B:block(crop, v(0.36 * s, 0.1 * s + 0.1, 0.4 * s), c * CFrame.new(0, H / 2 + 0.04, L * 0.12) * ang(0, 25, 0), MOSS)
+			B:block(crop, v(0.3, 0.6, 0.3), c * CFrame.new(0, H / 2 + 0.3, -L * 0.18), WOOD_DK)
+			B:block(crop, v(0.6, 0.24, 0.24), c * CFrame.new(0.22, H / 2 + 0.6, -L * 0.18), VINE)
+			return (c * CFrame.new(0, H / 2 + 0.3, -L * 0.18)).Position
 		end
 		local function groundMelon(deg, r, yGround, s, yaw, glow)
 			local base = polar(deg, r, yGround)
@@ -147,15 +151,15 @@ return {
 
 		---------------------------------------------------- bog-root arch
 		local ARCH = {
-			v(-4.4, Y0 - 0.2, 2.2), v(-4.5, 4.4, 2.4), v(-3.8, 7.0, 2.6), v(-2.3, 9.0, 2.7),
-			v(0.0, 9.8, 2.8), v(2.3, 9.0, 2.6), v(3.7, 7.0, 2.3), v(4.4, 4.4, 2.0), v(4.3, Y0 - 0.2, 1.8),
+			v(-4.6, Y0 - 0.2, 2.4), v(-4.7, 4.4, 2.6), v(-3.7, 6.7, 2.8),
+			v(-1.5, 7.9, 2.9), v(1.5, 7.9, 2.8), v(3.6, 6.7, 2.5), v(4.5, 4.4, 2.2), v(4.4, Y0 - 0.2, 2.0),
 		}
 		for i = 1, #ARCH - 1 do
 			local mid = math.abs(i - #ARCH / 2) / (#ARCH / 2)
-			local w = 1.15 + 0.45 * mid
+			local w = 1.3 + 0.5 * mid
 			B:bar(crop, ARCH[i], ARCH[i + 1], w, w, (i % 2 == 0) and WOOD or WOOD_DK)
 			if i > 1 then
-				B:block(crop, v(w + 0.15, w + 0.15, w + 0.15), CFrame.new(ARCH[i]) * ang(0, rnd(0, 90), 0), WOOD_LT)
+				B:block(crop, v(w + 0.12, w + 0.12, w + 0.12), CFrame.new(ARCH[i]) * ang(0, rnd(0, 30), 0), WOOD)
 			end
 			-- moss caps on the upper segments
 			if i >= 2 and i <= #ARCH - 2 then
@@ -184,28 +188,28 @@ return {
 		end
 
 		-- leafy crown on the arch
-		leafAt(v(0.0, 10.8, 2.8), 3.4, LEAF)
-		leafAt(v(-2.4, 10.0, 2.6), 3.0, LEAF_DK)
-		leafAt(v(2.5, 10.1, 2.4), 3.0, LEAF_LT)
-		leafAt(v(-1.0, 10.5, 4.3), 2.6, LEAF_DK)
-		leafAt(v(1.4, 10.4, 1.1), 2.5, LEAF_TOP)
-		leafAt(v(-4.0, 7.8, 2.4), 2.4, LEAF)
-		leafAt(v(4.0, 7.6, 2.1), 2.3, LEAF_DK)
-		leafAt(v(0.8, 11.8, 3.1), 2.0, LEAF_LT)
+		leafAt(v(0.0, 9.0, 2.9), 3.2, LEAF)
+		leafAt(v(-2.6, 8.4, 2.8), 2.8, LEAF_DK)
+		leafAt(v(2.6, 8.5, 2.5), 2.8, LEAF_LT)
+		leafAt(v(-0.9, 8.6, 4.4), 2.4, LEAF_DK)
+		leafAt(v(1.2, 8.4, 1.3), 2.3, LEAF_TOP)
+		leafAt(v(-3.9, 7.3, 3.4), 1.8, LEAF)
+		leafAt(v(3.8, 7.3, 3.1), 1.7, LEAF_DK)
+		leafAt(v(0.6, 10.3, 3.2), 1.9, LEAF_LT)
 
 		-- two melons dangling from the arch on vine stalks
 		local function dangle(top, s, yaw)
-			local bot = top + v(0, -1.4, 0)
+			local bot = top + v(0, -1.0, 0)
 			B:bar(crop, top, bot, 0.36, 0.36, VINE)
 			B:block(crop, v(0.6, 0.4, 0.6), CFrame.new(bot), VINE_DK)
-			melon(CFrame.new(bot + v(0, -s * 0.43, 0)) * ang(0, yaw, rnd(-5, 5)), s, false)
+			melon(CFrame.new(bot + v(0, -s * 0.43, 0)) * ang(0, yaw, rnd(-5, 5)), s, true)
 		end
-		dangle(v(-3.2, 7.6, 1.6), 2.1, 70)
-		dangle(v(3.0, 7.9, 1.4), 1.9, 110)
+		dangle(v(-2.2, 7.3, 2.0), 2.0, 70)
+		dangle(v(2.3, 7.3, 1.8), 1.8, 110)
 
 		----------------------------------------------------- ground patch
 		-- hero melon in front, others around
-		local m1 = groundMelon(0, 1.6, Y0, 3.8, 90, true)
+		local m1 = groundMelon(0, 1.7, Y0, 3.5, 78, true)
 		local m2 = groundMelon(-62, 4.2, 1.4, 2.9, 80, true)
 		groundMelon(118, 3.4, 1.4, 2.5, 100, false)
 		groundMelon(205, 3.4, 1.4, 1.5, 60, false) -- a little young one
@@ -213,7 +217,7 @@ return {
 		-- big leaf cubes sprawling over the patch
 		leafAt(polar(150, 4.6, 1.0 + 0.6), 2.4, LEAF_DK, 14)
 		leafAt(polar(-118, 4.8, 1.0 + 0.6), 2.3, LEAF, 14)
-		leafAt(polar(55, 4.6, 1.0 + 0.55), 2.2, LEAF_TOP, 14)
+		leafAt(polar(96, 5.0, 1.0 + 0.55), 2.2, LEAF_TOP, 14)
 		leafAt(polar(0, 0, Y0 + 0.8), 2.4, LEAF_DK, 10)
 		-- runners from the arch feet to the melons
 		local function run(a, b, w, col)
@@ -225,7 +229,7 @@ return {
 		run(v(-4.0, Y0 + 0.2, 1.4), m2 + v(0.3, -0.2, 0.3), 0.4, VINE)
 
 		---------------------------------------------------------------- bling
-		local fly = B:block(crop, v(9, 6, 5), cf(0, 7.5, 1.0), LEAF, { tr = 1, name = "FireflyZone" })
+		local fly = B:block(crop, v(9, 6, 5), cf(0, 6.5, 1.0), LEAF, { tr = 1, name = "FireflyZone" })
 		B:emitter(fly, "sparkle", { name = "Fireflies", color = { "#e9ff6a", "#a6ff4a" }, rate = 4, size = { 0.1, 0.35, 0 }, speed = { 0.2, 0.6 } })
 		B:emitter(glowSpots[1], "glow", { name = "MelonGlow", color = "#b6ff6a", rate = 1, size = 1.4 })
 		B:light(glowSpots[1], { name = "MelonLight", color = "#b6ff6a", brightness = 0.9, range = 12 })

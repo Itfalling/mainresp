@@ -182,9 +182,9 @@ return {
 			B:bar(crop, tipP + v(0, 0.2, 0), hang, 0.36, 0.36, RED_DK)
 			return candy(hang + v(0, -1.05, 0), 1.85, CANDY, true)
 		end
-		local big1 = strap(-40, 7.4, 0.2)
-		strap(80, 6.4, 0.0)
-		strap(200, 7.0, 0.3)
+		local big1 = strap(-40, 8.0, 0.2)
+		strap(80, 7.0, 0.0)
+		strap(200, 7.6, 0.3)
 
 		---------------------------------------------------------------- bling
 		B:emitter(big1, "sparkle", { name = "CandySparkle", color = { "#ffffff", "#ffb3d9" }, rate = 3, size = 0.4 })

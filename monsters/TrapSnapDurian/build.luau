@@ -26,9 +26,9 @@ return {
 		local PAD, PAD_DK = "#3caa3c", "#2a8a33"
 		local REED, CATTAIL = "#7f8f3a", "#5a3a1e"
 		local VINE_DK, VINE, VINE_LT = "#4a3820", "#644c2b", "#7d6236"
-		local LEAF_DK, LEAF, LEAF_LT, RIB = "#1f6e2a", "#2f8f37", "#45ad44", "#8fd04a"
-		local DUR_DK, DUR, DUR_LT = "#6c8f22", "#8fb52e", "#b3d04a"
-		local SPIKE, SPIKE_DK = "#c9de62", "#5e7d1c"
+		local LEAF_DK, LEAF, LEAF_LT, RIB = "#227a2e", "#30993a", "#4bb847", "#f2cf3e"
+		local DUR_DK, DUR, DUR_LT = "#76a02a", "#9cc436", "#bddb4e"
+		local SPIKE, SPIKE_DK = "#dcec7a", "#5e7d1c"
 		local RIM, INSIDE = "#c92a48", "#ff5c7c"
 		local FLESH, FLESH_DK, FLESH_HI = "#ffc533", "#f0a21c", "#fff09a"
 		local CREAM = "#fff4d2"
@@ -58,7 +58,7 @@ return {
 				B:block(soil, v(w, eh, d), p * ang(0, rnd(-6, 6), 0), pick(edgeCols), S)
 			end
 		end
-		tier(0, 0.8, 6.0, DIRT_DK, 15, { DIRT_DK, DIRT_DK2, DIRT_DK }, 0.35)
+		tier(0, 0.8, 6.0, DIRT_DK, 14, { DIRT_DK, DIRT_DK2, DIRT_DK }, 0.35)
 		tier(0.8, 0.6, 4.1, DIRT, 10, { DIRT, DIRT_LT, DIRT }, 0.3)
 		tier(1.4, 0.4, 2.5, DIRT_LT, 0, {}, 0)
 
@@ -67,7 +67,7 @@ return {
 			local c = CFrame.new(math.sin(a) * m[2], m[3], -math.cos(a) * m[2]) * CFrame.Angles(0, -a, 0)
 			B:block(soil, v(m[4], 0.3, 1.3), c * ang(-12, 0, 0), m[5], S)
 		end
-		for _, s in { { 5.0, 1.0, 2.8, 0.9, 25, STONE }, { 5.6, 0.9, 1.7, 0.6, 10, STONE_LT }, { -5.2, 0.95, 2.4, 0.85, -20, STONE_DK }, { -1.8, 0.95, 5.6, 0.7, 40, STONE }, { 3.0, 1.75, 2.9, 0.6, 15, STONE_LT } } do
+		for _, s in { { 5.0, 1.0, 2.8, 0.9, 25, STONE }, { 5.6, 0.9, 1.7, 0.6, 10, STONE_LT }, { -5.2, 0.95, 2.4, 0.85, -20, STONE_DK }, { -1.8, 0.95, 5.6, 0.7, 40, STONE } } do
 			B:block(soil, v(s[4] * 1.2, s[4], s[4]), cf(s[1], s[2], s[3], rnd(-10, 10), s[5], rnd(-10, 10)), s[6], S)
 		end
 		for _, g in { { 5.8, -0.6 }, { -4.2, 4.3 }, { 4.4, -4.2 } } do
@@ -79,7 +79,6 @@ return {
 		B:block(soil, v(3.0, 0.3, 1.7), CFrame.new(BC + v(0, -0.12, 0)) * ang(0, 12, 0), BOG, S)
 		B:block(soil, v(1.8, 0.28, 2.4), CFrame.new(BC + v(0.1, -0.16, -0.05)) * ang(0, 12, 0), BOG, S)
 		B:block(soil, v(1.0, 0.1, 0.35), CFrame.new(BC + v(-0.4, 0.04, -0.3)) * ang(0, 12, 0), BOG_LT, S)
-		B:block(soil, v(0.8, 0.45, 0.6), CFrame.new(BC + v(1.6, 0, -0.5)) * ang(0, 20, 0), MUD, S)
 		B:block(soil, v(0.9, 0.1, 0.9), CFrame.new(BC + v(0.6, 0.06, -0.2)) * ang(0, 30, 0), PAD, S)
 		B:block(soil, v(0.6, 0.1, 0.6), CFrame.new(BC + v(-0.8, 0.06, 0.35)) * ang(0, -20, 0), PAD_DK, S)
 		B:block(soil, v(0.2, 1.9, 0.2), CFrame.new(BC + v(1.4, 0.95, 0.6)) * ang(0, 0, -8), REED, S)
@@ -96,7 +95,7 @@ return {
 			local d = (b - a).Unit
 			B:bar(crop, a - d * (w * 0.45), b + d * (w * 0.45), w, w, col)
 		end
-		local TOP = Y0 + 14.6
+		local TOP = Y0 + 13.6
 		local N = 9
 		local strandPts = {}
 		for s = 0, 1 do
@@ -122,7 +121,6 @@ return {
 		smallLeaf(v(0.4, Y0 + 4.2, -0.6), -30, 18, 2.0, LEAF)
 		smallLeaf(v(-0.6, Y0 + 6.4, 0.3), -120, 22, 1.8, LEAF_LT)
 		smallLeaf(v(0.6, Y0 + 7.8, 0.4), 140, 20, 1.9, LEAF)
-		smallLeaf(v(-0.4, Y0 + 3.0, 0.6), 200, 15, 1.7, LEAF_LT)
 		-- curly tendrils
 		local function tendril(p, a, col)
 			local f = CFrame.new(p) * CFrame.Angles(0, -rad(a), 0)
@@ -134,26 +132,30 @@ return {
 			B:bar(crop, q2, q3, 0.28, 0.28, col)
 		end
 		tendril(v(0.5, Y0 + 5.4, 0.2), 70, LEAF_LT)
-		tendril(v(-0.4, Y0 + 9.6, -0.3), -110, LEAF_LT)
 
 		---------------------------------------------------------------- crown
 		local CY = TOP + 0.6
-		B:block(crop, v(4.2, 4.2, 4.2), cf(0, CY + 1.4, 0, 10, 25, 8), LEAF)
-		B:block(crop, v(3.3, 3.3, 3.3), cf(-1.7, CY + 0.6, 1.2, -14, 40, 12), LEAF_DK)
-		B:block(crop, v(3.2, 3.2, 3.2), cf(1.8, CY + 0.7, -1.0, 16, -20, -12), LEAF_DK)
-		B:block(crop, v(2.8, 2.8, 2.8), cf(0.3, CY + 3.0, 0.2, 20, 50, -14), LEAF_LT)
-		-- big drooping jungle leaves radiating out (umbrella)
-		local LEAVES = { { 0, LEAF }, { 52, LEAF_DK }, { 103, LEAF }, { 154, LEAF_LT }, { 206, LEAF }, { 257, LEAF_DK }, { 308, LEAF_LT } }
+		B:block(crop, v(4.4, 4.4, 4.4), cf(0, CY + 1.5, 0, 10, 25, 8), LEAF)
+		B:block(crop, v(3.4, 3.4, 3.4), cf(-1.8, CY + 0.7, 1.2, -14, 40, 12), LEAF_DK)
+		B:block(crop, v(3.3, 3.3, 3.3), cf(1.9, CY + 0.8, -1.0, 16, -20, -12), LEAF_DK)
+		B:block(crop, v(3.0, 3.0, 3.0), cf(-1.2, CY + 1.2, -1.9, 12, 10, 18), LEAF)
+		B:block(crop, v(3.0, 3.0, 3.0), cf(1.4, CY + 1.1, 1.9, -18, 35, -10), LEAF_LT)
+		B:block(crop, v(2.9, 2.9, 2.9), cf(0.3, CY + 3.3, 0.2, 20, 50, -14), LEAF_LT)
+		-- big drooping jungle leaves radiating out (umbrella), golden midribs
+		local LEAVES = { { 0, LEAF }, { 45, LEAF_DK }, { 90, LEAF_LT }, { 135, LEAF }, { 180, LEAF_DK }, { 225, LEAF_LT }, { 270, LEAF }, { 315, LEAF_DK } }
 		for i, L in LEAVES do
-			local a = rad(L[1] + 10)
+			local a = rad(L[1] + 22)
 			local dx, dz = math.sin(a), -math.cos(a)
-			local len = (i % 2 == 0) and 1.0 or 0.92
-			local p0 = v(dx * 1.4, CY + 1.0, dz * 1.4)
-			local p1 = v(dx * 4.4 * len, CY + 1.9, dz * 4.4 * len)
-			local p2 = v(dx * 7.0 * len, CY - 0.8, dz * 7.0 * len)
-			B:bar(crop, p0, p1, 2.5, 0.45, L[2])
-			B:bar(crop, p1 - (p1 - p0).Unit * 0.3, p2, 2.0, 0.45, L[2])
-			B:bar(crop, p0 + v(0, 0.26, 0), p1 + v(0, 0.26, 0), 0.35, 0.2, RIB)
+			local len = (i % 2 == 0) and 1.0 or 0.9
+			local lift = (i % 2 == 0) and 0 or 0.5
+			local p0 = v(dx * 1.6, CY + 1.2 + lift, dz * 1.6)
+			local p1 = v(dx * 4.6 * len, CY + 2.3 + lift, dz * 4.6 * len)
+			local p2 = v(dx * 6.8 * len, CY + 0.5 + lift, dz * 6.8 * len)
+			local p3 = v(dx * 7.6 * len, CY - 1.3 + lift, dz * 7.6 * len)
+			B:bar(crop, p0, p1, 2.7, 0.45, L[2])
+			B:bar(crop, p1 - (p1 - p0).Unit * 0.3, p2, 2.4, 0.45, L[2])
+			B:bar(crop, p2 - (p2 - p1).Unit * 0.3, p3, 1.5, 0.45, L[2])
+			B:bar(crop, p0 + v(0, 0.28, 0), p1 + v(0, 0.28, 0), 0.5, 0.2, RIB)
 		end
 
 		---------------------------------------------------------------- durians
@@ -176,14 +178,16 @@ return {
 				-- stepped round half (octagon from a cross + square)
 				bk(Fr, 3.0, 1.35, 2.0, 0, 0.82 * sgn, 0, col)
 				bk(Fr, 2.0, 1.35 - 0.04, 3.0, 0, 0.82 * sgn, 0, col)
-				bk(Fr, 2.65, 1.3, 2.65, 0, 0.84 * sgn, 0, sgn > 0 and DUR_LT or DUR)
+				if sgn > 0 then
+					bk(Fr, 2.65, 1.3, 2.65, 0, 0.84, 0, DUR_LT)
+				end
 				bk(Fr, 2.0, 0.5, 2.0, 0, 1.64 * sgn, 0, col)
 				-- trap mouth: red rim plate + pink inner pad
 				bk(Fr, 3.1, 0.24, 3.1, 0, 0.14 * sgn, 0, RIM)
 				bk(Fr, 2.6, 0.12, 2.6, 0, 0.02 * sgn, -0.1, INSIDE)
 				-- spikes: diamond nubs on the four faces
 				for _, sp in { { 1.55, 0 }, { -1.55, 0 }, { 0, 1.55 }, { 0, -1.55 } } do
-					bk(Fr, 0.62, 0.62, 0.62, sp[1], 0.88 * sgn, sp[2], sgn > 0 and SPIKE or DUR_LT, 45, 0, 45)
+					bk(Fr, 0.74, 0.74, 0.74, sp[1], 0.88 * sgn, sp[2], sgn > 0 and SPIKE or DUR_LT, 45, 0, 45)
 				end
 				-- cream teeth along the front + front corners (rows offset so they interlock)
 				local xs = sgn > 0 and { -1.05, -0.35, 0.35, 1.05 } or { -0.7, 0, 0.7 }
@@ -195,16 +199,14 @@ return {
 				end
 			end
 			-- top: spike crown + cap; bottom nub
-			for _, d in { { 0.75, 0.75 }, { -0.75, -0.75 } } do
-				bk(U, 0.55, 0.55, 0.55, d[1], 1.9, d[2], SPIKE, 45, 0, 45)
-			end
 			bk(U, 0.9, 0.35, 0.9, 0, 1.99, 0, SPIKE_DK)
-			bk(Lo, 0.62, 0.62, 0.62, 0, -1.9, 0, DUR_LT, 45, 0, 45)
+			if stalkTo then
+				bk(Lo, 0.62, 0.62, 0.62, 0, -1.9, 0, DUR_LT, 45, 0, 45)
+			end
 			-- juicy golden flesh peeking out of the gaping seam
 			local M = Hb * ang(open * 0.2, 0, 0) * CFrame.new(0, 0, -hz)
-			bk(M, 2.4, 0.9, 2.3, 0, 0.05, 0.25, FLESH)
 			bk(M, 1.0, 0.95, 0.95, -0.68, 0.12, -0.95, FLESH, 20, 30, 10)
-			bk(M, 1.05, 1.0, 0.95, 0.05, 0.18, -1.05, FLESH_DK, -10, 20, 5)
+			bk(M, 1.05, 1.0, 0.95, 0.05, 0.18, -1.05, "#ffc21f", -10, 20, 5, { mat = "Neon", name = "DurianGlow" })
 			bk(M, 0.95, 0.9, 0.95, 0.72, 0.1, -0.92, FLESH, -15, 15, -10)
 			local shine = bk(M, 0.45, 0.32, 0.45, -0.2, 0.62, -1.15, FLESH_HI, 10, 35, 0, { mat = "Neon", name = "DurianShine" .. (#shines + 1) })
 			table.insert(shines, shine)
@@ -215,13 +217,28 @@ return {
 				B:block(crop, v(0.8, 0.8, 0.8), CFrame.new(stalkTo), VINE_DK)
 			end
 		end
-		local function vineAt(s, j)
-			return strandPts[s][j]
+		-- stalk grows out of the vine point nearest (and a bit above) the durian top
+		local function vineNear(c)
+			local best, bd = nil, 1e9
+			for st = 0, 1 do
+				for _, q in strandPts[st] do
+					local d = (q - (c + v(0, 3.0, 0))).Magnitude
+					if d < bd then
+						best, bd = q, d
+					end
+				end
+			end
+			return best
 		end
-		durian(v(3.6, Y0 + 9.6, -1.4), 1.15, 25, 30, vineAt(0, 8) + v(0, 0.4, 0))
-		durian(v(-3.4, Y0 + 11.0, 1.8), 1.0, -20, 26, vineAt(1, 9) + v(0, 0.2, 0))
-		durian(v(-2.6, Y0 + 7.2, -2.6), 1.05, -10, 28, vineAt(1, 6))
-		durian(v(2.2, Y0 + 6.4, 3.0), 0.9, 25, 26, vineAt(0, 5))
+		local HANG = {
+			{ v(4.1, Y0 + 9.6, -0.9), 1.15, 20, 30 },
+			{ v(-4.0, Y0 + 10.4, 0.4), 1.05, -20, 28 },
+			{ v(-2.5, Y0 + 6.3, 3.3), 0.95, -30, 26 },
+			{ v(3.1, Y0 + 5.4, 2.7), 0.9, 30, 26 },
+		}
+		for _, h in HANG do
+			durian(h[1], h[2], h[3], h[4], vineNear(h[1]))
+		end
 		-- the fat one resting on the mound, front-left
 		durian(v(-2.9, Y0 + 1.25, -3.0), 1.3, -15, 30, nil)
 

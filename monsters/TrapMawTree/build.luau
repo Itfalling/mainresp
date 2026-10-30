@@ -32,11 +32,11 @@ return {
 		local BOG, BOG_DK, BOG_LT = "#2f6a50", "#24533f", "#6fb58a"
 		local REED, CATTAIL = "#7f8f3a", "#5a3a1e"
 		local BARK_DK, BARK, BARK_LT = "#3a2616", "#523620", "#6b4a2c"
-		local LF_DK, LF, LF_MID, LF_LT, LF_LIME = "#1d6e30", "#2a8a3a", "#36a03e", "#4fba45", "#8fd14a"
+		local LF_DK, LF, LF_MID, LF_LT, LF_LIME = "#22803a", "#2f9c40", "#3fb046", "#5cc84a", "#9ad94e"
 		local GREEN, GREEN_DK, GREEN_TOP, GREEN_LT = "#3caa3c", "#1f6e2a", "#58c447", "#a6e04c"
-		local INSIDE, RIM = "#ff5c7c", "#c92a48"
+		local INSIDE, RIM = "#ff8aa5", "#c92a48"
 		local CREAM = "#fff4d2"
-		local FRUIT, FRUIT_DK, FRUIT_LT = "#e3233d", "#a8152b", "#ff5a66"
+		local FRUIT, FRUIT_DK, FRUIT_LT = "#d9142e", "#8e0f22", "#ff4a58"
 		local GLOW_PINK, SHINE = "#ff6f8f", "#ffd2da"
 		local LIME = "#86ff3c"
 		local FLOWER, FLOWER_LT = "#ff7fa8", "#ffd0e0"
@@ -221,14 +221,14 @@ return {
 			{ 210, 7.3, 15.7, 3.5, LF_LT },
 			{ 330, 7.3, 15.8, 3.6, LF },
 			{ 0, 0.0, 15.2, 6.4, LF_DK },
-			{ 20, 3.9, 17.4, 5.2, LF_LT },
+			{ 20, 4.3, 16.6, 5.0, LF_LT },
 			{ 95, 4.1, 17.1, 5.0, LF },
 			{ 165, 3.9, 17.3, 5.2, LF_MID },
 			{ 235, 4.0, 17.0, 5.0, LF_LT },
-			{ 305, 4.1, 17.2, 5.0, LF_MID },
-			{ 60, 2.6, 18.9, 3.8, LF_LIME },
-			{ 190, 2.5, 18.8, 4.0, LF_LT },
-			{ 300, 2.6, 19.0, 3.6, LF_LIME },
+			{ 305, 4.3, 16.7, 4.8, LF_MID },
+			{ 70, 3.3, 18.4, 3.8, LF_LIME },
+			{ 180, 3.0, 18.5, 4.0, LF_LT },
+			{ 290, 3.3, 18.4, 3.6, LF_LIME },
 		}
 		for _, c in leafDefs do
 			local x, z = polar(c[2], c[1])
@@ -324,18 +324,18 @@ return {
 		------------------------------------------------------------------
 		local PODS = {
 			-- deg, top radius, top y, hinge drop, scale, tilt (mouth down)
-			{ 15, 5.4, 12.6, 3.0, 0.68, 6 },
-			{ 75, 5.8, 12.8, 2.4, 0.6, 4 },
-			{ 135, 5.4, 12.6, 3.1, 0.64, 6 },
-			{ 195, 5.8, 12.8, 2.5, 0.66, 4 },
-			{ 255, 5.4, 12.6, 3.0, 0.62, 6 },
-			{ 318, 5.8, 12.8, 2.4, 0.64, 4 },
+			{ 15, 5.2, 12.6, 4.9, 0.9, 4 },
+			{ 75, 5.6, 12.8, 4.0, 0.8, 2 },
+			{ 135, 5.2, 12.6, 4.8, 0.86, 4 },
+			{ 195, 5.6, 12.8, 4.2, 0.88, 2 },
+			{ 255, 5.2, 12.6, 4.9, 0.84, 4 },
+			{ 318, 5.6, 12.8, 4.0, 0.84, 2 },
 		}
 		local podBones = {}
 		for i, d in PODS do
 			local x, z = polar(d[2], d[1])
 			local top = v(x, d[3], z)
-			local hx, hz = polar(d[2] + 0.7, d[1])
+			local hx, hz = polar(d[2] + 1.2, d[1])
 			local T = facing(hx, d[3] - d[4], hz, d[1]) * CFrame.Angles(rad(-d[6]), 0, 0)
 			local body, _, _, at = pod({ name = "Pod" .. i, parent = "Canopy", pivot = top, T = T, s = d[5], open = 40, idx = i, deg = d[1], stem = true, seam = (i == 1 or i == 4) })
 			podBones[i] = { body = body, T = T, s = d[5], at = at }
@@ -358,16 +358,16 @@ return {
 		------------------------------------------------------------------
 		-- CROWN: a big upright maw on the very top holding the biggest fruit
 		------------------------------------------------------------------
-		local CR = v(0, 19.6, 0.9)
-		local CT = CFrame.new(CR) * CFrame.Angles(rad(38), 0, 0)
+		local CR = v(0, 20.0, 0.6)
+		local CT = CFrame.new(CR) * CFrame.Angles(rad(25), 0, 0)
 		-- thick stem + leafy collar the crown sits in (canopy bone)
-		B:block(canopy, v(1.8, 1.8, 1.8), CFrame.new(CR + v(0, -0.9, 0.5)) * ang(0, 20, 0), GREEN_DK)
+		B:block(canopy, v(2.0, 2.4, 2.0), CFrame.new(CR + v(0, -1.3, 0.6)) * ang(0, 20, 0), GREEN_DK)
 		for i = 0, 4 do
 			local a = i * 72 + 10
 			local c = CFrame.new(CR + v(0, -0.6, 0.3)) * CFrame.Angles(0, rad(a), 0) * CFrame.new(0, 0, -1.4) * ang(-30, 0, 0)
 			B:block(canopy, v(1.4, 0.35, 1.8), c, (i % 2 == 0) and GREEN_TOP or LF_LIME)
 		end
-		local crownBody, _, _, cat = pod({ name = "Crown", parent = "Canopy", pivot = CT * CFrame.new(0, -0.6, 0.6), T = CT, s = 0.86, open = 45, idx = 0, deg = 0, stem = false, fz = -2.05 })
+		local crownBody, _, _, cat = pod({ name = "Crown", parent = "Canopy", pivot = CT * CFrame.new(0, -0.6, 0.6), T = CT, s = 0.9, open = 40, idx = 0, deg = 0, stem = false, fz = -2.05 })
 		local crownCore = B:block(crownBody, v(0.4, 0.4, 0.4), cat(CT, 0, 0.6, -2.05), FRUIT_DK, { name = "CrownCore", tr = 1 })
 		B:emitter(crownCore, "glow", { name = "CrownGlow", color = { GLOW_PINK, "#ffb0c4" }, rate = 1.6, size = { 1.6, 2.4, 0 }, trans = { 0.7, 0.6, 1 } })
 		B:light(crownCore, { name = "CrownLight", color = "#ff7d9a", brightness = 1.0, range = 10 })
