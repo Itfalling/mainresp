@@ -329,7 +329,7 @@ return {
 			end
 		end
 		bee(pv(7.0, 50, T2 + 9.6), 75, -8)
-		bee(pv(5.6, 215, T2 + 14.6), 255, 6)
+		bee(pv(5.6, 215, T2 + 14.6), 160, 6)
 
 		------------------------------------------------------------------
 		-- VFX: honey drips from the pears, golden pollen sparkles
