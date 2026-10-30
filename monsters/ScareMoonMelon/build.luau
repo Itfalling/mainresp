@@ -29,13 +29,9 @@ return {
 		local FACE, BLUSH = "#7a5426", "#ffb08a"
 		local STAR_N, STAR_BLUE = "#fff7cc", "#bfe0ff"
 
-		-- box spanning a -> b (own helper: CFrame.lookAt in Lune drops the
-		-- vertical part of steep directions, so B:beam tilts wrongly)
+		-- exact span box (B:bar; B:beam mis-aims non-level spans in Lune)
 		local function bar(bone, a, b, w, h, col, opts)
-			local d = b - a
-			local u = d.Unit
-			local c = CFrame.new((a + b) / 2) * CFrame.Angles(0, math.atan2(-u.X, -u.Z), 0) * CFrame.Angles(math.asin(math.clamp(u.Y, -1, 1)), 0, 0)
-			return B:block(bone, v(w, h, d.Magnitude), c, col, opts)
+			return B:bar(bone, a, b, w, h, col, opts)
 		end
 
 		local seed = 7707
