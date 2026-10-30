@@ -44,7 +44,7 @@ return {
 		-- pommel: silver collar and a big stepped ice crystal hanging under it
 		B:block("Root", v(0.62, 0.22, 0.62), cf(0, 0.58, 0), NAVY_D)
 		B:block("Root", v(0.68, 0.1, 0.68), cf(0, 0.72, 0), SILVER)
-		icicle(0, 0.5, 180, { { 0.16, 0.5, ICE_D }, { 0.14, 0.38, ICE }, { 0.12, 0.26, ICE_L }, { 0.12, 0.14, EDGE } })
+		icicle(0, 0.42, 180, { { 0.16, 0.5, ICE_D }, { 0.14, 0.38, ICE }, { 0.12, 0.26, ICE_L }, { 0.12, 0.14, EDGE } })
 
 		-- dark blue grip with white fur cuffs and icy bands
 		B:block("Root", v(0.48, 1.5, 0.48), cf(0, 1.58, 0), WRAP)
@@ -84,11 +84,11 @@ return {
 
 		-- the big ice blade: columns step out and grow taller toward a pale edge
 		local cols = {
-			{ 0.62, 0.5, 1.3, 0.52, ICE_DD },
-			{ 1.06, 0.44, 1.85, 0.48, ICE_D },
-			{ 1.48, 0.44, 2.35, 0.44, ICE },
-			{ 1.88, 0.42, 2.8, 0.4, ICE },
-			{ 2.24, 0.36, 3.1, 0.36, ICE_L },
+			{ 0.62, 0.5, 1.4, 0.52, ICE_DD },
+			{ 1.06, 0.44, 2.0, 0.48, ICE_D },
+			{ 1.48, 0.44, 2.6, 0.44, ICE },
+			{ 1.88, 0.42, 3.1, 0.4, ICE },
+			{ 2.24, 0.36, 3.45, 0.36, ICE_L },
 		}
 		local blade = {}
 		for i, c in cols do
@@ -96,26 +96,33 @@ return {
 			-- snow lying on each step
 			B:block("Root", v(c[2] + 0.04, 0.14, c[4] + 0.06), cf(c[1], 4.7 + c[3] / 2 + 0.03, 0), FROST)
 		end
-		B:block("Root", v(0.22, 3.3, 0.3), cf(2.5, 4.7, 0), EDGE) -- cutting edge
+		B:block("Root", v(0.22, 3.7, 0.3), cf(2.5, 4.7, 0), EDGE) -- cutting edge
 
 		-- curling icicle horns off the top and bottom of the edge
-		icicle(2.46, 6.26, 32, { { 0.24, 0.34, ICE_L }, { 0.2, 0.24, EDGE }, { 0.18, 0.14, EDGE } })
-		icicle(2.46, 3.14, 146, { { 0.24, 0.34, ICE_L }, { 0.22, 0.24, EDGE }, { 0.2, 0.14, EDGE }, { 0.16, 0.08, EDGE } })
+		icicle(2.46, 6.46, 30, { { 0.24, 0.34, ICE_L }, { 0.2, 0.24, EDGE }, { 0.18, 0.14, EDGE } })
+		icicle(2.46, 2.94, 148, { { 0.24, 0.34, ICE_L }, { 0.22, 0.24, EDGE }, { 0.2, 0.14, EDGE }, { 0.16, 0.08, EDGE } })
 		-- icicles hanging from the underside of the blade steps
-		icicle(1.06, 3.8, 180, { { 0.16, 0.3, ICE }, { 0.14, 0.2, ICE_L }, { 0.12, 0.1, EDGE } })
-		icicle(1.48, 3.55, 180, { { 0.2, 0.32, ICE }, { 0.18, 0.22, ICE_L }, { 0.16, 0.12, EDGE } })
-		icicle(1.88, 3.33, 180, { { 0.16, 0.3, ICE_L }, { 0.14, 0.18, EDGE } })
+		icicle(1.06, 3.74, 180, { { 0.16, 0.3, ICE }, { 0.14, 0.2, ICE_L }, { 0.12, 0.1, EDGE } })
+		icicle(1.48, 3.44, 180, { { 0.2, 0.32, ICE }, { 0.18, 0.22, ICE_L }, { 0.16, 0.12, EDGE } })
+		icicle(1.88, 3.19, 180, { { 0.16, 0.3, ICE_L }, { 0.14, 0.18, EDGE } })
 
-		-- blade faces: pale ice facets and a glowing crack inside the edge
+		-- blade faces: pale ice facets, a frost snowflake and a glowing crack inside the edge
 		for _, s in { 1, -1 } do
 			local function z(t) return s * (t / 2 + 0.02) end
-			B:block("Root", v(0.3, 1.2, 0.04), cf(1.48, 5.0, z(0.44)), ICE_L)
-			B:block("Root", v(0.28, 1.7, 0.04), cf(1.88, 4.9, z(0.4)), ICE_L)
-			B:block("Root", v(0.36, 0.6, 0.04), cf(1.06, 4.3, z(0.48)), ICE)
-			B:block("Root", v(0.3, 0.5, 0.04), cf(0.66, 4.95, z(0.52)), ICE_D)
-			B:block("Root", v(0.06, 2.5, 0.04), cf(2.36, 4.7, z(0.36)), GLOW, { mat = "Neon" })
-			B:block("Root", v(0.36, 0.06, 0.04), cf(2.04, 5.95, z(0.4)), GLOW, { mat = "Neon" })
-			B:block("Root", v(0.36, 0.06, 0.04), cf(2.04, 3.45, z(0.4)), GLOW, { mat = "Neon" })
+			B:block("Root", v(0.3, 0.7, 0.04), cf(1.48, 5.55, z(0.44)), ICE_L)
+			B:block("Root", v(0.28, 0.8, 0.04), cf(1.88, 3.95, z(0.4)), ICE_L)
+			B:block("Root", v(0.36, 0.6, 0.04), cf(1.06, 4.15, z(0.48)), ICE)
+			B:block("Root", v(0.3, 0.5, 0.04), cf(0.66, 5.0, z(0.52)), ICE_D)
+			-- snowflake on the blade (white arms, glowing heart)
+			local fz = z(0.44) + s * 0.01
+			B:block("Root", v(0.07, 0.72, 0.04), cf(1.68, 4.8, fz), FROST)
+			B:block("Root", v(0.72, 0.07, 0.04), cf(1.68, 4.8, fz), FROST)
+			B:block("Root", v(0.06, 0.58, 0.03), cf(1.68, 4.8, fz + s * 0.01, 0, 0, 45), FROST_B)
+			B:block("Root", v(0.06, 0.58, 0.03), cf(1.68, 4.8, fz + s * 0.01, 0, 0, -45), FROST_B)
+			B:block("Root", v(0.14, 0.14, 0.04), cf(1.68, 4.8, fz + s * 0.02), GLOW, { mat = "Neon" })
+			B:block("Root", v(0.06, 2.9, 0.04), cf(2.36, 4.7, z(0.36)), GLOW, { mat = "Neon" })
+			B:block("Root", v(0.36, 0.06, 0.04), cf(2.04, 6.1, z(0.4)), GLOW, { mat = "Neon" })
+			B:block("Root", v(0.36, 0.06, 0.04), cf(2.04, 3.3, z(0.4)), GLOW, { mat = "Neon" })
 		end
 
 		-- snow sparkle + a little sinking cold mist, soft icy light
