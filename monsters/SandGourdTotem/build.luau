@@ -5,7 +5,7 @@
 -- and diamond inlays, a pair of stepped "wings", a sun emblem (tiny neon
 -- core) and a horned crown capital. A thick calabash vine spirals up the
 -- pillar with big leaf cubes and white gourd flowers. Painted bottle gourds
--- (orange, teal and cream with contrasting bands and diamonds) hang from the
+-- (orange, teal and red with contrasting bands and diamonds) hang from the
 -- wing tips and vine shoots; one sits on the crown and two rest on the sand.
 -- Base: stepped sand tiers, sandstone rocks, dry grass tufts, pebbles, cactus
 -- sprouts and shells. Static prop: no motion.luau. Blocks only.
@@ -36,7 +36,7 @@ return {
 		-- gourd paint schemes: body, body dark, body light, band, diamond, diamond core
 		local G_ORANGE = { "#f08a2a", "#d06a1c", "#ffaa4e", TEAL, TEAL_DK, CREAM }
 		local G_TEAL = { "#26aa9e", "#17807a", "#52c9bb", SUN, TERRA, CREAM }
-		local G_CREAM = { "#f2d49a", "#d9b273", "#fbe6bb", TERRA, TEAL, SUN_GOLD }
+		local G_RED = { "#d9532e", "#b03e22", "#ee7a4c", CREAM, TEAL, SUN_GOLD }
 
 		local seed = 4404
 		local function rnd(a, b)
@@ -293,7 +293,7 @@ return {
 			gourd(crop, drop - v(0, 2.85 * s - 0.1, 0), s, sx * 20, sx > 0 and G_ORANGE or G_TEAL, { rich = true, glint = true })
 		end
 		-- vine shoots carrying gourds (back high, front-left low)
-		for _, sh in { { 10, v(0.4, 0.5, 1.9), 0.9, G_CREAM, 25 }, { 3, v(-1.9, 0.5, -1.0), 0.85, G_ORANGE, -30 } } do
+		for _, sh in { { 10, v(0.4, 0.5, 1.9), 0.9, G_RED, 25 }, { 3, v(-1.9, 0.5, -1.0), 0.85, G_ORANGE, -30 } } do
 			local a = vinePts[sh[1]]
 			local b = a + sh[2]
 			B:bar(crop, a, b, 0.42, 0.42, VINE)
@@ -312,7 +312,7 @@ return {
 		end
 		-- gourds resting on the sand
 		gourd(soil, v(2.7, TOP - 0.15 + 0.95 * 1.0, -3.1), 1.0, -25, G_TEAL, { name = "Soil", glint = true })
-		gourd(soil, v(-3.4, 1.55 + 0.75, 2.4), 0.85, 0, G_CREAM, { name = "Soil", tilt = ang(0, 0, 80) })
+		gourd(soil, v(-3.4, 1.55 + 0.75, 2.4), 0.85, 0, G_ORANGE, { name = "Soil", tilt = ang(0, 0, 80) })
 		B:bar(crop, vinePts[0] + v(0.2, -0.2, -0.3), v(1.9, TOP + 0.3, -2.2), 0.36, 0.36, VINE_DK)
 		leaf(v(1.0, TOP + 0.55, -2.5), 1.2, LEAF[1])
 

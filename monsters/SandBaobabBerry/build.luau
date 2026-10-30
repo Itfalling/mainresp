@@ -127,6 +127,9 @@ return {
 			{ 1.3, 3.1 }, { 2.4, 3.45 }, { 3.8, 3.65 }, { 5.4, 3.7 }, { 7.0, 3.5 }, { 8.4, 3.1 },
 			{ 9.6, 2.6 }, { 10.7, 2.1 }, { 11.8, 1.7 }, { 12.9, 1.45 }, { 14.0, 1.3 },
 		}
+		for _, pr in prof do
+			pr[2] *= 0.92
+		end
 		local function rAt(y)
 			for i = 1, #prof - 1 do
 				local a, b = prof[i], prof[i + 1]
@@ -168,8 +171,9 @@ return {
 		for k = 0, 5 do
 			local a = k * 60 + 30
 			local d = dirA(a)
-			B:bar(crop, d * 2.9 + v(0, 2.9, 0), d * 4.6 + v(0, 1.3, 0), 1.7, 1.3, BARK_LT)
-			B:bar(crop, d * 4.2 + v(0, 1.5, 0), d * 5.3 + v(0, 1.0, 0), 1.1, 0.8, BARK)
+			local rc = CFrame.new(d * 3.55 + v(0, 2.0, 0)) * CFrame.Angles(0, -rad(a), 0)
+			B:block(crop, v(1.5, 1.5, 1.6), rc * ang(-18, 0, 0), (k % 2 == 0) and BARK or BARK_LT)
+			B:block(crop, v(1.1, 0.8, 1.2), rc * CFrame.new(0, -0.55, -1.15) * ang(-8, 0, 0), BARK_DK)
 		end
 		-- knot hole with glowing seeds (front)
 		local kh = v(0, 6.2, 0)
@@ -193,15 +197,16 @@ return {
 			end
 			B:block(crop, v(s * 0.55, s * 0.55, s * 0.55), CFrame.new(c + v(rnd(-0.3, 0.3), s * 0.55, rnd(-0.3, 0.3))) * ang(rnd(-20, 20), rnd(0, 90), rnd(-20, 20)), LEAF_HI)
 		end
-		local blossomTips = {}
-		local function blossom(p, a)
-			-- hanging baobab flower: stem, cream petal cup, turquoise neon heart
-			local q = p - v(0, 0.9, 0)
-			B:bar(crop, p, q, 0.22, 0.22, LEAF_DK)
-			local c = CFrame.new(q) * ang(0, a, 0)
-			B:block(crop, v(1.1, 0.5, 1.1), c * CFrame.new(0, -0.2, 0), BLOSSOM)
-			B:block(crop, v(1.1, 0.42, 1.1), c * CFrame.new(0, -0.45, 0) * ang(0, 45, 0), BLOSSOM_LT)
-			table.insert(blossomTips, B:block(crop, v(0.36, 0.5, 0.36), c * CFrame.new(0, -0.8, 0), PULP_GLOW, { mat = "Neon", name = "BlossomGlow" }))
+		local berryTips = {}
+		local function berries(cc, a, s)
+			-- little turquoise berry bunch peeking out of a leaf clump (outer, upper side)
+			local p = cc + dirA(a) * (s * 0.62) + v(0, s * 0.18, 0)
+			local c = CFrame.new(p) * CFrame.Angles(0, -rad(a), 0)
+			B:block(crop, v(0.75, 0.75, 0.75), c * ang(20, 0, 25), PULP)
+			B:block(crop, v(0.6, 0.6, 0.6), c * CFrame.new(0.55, -0.35, 0.1) * ang(-15, 30, 10), PULP_DK)
+			B:block(crop, v(0.6, 0.6, 0.6), c * CFrame.new(-0.5, -0.3, 0.05) * ang(10, 15, -20), PULP)
+			B:block(crop, v(0.18, 0.4, 0.18), c * CFrame.new(0, 0.5, 0), LEAF_DK)
+			table.insert(berryTips, B:block(crop, v(0.3, 0.3, 0.3), c * CFrame.new(0.05, 0.05, -0.4) * ang(45, 0, 45), PULP_GLOW, { mat = "Neon", name = "BerryGlow" }))
 		end
 
 		local podHangs = {}
@@ -227,13 +232,9 @@ return {
 			clump(q2 + v(0, 0.9, 0), 2.2 + rnd(-0.2, 0.3))
 			-- pod hang points: under the elbow and under the outer twig
 			table.insert(podHangs, { p = p1 - v(0, 0.6, 0), a = br.a })
-			table.insert(podHangs, { p = p0:Lerp(p1, 0.55) - v(0, 0.5, 0), a = br.a + 25 })
-			table.insert(podHangs, { p = p1:Lerp(q1, 0.75) - v(0, 0.45, 0), a = br.a + br.f1[1] })
-			if bi % 2 == 1 then
-				blossom(q2 + d * 0.4 - v(0, 0.6, 0), br.a)
-			else
-				blossom(q1 - d * 0.6 - v(0, 0.5, 0), br.a)
-			end
+			table.insert(podHangs, { p = p1:Lerp(q1, 0.8) - v(0, 0.45, 0), a = br.a + br.f1[1] })
+			berries(q1 + v(0, 0.8, 0), br.a + br.f1[1], 2.4)
+			if bi % 2 == 0 then berries(q2 + v(0, 0.9, 0), br.a + br.f2[1], 2.2) end
 		end
 		-- top-centre stub branch + clump
 		B:bar(crop, base0, v(0.2, 18.8, 0.3), 1.2, 1.2, BARK_LT)
@@ -246,7 +247,7 @@ return {
 			local stemLen = 1.1 + k * 0.9
 			local c0 = top - v(0, stemLen, 0)
 			B:bar(crop, top + v(0, 0.2, 0), c0, 0.22, 0.22, POD_DK)
-			local c = CFrame.new(c0) * CFrame.Angles(0, -rad(a), 0) -- local -Z = outward
+			local c = CFrame.new(c0) * CFrame.Angles(0, -rad(a), 0) * ang(rnd(-6, 6), 0, rnd(-8, 8)) -- local -Z = outward
 			local L = len
 			B:block(crop, v(0.95, 0.5, 0.95), c * CFrame.new(0, -0.2, 0), POD_DK)
 			B:block(crop, v(1.5, L * 0.25, 1.5), c * CFrame.new(0, -0.4 - L * 0.125, 0), POD)
@@ -262,9 +263,7 @@ return {
 			B:block(crop, v(0.24, 0.24, 0.16), mid * CFrame.new(-0.3, -L * 0.14, -0.17), SEED)
 		end
 		for i, h in podHangs do
-			if i % 3 ~= 0 or i == 3 or i == 9 then
-				pod(h.p, 2.2 + rnd(-0.2, 0.4), h.a, rnd(0, 1))
-			end
+			pod(h.p, 2.2 + rnd(-0.2, 0.4), h.a, (i % 2 == 0) and rnd(0.6, 1) or rnd(0, 0.4))
 		end
 
 		---------------------------------------------------------------- fallen split pod on the sand
