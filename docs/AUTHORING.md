@@ -247,6 +247,6 @@ want sub-groups (e.g. a `Soil` base the game can remove). Preview/clipcheck work
 `out/models/<Id>Tool.rbxm` (and puts it in the pack showcase's StarterPack). Build the item standing
 up: handle along +Y, blade/business end facing +X; name the gripped part `Handle` (`opts.name`).
 `GripY` = where the hand holds it, as a Y offset from the Handle's centre. `Swing = true` adds a
-two-handed overhead swing: SwingAnim (ModuleScript, R15 + R6), SwingClient (LocalScript, the holder's
+two-handed overhead swing: SwingAnim (ModuleScript, R15 only, poses via C0 so the Animator never overrides it), SwingClient (LocalScript, the holder's
 click), SwingServer (grip fit + cooldown) and SwingReplicate (RunContext Client: other players see it via
 the tool's `SwingCount` attribute).

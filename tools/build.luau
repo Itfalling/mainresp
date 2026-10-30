@@ -797,6 +797,10 @@ local function buildPacks(built, rbxmPath, rbxlPath, scenePath)
 	sky.SunAngularSize = 14
 	sky.Parent = lighting
 
+	-- the swing tools are R15-only: make the showcase spawn R15 avatars
+	pcall(function()
+		game:GetService("StarterPlayer").GameSettingsAvatar = Enum.GameAvatarType.R15
+	end)
 	fs.writeFile(rbxlPath, roblox.serializePlace(game))
 	print(("Wrote %s and %s (%d monsters)"):format(rbxmPath, rbxlPath, #built))
 end

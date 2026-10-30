@@ -1,11 +1,10 @@
 --!nocheck
--- SwingAnim (ModuleScript): a natural two-handed overhead axe swing, played by
--- overriding the character's Motor6D.Transform after the Animator each frame,
--- then blending back into the normal one-handed tool-hold pose.
--- Works on R15 (full arms, torso, legs) and R6 (shoulders, neck, lean).
+-- SwingAnim (ModuleScript): a natural two-handed overhead axe swing for R15
+-- characters, blended on top of the normal one-handed tool-hold pose and back.
+-- R15 only.
 --
 --   local Swing = require(tool.SwingAnim)
---   Swing.play(character, tool)   -- returns false if the rig isn't supported
+--   Swing.play(character, tool)   -- returns false if the character isn't R15
 --   Swing.stop()
 
 local RunService = game:GetService("RunService")
@@ -104,10 +103,18 @@ local function weight(t)
 	return 1
 end
 
--- Joint list per rig: motor name -> how to pose it.
--- R6 has single-piece arms and no waist, so its shoulders take the elbow and
--- half the wrist angle, and the torso lean goes through the RootJoint (softer).
+local JOINTS = {
+	"Waist", "Neck",
+	"RightShoulder", "RightElbow", "RightWrist",
+	"LeftShoulder", "LeftElbow", "LeftWrist",
+	"RightHip", "RightKnee", "LeftHip", "LeftKnee",
+}
+
 local function rigJoints(character)
+	local hum = character:FindFirstChildOfClass("Humanoid")
+	if not hum or hum.RigType ~= Enum.HumanoidRigType.R15 then
+		return nil
+	end
 	local m = {}
 	for _, d in character:GetDescendants() do
 		if d:IsA("Motor6D") then
@@ -115,45 +122,21 @@ local function rigJoints(character)
 		end
 	end
 	local list = {}
-	local function add(motor, fn)
-		if motor then
-			table.insert(list, { motor = motor, fn = fn, rot = motor.C0.Rotation })
+	for _, n in JOINTS do
+		if m[n] then
+			table.insert(list, { motor = m[n], name = n })
 		end
 	end
-	if m.RightShoulder then
-		for _, n in { "Waist", "Neck", "RightShoulder", "RightElbow", "RightWrist", "LeftShoulder", "LeftElbow", "LeftWrist", "RightHip", "RightKnee", "LeftHip", "LeftKnee" } do
-			add(m[n], function(t)
-				return anglesOf(n, t)
-			end)
-		end
-		if m.Root then
-			add(m.Root, "root")
-		end
-		return list
+	if m.Root then
+		table.insert(list, { motor = m.Root, name = "Root" })
 	end
-	if m["Right Shoulder"] then
-		local function arm(side)
-			return function(t)
-				local sp, sy, sr = anglesOf(side .. "Shoulder", t)
-				local ep = anglesOf(side .. "Elbow", t)
-				local wp = anglesOf(side .. "Wrist", t)
-				return sp + ep + 0.5 * wp, sy, sr
-			end
-		end
-		add(m["Right Shoulder"], arm("Right"))
-		add(m["Left Shoulder"], arm("Left"))
-		add(m["Neck"], function(t)
-			return anglesOf("Neck", t)
-		end)
-		add(m["RootJoint"], function(t)
-			local p, y, r = anglesOf("Waist", t)
-			return 0.6 * p, 0.6 * y, 0.6 * r
-		end)
-		return list
-	end
-	return nil
+	return #list > 0 and list or nil
 end
 
+-- The pose goes into Motor6D.C0 (which the Animator never touches), offset so
+-- the result equals blend(animated pose -> swing pose). The original C0s are
+-- remembered per motor and always put back when a swing ends.
+local originalC0 = setmetatable({}, { __mode = "k" })
 local playing = nil
 
 function Swing.stop()
@@ -162,8 +145,9 @@ function Swing.stop()
 	if s then
 		s.conn:Disconnect()
 		for _, j in s.joints do
-			if j.motor.Parent and j.written and j.motor.Transform == j.written then
-				j.motor.Transform = CFrame.new()
+			local c0 = originalC0[j.motor]
+			if c0 and j.motor.Parent then
+				j.motor.C0 = c0
 			end
 		end
 	end
@@ -173,17 +157,22 @@ function Swing.play(character, tool)
 	Swing.stop()
 	local joints = character and rigJoints(character)
 	if not joints then
-		warn("[Wooden Axe] swing: unsupported character rig")
+		warn("[Wooden Axe] the swing needs an R15 character")
 		return false
+	end
+	for _, j in joints do
+		if originalC0[j.motor] == nil then
+			originalC0[j.motor] = j.motor.C0
+		end
 	end
 	local start = os.clock()
 	local state = { joints = joints }
 	playing = state
 	state.conn = RunService.Stepped:Connect(function()
-		local t = os.clock() - start
 		if playing ~= state then
 			return
 		end
+		local t = os.clock() - start
 		if t >= Swing.DURATION or (tool and tool.Parent ~= character) then
 			Swing.stop()
 			return
@@ -191,22 +180,15 @@ function Swing.play(character, tool)
 		local w = weight(t)
 		for _, j in joints do
 			local m = j.motor
-			-- what the Animator wrote this frame (or rest, if it didn't touch this joint)
-			local base = m.Transform
-			if j.written and base == j.written then
-				base = CFrame.new()
-			end
 			local target
-			if j.fn == "root" then
+			if j.name == "Root" then
 				target = CFrame.new(0, rootOffset(t), 0)
 			else
-				local p, y, r = j.fn(t)
-				-- rotation in the torso's axes, converted into this joint's frame
-				target = j.rot:Inverse() * CFrame.Angles(math.rad(p), math.rad(y), math.rad(r)) * j.rot
+				local p, y, r = anglesOf(j.name, t)
+				target = CFrame.Angles(math.rad(p), math.rad(y), math.rad(r))
 			end
-			local out = base:Lerp(target, w)
-			m.Transform = out
-			j.written = out
+			local animated = m.Transform
+			m.C0 = originalC0[m] * animated:Lerp(target, w) * animated:Inverse()
 		end
 	end)
 	return true
