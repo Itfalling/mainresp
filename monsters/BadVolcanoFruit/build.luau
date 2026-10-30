@@ -26,7 +26,7 @@ return {
 		local RUST_XD, RUST_DK, RUST, RUST_LT = "#4f2216", "#6e2f1d", "#9a4428", "#c2623a"
 		local BONE, BONE_DK = "#f0e4c6", "#d2c29a"
 		local LAVA_XD, LAVA_DK, LAVA, LAVA_LT, LAVA_HOT = "#8e1f12", "#c8361a", "#ff6a1c", "#ff9c34", "#ffd45a"
-		local TEAL_XD, TEAL_DK, TEAL, TEAL_LT = "#1e3a37", "#2b5550", "#3c7469", "#5aa595"
+		local TEAL_XD, TEAL_DK, TEAL, TEAL_LT = "#1e3a37", "#2d6158", "#3f8a76", "#62bfa4"
 		local NEON = { mat = "Neon" }
 
 		local seed = 8188
@@ -165,9 +165,9 @@ return {
 
 		-- tiers: octagon core + pinecone scales
 		local SCALE_COLS = {
-			{ RUST_DK, RUST, RUST_LT },
-			{ ROCK_DK, ROCK, ASH_DK },
-			{ RUST_XD, RUST_DK, RUST },
+			{ RUST, RUST_DK, "#d88a50" },
+			{ ROCK_DK, ROCK, ASH },
+			{ RUST_DK, RUST_XD, RUST_LT },
 		}
 		for k = 0, NT - 1 do
 			local bone = (k >= SPLIT) and coneTop or crop
@@ -257,7 +257,7 @@ return {
 					-- leaflet pair
 					for _, sx in { -1, 1 } do
 						local L0 = F * CFrame.new(sx * (sg[2] / 2 + 0.1), len * 0.55, 0) * CFrame.Angles(0, 0, rad(-sx * 55))
-						B:block(fb, v(0.5, 1.8 * f[3] - si * 0.22, 0.3), L0 * CFrame.new(0, 0.7 - si * 0.08, 0), (si % 2 == 1) and TEAL or TEAL_LT)
+						B:block(fb, v(0.75, 1.9 * f[3] - si * 0.22, 0.32), L0 * CFrame.new(0, 0.7 - si * 0.08, 0), (si % 2 == 1) and TEAL or TEAL_LT)
 					end
 				end
 				F = F * CFrame.new(0, len, 0)
