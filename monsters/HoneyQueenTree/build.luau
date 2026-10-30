@@ -288,7 +288,7 @@ return {
 		end
 		B:block(can1, v(3.0, 4.0, 3.0), cf(0, FORK + 2.6, 0, 0, 20, 0), BARK_DK)
 		local C1 = FORK + 3.6
-		tier(can1, { cy = C1, R = 9.4, n = 12, r = 7.7, s = 4.6, h = 2.6, cols = { LF, LF_MID, LF_DK }, phase = 35, combEvery = 3,
+		tier(can1, { cy = C1, R = 9.4, n = 12, r = 7.7, s = 4.6, h = 2.6, cols = { LF, LF_MID, BLOS, LF_DK }, phase = 35, combEvery = 3,
 			ni = 6, ri = 4.4, si = 5.0, nb = 10, rb = 6.8, bs = 3.0, bh = 1.3, top = { LF_LT, LF_LIME, LF_MID } })
 		local T2Y = C1 + 4.6
 		for k = 0, 2 do
@@ -298,7 +298,7 @@ return {
 		-- TIER 2
 		local can2 = B:bone("Canopy2", "Canopy1", v(0, C1 + 2.4, 0))
 		B:block(can2, v(2.2, 3.4, 2.2), cf(0, T2Y - 1.4, 0, 0, 40, 0), BARK_DK)
-		tier(can2, { cy = T2Y, R = 7.4, n = 10, r = 6.0, s = 4.1, h = 2.4, cols = { LF_MID, LF_LT, LF_LIME }, phase = 80, combEvery = 3,
+		tier(can2, { cy = T2Y, R = 7.4, n = 10, r = 6.0, s = 4.1, h = 2.4, cols = { LF_MID, LF_LT, BLOS_LT }, phase = 80, combEvery = 3,
 			ni = 3, ri = 2.4, si = 4.4, nb = 8, rb = 4.6, bs = 2.6, bh = 1.3, top = { LF_LIME, LF_GOLD } })
 		local T3Y = T2Y + 4.0
 		for k = 0, 2 do
