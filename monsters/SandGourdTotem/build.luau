@@ -176,7 +176,7 @@ return {
 			B:block(crop, v(0.6, 0.6, 0.6), C(math.sin(a) * 2.75, TOP + 0.95, -math.cos(a) * 2.75, 0, 45, 0), TEAL)
 		end
 		-- drum 1: teal + terracotta bands, carved diamond inlays
-		local D1a, D1b = TOP + 1.4, 7.0
+		local D1a, D1b = TOP + 1.4, 6.6
 		B:block(crop, v(3.0, D1b - D1a, 3.0), C(0, (D1a + D1b) / 2, 0), STONE)
 		B:block(crop, v(3.1, 0.4, 3.1), C(0, D1a + 0.5, 0), TEAL)
 		B:block(crop, v(3.1, 0.25, 3.1), C(0, D1b - 0.45, 0), TERRA)
@@ -188,7 +188,7 @@ return {
 		end
 		B:block(crop, v(3.5, 0.45, 3.5), C(0, D1b + 0.2, 0, 0, -3, 0), STONE_LT)
 		-- drum 2: carved notch rows + the stepped wings
-		local D2a, D2b = D1b + 0.4, 10.6
+		local D2a, D2b = D1b + 0.4, 10.1
 		B:block(crop, v(2.7, D2b - D2a, 2.7), C(0, (D2a + D2b) / 2, 0), STONE_LT)
 		for _, y in { D2a + 0.55, D2a + 1.15 } do
 			B:block(crop, v(2.76, 0.22, 1.5), C(0, y, 0), CARVE)
@@ -209,7 +209,7 @@ return {
 		end
 		B:block(crop, v(3.1, 0.45, 3.1), C(0, D2b + 0.2, 0, 0, 5, 0), STONE)
 		-- drum 3: sun emblem front (neon core) and back
-		local D3a, D3b = D2b + 0.4, 13.6
+		local D3a, D3b = D2b + 0.4, 12.9
 		B:block(crop, v(2.5, D3b - D3a, 2.5), C(0, (D3a + D3b) / 2, 0), STONE)
 		local SUNY = (D3a + D3b) / 2
 		for _, side in { -1, 1 } do
@@ -311,16 +311,16 @@ return {
 			B:bar(crop, c2, c2 + v(0.35, -0.35, -0.3), 0.2, 0.2, LEAF[3])
 		end
 		-- gourds resting on the sand
-		gourd(soil, v(1.7, TOP - 0.15 + 0.95 * 1.0, -3.5), 1.0, -25, G_TEAL, { name = "Soil", glint = true })
+		gourd(soil, v(2.7, TOP - 0.15 + 0.95 * 1.0, -3.1), 1.0, -25, G_TEAL, { name = "Soil", glint = true })
 		gourd(soil, v(-3.4, 1.55 + 0.75, 2.4), 0.85, 0, G_CREAM, { name = "Soil", tilt = ang(0, 0, 80) })
-		B:bar(crop, vinePts[0] + v(0.2, -0.2, -0.3), v(1.0, TOP + 0.3, -2.4), 0.36, 0.36, VINE_DK)
-		leaf(v(0.0, TOP + 0.55, -2.4), 1.2, LEAF[1])
+		B:bar(crop, vinePts[0] + v(0.2, -0.2, -0.3), v(1.9, TOP + 0.3, -2.2), 0.36, 0.36, VINE_DK)
+		leaf(v(1.0, TOP + 0.55, -2.5), 1.2, LEAF[1])
 
 		---------------------------------------------------------------- fx
 		local zone = B:block(crop, v(10, 12, 7), cf(0, 11, PZ), SUN_GOLD, { tr = 1, name = "SparkleZone" })
 		B:emitter(zone, "sparkle", { name = "SunSparkle", color = { "#fff4b0", "#ffc94a", TEAL_LT }, rate = 4.5, size = { 0.15, 0.42, 0 }, life = { 1.2, 2.2 }, speed = { 0.2, 0.5 } })
 		local glow = B:block(crop, v(1, 1, 1), C(0, SUNY, -1.6), SUN_GOLD, { tr = 1, name = "SunGlow" })
-		B:emitter(glow, "glow", { name = "SunGlowFx", color = { SUN_CORE, SUN }, rate = 1.0, size = { 1.2, 2.0, 0.4 } })
+		B:emitter(glow, "glow", { name = "SunGlowFx", color = { SUN_CORE, SUN }, rate = 0.8, size = { 0.9, 1.5, 0.3 } })
 		B:light(glow, { name = "SunLight", color = "#ffc670", brightness = 1.1, range = 12 })
 		local leafZone = B:block(crop, v(6, 1, 5), cf(0, CROWN + 1.0, PZ), LEAF[2], { tr = 1, name = "LeafZone" })
 		B:emitter(leafZone, "leaf", { name = "DryLeaves", color = { LEAF[3], DRY, "#e0a23a" }, rate = 0.6, size = { 0.4, 0.4, 0.25 }, life = { 3, 5 }, speed = { 0.3, 0.8 }, accel = { 0.3, -1.3, 0 } })
