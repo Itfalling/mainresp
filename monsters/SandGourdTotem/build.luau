@@ -72,7 +72,7 @@ return {
 		local TOP = 2.1
 
 		-- wind ripples
-		for _, r in { { 40, 5.7, 0.87, 2.2 }, { 160, 5.8, 0.87, 1.9 }, { 265, 5.6, 0.87, 2.0 }, { 110, 3.8, 1.57, 1.6 }, { 320, 3.7, 1.57, 1.5 } } do
+		for _, r in { { 40, 5.7, 0.87, 2.2 }, { 160, 5.8, 0.87, 1.9 }, { 290, 3.8, 1.57, 1.6 } } do
 			local a = rad(r[1])
 			local c = CFrame.new(math.sin(a) * r[2], r[3], -math.cos(a) * r[2]) * CFrame.Angles(0, -a, 0)
 			B:block(soil, v(r[4], 0.12, 0.35), c, SAND_LT, S)
@@ -84,7 +84,7 @@ return {
 		B:block(soil, v(0.8, 0.45, 0.7), cf(5.4, 1.6, -1.0, 0, 50, 4), ROCK_LT, S)
 		B:block(soil, v(0.5, 0.35, 0.45), cf(5.35, 2.0, -1.0, 0, 15, 0), ROCK_DK, S)
 		-- pebbles
-		for _, p in { { 2.2, 2.1, -1.9 }, { -2.4, 1.55, -3.6 }, { 6.0, 0.85, 2.0 }, { -4.4, 0.85, 4.4 }, { 3.4, 1.55, 3.0 }, { -1.0, 0.85, -6.0 } } do
+		for _, p in { { -2.4, 1.55, -3.6 }, { 6.0, 0.85, 2.0 }, { 3.4, 1.55, 3.0 }, { -1.0, 0.85, -6.0 } } do
 			B:block(soil, v(0.45, 0.3, 0.4), cf(p[1], p[2] + 0.12, p[3], 0, rnd(0, 90), 0), pick({ PEB, PEB_DK }), S)
 		end
 		-- dry grass tufts
@@ -169,102 +169,86 @@ return {
 			return cf(x, y, PZ + z, rx or 0, ry or 0, rz or 0)
 		end
 		-- plinth
-		B:block(crop, v(4.2, 1.0, 4.2), C(0, TOP + 0.3, 0), STONE_DK)
-		B:block(crop, v(3.5, 0.6, 3.5), C(0, TOP + 1.1, 0, 0, 4, 0), STONE)
-		-- teal corner nubs on the plinth
+		B:block(crop, v(4.4, 1.0, 4.4), C(0, TOP + 0.3, 0), STONE_DK)
+		B:block(crop, v(3.7, 0.6, 3.7), C(0, TOP + 1.1, 0, 0, 4, 0), STONE)
 		for i = 0, 3 do
 			local a = rad(45 + i * 90)
-			B:block(crop, v(0.6, 0.6, 0.6), C(math.sin(a) * 2.6, TOP + 0.95, -math.cos(a) * 2.6, 0, 45, 0), TEAL)
+			B:block(crop, v(0.6, 0.6, 0.6), C(math.sin(a) * 2.75, TOP + 0.95, -math.cos(a) * 2.75, 0, 45, 0), TEAL)
 		end
-		-- drum 1
-		local D1a, D1b = TOP + 1.4, 7.6
-		B:block(crop, v(2.8, D1b - D1a, 2.8), C(0, (D1a + D1b) / 2, 0), STONE)
-		B:block(crop, v(2.9, 0.4, 2.9), C(0, D1a + 0.6, 0), TEAL)
-		B:block(crop, v(2.9, 0.25, 2.9), C(0, D1b - 0.55, 0), TERRA)
-		-- carved diamond inlays on the 4 faces of drum 1
+		-- drum 1: teal + terracotta bands, carved diamond inlays
+		local D1a, D1b = TOP + 1.4, 7.0
+		B:block(crop, v(3.0, D1b - D1a, 3.0), C(0, (D1a + D1b) / 2, 0), STONE)
+		B:block(crop, v(3.1, 0.4, 3.1), C(0, D1a + 0.5, 0), TEAL)
+		B:block(crop, v(3.1, 0.25, 3.1), C(0, D1b - 0.45, 0), TERRA)
 		for i = 0, 3 do
-			local F = CFrame.new(P3(0, (D1a + D1b) / 2 + 0.15, 0)) * CFrame.Angles(0, rad(i * 90), 0) * CFrame.new(0, 0, -1.42)
-			B:block(crop, v(1.3, 1.3, 0.12), F * CFrame.Angles(0, 0, rad(45)), CARVE)
-			B:block(crop, v(0.8, 0.8, 0.16), F * CFrame.new(0, 0, -0.03) * CFrame.Angles(0, 0, rad(45)), TERRA)
-			B:block(crop, v(0.35, 0.35, 0.2), F * CFrame.new(0, 0, -0.05) * CFrame.Angles(0, 0, rad(45)), TEAL_LT)
+			local F = CFrame.new(P3(0, (D1a + D1b) / 2 + 0.2, 0)) * CFrame.Angles(0, rad(i * 90), 0) * CFrame.new(0, 0, -1.52)
+			B:block(crop, v(1.4, 1.4, 0.12), F * CFrame.Angles(0, 0, rad(45)), CARVE)
+			B:block(crop, v(0.85, 0.85, 0.16), F * CFrame.new(0, 0, -0.03) * CFrame.Angles(0, 0, rad(45)), TERRA)
+			B:block(crop, v(0.38, 0.38, 0.2), F * CFrame.new(0, 0, -0.05) * CFrame.Angles(0, 0, rad(45)), TEAL_LT)
 		end
-		-- ledge
-		B:block(crop, v(3.3, 0.45, 3.3), C(0, D1b + 0.2, 0, 0, -3, 0), STONE_LT)
-		-- drum 2 (carries the wings)
-		local D2a, D2b = D1b + 0.4, 11.7
-		B:block(crop, v(2.5, D2b - D2a, 2.5), C(0, (D2a + D2b) / 2, 0), STONE_LT)
-		-- carved notch rows (recessed dark strips) on drum 2
-		for _, y in { D2a + 0.7, D2a + 1.4 } do
-			for i = 0, 1 do
-				B:block(crop, i == 0 and v(2.56, 0.22, 1.4) or v(1.4, 0.22, 2.56), C(0, y, 0), CARVE)
-			end
+		B:block(crop, v(3.5, 0.45, 3.5), C(0, D1b + 0.2, 0, 0, -3, 0), STONE_LT)
+		-- drum 2: carved notch rows + the stepped wings
+		local D2a, D2b = D1b + 0.4, 10.6
+		B:block(crop, v(2.7, D2b - D2a, 2.7), C(0, (D2a + D2b) / 2, 0), STONE_LT)
+		for _, y in { D2a + 0.55, D2a + 1.15 } do
+			B:block(crop, v(2.76, 0.22, 1.5), C(0, y, 0), CARVE)
+			B:block(crop, v(1.5, 0.22, 2.76), C(0, y, 0), CARVE)
 		end
-		B:block(crop, v(2.58, 0.3, 2.58), C(0, D2b - 0.45, 0), TEAL)
-		-- stepped wings (left / right), angled up a little
+		B:block(crop, v(2.78, 0.3, 2.78), C(0, D2b - 0.4, 0), TEAL)
 		local wingTips = {}
 		for _, sx in { -1, 1 } do
-			local y = D2a + 2.3
-			B:block(crop, v(1.9, 1.0, 1.4), C(sx * 2.0, y, 0, 0, 0, sx * 8), STONE)
-			B:block(crop, v(1.5, 0.8, 1.2), C(sx * 3.3, y + 0.45, 0, 0, 0, sx * 16), STONE_LT)
-			B:block(crop, v(0.7, 1.5, 1.1), C(sx * 4.15, y + 1.05, 0, 0, 0, sx * 10), TERRA)
-			B:block(crop, v(0.72, 0.4, 1.14), C(sx * 4.2, y + 1.65, 0, 0, 0, sx * 10), TEAL)
-			-- painted stripe along the top of the wing
-			B:block(crop, v(1.7, 0.14, 0.5), C(sx * 2.05, y + 0.62, 0, 0, 0, sx * 8), TERRA)
-			B:block(crop, v(1.3, 0.14, 0.45), C(sx * 3.25, y + 0.95, 0, 0, 0, sx * 16), TEAL)
-			-- tiny neon gem on each wing front
-			B:block(crop, v(0.35, 0.35, 0.12), C(sx * 3.3, y + 0.45, -0.66, 0, 0, 45), TEAL_LT, { mat = "Neon", name = "WingGem" })
-			wingTips[sx] = P3(sx * 3.55, y + 0.05, 0)
+			local y = D2a + 2.0
+			B:block(crop, v(1.9, 1.0, 1.4), C(sx * 2.1, y, 0, 0, 0, sx * 8), STONE)
+			B:block(crop, v(1.5, 0.8, 1.2), C(sx * 3.4, y + 0.45, 0, 0, 0, sx * 16), STONE_LT)
+			B:block(crop, v(0.7, 1.5, 1.1), C(sx * 4.25, y + 1.05, 0, 0, 0, sx * 10), TERRA)
+			B:block(crop, v(0.72, 0.4, 1.14), C(sx * 4.3, y + 1.65, 0, 0, 0, sx * 10), TEAL)
+			B:block(crop, v(1.7, 0.14, 0.5), C(sx * 2.15, y + 0.62, 0, 0, 0, sx * 8), TERRA)
+			B:block(crop, v(1.3, 0.14, 0.45), C(sx * 3.35, y + 0.95, 0, 0, 0, sx * 16), TEAL)
+			B:block(crop, v(0.35, 0.35, 0.12), C(sx * 3.4, y + 0.45, -0.66, 0, 0, 45), TEAL_LT, { mat = "Neon", name = "WingGem" })
+			wingTips[sx] = P3(sx * 3.65, y + 0.1, 0)
 		end
-		-- ledge 2
-		B:block(crop, v(2.95, 0.45, 2.95), C(0, D2b + 0.2, 0, 0, 5, 0), STONE)
-		-- drum 3 with the sun emblem
-		local D3a, D3b = D2b + 0.4, 15.0
-		B:block(crop, v(2.3, D3b - D3a, 2.3), C(0, (D3a + D3b) / 2, 0), STONE)
+		B:block(crop, v(3.1, 0.45, 3.1), C(0, D2b + 0.2, 0, 0, 5, 0), STONE)
+		-- drum 3: sun emblem front (neon core) and back
+		local D3a, D3b = D2b + 0.4, 13.6
+		B:block(crop, v(2.5, D3b - D3a, 2.5), C(0, (D3a + D3b) / 2, 0), STONE)
 		local SUNY = (D3a + D3b) / 2
 		for _, side in { -1, 1 } do
-			local F = CFrame.new(P3(0, SUNY, side * 1.17)) * CFrame.Angles(0, side < 0 and 0 or math.pi, 0)
-			-- rays: two crossed bars + a rotated pair
-			B:block(crop, v(2.0, 0.32, 0.12), F, SUN)
-			B:block(crop, v(0.32, 2.0, 0.12), F, SUN)
-			B:block(crop, v(1.25, 1.25, 0.16), F * CFrame.new(0, 0, -0.03) * CFrame.Angles(0, 0, rad(45)), SUN_GOLD)
-			B:block(crop, v(0.8, 0.8, 0.2), F * CFrame.new(0, 0, -0.06), SUN)
-			if side < 0 then
-				B:block(crop, v(0.42, 0.42, 0.18), F * CFrame.new(0, 0, -0.14) * CFrame.Angles(0, 0, rad(45)), SUN_CORE, { mat = "Neon", name = "SunCore" })
-			else
-				B:block(crop, v(0.42, 0.42, 0.18), F * CFrame.new(0, 0, -0.14) * CFrame.Angles(0, 0, rad(45)), TEAL)
-			end
+			local F = CFrame.new(P3(0, SUNY, side * 1.27)) * CFrame.Angles(0, side < 0 and 0 or math.pi, 0)
+			B:block(crop, v(2.1, 0.32, 0.12), F, SUN)
+			B:block(crop, v(0.32, 2.1, 0.12), F, SUN)
+			B:block(crop, v(1.3, 1.3, 0.16), F * CFrame.new(0, 0, -0.03) * CFrame.Angles(0, 0, rad(45)), SUN_GOLD)
+			B:block(crop, v(0.82, 0.82, 0.2), F * CFrame.new(0, 0, -0.06), SUN)
+			B:block(crop, v(0.42, 0.42, 0.18), F * CFrame.new(0, 0, -0.14) * CFrame.Angles(0, 0, rad(45)), side < 0 and SUN_CORE or TEAL, side < 0 and { mat = "Neon", name = "SunCore" } or nil)
 		end
-		-- small teal diamonds on the sides of drum 3
 		for _, sx in { -1, 1 } do
-			B:block(crop, v(0.12, 0.7, 0.7), C(sx * 1.17, SUNY, 0, 45, 0, 0), TEAL)
+			B:block(crop, v(0.12, 0.75, 0.75), C(sx * 1.27, SUNY, 0, 45, 0, 0), TEAL)
 		end
 		-- horned crown capital
-		B:block(crop, v(3.1, 0.6, 3.1), C(0, D3b + 0.3, 0), STONE_LT)
-		B:block(crop, v(3.2, 0.2, 3.2), C(0, D3b + 0.1, 0), TERRA)
+		B:block(crop, v(3.3, 0.6, 3.3), C(0, D3b + 0.3, 0), STONE_LT)
+		B:block(crop, v(3.4, 0.2, 3.4), C(0, D3b + 0.1, 0), TERRA)
 		for i = 0, 3 do
 			local a = rad(45 + i * 90)
-			local x, z = math.sin(a) * 1.75, -math.cos(a) * 1.75
+			local x, z = math.sin(a) * 1.85, -math.cos(a) * 1.85
 			B:block(crop, v(0.6, 1.0, 0.6), C(x, D3b + 1.05, z, 0, 45, 0), STONE)
 			B:block(crop, v(0.45, 0.4, 0.45), C(x, D3b + 1.7, z, 0, 45, 0), TEAL)
 		end
-		B:block(crop, v(2.0, 0.5, 2.0), C(0, D3b + 0.85, 0, 0, 45, 0), STONE_DK)
+		B:block(crop, v(2.1, 0.5, 2.1), C(0, D3b + 0.85, 0, 0, 45, 0), STONE_DK)
 		local CROWN = D3b + 1.1
 
 		---------------------------------------------------------------- vine
 		local vinePts = {}
-		local N = 16
+		local N = 13
 		for k = 0, N do
 			local t = k / N
-			local a = 150 + t * 700
-			local r = 2.05 - 0.35 * t
-			vinePts[k] = P3(0, 0, 0) + dirOf(a) * r + v(0, TOP + 1.5 + t * (CROWN - TOP - 1.4), 0)
+			local a = 205 + t * 520
+			local r = 2.05 - 0.25 * t
+			vinePts[k] = P3(0, 0, 0) + dirOf(a) * r + v(0, TOP + 1.5 + t * (CROWN - TOP - 1.3), 0)
 		end
 		B:block(crop, v(1.4, 0.6, 1.4), CFrame.new(vinePts[0] + v(0, -0.2, 0)) * ang(0, 25, 0), VINE_DK)
-		B:bar(crop, vinePts[0], vinePts[0] + v(0.4, -1.3, -1.2), 0.6, 0.6, VINE_DK)
 		for k = 0, N - 1 do
 			local a, b = vinePts[k], vinePts[k + 1]
 			local dd = (b - a).Unit
-			B:bar(crop, a - dd * 0.15, b + dd * 0.15, 0.62, 0.62, (k % 2 == 0) and VINE or VINE_DK)
+			B:bar(crop, a - dd * 0.15, b + dd * 0.15, 0.6, 0.6, (k % 2 == 0) and VINE or VINE_DK)
 		end
 		local function leaf(p, s, col)
 			B:block(crop, v(s, s * 0.8, s), CFrame.new(p) * ang(rnd(-25, 25), rnd(0, 90), rnd(-25, 25)), col)
@@ -273,69 +257,64 @@ return {
 			local o = v(p.X, 0, p.Z - PZ)
 			return o.Magnitude > 0.01 and o.Unit or v(0, 0, -1)
 		end
-		local leafAt = { 1, 3, 4, 6, 8, 9, 11, 13, 14, 16 }
-		for j, k in leafAt do
+		for j, k in { 1, 3, 6, 8, 11, 13 } do
 			local p = vinePts[k]
-			local s = 2.25 - 0.04 * k
-			leaf(p + outOf(p) * (0.35 + s * 0.35), s, LEAF[(j % 4) + 1])
+			local s = 1.95 - 0.03 * k
+			leaf(p + outOf(p) * (0.3 + s * 0.35), s, LEAF[(j % 4) + 1])
 		end
-		-- leafy crown tuft
-		for _, l in { { -0.8, 0.5, -0.4, 1.9, 2 }, { 0.9, 0.45, 0.5, 1.9, 1 }, { 0.3, 0.4, -1.1, 1.6, 3 }, { -0.4, 0.35, 1.1, 1.6, 4 } } do
+		-- small leaf collar round the crown gourd
+		for _, l in { { -1.0, 0.45, -0.5, 1.4, 2 }, { 1.1, 0.4, 0.6, 1.4, 1 }, { 0.2, 0.35, 1.2, 1.2, 3 } } do
 			leaf(P3(l[1], CROWN + l[2], l[3]), l[4], LEAF[l[5]])
 		end
-
-		-- calabash flowers (white)
+		-- white calabash flowers
 		local function flower(p, s, yaw)
 			B:block(crop, v(1.15 * s, 0.2, 0.42 * s), CFrame.new(p) * ang(0, yaw, 0), FLOWER)
 			B:block(crop, v(0.42 * s, 0.2, 1.15 * s), CFrame.new(p) * ang(0, yaw, 0), FLOWER)
 			B:block(crop, v(0.8 * s, 0.18, 0.8 * s), CFrame.new(p) * ang(0, yaw + 45, 0), FLOWER)
 			B:block(crop, v(0.36 * s, 0.32, 0.36 * s), CFrame.new(p + v(0, 0.08, 0)) * ang(0, yaw, 0), FLOWER_C)
 		end
-		for _, f in { { 2, 1.0, 10 }, { 5, 0.95, 40 }, { 10, 0.9, 20 }, { 15, 0.85, 60 } } do
+		for _, f in { { 2, 1.0, 10 }, { 7, 0.95, 40 }, { 12, 0.9, 20 } } do
 			local p = vinePts[f[1]]
-			flower(p + outOf(p) * 1.55 + v(0, 1.1, 0), f[2], f[3])
+			flower(p + outOf(p) * 1.45 + v(0, 0.95, 0), f[2], f[3])
 		end
 
 		---------------------------------------------------------------- gourds
-		-- hanging from the wing tips: vine runs out along each wing, then drops
+		-- hanging from the wing tips
 		for _, sx in { -1, 1 } do
 			local tip = wingTips[sx]
-			local k = sx > 0 and 9 or 11
-			local from = vinePts[k]
-			local mid = P3(sx * 2.1, tip.Y + 1.0, -0.75)
+			local from = vinePts[sx > 0 and 9 or 7]
+			local mid = P3(sx * 2.2, tip.Y + 1.05, -0.8)
 			B:bar(crop, from, mid, 0.4, 0.4, VINE)
-			B:bar(crop, mid, tip + v(0, 0.2, -0.75), 0.36, 0.36, VINE_DK)
-			leaf(mid + v(0, 0.75, -0.2), 1.5, LEAF[sx > 0 and 2 or 3])
-			local drop = tip + v(sx * 0.1, -0.9, -0.75)
-			B:bar(crop, tip + v(0, 0.25, -0.75), drop, 0.32, 0.32, VINE)
-			local s = sx > 0 and 1.15 or 1.05
-			gourd(crop, drop - v(0, 2.85 * s, 0), s, sx * 20, sx > 0 and G_ORANGE or G_TEAL, { rich = true, glint = sx > 0 })
+			B:bar(crop, mid, tip + v(0, 0.25, -0.8), 0.36, 0.36, VINE_DK)
+			leaf(mid + v(0, 0.7, -0.1), 1.35, LEAF[sx > 0 and 2 or 3])
+			local drop = tip + v(sx * 0.1, -0.6, -0.8)
+			B:bar(crop, tip + v(0, 0.3, -0.8), drop, 0.32, 0.32, VINE)
+			local s = 1.2
+			gourd(crop, drop - v(0, 2.85 * s - 0.1, 0), s, sx * 20, sx > 0 and G_ORANGE or G_TEAL, { rich = true, glint = true })
 		end
-		-- vine shoots off the spiral (front-right low, back-left high)
-		for _, sh in { { 5, v(1.9, 0.6, -1.5), 0.85, G_CREAM, 25 }, { 13, v(-1.8, 0.7, 1.6), 0.85, G_ORANGE, -30 }, { 7, v(-1.6, 0.6, 1.7), 0.8, G_TEAL, 10 } } do
+		-- vine shoots carrying gourds (back high, front-left low)
+		for _, sh in { { 10, v(0.4, 0.5, 1.9), 0.9, G_CREAM, 25 }, { 3, v(-1.9, 0.5, -1.0), 0.85, G_ORANGE, -30 } } do
 			local a = vinePts[sh[1]]
 			local b = a + sh[2]
 			B:bar(crop, a, b, 0.42, 0.42, VINE)
-			leaf(b + v(0, 0.6, 0), 1.25, LEAF[3])
-			local drop = b + v(0, -0.6, 0)
+			leaf(b + v(0, 0.6, 0), 1.2, LEAF[3])
+			local drop = b + v(0, -0.5, 0)
 			B:bar(crop, b + v(0, 0.2, 0), drop, 0.3, 0.3, VINE_DK)
-			gourd(crop, drop - v(0, 2.85 * sh[3], 0), sh[3], sh[5], sh[4])
+			gourd(crop, drop - v(0, 2.85 * sh[3] - 0.1, 0), sh[3], sh[5], sh[4])
 		end
-		-- the crown gourd, sitting upright on the leafy tuft
+		-- crown gourd sitting upright in the leaf collar
 		do
-			local s = 1.0
-			local top = gourd(crop, P3(0, CROWN + 1.3 + 0.95 * s, 0), s, 15, G_TEAL, { rich = true, glint = true })
-			local c1 = top + v(0, -0.05, 0)
-			local c2 = c1 + v(0.5, 0.6, -0.2)
-			local c3 = c2 + v(0.35, -0.35, -0.3)
-			B:bar(crop, c1, c2, 0.24, 0.24, STEM)
-			B:bar(crop, c2, c3, 0.2, 0.2, LEAF[3])
+			local s = 0.95
+			local top = gourd(crop, P3(0, CROWN + 0.5 + 0.95 * s, 0), s, 15, G_TEAL, { rich = true })
+			local c2 = top + v(0.5, 0.6, -0.2)
+			B:bar(crop, top - v(0, 0.05, 0), c2, 0.24, 0.24, STEM)
+			B:bar(crop, c2, c2 + v(0.35, -0.35, -0.3), 0.2, 0.2, LEAF[3])
 		end
 		-- gourds resting on the sand
-		gourd(soil, v(-3.0, TOP - 0.2 + 0.95 * 1.05, -2.0), 1.05, -25, G_ORANGE, { name = "Soil", rich = true, glint = true })
-		gourd(soil, v(3.3, 1.55 + 0.7, 2.0), 0.85, 0, G_CREAM, { name = "Soil", tilt = ang(0, 0, 80) })
-		B:bar(crop, vinePts[0] + v(-0.3, -0.2, -0.3), v(-2.0, TOP + 0.3, -1.4), 0.36, 0.36, VINE_DK)
-		leaf(v(-1.4, TOP + 0.6, -2.6), 1.3, LEAF[1])
+		gourd(soil, v(1.7, TOP - 0.15 + 0.95 * 1.0, -3.5), 1.0, -25, G_TEAL, { name = "Soil", glint = true })
+		gourd(soil, v(-3.4, 1.55 + 0.75, 2.4), 0.85, 0, G_CREAM, { name = "Soil", tilt = ang(0, 0, 80) })
+		B:bar(crop, vinePts[0] + v(0.2, -0.2, -0.3), v(1.0, TOP + 0.3, -2.4), 0.36, 0.36, VINE_DK)
+		leaf(v(0.0, TOP + 0.55, -2.4), 1.2, LEAF[1])
 
 		---------------------------------------------------------------- fx
 		local zone = B:block(crop, v(10, 12, 7), cf(0, 11, PZ), SUN_GOLD, { tr = 1, name = "SparkleZone" })

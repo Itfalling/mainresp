@@ -26,10 +26,10 @@ return {
 		local GRASS_D, GRASS_M, GRASS_L = "#c49a34", "#d8b84a", "#ead27a"
 		local CACT, CACT_DK, CACT_FL = "#5c9a3c", "#467c2e", "#ff7aa8"
 		local SHELL, SHELL_PK = "#fbefdc", "#f6b8b0"
-		local BARK_DK, BARK, BARK_LT, BARK_HI = "#76605a", "#957a70", "#ad9284", "#c4ab9a"
+		local BARK_DK, BARK, BARK_LT, BARK_HI = "#8e6650", "#b08268", "#c39578", "#dcb898"
 		local HOLE = "#3a2a26"
 		local LEAF_DK, LEAF, LEAF_LT, LEAF_HI = "#4f8a2e", "#62a33a", "#7fbd48", "#9ad35a"
-		local POD_DK, POD, POD_LT = "#a8742c", "#c98e3a", "#e0ab52"
+		local POD_DK, POD, POD_LT = "#9a5a26", "#c47a30", "#dc9a44"
 		local PULP_DK, PULP, PULP_GLOW = "#178a86", "#3fd6c8", "#7ffff0"
 		local SEED = "#fff2d6"
 		local BLOSSOM, BLOSSOM_LT = "#f6eedc", "#ffffff"
@@ -168,8 +168,8 @@ return {
 		for k = 0, 5 do
 			local a = k * 60 + 30
 			local d = dirA(a)
-			B:bar(crop, d * 2.8 + v(0, 3.2, 0), d * 4.6 + v(0, 1.25, 0), 1.5, 1.2, BARK)
-			B:bar(crop, d * 4.2 + v(0, 1.5, 0), d * 5.3 + v(0, 1.0, 0), 1.0, 0.8, BARK_DK)
+			B:bar(crop, d * 2.9 + v(0, 2.9, 0), d * 4.6 + v(0, 1.3, 0), 1.7, 1.3, BARK_LT)
+			B:bar(crop, d * 4.2 + v(0, 1.5, 0), d * 5.3 + v(0, 1.0, 0), 1.1, 0.8, BARK)
 		end
 		-- knot hole with glowing seeds (front)
 		local kh = v(0, 6.2, 0)
@@ -223,8 +223,8 @@ return {
 			local q2 = dirA(br.a + br.f2[1]) * br.f2[2] + v(0, br.f2[3], 0)
 			B:bar(crop, p1, q1, 0.85, 0.85, BARK)
 			B:bar(crop, p1, q2, 0.8, 0.8, BARK_LT)
-			clump(q1 + v(0, 0.6, 0), 2.7 + rnd(-0.2, 0.3))
-			clump(q2 + v(0, 0.7, 0), 2.5 + rnd(-0.2, 0.3))
+			clump(q1 + v(0, 0.8, 0), 2.4 + rnd(-0.2, 0.3))
+			clump(q2 + v(0, 0.9, 0), 2.2 + rnd(-0.2, 0.3))
 			-- pod hang points: under the elbow and under the outer twig
 			table.insert(podHangs, { p = p1 - v(0, 0.6, 0), a = br.a })
 			table.insert(podHangs, { p = p0:Lerp(p1, 0.55) - v(0, 0.5, 0), a = br.a + 25 })
@@ -237,33 +237,33 @@ return {
 		end
 		-- top-centre stub branch + clump
 		B:bar(crop, base0, v(0.2, 18.8, 0.3), 1.2, 1.2, BARK_LT)
-		clump(v(0.2, 20.6, 0.3), 3.3)
+		clump(v(0.2, 21.0, 0.3), 3.0)
 
 		---------------------------------------------------------------- velvety split pods
 		local podGlows = {}
 		local function pod(top, len, a, k)
 			-- top: hang point; the pod's split (glowing pulp) faces outward (dirA(a))
-			local stemLen = 0.7 + k * 0.4
+			local stemLen = 1.1 + k * 0.9
 			local c0 = top - v(0, stemLen, 0)
 			B:bar(crop, top + v(0, 0.2, 0), c0, 0.22, 0.22, POD_DK)
 			local c = CFrame.new(c0) * CFrame.Angles(0, -rad(a), 0) -- local -Z = outward
 			local L = len
-			B:block(crop, v(0.8, 0.45, 0.8), c * CFrame.new(0, -0.2, 0), POD_DK)
-			B:block(crop, v(1.25, L * 0.25, 1.25), c * CFrame.new(0, -0.4 - L * 0.125, 0), POD)
-			B:block(crop, v(1.5, L * 0.5, 1.5), c * CFrame.new(0, -0.4 - L * 0.5, 0), POD_LT)
-			B:block(crop, v(1.2, L * 0.25, 1.2), c * CFrame.new(0, -0.4 - L * 0.875, 0), POD)
-			B:block(crop, v(0.55, 0.4, 0.55), c * CFrame.new(0, -0.55 - L, 0) * ang(0, 45, 0), POD_DK)
+			B:block(crop, v(0.95, 0.5, 0.95), c * CFrame.new(0, -0.2, 0), POD_DK)
+			B:block(crop, v(1.5, L * 0.25, 1.5), c * CFrame.new(0, -0.4 - L * 0.125, 0), POD)
+			B:block(crop, v(1.85, L * 0.5, 1.85), c * CFrame.new(0, -0.4 - L * 0.5, 0), POD_LT)
+			B:block(crop, v(1.45, L * 0.25, 1.45), c * CFrame.new(0, -0.4 - L * 0.875, 0), POD)
+			B:block(crop, v(0.65, 0.45, 0.65), c * CFrame.new(0, -0.6 - L, 0) * ang(0, 45, 0), POD_DK)
 			-- split: turquoise pulp, neon seam, cream seeds
-			local mid = c * CFrame.new(0, -0.4 - L * 0.5, -0.75)
-			B:block(crop, v(0.95, L * 0.62, 0.2), mid, PULP_DK)
-			B:block(crop, v(0.6, L * 0.5, 0.2), mid * CFrame.new(0, 0, -0.08), PULP)
-			table.insert(podGlows, B:block(crop, v(0.22, L * 0.42, 0.14), mid * CFrame.new(0, 0, -0.16), PULP_GLOW, { mat = "Neon", name = "PodGlow" }))
-			B:block(crop, v(0.24, 0.24, 0.16), mid * CFrame.new(0.26, L * 0.1, -0.16), SEED)
-			B:block(crop, v(0.24, 0.24, 0.16), mid * CFrame.new(-0.26, -L * 0.12, -0.16), SEED)
+			local mid = c * CFrame.new(0, -0.4 - L * 0.5, -0.92)
+			B:block(crop, v(1.15, L * 0.66, 0.2), mid, PULP_DK)
+			B:block(crop, v(0.8, L * 0.54, 0.2), mid * CFrame.new(0, 0, -0.08), PULP)
+			table.insert(podGlows, B:block(crop, v(0.32, L * 0.44, 0.14), mid * CFrame.new(0, 0, -0.16), PULP_GLOW, { mat = "Neon", name = "PodGlow" }))
+			B:block(crop, v(0.24, 0.24, 0.16), mid * CFrame.new(0.3, L * 0.12, -0.17), SEED)
+			B:block(crop, v(0.24, 0.24, 0.16), mid * CFrame.new(-0.3, -L * 0.14, -0.17), SEED)
 		end
 		for i, h in podHangs do
 			if i % 3 ~= 0 or i == 3 or i == 9 then
-				pod(h.p, 1.9 + rnd(-0.2, 0.4), h.a, rnd(0, 1))
+				pod(h.p, 2.2 + rnd(-0.2, 0.4), h.a, rnd(0, 1))
 			end
 		end
 
