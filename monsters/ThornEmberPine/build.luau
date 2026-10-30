@@ -26,8 +26,8 @@ return {
 		local TWIG = "#4a3020"
 		local THORN, THORN_TIP = "#e6d6ae", "#8a2232"
 		local BARK_DK, BARK, BARK_LT = "#2e1f17", "#432d20", "#5a3d2b"
-		local PINE_DK, PINE, PINE_LT, PINE_HI = "#1b4a2f", "#235d37", "#2d7043", "#3f8853"
-		local TIP, TIP_LT = "#4c9a5a", "#68b468"
+		local PINE_DK, PINE, PINE_LT, PINE_HI = "#1f5233", "#29683d", "#357d48", "#489457"
+		local TIP, TIP_LT = "#56a660", "#78c070"
 		local CONE_DK, CONE, CONE_LT = "#5a2e18", "#7c4220", "#9c5a2c"
 		local EMBER, EMBER_HOT = "#ff7a1a", "#ffb43a"
 		local GOLD, GOLD_DK, GOLD_LT = "#e0a030", "#b8781e", "#ffd060"
@@ -64,12 +64,12 @@ return {
 				B:block(soil, v(w, eh, d), p * ang(0, rnd(-6, 6), 0), pick(edgeCols), S)
 			end
 		end
-		tier(0, 0.8, 6.3, DIRT_DK, 17, { DIRT_DK, DIRT_DK2, DIRT_DK }, 0.35)
-		tier(0.8, 0.6, 4.4, DIRT, 12, { DIRT, DIRT_LT, DIRT }, 0.3)
+		tier(0, 0.8, 6.6, DIRT_DK, 18, { DIRT_DK, DIRT_DK2, DIRT_DK }, 0.35)
+		tier(0.8, 0.6, 4.6, DIRT, 12, { DIRT, DIRT_LT, DIRT }, 0.3)
 		tier(1.4, 0.45, 2.8, DIRT_LT, 0, {}, 0)
 		local TOP = 1.85
 
-		for _, m in { { -40, 6.2, 1.12, 2.3, MOSS }, { 60, 6.1, 1.1, 2.0, MOSS_DK }, { 150, 6.25, 1.1, 2.0, MOSS }, { 240, 6.1, 1.12, 2.1, MOSS_DK }, { 20, 4.3, 1.72, 1.6, MOSS_LT }, { 200, 4.35, 1.72, 1.5, MOSS } } do
+		for _, m in { { -40, 6.55, 1.12, 2.3, MOSS }, { 60, 6.45, 1.1, 2.0, MOSS_DK }, { 150, 6.6, 1.1, 2.0, MOSS }, { 240, 6.45, 1.12, 2.1, MOSS_DK }, { 20, 4.5, 1.72, 1.6, MOSS_LT }, { 200, 4.55, 1.72, 1.5, MOSS } } do
 			local c = polar(CFrame.new(), m[1], m[3], m[2])
 			B:block(soil, v(m[4], 0.3, 1.3), c * ang(-12, 0, 0), m[5], S)
 		end
@@ -135,72 +135,83 @@ return {
 		end
 
 		---------------------------------------------------------------- needle tiers
-		local cubes = {}
+		local cubes = {} -- rim blocks (cones hang under them)
+		local tops = {} -- upper-surface spots (ember seeds sit there)
 		local tiers = {
-			-- y, slab centre radius, slab depth, width, height, count, angle offset
-			{ 6.3, 3.5, 4.2, 3.1, 1.9, 9, 0 },
-			{ 9.7, 2.85, 3.6, 2.8, 1.75, 8, 22 },
-			{ 12.9, 2.25, 3.0, 2.5, 1.6, 7, 8 },
-			{ 15.9, 1.65, 2.5, 2.2, 1.45, 6, 30 },
-			{ 18.6, 1.1, 2.0, 1.8, 1.35, 5, 12 },
+			-- y, radius, rim block count, angle offset
+			{ 5.7, 5.9, 13, 0 },
+			{ 8.6, 4.85, 11, 18 },
+			{ 11.4, 3.9, 9, 7 },
+			{ 14.1, 3.0, 7, 25 },
+			{ 16.7, 2.15, 6, 10 },
+			{ 19.1, 1.45, 5, 36 },
 		}
-		local shades = { PINE_DK, PINE, PINE_LT }
 		for ti, t in tiers do
-			local yb, rc, d, w, h, n, off = t[1], t[2], t[3], t[4], t[5], t[6], t[7]
-			local base = CFrame.new(0, yb, 0)
-			-- core of the tier (raised dome in the middle)
-			round(crop, base * CFrame.new(0, 0.35, 0) * ang(0, off, 0), rc * 0.62, h + 0.2, PINE_DK)
-			round(crop, base * CFrame.new(0, 0.35 + h * 0.6, 0) * ang(0, off + 45, 0), rc * 0.38, h * 0.5, PINE)
+			local yb, R, n, off = t[1], t[2], t[3], t[4]
+			local base = CFrame.new(0, yb, 0) * ang(0, off, 0)
+			local sc = math.clamp(R / 5.9, 0.45, 1)
+			-- stepped skirt: dark underside, mid step, light cap
+			round(crop, base, R * 0.86, 0.95, PINE_DK)
+			round(crop, base * CFrame.new(0, 0.85, 0) * ang(0, 45, 0), R * 0.66, 0.8, PINE)
+			round(crop, base * CFrame.new(0, 1.5, 0), R * 0.42, 0.6, PINE_LT)
+			-- chunky drooping rim blocks with needle tips
 			for i = 0, n - 1 do
-				local a = i / n * 360 + off + rnd(-5, 5)
-				local k = rnd(0.94, 1.06)
-				local c = polar(base, a, 0, rc) * ang(-24 + rnd(-4, 4), rnd(-8, 8), rnd(-7, 7))
-				local col = shades[(i + ti) % 3 + 1]
-				B:block(crop, v(w * k, h * k, d * k), c, col)
-				table.insert(cubes, { cf = c, d = d * k, h = h * k, w = w * k, ti = ti, a = a })
-				-- lighter drooping needle tip at the outer edge
-				B:block(crop, v(w * 0.62, h * 0.55, 0.9), c * CFrame.new(0, -h * 0.35, -d * k * 0.5 - 0.2) * ang(-28, 0, 0), (i % 2 == 0) and TIP or PINE_HI)
-				-- fresh-needle highlight on the upper face
-				if (i + ti) % 2 == 0 then
-					B:block(crop, v(w * 0.5, 0.35, d * 0.4), c * CFrame.new(0, h * 0.5, -d * 0.12), TIP_LT)
+				local a = (i + rnd(-0.15, 0.15)) / n * 360
+				local w = 2 * math.pi * R / n * rnd(0.9, 1.1)
+				local c = polar(base, a, -0.1 + rnd(-0.12, 0.12), R - 0.35) * ang(-20 + rnd(-5, 5), rnd(-6, 6), 0)
+				local col = (i % 2 == 0) and PINE or PINE_DK
+				local hh = 1.25 * (0.75 + 0.25 * sc)
+				B:block(crop, v(w, hh, 1.5 * (0.7 + 0.3 * sc)), c, col)
+				table.insert(cubes, { cf = c, w = w, h = hh, d = 1.5, ti = ti, a = a })
+				if i % 2 == 0 then
+					B:block(crop, v(w * 0.55, hh * 0.6, 0.7), c * CFrame.new(rnd(-0.15, 0.15) * w, -hh * 0.3, -0.75) * ang(-22, 0, 0), (i % 4 == 0) and TIP or PINE_HI)
 				end
 			end
+			-- fresh light-green growth on the step tops
+			for i = 0, (ti <= 3) and 2 or 1 do
+				local a = off + 40 + i * (360 / ((ti <= 3) and 3 or 2)) + rnd(-15, 15)
+				local q = polar(CFrame.new(0, yb, 0), a, 1.3, R * 0.62)
+				local z = 1.0 * (0.6 + 0.4 * sc)
+				B:block(crop, v(z * 1.3, 0.6, z), q * ang(0, rnd(0, 60), 0), (i % 2 == 0) and TIP_LT or PINE_HI)
+				table.insert(tops, q)
+			end
 		end
-		-- spire
-		B:block(crop, v(1.7, 1.6, 1.7), cf(0, 20.2, 0, 0, 20, 0), PINE)
-		B:block(crop, v(1.2, 1.3, 1.2), cf(0, 21.3, 0, 0, 40, 0), PINE_LT)
-		B:block(crop, v(0.8, 0.5, 0.8), cf(0, 22.0, 0, 0, 10, 0), TIP)
+		-- tip
+		B:block(crop, v(1.4, 1.2, 1.4), cf(0, 20.7, 0, 0, 20, 0), PINE)
+		B:block(crop, v(0.95, 0.9, 0.95), cf(0, 21.6, 0, 0, 40, 0), PINE_LT)
 
 		---------------------------------------------------------------- pinecones
 		local glows = {}
-		local function pinecone(top, k, ry, gold)
+		local function pinecone(top, k, ry, gold, goldHang)
 			-- top = attachment point; cone hangs below (gold = upright crown cone)
 			local up = gold and 1 or -1
 			local f = CFrame.new(top) * ang(rnd(-6, 6), ry, rnd(-6, 6))
 			local cD, cM, cL = CONE_DK, CONE, CONE_LT
-			if gold then cD, cM, cL = GOLD_DK, GOLD, GOLD_LT end
+			if gold or goldHang then cD, cM, cL = GOLD_DK, GOLD, GOLD_LT end
 			B:block(crop, v(0.3 * k, 0.5 * k, 0.3 * k), f * CFrame.new(0, up * 0.15 * k, 0), BARK_DK)
 			-- glowing core visible between the scale rows
-			local core = B:block(crop, v(0.78 * k, 1.9 * k, 0.78 * k), f * CFrame.new(0, up * 1.35 * k, 0) * ang(0, 22, 0), gold and EMBER_HOT or EMBER, { mat = "Neon", name = "ConeCore" })
+			local core = B:block(crop, v(0.92 * k, 2.0 * k, 0.92 * k), f * CFrame.new(0, up * 1.4 * k, 0) * ang(0, 22, 0), gold and EMBER_HOT or EMBER, { mat = "Neon", name = "ConeCore" })
 			table.insert(glows, core)
-			local rows = { { 0.85, 0.5, cL }, { 1.2, 0.85, cM }, { 1.35, 1.25, cD }, { 1.2, 1.65, cM }, { 0.9, 2.05, cD } }
+			local rows = { { 0.9, 0.5, cL }, { 1.25, 0.92, cM }, { 1.4, 1.38, cD }, { 1.25, 1.84, cM }, { 0.95, 2.26, cD } }
 			for j, rr in rows do
 				local w = rr[1] * k
-				B:block(crop, v(w, 0.3 * k, w), f * CFrame.new(0, up * rr[2] * k, 0) * ang(0, (j % 2) * 45, 0), rr[3])
+				B:block(crop, v(w, 0.28 * k, w), f * CFrame.new(0, up * rr[2] * k, 0) * ang(0, (j % 2) * 45, 0), rr[3])
 			end
-			B:block(crop, v(0.35 * k, 0.3 * k, 0.35 * k), f * CFrame.new(0, up * 2.38 * k, 0) * ang(0, 45, 0), gold and "#fff2b0" or EMBER_HOT, NEON)
+			B:block(crop, v(0.35 * k, 0.3 * k, 0.35 * k), f * CFrame.new(0, up * 2.55 * k, 0) * ang(0, 45, 0), gold and "#fff2b0" or EMBER_HOT, NEON)
 		end
-		-- hang cones under the outer edge of the slabs (tiers 1-3)
+		-- hang cones under the rims (tiers 1-4), spaced around; every 4th is a rare golden one
+		local nCone = 0
 		for ci, c in cubes do
-			local ok = (c.ti == 1) or (c.ti == 2 and ci % 2 == 0) or (c.ti == 3 and ci % 2 == 1)
+			local ok = (c.ti == 1 and ci % 3 == 0) or (c.ti == 2 and ci % 2 == 0) or (c.ti == 3 and ci % 2 == 1) or (c.ti == 4 and ci % 3 == 1)
 			if ok then
-				local p = c.cf * CFrame.new(rnd(-0.2, 0.2) * c.w, -c.h * 0.5, -c.d * 0.3)
-				local k = ({ 0.95, 0.8, 0.68 })[c.ti]
-				pinecone(p.Position, k * rnd(0.94, 1.04), rnd(0, 90), false)
+				local p = c.cf * CFrame.new(rnd(-0.15, 0.15) * c.w, -c.h * 0.45, 0.1)
+				local k = ({ 0.95, 0.85, 0.74, 0.62 })[c.ti]
+				nCone += 1
+				pinecone(p.Position, k * rnd(0.95, 1.04), rnd(0, 90), false, nCone % 4 == 2)
 			end
 		end
 		-- golden ember cone crowning the spire
-		pinecone(v(0, 21.9, 0), 0.62, 0, true)
+		pinecone(v(0, 21.9, 0), 0.66, 0, true)
 		-- fallen glowing cone on the mound
 		do
 			local f = cf(2.9, 1.65, -2.4, 0, 30, 80)
@@ -212,11 +223,14 @@ return {
 
 		---------------------------------------------------------------- ember seeds in the needles
 		local seeds = 0
-		for ci, c in cubes do
-			if ci % 2 == 1 then
-				local q = c.cf * CFrame.new(rnd(-0.3, 0.3) * c.w, c.h * 0.5, rnd(-0.35, 0.1) * c.d)
-				B:block(crop, v(0.32, 0.32, 0.32), q * ang(45, 0, 45), (seeds % 2 == 0) and EMBER_HOT or EMBER, { mat = "Neon", name = "EmberSeed" })
-				seeds += 1
+		for ti, t in tiers do
+			if ti <= 5 then
+				for i = 0, 2 do
+					local a = t[4] + 100 + i * 120 + rnd(-20, 20)
+					local q = polar(CFrame.new(0, t[1], 0), a, 0.62, t[2] * 0.78)
+					B:block(crop, v(0.42, 0.42, 0.42), q * ang(45, rnd(0, 90), 45), (seeds % 2 == 0) and EMBER_HOT or EMBER, { mat = "Neon", name = "EmberSeed" })
+					seeds += 1
+				end
 			end
 		end
 

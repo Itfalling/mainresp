@@ -33,14 +33,15 @@ return {
 		local BARK_BK, BARK_DK, BARK, BARK_LT = "#160d08", "#2b1a10", "#3d2516", "#56361f"
 		local VINE, VINE_DK = "#4f7a2a", "#365a20"
 		local THORN = "#ecdfb8"
-		local LF_DK, LF, LF_MID, LF_LT, LF_LIME = "#16582e", "#1f723a", "#2a8c45", "#45a852", "#7cc95a"
+		local LF_DK, LF, LF_MID, LF_LT, LF_LIME = "#1d6a35", "#26803e", "#33984a", "#52b457", "#8bd45e"
 		local ROSE, ROSE_DK, ROSE_LT = "#d8203e", "#9a1430", "#ff5a77"
-		local RG, RG_DK, RG_LT = "#ee8f86", "#c4646a", "#ffc4b2" -- rose-gold heart-fruit
+		local RG, RG_DK, RG_LT = "#f47a8a", "#c94a60", "#ffc6bc" -- rose-gold heart-fruit
 		local GOLD, GOLD_LT = "#f2b844", "#ffe08a"
-		local GLOW = "#ffd0a8"
+		local GLOW = "#ffd79a"
 		local MUSH, MUSH_SPOT, MUSH_STEM = "#d0343c", "#fff1dc", "#efe2c6"
 		local TWIG = "#4a3020"
 		local PETAL = "#ff8fa6"
+		local BLOSSOM, BLOSSOM_LT = "#f590ad", "#ffc2d4"
 
 		local seed = 1010
 		local function rnd()
@@ -166,27 +167,27 @@ return {
 		local BASE = 2.8
 		local crop = B:bone("Crop", "Root", v(0, BASE, 0))
 		-- root flare
-		B:block(crop, v(6.2, 1.0, 6.2), cf(0, BASE + 0.35, 0, 0, 12, 0), BARK_DK)
-		B:block(crop, v(5.6, 1.0, 5.6), cf(0, BASE + 1.2, 0, 0, -10, 0), BARK)
+		B:block(crop, v(7.0, 1.0, 7.0), cf(0, BASE + 0.35, 0, 0, 12, 0), BARK_DK)
+		B:block(crop, v(6.4, 1.0, 6.4), cf(0, BASE + 1.2, 0, 0, -10, 0), BARK)
 		-- gnarled roots running down the mound
 		for k = 0, 5 do
 			local a = k * 60 + 30 + jit(8)
-			local x1, z1 = polar(2.6, a)
-			local x2, z2 = polar(4.8, a + 10)
+			local x1, z1 = polar(3.0, a)
+			local x2, z2 = polar(5.1, a + 10)
 			local x3, z3 = polar(6.6, a + 18)
-			B:bar(crop, v(x1, BASE + 1.0, z1), v(x2, BASE - 0.15, z2), 1.5, 1.1, (k % 2 == 0) and BARK or BARK_DK)
+			B:bar(crop, v(x1, BASE + 1.0, z1), v(x2, BASE - 0.15, z2), 1.7, 1.2, (k % 2 == 0) and BARK or BARK_DK)
 			B:bar(crop, v(x2, BASE - 0.05, z2), v(x3, 1.5, z3), 1.05, 0.85, BARK_DK)
 		end
 		-- trunk segments: thick and slightly S-curved; the hollow segments stay square to the front
 		local SEG = {
 			-- width, y0, x offset, yaw, colour
-			{ 5.0, 1.6, 0.0, 6, BARK },
-			{ 4.6, 3.6, 0.1, 0, BARK_DK },
-			{ 4.4, 5.6, 0.15, 0, BARK },
-			{ 4.2, 7.6, 0.1, 0, BARK_DK },
-			{ 3.9, 9.6, -0.15, 14, BARK },
-			{ 3.6, 11.6, -0.35, 28, BARK_DK },
-			{ 3.3, 13.4, -0.3, 42, BARK },
+			{ 5.8, 1.6, 0.0, 6, BARK },
+			{ 5.4, 3.6, 0.1, 0, BARK_DK },
+			{ 5.1, 5.6, 0.1, 0, BARK },
+			{ 4.9, 7.6, 0.05, 0, BARK_DK },
+			{ 4.5, 9.4, -0.15, 14, BARK },
+			{ 4.1, 11.2, -0.35, 28, BARK_DK },
+			{ 3.7, 12.8, -0.3, 42, BARK },
 		}
 		local function halfW(y)
 			local w = 5.0
@@ -206,7 +207,7 @@ return {
 			local prev
 			for i = 0, 3 do
 				local t = i / 3
-				local y = BASE + 1.8 + t * 12.0
+				local y = BASE + 1.8 + t * 11.4
 				local a = a0 + t * 40
 				local x, z = polar(halfW(y) * 1.05 + 0.05, a)
 				local p = v(x, y, z)
@@ -218,7 +219,7 @@ return {
 		end
 		-- THE HEARTWOOD HOLLOW (front face, z = -2.2)
 		local HY = BASE + 6.4
-		local FZ = -2.2
+		local FZ = -2.55
 		B:block(crop, v(2.4, 3.0, 0.4), cf(0, HY, FZ - 0.05), BARK_BK) -- dark hollow
 		B:block(crop, v(0.7, 3.8, 0.8), cf(-1.5, HY, FZ - 0.2, 0, 0, -4), BARK_LT) -- lips
 		B:block(crop, v(0.7, 3.6, 0.8), cf(1.5, HY + 0.1, FZ - 0.2, 0, 0, 5), BARK_LT)
@@ -271,18 +272,18 @@ return {
 				end
 			end
 		end
-		briar(helix(300, 1.4, BASE + 0.9, BASE + 14.2, 14), { [4] = true, [10] = true })
-		briar(helix(40, -1.3, BASE + 0.9, BASE + 14.0, 13), { [6] = true, [12] = true })
+		briar(helix(300, 1.4, BASE + 0.9, BASE + 13.6, 14), { [4] = true, [10] = true })
+		briar(helix(40, -1.3, BASE + 0.9, BASE + 13.4, 13), { [6] = true, [12] = true })
 
 		-- crooked branches (first segment on the trunk, second on the canopy)
-		local TOPY = BASE + 13.6
+		local TOPY = BASE + 13.2
 		local branchTips = {}
 		for k = 0, 5 do
 			local a = k * 60
 			local x0, z0 = polar(0.6, a)
 			local x1, z1 = polar(3.2, a + 10)
 			branchTips[k + 1] = { a = a, p0 = v(x0, TOPY - 0.6, z0), p1 = v(x1, TOPY + 1.8 + (k % 2) * 0.4, z1) }
-			B:bar(crop, branchTips[k + 1].p0, branchTips[k + 1].p1, 1.6, 1.5, (k % 2 == 0) and BARK or BARK_DK)
+			B:bar(crop, branchTips[k + 1].p0, branchTips[k + 1].p1, 2.0, 1.8, (k % 2 == 0) and BARK or BARK_DK)
 		end
 
 		------------------------------------------------------------------
@@ -293,7 +294,7 @@ return {
 		for k, b in branchTips do
 			local x2, z2 = polar(5.6, b.a - 6)
 			local tip = v(x2, CPY + 2.6, z2)
-			B:bar(canopy, b.p1 - (b.p1 - b.p0).Unit * 0.4, tip, 1.15, 1.1, BARK_LT)
+			B:bar(canopy, b.p1 - (b.p1 - b.p0).Unit * 0.4, tip, 1.4, 1.3, BARK_LT)
 			b.tip = tip
 		end
 		-- upper trunk hidden inside the canopy
@@ -323,17 +324,17 @@ return {
 			end
 		end
 		local AY = CPY + 3.4
-		tier(canopy, 8, 5.9, AY, 5.0, { LF_DK, LF, LF_MID, LF }, {
-			{ 2.6, 20, AY + 0.9, 5.4, LF_DK }, { 2.6, 110, AY + 1.0, 5.4, LF }, { 2.6, 200, AY + 0.9, 5.2, LF_DK }, { 2.6, 290, AY + 1.0, 5.4, LF },
-		}, 4.9, AY + 2.3, 3.2, { LF_MID, LF_LT }, 0)
+		tier(canopy, 9, 6.0, AY, 5.2, { LF_DK, LF, LF_MID }, {
+			{ 2.8, 20, AY + 0.9, 5.6, LF_DK }, { 2.8, 110, AY + 1.0, 5.6, LF }, { 2.8, 200, AY + 0.9, 5.4, LF_DK }, { 2.8, 290, AY + 1.0, 5.6, LF },
+		}, 5.2, AY + 2.4, 3.4, { LF_LT, LF_MID, BLOSSOM, LF_LT, LF_MID }, 0)
 
 		-- CanopyTop: the two upper tiers + the crown (sways with a little lag)
 		local canopyTop = B:bone("CanopyTop", "Canopy", v(0, AY + 2.0, 0))
-		local BY = AY + 5.0
-		tier(canopyTop, 7, 4.3, BY, 4.4, { LF, LF_MID, LF_DK }, {
-			{ 1.4, 60, BY + 0.8, 5.0, LF }, { 1.4, 240, BY + 0.8, 5.0, LF_MID },
-		}, 3.4, BY + 2.0, 2.8, { LF_LT, LF_MID }, 20)
-		local CY = BY + 4.2
+		local BY = AY + 4.9
+		tier(canopyTop, 7, 4.7, BY, 4.9, { LF, LF_MID, LF_DK }, {
+			{ 1.5, 60, BY + 0.8, 5.0, LF }, { 1.5, 240, BY + 0.8, 5.0, LF_MID },
+		}, 3.8, BY + 2.1, 3.0, { LF_LIME, LF_LT, BLOSSOM_LT, LF_MID }, 20)
+		local CY = BY + 4.1
 		tier(canopyTop, 5, 2.5, CY, 3.8, { LF_MID, LF_LT, LF }, {
 			{ 0, 0, CY + 1.3, 4.2, LF_MID },
 		}, 1.8, CY + 2.3, 2.2, { LF_LIME, LF_LT }, 36)
@@ -344,50 +345,49 @@ return {
 			local a = c.a + (side or 0)
 			return c.p + outward(a) * (c.s * 0.5 + 0.1) + v(0, c.s * upFrac, 0), a
 		end
-		for _, r in { { 1, 0.1, 10 }, { 3, 0.2, -15 }, { 5, 0.05, 20 }, { 7, 0.25, -10 }, { 9, 0.15, 15 }, { 11, 0.1, -20 }, { 13, 0.2, 10 }, { 16, 0.1, 0 }, { 18, 0.2, 0 } } do
+		for _, r in { { 2, 0.15, 10 }, { 5, 0.2, -15 }, { 8, 0.1, 20 }, { 11, 0.2, -10 }, { 14, 0.15, 15 }, { 17, 0.2, 0 } } do
 			if cubes[r[1]] then
 				local p, a = onCube(r[1], r[2], r[3])
-				rose(cubes[r[1]].bone, p, 0.85, -a)
+				rose(cubes[r[1]].bone, p, 1.0, -a)
 			end
 		end
 		local sunkN = 0
-		for _, r in { { 2, -0.05 }, { 6, 0.1 }, { 10, 0.0 }, { 14, 0.05 } } do
+		for _, r in { { 1, -0.1 }, { 4, 0.0 }, { 7, -0.05 }, { 10, 0.05 }, { 13, 0.1 } } do
 			if cubes[r[1]] then
 				sunkN += 1
 				local p, a = onCube(r[1], r[2], 0)
-				heart(cubes[r[1]].bone, facing(p, a), 0.62, "SunkGlow" .. sunkN, { noBack = true })
+				heart(cubes[r[1]].bone, facing(p, a), 0.85, "SunkGlow" .. sunkN, { noBack = true })
 			end
 		end
 
 		-- the crown heart-fruit on top in a golden leaf collar
-		local TOPC = CY + 3.4
+		local TOPC = CY + 2.3
 		B:block(canopyTop, v(0.7, 1.6, 0.7), cf(0, TOPC, 0), VINE_DK)
 		for i = 0, 4 do
 			local c = CFrame.new(0, TOPC + 0.3, 0) * CFrame.Angles(0, rad(i * 72 + 10), 0) * CFrame.new(0, 0, -1.2) * ang(-28, 0, 0)
 			B:block(canopyTop, v(1.3, 0.3, 1.7), c, (i % 2 == 0) and GOLD or GOLD_LT)
 		end
-		local crownS = 1.75
+		local crownS = 1.9
 		local crownC = v(0, TOPC + 0.75 + 1.1 * crownS, 0)
-		local crownCore = heart(canopyTop, CFrame.new(crownC), crownS, "CrownCore", { depth = 0.85 })
-		B:block(canopyTop, v(0.25, 0.9, 0.25), cf(0, crownC.Y + 1.15 * crownS, 0, 0, 0, 12), GOLD_LT)
+		local crownCore = heart(canopyTop, CFrame.new(crownC), crownS, "CrownCore", { depth = 1.05 })
 
 		------------------------------------------------------------------
 		-- HANGING HEART-FRUITS (bones HeartN on the canopy, pivot at stem top)
 		------------------------------------------------------------------
 		local HEARTS = {
 			-- deg, stem length, scale
-			{ 30, 2.4, 1.15 },
-			{ 90, 3.4, 1.05 },
-			{ 150, 2.6, 1.1 },
-			{ 210, 3.2, 1.05 },
-			{ 270, 2.5, 1.1 },
-			{ 330, 3.3, 1.15 },
+			{ 30, 1.6, 1.6 },
+			{ 90, 2.5, 1.5 },
+			{ 150, 1.8, 1.55 },
+			{ 210, 2.4, 1.5 },
+			{ 270, 1.7, 1.55 },
+			{ 330, 2.5, 1.6 },
 		}
 		for i, h in HEARTS do
-			local x, z = polar(4.7, h[1])
+			local x, z = polar(4.8, h[1])
 			local top = v(x, AY - 1.7, z)
 			local bone = B:bone("Heart" .. i, "Canopy", top)
-			local hx, hz = polar(5.0, h[1])
+			local hx, hz = polar(5.2, h[1])
 			local s = h[3]
 			local c = v(hx, top.Y - h[2] - 0.85 * s, hz)
 			B:bar(bone, top + v(0, 0.6, 0), c + v(0, 0.6 * s, 0), 0.32, 0.32, VINE_DK)

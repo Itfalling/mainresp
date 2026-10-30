@@ -27,7 +27,7 @@ return {
 		local THORN, THORN_TIP = "#e6d6ae", "#8a2232"
 		local RED_DK, RED, RED_LT, RED_HI = "#9a1a20", "#c8262a", "#de3a34", "#ee5a48"
 		local SPOT, SPOT2 = "#fbf6ea", "#efe3cc"
-		local STALK, STALK_DK, STALK_LT, STALK_BASE = "#f6e8c6", "#dcc596", "#fff4dc", "#c9a978"
+		local STALK, STALK_DK, STALK_LT, STALK_BASE = "#fdeecb", "#e4cb9a", "#fff8e4", "#cfae7c"
 		local GILL, GILL_DK = "#f0dcb4", "#cdb187"
 		local GLOW = "#9dffc4"
 		local SHELF, SHELF_DK, SHELF_LT = "#d77a2c", "#a85620", "#eda04a"
