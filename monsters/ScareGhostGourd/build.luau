@@ -25,6 +25,7 @@ return {
 		local STEM, STEM_DK = "#7c9a84", "#5b7563"
 		local MINT_N, MINT, MINT_DK = "#7dffd2", "#aef5dc", "#6fd8b4"
 		local BLUSH, EYE_DK = "#ffb3c8", "#2a2440"
+		local CARVE, RIM = "#36e8b0", "#3b3358" -- mint glow inside the carving, dusky rim
 
 		local seed = 8808
 		local function rnd(a, b)
@@ -84,6 +85,42 @@ return {
 		------------------------------------------------------ ghost pumpkins
 		-- c = centre CFrame (faces -Z), w = width, h = height; face = "happy" | "wink" | "ooh"
 		local faceGlows = {}
+		local FACES = {
+			-- big happy ghost: triangle eyes, toothy grin
+			happy = {
+				"...#.......#...",
+				"..###.....###..",
+				".#####...#####.",
+				"...............",
+				"...............",
+				".#...........#.",
+				".##T#######T##.",
+				"..###########..",
+				"....###T###....",
+			},
+			-- surprised "ooh": round eyes, little o mouth
+			ooh = {
+				"..##.......##..",
+				".####.....####.",
+				".####.....####.",
+				"..##.......##..",
+				"...............",
+				"......###......",
+				".....#...#.....",
+				"......###......",
+			},
+			-- cheeky wink: one triangle eye, one ^ eye, grin with tongue
+			wink = {
+				"...#.......#...",
+				"..###.....#.#..",
+				".#####...#...#.",
+				"...............",
+				"...............",
+				".#...........#.",
+				"..#####p#####..",
+				"....###p###....",
+			},
+		}
 		local HF = { [0] = 1.0, 0.9, 0.7 }
 		local DF = { [0] = 1.0, 0.95, 0.66 }
 		local function pumpkin(c, w, h, face)
@@ -105,54 +142,44 @@ return {
 			-- stem with a little curl
 			B:block(crop, v(0.16 * w, 0.3 * h, 0.16 * w), c * CFrame.new(0.05, h / 2 + 0.12 * h, 0.05) * ang(8, 20, -10), STEM)
 			B:block(crop, v(0.12 * w, 0.1 * h, 0.2 * w), c * CFrame.new(0.15, h / 2 + 0.26 * h, -0.08 * w) * ang(-25, 20, -10), STEM_DK)
-			-- carved face on the front
+			-- carved face on the front: pixel art on a 15-col grid (unit w/15);
+			-- each run = a dark carved rim with the glowing hole in front of it
 			if face then
-				local u = w / 10 -- face unit
-				local zc, zd = -0.4875 * d, 0.025 * d + 0.1
-				local function px(x, y, sx, sy, col, neon)
-					local p = B:block(crop, v(sx * u, sy * u, zd), c * CFrame.new(x * u, y * u, zc), col,
-						neon and { mat = "Neon", name = "FaceGlow" } or nil)
-					if neon then table.insert(faceGlows, p) end
-					return p
-				end
-				-- eyes: stepped triangles (wide row, narrow row, tip)
-				local function eye(x)
-					px(x, 0.9, 1.9, 0.6, MINT_N, true)
-					px(x, 1.5, 1.2, 0.6, MINT_N, true)
-					px(x, 2.05, 0.55, 0.5, MINT_N, true)
-				end
-				local function wink(x)
-					-- a happy closed "^" eye
-					px(x, 1.75, 0.7, 0.5, MINT_N, true)
-					px(x - 0.65, 1.3, 0.7, 0.5, MINT_N, true)
-					px(x + 0.65, 1.3, 0.7, 0.5, MINT_N, true)
-				end
-				if face == "wink" then
-					eye(-1.9)
-					wink(1.9)
-				else
-					eye(-1.9)
-					eye(1.9)
-				end
-				if face == "ooh" then
-					-- a little round "ooh" mouth
-					px(0, -1.5, 1.2, 1.3, MINT_N, true)
-					px(0, -1.5, 0.6, 1.8, MINT_N, true)
-				else
-					-- toothy grin: wide row, upturned corners, two teeth
-					px(0, -1.55, 4.4, 0.9, MINT_N, true)
-					px(-2.5, -0.95, 0.7, 0.8, MINT_N, true)
-					px(2.5, -0.95, 0.7, 0.8, MINT_N, true)
-					px(0, -2.2, 2.6, 0.6, MINT_N, true)
-					px(-0.8, -1.25, 0.6, 0.45, GH, false)
-					px(0.8, -1.95, 0.6, 0.45, GH, false)
+				local u = w / 15
+				local z0 = -d / 2
+				local rows = FACES[face]
+				local nRows = #rows
+				for ri, row in rows do
+					local ry = (nRows / 2 + 0.5 - ri) * u + 0.06 * h
+					local col = -7
+					while col <= 7 do
+						if string.sub(row, col + 8, col + 8) ~= "." then
+							local c1 = col
+							while c1 + 1 <= 7 and string.sub(row, c1 + 9, c1 + 9) ~= "." do
+								c1 += 1
+							end
+							local n = c1 - col + 1
+							local cx = (col + c1) / 2 * u
+							B:block(crop, v((n + 0.5) * u, 1.45 * u, 0.52), c * CFrame.new(cx, ry, z0 + 0.14), RIM)
+							local g = B:block(crop, v(n * u + 0.01, u + 0.01, 0.44), c * CFrame.new(cx, ry, z0 + 0.03), CARVE, { mat = "Neon", name = "Carve" })
+							table.insert(faceGlows, g)
+							for k = col, c1 do
+								local kc = string.sub(row, k + 8, k + 8)
+								if kc == "T" then
+									B:block(crop, v(u * 0.9, u + 0.02, 0.5), c * CFrame.new(k * u, ry + 0.02, z0 - 0.01), GH_LT)
+								elseif kc == "p" then
+									B:block(crop, v(u * 0.95, u + 0.02, 0.48), c * CFrame.new(k * u, ry, z0 + 0.0), "#ff7fa8")
+								end
+							end
+							col = c1 + 1
+						else
+							col += 1
+						end
+					end
 				end
 				-- rosy cheeks
-				px(-3.1, 0.0, 0.9, 0.5, BLUSH, false)
-				px(3.1, 0.0, 0.9, 0.5, BLUSH, false)
-				if face == "wink" then
-					-- cheeky tongue poking out of the grin
-					px(1.0, -2.55, 0.9, 0.7, "#ff7fa8", false)
+				for _, e in { -1, 1 } do
+					B:block(crop, v(1.5 * u, 0.8 * u, 0.4), c * CFrame.new(e * 5.4 * u, (nRows / 2 + 0.5 - 4.5) * u + 0.06 * h, z0 + 0.12), BLUSH)
 				end
 			end
 		end
@@ -183,7 +210,7 @@ return {
 			for i = 0, N do
 				local t = i / N
 				local y = yA + t * (yB - yA)
-				local deg = 170 + (y - yA) * 37
+				local deg = 170 + (y - yA) * 46
 				local p = polar(deg, hugR(y), y)
 				if prev then seg(prev, p, 1.0 - 0.45 * t, (i % 2 == 0) and VINE or VINE_DK) end
 				table.insert(vinePts, { p = p, deg = deg, y = y })
@@ -273,8 +300,8 @@ return {
 			local m = B:block(crop, v(0.3 * s, 0.22 * s, 0.1), c * CFrame.new(0, -0.25 * s, -0.72 * s), MINT_N, { mat = "Neon", name = "GhostMouth" })
 			table.insert(ghosts, m)
 		end
-		ghost(v(-5.6, 13.0, -0.6), 1.0, 25)
-		ghost(v(5.4, 15.4, 0.8), 0.85, -30)
+		ghost(v(-5.6, 13.0, -0.6), 1.0, -12)
+		ghost(v(5.4, 15.4, 0.8), 0.85, 14)
 
 		---------------------------------------------------------------- bling
 		B:emitter(tips[1], "glow", { name = "WispGlow", color = "#7dffd2", rate = 2, size = 1.2 })

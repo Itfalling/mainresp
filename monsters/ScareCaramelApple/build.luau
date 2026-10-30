@@ -153,7 +153,8 @@ return {
 		------------------------------------------------------- caramel apples
 		-- local frame: +Y = up along the stick. s = apple size.
 		local shines = {}
-		local function caramelApple(c, s, choc, shine)
+		local function caramelApple(c, s, choc, shine, stickLen)
+			stickLen = stickLen or 1.4
 			B:block(crop, v(s, s * 0.95, s), c, APPLE)
 			B:block(crop, v(s * 0.72, 0.3, s * 0.72), c * CFrame.new(0, -s * 0.47 - 0.1, 0), APPLE_DK)
 			local capH = s * 0.46
@@ -175,7 +176,7 @@ return {
 				end
 			end
 			-- short stick
-			B:block(crop, v(0.28, 1.4, 0.28), c * CFrame.new(0, cy + capH / 2 + 0.6, 0), STICK)
+			B:block(crop, v(0.28, stickLen, 0.28), c * CFrame.new(0, cy + capH / 2 + stickLen / 2 - 0.1, 0), STICK)
 			if shine then
 				table.insert(shines, B:block(crop, v(0.28, 0.28, 0.1), c * CFrame.new(-s * 0.25, -s * 0.12, -s / 2 - 0.03), SHINE, { mat = "Neon", name = "AppleShine" }))
 			end
@@ -184,7 +185,7 @@ return {
 		-- 9 apples hung round the rim, sticks pushed up into the leaves
 		for i = 0, 8 do
 			local a = math.rad(i * 40 + 12)
-			local r = (i % 2 == 0) and 6.6 or 5.8
+			local r = (i % 2 == 0) and 6.4 or 5.4
 			local x, z = math.sin(a) * r, -math.cos(a) * r
 			local yb = crownBottom(x, z)
 			while not yb and r > 2 do
@@ -193,11 +194,19 @@ return {
 				yb = crownBottom(x, z)
 			end
 			local s = (i % 2 == 0) and 1.9 or 1.75
-			-- stick top (centre + offset) sits 0.45 inside the leaves
-			local capH = s * 0.46
-			local stickTop = s * 0.475 + 0.08 + 1.3
-			local y = yb + 0.45 - stickTop
-			caramelApple(CFrame.new(x, y, z) * ang(rnd(-5, 5), rnd(0, 90), rnd(-5, 5)), s, i == 5, i % 3 == 0)
+			-- hang below the lowest leaf over the apple's whole footprint
+			local low = yb
+			for _, o in { v(1, 0, 1), v(-1, 0, 1), v(1, 0, -1), v(-1, 0, -1) } do
+				local yy = crownBottom(x + o.X * s * 0.6, z + o.Z * s * 0.6)
+				if yy and yy < low then low = yy end
+			end
+			local capTop = s * 0.475 + 0.08
+			local y = low - 0.35 - capTop
+			-- keep sticks short: if the leaves straight above are far, lift the apple
+			y = math.max(y, yb + 0.45 - capTop - 1.7)
+			-- stick reaches 0.45 up into the leaves straight above
+			local stickLen = math.max(1.0, yb + 0.45 - (y + capTop) + 0.1)
+			caramelApple(CFrame.new(x, y, z) * ang(0, rnd(0, 90), 0), s, i == 5, i % 3 == 0, stickLen)
 		end
 		-- two fallen on the mound
 		caramelApple(cf(3.4, 1.4 + 0.85, -2.9, 0, 30, -16), 1.8, false, true)
