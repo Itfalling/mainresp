@@ -21,8 +21,8 @@ return {
 		local GRASS, GRASS_DK = "#5fcf3c", "#3fa82e"
 		local HAY, HAY_LT = "#e2b64a", "#f2d27a"
 		local BARK_DK, BARK, BARK_LT = "#4a2a1a", "#623822", "#7a4a2e"
-		local RUST, ORANGE, ORANGE_LT, AMBER, GOLD = "#b5301c", "#e5581c", "#f57d26", "#d9401e", "#f7c03c"
-		local APPLE, APPLE_DK = "#d81f2c", "#a3141f"
+		local RUST, ORANGE, ORANGE_LT, AMBER, GOLD = "#a8381c", "#e8621c", "#f7862a", "#f29a22", "#f7c43c"
+		local APPLE, APPLE_DK = "#d4142e", "#9c0c20"
 		local CAR, CAR_DK, CAR_LT = "#d39443", "#a8661f", "#ecbd6e"
 		local CHOC, CHOC_DK = "#5b3220", "#432415"
 		local STICK = "#ead2a0"
@@ -78,7 +78,7 @@ return {
 		local Y0 = 1.8
 		local crop = B:bone("Crop", "Root", v(0, Y0, 0))
 		local function seg(a, b, w, col)
-			local c, len = P.span(a, b)
+			local c, len = P.aim(a, b)
 			return B:block(crop, v(w, w, len + w * 0.7), c, col)
 		end
 		B:block(crop, v(3.6, 0.8, 3.6), cf(0, Y0 + 0.3, 0), BARK_DK)
@@ -114,13 +114,13 @@ return {
 		end
 		local center = leaf(0, 10.6, 0, 5.6, 8, 20, 6, ORANGE)
 		local inner = {}
-		local innerCols = { RUST, ORANGE_LT, AMBER, ORANGE, RUST, ORANGE_LT }
+		local innerCols = { RUST, ORANGE_LT, AMBER, ORANGE, ORANGE_LT, RUST }
 		for i = 0, 5 do
 			local a = math.rad(i * 60 + 10)
 			inner[i + 1] = leaf(math.sin(a) * 3.9, 10.1 + rnd(-0.3, 0.3), -math.cos(a) * 3.9, 4.3 + rnd(-0.2, 0.3), rnd(-18, 18), i * 60 + rnd(-20, 20), rnd(-18, 18), innerCols[i + 1])
 		end
 		local outer = {}
-		local outerCols = { ORANGE, RUST, AMBER, ORANGE_LT, RUST, ORANGE, GOLD, ORANGE_LT }
+		local outerCols = { ORANGE, RUST, AMBER, ORANGE_LT, ORANGE, RUST, GOLD, ORANGE_LT }
 		for i = 0, 7 do
 			local a = math.rad(i * 45 + 32)
 			outer[i + 1] = leaf(math.sin(a) * 6.3, 9.0 + rnd(-0.3, 0.3), -math.cos(a) * 6.3, 3.2 + rnd(-0.1, 0.3), rnd(-22, 22), rnd(0, 90), rnd(-22, 22), outerCols[i + 1])
@@ -135,15 +135,28 @@ return {
 		-- caramel glaze poured over the top cubes, dripping down their sides
 		local function glaze(e, col, colDk)
 			local s = e.s
-			B:block(crop, v(s + 0.1, 0.5, s + 0.1), e.cf * CFrame.new(0, s / 2 - 0.15, 0), col)
+			B:block(crop, v(s + 0.1, 0.42, s + 0.1), e.cf * CFrame.new(0, s / 2 - 0.12, 0), col)
 			for _, d in { { 1, 0.15, 1.1 }, { -1, -0.25, 0.7 } } do
 				B:block(crop, v(0.6, d[3], 0.24), e.cf * CFrame.new(d[2] * s, s / 2 - 0.3 - d[3] / 2 + 0.2, -d[1] * (s / 2 + 0.07)), colDk)
 			end
 			B:block(crop, v(0.24, 0.9, 0.6), e.cf * CFrame.new(s / 2 + 0.07, s / 2 - 0.55, 0.2 * s), colDk)
 		end
 		glaze(crownTop, CAR, CAR_DK)
+		local glints = {}
+		for _, g in { { crownTop, 0.5, -0.4 }, { top[1], -0.6, 0.5 }, { top[3], 0.4, 0.6 } } do
+			table.insert(glints, B:block(crop, v(0.3, 0.12, 0.3), g[1].cf * CFrame.new(g[2], g[1].s / 2 + 0.12, g[3]) * ang(0, 45, 0), "#fff1c2", { mat = "Neon", name = "SugarGlint" }))
+		end
 		glaze(top[1], CAR, CAR_DK)
 		glaze(top[3], CAR_LT, CAR)
+
+		-- caramel oozing down the trunk into a little stepped pool at its foot
+		B:block(crop, v(4.4, 0.24, 2.6), cf(0, Y0 + 0.08, 0, 0, 20, 0), CAR)
+		B:block(crop, v(2.4, 0.22, 4.2), cf(0.2, Y0 + 0.09, -0.2, 0, 20, 0), CAR)
+		B:block(crop, v(1.2, 0.2, 1.0), cf(2.3, Y0 + 0.1, -1.4, 0, 35, 0), CAR_LT)
+		B:block(crop, v(0.5, 2.6, 0.3), cf(0.4, Y0 + 5.2, -1.12, 0, 6, 0), CAR_DK)
+		B:block(crop, v(0.3, 1.6, 0.5), cf(-1.12, Y0 + 5.9, 0.3, 0, 6, 0), CAR_DK)
+		B:block(crop, v(0.5, 1.8, 0.3), cf(-0.3, Y0 + 2.6, -1.28, 0, 0, 0), CAR)
+		B:block(crop, v(0.7, 0.3, 0.5), cf(-0.3, Y0 + 1.66, -1.5, 0, 0, 0), CAR)
 
 		------------------------------------------------------- caramel apples
 		-- local frame: +Y = up along the stick. s = apple size.
@@ -208,7 +221,7 @@ return {
 
 		---------------------------------------------------------------- bling
 		B:emitter(shines[1], "sparkle", { name = "CaramelSparkle", color = { "#fff0c8", "#ffc75a" }, rate = 4, size = 0.35 })
-		B:emitter(shines[3] or shines[1], "sparkle", { name = "CaramelSparkle2", color = { "#ffd98a", "#ff9a4a" }, rate = 3, size = 0.3 })
+		B:emitter(glints[1], "sparkle", { name = "CaramelSparkle2", color = { "#ffd98a", "#ff9a4a" }, rate = 3, size = 0.3 })
 		B:emitter(B:block(crop, v(9, 0.2, 9), cf(0, Y0 + 7.0, 0), ORANGE, { tr = 1, name = "LeafFall" }), "leaf",
 			{ name = "AutumnLeaves", color = { "#f5862a", "#f9cc48", "#b8421c" }, rate = 1.5, size = 0.45 })
 		B:light(center.cf and B:block(crop, v(0.4, 0.4, 0.4), cf(0, Y0 + 6.6, 0), ORANGE, { tr = 1, name = "Lamp" }), { color = "#ffb35a", brightness = 1.0, range = 14, name = "WarmLight" })

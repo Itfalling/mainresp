@@ -224,7 +224,7 @@ return {
 		local tip = path[#path]
 		local moonC = CFrame.new(tip + v(0.6, -4.3, -0.1)) * ang(0, 0, -8)
 		local cell = 0.5
-		local RO, RI, IX, IY = 3.0, 2.85, 1.35, 0.0
+		local RO, RI, IX, IY = 3.3, 4.2, 3.0, 0.0
 		local moonParts = {}
 		local function inOuter(x, y)
 			return x * x + y * y <= RO * RO

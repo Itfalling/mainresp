@@ -72,7 +72,7 @@ return {
 		local crop = B:bone("Crop", "Root", v(0, 1.8, 0))
 		-- one block spanning a -> b (overlaps a little at both ends so chains don't gap)
 		local function seg(a, b, w, col, bone)
-			local c, len = P.span(a, b)
+			local c, len = P.aim(a, b)
 			return B:block(bone or crop, v(w, w, len + w * 0.7), c, col)
 		end
 		-- curly tendril: a shrinking spiral of thin segments

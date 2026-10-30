@@ -160,7 +160,7 @@ return {
 			for n = 1, #cuts - 1 do
 				local y0, y1 = cuts[n], cuts[n + 1]
 				local w = W * (1 - 0.3 * (y0 - BASEY) / (H - BASEY))
-				B:beam(crop, at(y0), at(y1 + 0.1), w, w, (n % 2 == 0) and STALK_LT or STALK)
+				B:bar(crop, at(y0), at(y1 + 0.1), w, w, (n % 2 == 0) and STALK_LT or STALK)
 				if n < #cuts - 1 then
 					local p = at(y1)
 					B:block(crop, v(w + 0.3, 0.35, w + 0.3), cf(p.X, p.Y, p.Z, 0, 10 * si, 0), STALK_DK)
@@ -183,7 +183,7 @@ return {
 				local pr = rad(pt)
 				local nxt = cur + dir * (math.cos(pr) * seg) + v(0, math.sin(pr) * seg, 0)
 				local d = (nxt - cur).Unit
-				B:beam(crop, cur - d * 0.3, nxt + d * 0.3, w * (1 - 0.2 * (i - 1)), 0.5, pal[i])
+				B:bar(crop, cur - d * 0.3, nxt + d * 0.3, w * (1 - 0.2 * (i - 1)), 0.5, pal[i])
 				cur = nxt
 			end
 		end
@@ -288,14 +288,14 @@ return {
 		for si, s in stalks do
 			if s[7] then
 				local top = stalkPt[si](s[3] - 0.3)
-				B:beam(crop, top - v(0, 0.3, 0), top + v(0, 2.4, 0), 0.5, 0.5, GOLD)
+				B:bar(crop, top - v(0, 0.3, 0), top + v(0, 2.4, 0), 0.5, 0.5, GOLD)
 				for k = 0, 3 do
 					local a = rad(k * 90 + si * 30)
 					local d = v(math.sin(a), 0, -math.cos(a))
 					local mid = top + v(0, 1.4, 0) + d * 1.0
 					local tip = mid + d * 0.8 - v(0, 0.9, 0)
-					B:beam(crop, top + v(0, 0.6, 0), mid + d * 0.1, 0.4, 0.4, (k % 2 == 0) and GOLD or GOLD_LT)
-					B:beam(crop, mid - d * 0.1, tip, 0.34, 0.34, (k % 2 == 0) and GOLD_LT or GOLD)
+					B:bar(crop, top + v(0, 0.6, 0), mid + d * 0.1, 0.4, 0.4, (k % 2 == 0) and GOLD or GOLD_LT)
+					B:bar(crop, mid - d * 0.1, tip, 0.34, 0.34, (k % 2 == 0) and GOLD_LT or GOLD)
 				end
 				table.insert(tips, B:block(crop, v(0.36, 0.36, 0.36), CFrame.new(top + v(0, 2.7, 0)) * CFrame.Angles(rad(45), rad(45), 0), GLINT, { mat = "Neon", name = "TasselGlint" .. si }))
 			end

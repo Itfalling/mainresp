@@ -145,8 +145,8 @@ return {
 		end
 		-- fallen leaves scattered on the mound
 		local FALL = { LF_OR, LF_RED, LF_GOLD, LF_OR_DK }
-		for i = 1, 12 do
-			local a = i * 30 + jit(10)
+		for i = 1, 8 do
+			local a = i * 45 + jit(10)
 			local r = 3.4 + rnd() * 4.2
 			local x, z = polar(r, a)
 			local y = (r > 6.0) and 1.96 or (r > 3.7 and 1.96 or 2.66)
@@ -181,8 +181,8 @@ return {
 			local x1, z1 = polar(2.2, a)
 			local x2, z2 = polar(4.4, a + 12)
 			local x3, z3 = polar(5.6, a + 20)
-			B:beam(crop, v(x1, BASE + 0.9, z1), v(x2, BASE - 0.2, z2), 1.3, 1.0, (k % 2 == 0) and BARK or BARK_DK)
-			B:beam(crop, v(x2, BASE - 0.1, z2), v(x3, 1.6, z3), 0.95, 0.8, BARK_DK)
+			B:bar(crop, v(x1, BASE + 0.9, z1), v(x2, BASE - 0.2, z2), 1.3, 1.0, (k % 2 == 0) and BARK or BARK_DK)
+			B:bar(crop, v(x2, BASE - 0.1, z2), v(x3, 1.6, z3), 0.95, 0.8, BARK_DK)
 		end
 		-- twisting column: each block yawed further, wandering slightly
 		local col = {
@@ -205,7 +205,7 @@ return {
 				local x, z = polar(rr, deg)
 				local p = v(x, BASE + 1.4 + t * 8.6, z)
 				if prev then
-					B:beam(crop, prev, p, 0.7, 0.7, BARK_DK)
+					B:bar(crop, prev, p, 0.7, 0.7, BARK_DK)
 				end
 				prev = p
 			end
@@ -226,8 +226,8 @@ return {
 			local x1, z1 = polar(b[3], b[1] + 12)
 			local x2, z2 = polar(b[5], b[1] - 6)
 			local p0, p1, p2 = v(x0, BASE + b[2], z0), v(x1, b[4], z1), v(x2, b[6], z2)
-			B:beam(crop, p0, p1, 1.6, 1.6, BARK)
-			B:beam(crop, p1, p2, 1.2, 1.2, BARK_LT)
+			B:bar(crop, p0, p1, 1.6, 1.6, BARK)
+			B:bar(crop, p1, p2, 1.2, 1.2, BARK_LT)
 		end
 
 		------------------------------------------------------------------
@@ -255,9 +255,9 @@ return {
 			{ 252, 4.1, 17.6, 5.6, LF_OR },
 			{ 324, 4.0, 17.9, 5.5, LF_RED },
 			{ 0, 0.0, 15.6, 6.4, LF_OR_DK },
-			{ 70, 2.2, 20.2, 4.8, LF_GOLD_LT },
-			{ 190, 2.1, 20.0, 5.0, LF_RED },
-			{ 300, 2.0, 20.4, 4.6, LF_OR },
+			{ 70, 2.2, 19.4, 4.8, LF_GOLD_LT },
+			{ 190, 2.1, 19.2, 5.0, LF_RED },
+			{ 300, 2.0, 19.6, 4.6, LF_OR },
 		}
 		local cubes = {}
 		for _, c in leafDefs do
@@ -267,7 +267,7 @@ return {
 		end
 
 		-- half-sunk jack-o'-lanterns peeking out of the crown
-		local sunk = { { 1, 0.4, "happy", 2.0 }, { 3, 0.2, "cheeky", 1.9 }, { 5, -0.1, "wink", 1.9 }, { 14, 1.0, "happy", 1.7 }, { 16, 0.8, "wink", 1.7 }, { 9, 0.2, "happy", 1.5 } }
+		local sunk = { { 1, 0.6, "happy", 2.1 }, { 3, 0.4, "cheeky", 2.0 }, { 5, 0.3, "wink", 2.0 }, { 14, 1.2, "happy", 1.8 } }
 		for k, sd in sunk do
 			local c = cubes[sd[1]]
 			local a = rad(c.deg)
@@ -282,12 +282,12 @@ return {
 		------------------------------------------------------------------
 		local hang = {
 			-- deg, r, top y, vine length, size, kind
-			{ 15, 5.6, 11.9, 2.0, 2.5, "happy" },
-			{ 75, 6.4, 12.1, 1.6, 2.2, "wink" },
-			{ 135, 5.4, 11.8, 2.2, 2.4, "cheeky" },
-			{ 195, 6.2, 12.0, 1.7, 2.3, "happy" },
-			{ 255, 5.6, 11.9, 2.1, 2.5, "wink" },
-			{ 315, 6.3, 12.1, 1.6, 2.2, "happy" },
+			{ 10, 6.6, 12.0, 2.6, 2.9, "happy" },
+			{ 70, 7.2, 12.2, 1.9, 2.5, "wink" },
+			{ 130, 6.4, 11.9, 2.8, 2.8, "cheeky" },
+			{ 190, 7.0, 12.1, 2.0, 2.6, "happy" },
+			{ 250, 6.6, 12.0, 2.7, 2.9, "wink" },
+			{ 310, 7.2, 12.2, 1.9, 2.5, "happy" },
 		}
 		local lanternGlow
 		for k, h in hang do
@@ -313,7 +313,7 @@ return {
 		------------------------------------------------------------------
 		-- TOPPER: a jack-o'-lantern in a little purple witch hat
 		------------------------------------------------------------------
-		local TOPY = 22.6
+		local TOPY = 21.3
 		do
 			local C = facing(0, TOPY, 0, -10)
 			local top = jack(canopy, C, 2.6, "cheeky", "TopFace")
