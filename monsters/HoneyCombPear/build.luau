@@ -154,11 +154,13 @@ return {
 			local top = base + v(0.5, 2.3, -0.35)
 			B:bar(soil, base, top, 0.25, 0.25, DIP, S)
 			local d = (top - base).Unit
-			local hc = CFrame.lookAt(base + d * 0.55, base + d * 2) * CFrame.Angles(rad(90), 0, 0)
+			local o = top - d * 0.9
+			local ac = P.aim(o, o + d)
+			local hc = CFrame.new(o) * (ac - ac.Position) * CFrame.Angles(-math.pi / 2, 0, 0)
 			for k = 0, 2 do
 				B:block(soil, v(0.62, 0.2, 0.62), hc * CFrame.new(0, -0.2 + k * 0.32, 0) * ang(0, k * 30, 0), (k == 1) and DIP_DK or DIP, S)
 			end
-			B:block(soil, v(0.45, 0.45, 0.45), hc * CFrame.new(0, 0.95, 0), HONEY_LT, S)
+			B:block(soil, v(0.45, 0.45, 0.45), hc * CFrame.new(0, -0.55, 0.0) * ang(0, 45, 0), HONEY_LT, S)
 		end
 
 		------------------------------------------------------------------
@@ -172,7 +174,7 @@ return {
 			{ 2.5, TOP + 0.9, 2.0, 0.1, 0.0, -8, BARK },
 			{ 2.2, TOP + 2.8, 2.0, 0.25, 0.1, 15, BARK_LT },
 			{ 2.0, TOP + 4.7, 2.0, 0.1, 0.15, -5, BARK },
-			{ 1.8, TOP + 6.6, 2.4, -0.1, 0.0, 20, BARK_LT },
+			{ 1.8, TOP + 6.6, 1.6, -0.1, 0.0, 20, BARK_LT },
 		}
 		for _, c in col do
 			B:block(crop, v(c[1], c[3], c[1]), cf(c[4], c[2] + c[3] / 2, c[5], 0, c[6], 0), c[7])
@@ -186,6 +188,7 @@ return {
 			B:bar(crop, pv(1.0, a, TOP + 0.8), pv(2.5, a + 8, TOP - 0.2), 1.0, 0.8, (k % 2 == 0) and BARK or BARK_DK)
 			B:bar(crop, pv(2.4, a + 8, TOP - 0.15), pv(3.5, a + 14, TOP - 0.8), 0.7, 0.6, BARK_DK)
 		end
+		local T2 = TOP - 0.8 -- canopy level (keeps the Legendary a notch shorter than the Mythic)
 
 		------------------------------------------------------------------
 		-- HONEYCOMB PEARS: stacked hex prisms, staggered amber cells,
@@ -223,11 +226,11 @@ return {
 		-- five branches fanning out under the canopy, a big pear on each
 		local LOWB = {
 			-- deg, start y, elbow r/y, tip r/y
-			{ 15, TOP + 5.9, 2.7, TOP + 7.0, 5.3, TOP + 7.7 },
-			{ 87, TOP + 6.5, 2.8, TOP + 7.6, 5.4, TOP + 8.3 },
-			{ 160, TOP + 6.1, 2.7, TOP + 7.2, 5.3, TOP + 7.9 },
-			{ 232, TOP + 6.6, 2.8, TOP + 7.7, 5.4, TOP + 8.4 },
-			{ 304, TOP + 6.2, 2.7, TOP + 7.3, 5.2, TOP + 8.0 },
+			{ 15, T2 + 5.9, 2.7, T2 + 7.0, 5.3, T2 + 7.7 },
+			{ 87, T2 + 6.5, 2.8, T2 + 7.6, 5.4, T2 + 8.3 },
+			{ 160, T2 + 6.1, 2.7, T2 + 7.2, 5.3, T2 + 7.9 },
+			{ 232, T2 + 6.6, 2.8, T2 + 7.7, 5.4, T2 + 8.4 },
+			{ 304, T2 + 6.2, 2.7, T2 + 7.3, 5.2, T2 + 8.0 },
 		}
 		for i, b in LOWB do
 			local p0 = pv(0.5, b[1], b[2])
@@ -247,9 +250,9 @@ return {
 		------------------------------------------------------------------
 		local rings = {
 			-- y, r, n, size, yaw offset, colours
-			{ TOP + 8.9, 2.7, 6, 3.3, 30, { LF_DK, LF, LF_DK } },
-			{ TOP + 10.6, 3.2, 7, 3.5, 0, { LF, LF_MID, LF_DK } },
-			{ TOP + 12.3, 2.5, 5, 3.2, 20, { LF_MID, LF, LF_LT } },
+			{ T2 + 8.9, 2.7, 6, 3.3, 30, { LF_DK, LF, LF_DK } },
+			{ T2 + 10.6, 3.2, 7, 3.5, 0, { LF, LF_MID, LF_DK } },
+			{ T2 + 12.3, 2.5, 5, 3.2, 20, { LF_MID, LF, LF_LT } },
 		}
 		local cubes = {}
 		for ri, r in rings do
@@ -260,9 +263,9 @@ return {
 				table.insert(cubes, { p = p, s = r[4], deg = deg, ring = ri })
 			end
 		end
-		B:block(crop, v(4.2, 3.8, 4.2), cf(0, TOP + 10.0, 0, 8, 20, -6), LF_DK)
-		B:block(crop, v(4.0, 3.6, 4.0), cf(0, TOP + 12.0, 0, -6, 50, 10), LF)
-		for _, c in { { 60, 2.0, TOP + 13.5, 1.7 }, { 180, 2.1, TOP + 13.3, 1.8 }, { 300, 1.9, TOP + 13.6, 1.6 } } do
+		B:block(crop, v(4.2, 3.8, 4.2), cf(0, T2 + 10.0, 0, 8, 20, -6), LF_DK)
+		B:block(crop, v(4.0, 3.6, 4.0), cf(0, T2 + 12.0, 0, -6, 50, 10), LF)
+		for _, c in { { 60, 2.0, T2 + 13.5, 1.7 }, { 180, 2.1, T2 + 13.3, 1.8 }, { 300, 1.9, T2 + 13.6, 1.6 } } do
 			B:block(crop, v(c[4], c[4], c[4]), CFrame.new(pv(c[2], c[1], c[3])) * ang(jit(15), rnd() * 90, jit(15)), LF_TOP)
 		end
 		-- pink pear blossoms dotted over the leaves
@@ -278,14 +281,14 @@ return {
 			end
 		end
 		-- two smaller pears peeking out of the canopy
-		pear(pv(3.9, 125, TOP + 11.7), 125, 0.85, false)
-		pear(pv(3.9, 270, TOP + 11.9), 270, 0.85, false)
+		pear(pv(3.9, 125, T2 + 11.7), 125, 0.85, false)
+		pear(pv(3.9, 270, T2 + 11.9), 270, 0.85, false)
 
 		------------------------------------------------------------------
 		-- HONEYCOMB CROWN: ring of stepped hex cells around the top pear,
 		-- honey oozing over the leaves
 		------------------------------------------------------------------
-		local CY = TOP + 13.9
+		local CY = T2 + 13.9
 		local cellR = 1.0
 		hex(crop, CFrame.new(0, CY - 0.15, 0), 2.0, 0.6, WAX_DK)
 		for i = 0, 5 do
@@ -325,8 +328,8 @@ return {
 				B:block(crop, v(0.7, 0.08, 0.5), F * CFrame.new(sgn * 0.48, 0.6, -0.05) * ang(0, 0, sgn * 25), WING, { tr = 0.25 })
 			end
 		end
-		bee(pv(7.0, 50, TOP + 9.6), 75, -8)
-		bee(pv(5.6, 215, TOP + 14.6), 255, 6)
+		bee(pv(7.0, 50, T2 + 9.6), 75, -8)
+		bee(pv(5.6, 215, T2 + 14.6), 255, 6)
 
 		------------------------------------------------------------------
 		-- VFX: honey drips from the pears, golden pollen sparkles
@@ -337,7 +340,7 @@ return {
 				B:emitter(z, "drip", { name = "HoneyDrip" .. i, color = { "#ffc23a", "#ff9a14" }, rate = 0.9 + (i % 2) * 0.3, size = { 0.34, 0.3, 0.16 }, life = { 0.5, 0.75 } })
 			end
 		end
-		local motes = B:block(crop, v(11, 8, 11), cf(0, TOP + 11.0, 0), LF, { tr = 1, name = "PollenZone" })
+		local motes = B:block(crop, v(11, 8, 11), cf(0, T2 + 11.0, 0), LF, { tr = 1, name = "PollenZone" })
 		B:emitter(motes, "sparkle", { name = "PollenSparkle", color = { "#ffe57a", "#fff6c8", "#ffb0d0" }, rate = 5, size = { 0.15, 0.45, 0.05 }, life = { 1.4, 2.6 }, speed = { 0.2, 0.6 } })
 	end,
 }

@@ -139,7 +139,7 @@ return {
 		end
 		-- little honey puddle under a nectar pod
 		do
-			local px, pz = -3.4, -4.3
+			local px, pz = -3.75, -3.9
 			B:block(soil, v(1.9, 0.14, 1.3), cf(px, 0.94, pz, 0, -15, 0), HONEY, S)
 			B:block(soil, v(1.2, 0.16, 1.7), cf(px - 0.1, 0.95, pz, 0, 10, 0), HONEY, S)
 			B:block(soil, v(0.6, 0.17, 0.45), cf(px + 0.2, 0.97, pz + 0.1, 0, -15, 0), HONEY_LT, S)
@@ -163,13 +163,13 @@ return {
 		-- rounded bush body of rotated sage leaf cubes
 		for i = 0, 6 do
 			local deg = i * 360 / 7 + jit(8)
-			local sz = 1.9 + rnd() * 0.4
-			B:block(crop, v(sz, sz * 0.85, sz), CFrame.new(pv(1.75 + jit(0.15), deg, TOP + 0.55 + jit(0.15))) * ang(jit(15), rnd() * 90, jit(15)), (i % 3 == 0) and SAGE_DK or ((i % 3 == 1) and SAGE or SAGE_LT))
+			local sz = 2.2 + rnd() * 0.4
+			B:block(crop, v(sz, sz * 0.85, sz), CFrame.new(pv(2.0 + jit(0.15), deg, TOP + 0.6 + jit(0.15))) * ang(jit(15), rnd() * 90, jit(15)), (i % 3 == 0) and SAGE_DK or ((i % 3 == 1) and SAGE or SAGE_LT))
 		end
 		for i = 0, 4 do
 			local deg = i * 72 + 30 + jit(8)
-			local sz = 1.6 + rnd() * 0.3
-			B:block(crop, v(sz, sz, sz), CFrame.new(pv(1.0, deg, TOP + 1.7 + jit(0.15))) * ang(jit(15), rnd() * 90, jit(15)), (i % 2 == 0) and SAGE_LT or SAGE_XL)
+			local sz = 1.8 + rnd() * 0.3
+			B:block(crop, v(sz, sz, sz), CFrame.new(pv(1.15, deg, TOP + 1.9 + jit(0.15))) * ang(jit(15), rnd() * 90, jit(15)), (i % 2 == 0) and SAGE_LT or SAGE_XL)
 		end
 		-- narrow silvery blades sticking out of the clump
 		for i = 0, 9 do
@@ -257,7 +257,7 @@ return {
 		pod(95, TOP + 7.0, 4.1, 2.8, 1.0)
 		pod(165, TOP + 4.6, 4.5, 3.0, 1.1)
 		pod(235, TOP + 6.6, 4.2, 2.9, 1.0)
-		pod(305, TOP + 4.9, 4.4, 3.1, 1.1)
+		pod(305, TOP + 4.9, 5.0, 3.1, 1.1)
 		pod(345, TOP + 8.6, 3.4, 2.4, 0.85)
 
 		------------------------------------------------------------------
@@ -286,7 +286,7 @@ return {
 			local z = B:block(crop, v(0.4, 0.4, 0.4), CFrame.new(pd.core), NECTAR, { tr = 1, name = "PodGlowZone" .. i })
 			B:emitter(z, "glow", { name = "NectarGlow" .. i, color = { "#ffe27a", "#ffc23a" }, rate = 1.2, size = { 1.6, 2.4, 0 }, trans = { 0.7, 0.6, 1 } })
 		end
-		for i, idx in { 3, 4 } do
+		for i, idx in { 5, 2 } do
 			local pd = pods[idx]
 			local z = B:block(crop, v(0.3, 0.2, 0.3), CFrame.new(pd.drop - v(0, 0.25, 0)), HONEY, { tr = 1, name = "NectarDripZone" .. i })
 			B:emitter(z, "drip", { name = "NectarDrip" .. i, color = { "#ffd24a", "#ffa318" }, rate = 1.0, size = { 0.32, 0.28, 0.14 }, life = { 0.55, 0.8 } })

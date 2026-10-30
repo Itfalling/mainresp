@@ -321,8 +321,8 @@ return {
 
 		---------------------------------------------------------------- fx
 		local zone = B:block(crop, v(10, 6, 5), cf(0, AY + 2.2, 0), HONEY, { tr = 1, name = "PollenZone" })
-		B:emitter(zone, "sparkle", { name = "PollenSparkle", color = { "#fff6b0", "#ffc94a", "#ff9fc8" }, rate = 5, size = { 0.18, 0.45, 0 }, life = { 1.4, 2.4 }, speed = { 0.2, 0.6 }, accel = { 0, 0.3, 0 } })
+		B:emitter(zone, "sparkle", { name = "PollenSparkle", color = { "#fff6b0", "#ffc94a", "#ff9fc8" }, rate = 5, size = { 0.22, 0.55, 0 }, life = { 1.4, 2.4 }, speed = { 0.2, 0.6 }, accel = { 0, 0.3, 0 } })
 		local zone2 = B:block(crop, v(10, 7, 4), cf(0, 7.5, 0), HONEY, { tr = 1, name = "PollenZone2" })
-		B:emitter(zone2, "sparkle", { name = "PollenSparkle2", color = { "#fff6b0", "#ffd25a" }, rate = 2.5, size = { 0.12, 0.35, 0 }, life = { 1.2, 2.0 }, speed = { 0.1, 0.4 } })
+		B:emitter(zone2, "sparkle", { name = "PollenSparkle2", color = { "#fff6b0", "#ffd25a" }, rate = 2.5, size = { 0.16, 0.42, 0 }, life = { 1.2, 2.0 }, speed = { 0.1, 0.4 } })
 	end,
 }

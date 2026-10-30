@@ -33,7 +33,6 @@ return {
 		local SPOT = "#4a2a80"
 		local PEARL, PEARL_PK, PEARL_CY, PEARL_SH = "#f4f0ff", "#ffd2ea", "#c8f4ff", "#ddd4f4"
 		local POD_DK, POD, POD_IN = "#1f4f45", "#2f7560", "#e3d8ff"
-		local MIST, MIST2 = "#efeaff", "#dcf2ff"
 		local GLOW, GLOW_LT = "#7ff0ff", "#d8fffb"
 		local NEON = { mat = "Neon" }
 
@@ -201,26 +200,21 @@ return {
 			B:block(crop, v(2.9 * k, 0.55 * k, 2.5 * k), c * CFrame.new(0, 1.05 * k, 0), POD)
 			B:block(crop, v(3.0 * k, 0.2 * k, 0.3 * k), c * CFrame.new(0, 1.15 * k, -1.2 * k), VIO_MD)
 			B:block(crop, v(2.5 * k, 0.2 * k, 2.1 * k), c * CFrame.new(0, 1.36 * k, 0), POD_IN)
-			-- lid hinged at the back, lifted open
+			-- lid hinged at the back, lifted open: stepped shell with fanned ribs
 			local hinge = c * CFrame.new(0, 1.3 * k, 1.2 * k) * CFrame.Angles(rad(open), 0, 0)
-			B:block(crop, v(2.9 * k, 0.5 * k, 2.5 * k), hinge * CFrame.new(0, 0.25 * k, -1.2 * k), POD)
-			B:block(crop, v(2.1 * k, 0.45 * k, 1.7 * k), hinge * CFrame.new(0, 0.65 * k, -1.2 * k), POD_DK)
+			B:block(crop, v(2.9 * k, 0.45 * k, 2.5 * k), hinge * CFrame.new(0, 0.22 * k, -1.2 * k), POD)
+			B:block(crop, v(2.3 * k, 0.4 * k, 2.0 * k), hinge * CFrame.new(0, 0.6 * k, -1.1 * k), POD_DK)
+			B:block(crop, v(1.4 * k, 0.35 * k, 1.2 * k), hinge * CFrame.new(0, 0.9 * k, -0.9 * k), POD)
 			B:block(crop, v(2.5 * k, 0.12 * k, 2.1 * k), hinge * CFrame.new(0, -0.02 * k, -1.2 * k), POD_IN)
-			B:block(crop, v(0.3 * k, 0.2 * k, 2.6 * k), hinge * CFrame.new(0.7 * k, 0.88 * k, -1.2 * k), VIO_MD)
-			B:block(crop, v(0.3 * k, 0.2 * k, 2.6 * k), hinge * CFrame.new(-0.7 * k, 0.88 * k, -1.2 * k), VIO_MD)
+			for j = -1, 1 do
+				local r = hinge * CFrame.new(0, 0, -0.1 * k) * CFrame.Angles(0, rad(j * 28), 0)
+				B:block(crop, v(0.28 * k, 0.22 * k, 2.4 * k), r * CFrame.new(0, 0.5 * k - math.abs(j) * 0.18 * k, -1.2 * k), VIO_MD)
+			end
+			B:block(crop, v(3.0 * k, 0.22 * k, 0.32 * k), hinge * CFrame.new(0, 0.15 * k, -2.4 * k), VIO_MD)
 			-- pearls
 			pearl(c * CFrame.new(0, 2.05 * k, 0.1 * k), 1.35 * k, PEARL)
 			pearl(c * CFrame.new(0.95 * k, 1.75 * k, -0.45 * k) * ang(0, 20, 0), 0.8 * k, PEARL_PK)
 			pearl(c * CFrame.new(-0.9 * k, 1.72 * k, -0.35 * k) * ang(0, -15, 0), 0.72 * k, PEARL_CY)
-		end
-
-		-- stylized mist puff: soft translucent stepped cloud
-		local function puff(bone, c, sc, col, opts)
-			local o = opts or {}
-			o.tr = 0.5
-			B:block(bone, v(2.4 * sc, 0.8 * sc, 1.6 * sc), c, col, o)
-			B:block(bone, v(1.5 * sc, 0.75 * sc, 1.3 * sc), c * CFrame.new(-0.3 * sc, 0.5 * sc, 0.1 * sc), col, o)
-			B:block(bone, v(1.3 * sc, 0.6 * sc, 1.9 * sc), c * CFrame.new(0.8 * sc, 0.15 * sc, 0.2 * sc), col, o)
 		end
 
 		---------------------------------------------------------------- main stem + giant lily
@@ -247,69 +241,81 @@ return {
 		stemLeaf(mainPts[3], 100, 3.8, 1.35, LF_DK, LF)
 		stemLeaf(mainPts[4], 300, 3.0, 1.15, LF, LF_LT)
 
-		local FB = mainPts[#mainPts]
-		local Fr = CFrame.new(FB) * CFrame.Angles(rad(-12), rad(10), 0)
-		-- receptacle
-		B:block(crop, v(1.8, 0.9, 1.8), Fr * CFrame.new(0, 0.2, 0) * ang(0, 45, 0), STM_DK)
-		B:block(crop, v(2.4, 0.8, 2.4), Fr * CFrame.new(0, 0.85, 0), LF_DK)
-		-- green sepals under the petals
-		for i = 0, 5 do
-			local q = Fr * CFrame.Angles(0, rad(i * 60 + 30), 0)
-			B:bar(crop, (q * CFrame.new(0, 0.6, -0.7)).Position, (q * CFrame.new(0, 1.3, -2.4)).Position, 1.2, 0.34, LF, { up = (q * CFrame.new(0, 0, -1)).Position - q.Position })
-		end
-		-- throat: deep violet tube with a glowing heart
-		B:block(crop, v(2.4, 1.6, 2.4), Fr * CFrame.new(0, 1.7, 0), VIO_DK)
-		B:block(crop, v(1.9, 0.3, 1.9), Fr * CFrame.new(0, 2.5, 0) * ang(0, 45, 0), "#24164a")
-		local throat = B:block(crop, v(1.2, 0.8, 1.2), Fr * CFrame.new(0, 2.6, 0), GLOW, { mat = "Neon", name = "ThroatGlow" })
-		-- six recurved petals (3 outer + 3 inner)
-		local tips = {}
-		local function petal(a, s, inner)
-			local q = Fr * CFrame.Angles(0, rad(a), 0)
-			local SR, SY = 1.35 * s, 1.22 * s
-			local function P3(r, y)
-				return (q * CFrame.new(0, y * SY, -r * SR)).Position
+		-- LILY BLOOM. Fr: frame at the receptacle (+Y = opening), g: scale,
+		-- main: the giant hero bloom (glowing veins, pearl drips, more stamens)
+		local function lily(Fr, g, main)
+			B:block(crop, v(1.8 * g, 0.9 * g, 1.8 * g), Fr * CFrame.new(0, 0.2 * g, 0) * ang(0, 45, 0), STM_DK)
+			B:block(crop, v(2.4 * g, 0.8 * g, 2.4 * g), Fr * CFrame.new(0, 0.85 * g, 0), LF_DK)
+			for i = 0, 5 do
+				local q = Fr * CFrame.Angles(0, rad(i * 60 + 30), 0)
+				B:bar(crop, (q * CFrame.new(0, 0.6 * g, -0.7 * g)).Position, (q * CFrame.new(0, 1.3 * g, -2.4 * g)).Position, 1.2 * g, 0.34 * g, LF, { up = (q * CFrame.new(0, 0, -1)).Position - q.Position })
 			end
-			local out = (q * CFrame.new(0, 0, -1)).Position - q.Position
-			local p0, p1, p2, p3, p4 = P3(0.7, 1.3), P3(1.45, 3.3), P3(2.75, 5.0), P3(4.05, 5.45), P3(4.85, 4.5)
-			B:bar(crop, p0, p1, 1.9 * s, 0.5, VIO_MD, { up = out })
-			B:bar(crop, p1 - (p1 - p0).Unit * 0.25, p2, 3.0 * s, 0.48, inner and PET_LT or PET, { up = out })
-			B:bar(crop, p2 - (p2 - p1).Unit * 0.25, p3, 2.6 * s, 0.46, PET_LT, { up = out })
-			B:bar(crop, p3 - (p3 - p2).Unit * 0.25, p4, 1.5 * s, 0.44, PET_HI, { up = out })
-			-- paler inner layer + darker outer layer for a stepped, chunky petal
-			B:bar(crop, p1:Lerp(p2, 0.1) - out * 0.22, p2:Lerp(p3, 0.4) - out * 0.22, 1.7 * s, 0.2, PET_HI, { up = out })
-			B:bar(crop, p0:Lerp(p1, 0.4) + out * 0.24, p1:Lerp(p2, 0.6) + out * 0.24, 1.9 * s, 0.2, VIO, { up = out })
-			-- violet spots on the inner face
-			local f = CFrame.lookAt(p1:Lerp(p2, 0.35), p1:Lerp(p2, 0.35) + out)
-			B:block(crop, v(0.45 * s, 0.45 * s, 0.3), f * CFrame.new(0.55 * s, 0.1, 0.36), SPOT)
-			B:block(crop, v(0.4 * s, 0.4 * s, 0.3), f * CFrame.new(-0.6 * s, -0.3, 0.36), SPOT)
-			-- dark midrib
-			B:bar(crop, p0:Lerp(p1, 0.3) - out * 0.2, p2:Lerp(p3, 0.2) - out * 0.2, 0.3 * s, 0.22, VIO, { up = out })
-			table.insert(tips, { p4, out })
+			-- throat: deep violet tube with a glowing heart
+			B:block(crop, v(2.4 * g, 1.6 * g, 2.4 * g), Fr * CFrame.new(0, 1.7 * g, 0), VIO_DK)
+			B:block(crop, v(1.9 * g, 0.3 * g, 1.9 * g), Fr * CFrame.new(0, 2.5 * g, 0) * ang(0, 45, 0), "#24164a")
+			local heart = B:block(crop, v(1.2 * g, 0.8 * g, 1.2 * g), Fr * CFrame.new(0, 2.6 * g, 0), GLOW, { mat = "Neon", name = main and "ThroatGlow" or "BudGlow" })
+			-- six recurved petals (3 outer + 3 inner)
+			local tips = {}
+			local function petal(a, s, inner)
+				local q = Fr * CFrame.Angles(0, rad(a), 0)
+				local SR, SY = 1.35 * s * g, 1.22 * s * g
+				local function P3(r, y)
+					return (q * CFrame.new(0, y * SY, -r * SR)).Position
+				end
+				local out = (q * CFrame.new(0, 0, -1)).Position - q.Position
+				local p0, p1, p2, p3, p4 = P3(0.7, 1.3), P3(1.45, 3.3), P3(2.75, 5.0), P3(4.05, 5.45), P3(4.85, 4.5)
+				local t = 0.5 * math.max(g, 0.7)
+				local w = s * g
+				B:bar(crop, p0, p1, 1.9 * w, t, VIO_MD, { up = out })
+				B:bar(crop, p1 - (p1 - p0).Unit * 0.25, p2, 3.0 * w, t * 0.96, inner and PET_LT or PET, { up = out })
+				B:bar(crop, p2 - (p2 - p1).Unit * 0.25, p3, 2.3 * w, t * 0.92, PET_LT, { up = out })
+				B:bar(crop, p3 - (p3 - p2).Unit * 0.25, p4, 1.2 * w, t * 0.88, PET_HI, { up = out })
+				B:bar(crop, p4 - (p4 - p3).Unit * 0.2, p4 + (p4 - p3).Unit * 0.5 * g - v(0, 0.35 * g, 0), 0.6 * w, t * 0.8, PET_HI, { up = out })
+				-- darker outer layer at the base for a stepped, chunky petal
+				B:bar(crop, p0:Lerp(p1, 0.4) + out * 0.24 * g, p1:Lerp(p2, 0.6) + out * 0.24 * g, 1.9 * w, 0.2, VIO, { up = out })
+				if main then
+					-- violet spots + a glowing vein on the inner face
+					local f = P.aim(p1:Lerp(p2, 0.35), p1:Lerp(p2, 0.35) + out)
+					B:block(crop, v(0.45 * w, 0.45 * w, 0.3), f * CFrame.new(0.6 * w, 0.1, 0.3), SPOT)
+					B:block(crop, v(0.4 * w, 0.4 * w, 0.3), f * CFrame.new(-0.65 * w, -0.4, 0.3), SPOT)
+					B:bar(crop, p0:Lerp(p1, 0.5) - out * 0.22, p2:Lerp(p3, 0.3) - out * 0.22, 0.2, 0.14, GLOW, { up = out, mat = "Neon", name = "PetalVein" })
+				end
+				table.insert(tips, { p4, out })
+			end
+			for i = 0, 2 do
+				petal(i * 120, 1.15, false)
+				petal(i * 120 + 60, 1.0, true)
+			end
+			-- stamens with pearl anthers + a central glowing pistil
+			for i = 0, 5 do
+				local q = Fr * CFrame.Angles(0, rad(i * 60 + 30), 0)
+				local a = (q * CFrame.new(0, 2.4 * g, -0.3 * g)).Position
+				local b = (q * CFrame.new(0, 5.2 * g, -1.3 * g)).Position
+				local c = (q * CFrame.new(0, 6.5 * g, -2.3 * g)).Position
+				B:bar(crop, a, b, 0.24 * math.max(g, 0.7), 0.24 * math.max(g, 0.7), PET_HI)
+				if main then
+					B:bar(crop, b, c, 0.22, 0.22, PET_HI)
+					pearl(CFrame.new(c) * CFrame.Angles(0, rad(i * 60), 0), 0.7, PCOLS[i % 3 + 1])
+				else
+					B:block(crop, v(0.4, 0.4, 0.4), CFrame.new(b) * ang(0, 45, 0), PEARL)
+				end
+			end
+			B:bar(crop, (Fr * CFrame.new(0, 2.4 * g, 0)).Position, (Fr * CFrame.new(0, 6.8 * g, 0)).Position, 0.4 * g, 0.4 * g, GLOW_LT)
+			local pistil = B:block(crop, v(0.7 * g, 0.7 * g, 0.7 * g), Fr * CFrame.new(0, 7.0 * g, 0) * ang(45, 0, 45), GLOW, { mat = "Neon", name = main and "PistilGlow" or "BudPistil" })
+			if main then
+				-- pearl seeds dripping from the outer petal tips
+				for i = 1, #tips, 2 do
+					local tip, out = tips[i][1], tips[i][2]
+					local t0 = tip + out * 0.15 - v(0, 0.2, 0)
+					local t1 = t0 - v(0, 1.0, 0)
+					B:bar(crop, t0, t1, 0.14, 0.14, PET_HI)
+					pearl(CFrame.new(t1 - v(0, 0.35, 0)), 0.65, PCOLS[(i + 1) // 2 % 3 + 1])
+				end
+			end
+			return heart, pistil
 		end
-		for i = 0, 2 do
-			petal(i * 120, 1.15, false)
-			petal(i * 120 + 60, 1.0, true)
-		end
-		-- stamens with pearl anthers + a central glowing pistil
-		for i = 0, 5 do
-			local q = Fr * CFrame.Angles(0, rad(i * 60 + 30), 0)
-			local a = (q * CFrame.new(0, 2.4, -0.3)).Position
-			local b = (q * CFrame.new(0, 5.2, -1.3)).Position
-			local c = (q * CFrame.new(0, 6.5, -2.3)).Position
-			B:bar(crop, a, b, 0.24, 0.24, PET_HI)
-			B:bar(crop, b, c, 0.22, 0.22, PET_HI)
-			pearl(CFrame.new(c) * CFrame.Angles(0, rad(i * 60), 0), 0.7, PCOLS[i % 3 + 1])
-		end
-		B:bar(crop, (Fr * CFrame.new(0, 2.4, 0)).Position, (Fr * CFrame.new(0, 6.8, 0)).Position, 0.4, 0.4, GLOW_LT)
-		local pistil = B:block(crop, v(0.7, 0.7, 0.7), Fr * CFrame.new(0, 7.0, 0) * ang(45, 0, 45), GLOW, { mat = "Neon", name = "PistilGlow" })
-		-- pearl seeds dripping from the outer petal tips
-		for i = 1, #tips, 2 do
-			local tip, out = tips[i][1], tips[i][2]
-			local t0 = tip + out * 0.15 - v(0, 0.2, 0)
-			local t1 = t0 - v(0, 1.0, 0)
-			B:bar(crop, t0, t1, 0.14, 0.14, PET_HI)
-			pearl(CFrame.new(t1 - v(0, 0.35, 0)), 0.65, PCOLS[(i + 1) // 2 % 3 + 1])
-		end
+
+		local throat, pistil = lily(CFrame.new(mainPts[#mainPts]) * CFrame.Angles(rad(-12), rad(10), 0), 1.0, true)
 
 		---------------------------------------------------------------- side stems: pearl fruit + pads
 		local function sideStem(base, head, bend, w)
@@ -325,14 +331,15 @@ return {
 		local heads = {}
 		for _, h in SH do
 			sideStem(h[1], h[2], h[3], h[4])
-			local out = v(h[2].X, 0, h[2].Z).Unit
-			pearlPod(CFrame.lookAt(h[2], h[2] + out) * h[5], h[6], 62)
+			local out = (v(h[2].X, 0, h[2].Z).Unit + v(0, 0, -0.9)).Unit
+			local yaw = math.atan2(-out.X, -out.Z)
+			pearlPod(CFrame.new(h[2]) * CFrame.Angles(0, yaw, 0) * h[5], h[6], 55)
 			table.insert(heads, h[2])
 		end
-		-- low fog banks hugging the pond + a wisp of breath curling off the bloom
-		for _, f in { { -3.2, -1.0, 1.0, 20 }, { 2.6, -3.0, 0.9, -30 }, { 3.4, 2.2, 0.8, 60 }, { -1.8, 3.4, 0.85, -10 }, { 0.6, -4.3, 0.6, 5 } } do
-			puff(soil, cf(f[1], WY + 0.35 * f[3] + 0.15, f[2], 0, f[4], 0), f[3], (f[4] > 0) and MIST or MIST2, { name = "Soil" })
-		end
+		-- second, smaller lily opening at the back-left
+		local L2 = v(-3.6, WY + 10.6, 2.6)
+		sideStem(v(-0.5, WY + 0.4, 0.6), L2, v(-0.4, 1.0, 0.4), 0.6)
+		lily(CFrame.new(L2) * CFrame.Angles(rad(18), 0, rad(22)), 0.5, false)
 		-- raised pads
 		sideStem(v(-0.4, WY + 0.4, 0.4), v(-3.0, WY + 4.6, 3.0), v(-0.2, 0.6, 0.2), 0.42)
 		raisedPad(v(-3.0, WY + 4.7, 3.0), 1.15, 12, 10, 20, PAD)

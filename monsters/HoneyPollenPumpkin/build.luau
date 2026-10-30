@@ -24,7 +24,7 @@ return {
 		local PINK, LAV, WHITE, BUTTER = "#ffb3d1", "#c7a6ff", "#fff8ec", "#ffe066"
 		local CLOVER, CLOVER_DK = "#4fae3a", "#3d9230"
 		local HONEY, HONEY_LT, HONEY_DK = "#f5a417", "#ffc845", "#d4800c"
-		local WOOD, WOOD_LT, WOOD_DK = "#c99a5e", "#ddb57a", "#a87a44"
+		local WOOD, WOOD_LT, WOOD_DK = "#c99a5e", "#ddb57a", "#8c5e32"
 		local TWINE = "#e8cf8a"
 		local VINE, VINE_DK = "#5aa332", "#438a26"
 		local LEAF = { "#5fae38", "#78c447", "#4a9430", "#8fd156" }
@@ -170,7 +170,6 @@ return {
 		local PX, PZ = 0.2, 0.7
 		local STAKE_TOP = 12.9
 		B:block(crop, v(1.0, 0.55, 0.9), cf(PX - 0.9, TOP + 0.2, PZ - 0.4, 0, 20, 6), PEB_DK)
-		B:block(crop, v(0.9, 0.5, 0.8), cf(PX + 0.85, TOP + 0.18, PZ + 0.5, 0, -30, -5), PEB)
 		B:block(crop, v(1.1, 6.2, 1.1), cf(PX, TOP + 2.9, PZ, 0, 6, 0), WOOD)
 		B:block(crop, v(0.95, STAKE_TOP - TOP - 5.8, 0.95), cf(PX, (TOP + 5.8 + STAKE_TOP) / 2, PZ, 0, -4, 1.2), WOOD_LT)
 		B:block(crop, v(0.14, 3.0, 0.1), cf(PX - 0.25, TOP + 2.4, PZ - 0.58, 0, 6, 0), WOOD_DK)
@@ -233,6 +232,8 @@ return {
 			local s = 2.1 - 0.05 * k
 			leaf(p + out * (0.4 + s * 0.35), s, LEAF[(j % 4) + 1])
 		end
+		-- a last leaf tucked under the dipper on the front
+		leaf(vinePts[N] + v(0.5, 0.2, -0.9), 1.5, LEAF[2])
 		-- vine along each peg, dropping to a hanging pumpkin
 		local hang = {}
 		for side, pg in { R = { pegR0, pegR1, 1 }, L = { pegL0, pegL1, -1 } } do
