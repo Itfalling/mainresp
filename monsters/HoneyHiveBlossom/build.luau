@@ -107,7 +107,7 @@ return {
 		end
 		-- honey puddle right under the hive (the drips land here)
 		do
-			local c = at(6.3, HIVE_DEG, 2.6)
+			local c = at(6.7, HIVE_DEG, 1.35)
 			B:block(soil, v(3.2, 0.16, 2.4), CFrame.new(c + v(0, 0.06, 0)) * ang(0, 20, 0), HONEY_DK, S)
 			B:block(soil, v(2.5, 0.18, 2.9), CFrame.new(c + v(0.2, 0.08, -0.1)) * ang(0, -15, 0), HONEY, S)
 			B:block(soil, v(1.9, 0.2, 1.5), CFrame.new(c + v(-0.2, 0.1, 0.1)) * ang(0, 40, 0), HONEY_LT, S)
