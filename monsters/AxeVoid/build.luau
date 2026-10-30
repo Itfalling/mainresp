@@ -65,9 +65,10 @@ return {
 			end
 		end
 
-		local VOID, VOID_D, VOID_L = "#1d1430", "#0f0a19", "#2e2147"
-		local PURP, PURP_D, PURP_L = "#5c2ca3", "#3d1c70", "#8650d6"
-		local VIOLET, PINK = "#b04dff", "#ff5cf0"
+		local VOID, VOID_D, VOID_L = "#21163a", "#0f0a19", "#33244f"
+		local PURP, PURP_D, PURP_L = "#6a34b8", "#3f1f6e", "#8650d6"
+		local LAV = "#a77bf0"
+		local VIOLET, PINK = "#c45cff", "#ff5cf0"
 
 		------------------------------------------------------------------
 		-- haft (the Handle) + grip + pommel
@@ -109,7 +110,10 @@ return {
 		B:block("Root", v(0.58, 0.14, 0.62), cf(0, HY - 1.12, 0), VOID_L)
 		-- eye: purple lids, glowing violet iris, black slit pupil (both faces)
 		B:block("Root", v(0.62, 0.62, 0.66), cf(0, HY, 0, 0, 0, 45), PURP_D)
-		local eye = B:gem("Root", v(0.42, 0.42, 0.7), cf(0, HY, 0, 0, 0, 45), VIOLET, { name = "VoidEye" })
+		local eye
+		for _, z in { 0.34, -0.34 } do
+			eye = B:gem("Root", v(0.42, 0.42, 0.04), cf(0, HY, z, 0, 0, 45), VIOLET, { name = "VoidEye" })
+		end
 		B:block("Root", v(0.1, 0.4, 0.74), cf(0, HY, 0), VOID_D)
 
 		------------------------------------------------------------------
@@ -117,34 +121,52 @@ return {
 		------------------------------------------------------------------
 		local pal = {
 			K = { col = VOID, d = 0.44 },
-			P = { col = PURP, d = 0.52 },
-			E = { col = VIOLET, d = 0.3, mat = "Neon" },
+			M = { col = PURP_D, d = 0.44 },
+			P = { col = PURP, d = 0.54 },
+			L = { col = LAV, d = 0.36 },
+			E = { col = VIOLET, d = 0.2, mat = "Neon" },
 		}
 		local blade = {
-			".......E",
-			"......EE",
-			".....EKE",
-			"....PKKE",
-			"...PKKKE",
-			"..PKKKE.",
-			".PKKKKKE",
-			"PKKKKKKE",
-			"PKKKKKE.",
-			"PKKKKKKE",
-			"PKKKKKE.",
-			"PKKKKKKE",
-			".PKKKKKE",
-			"..PKKKE.",
-			"...PKKKE",
-			"....PKKE",
-			".....EKE",
-			"......EE",
-			".......E",
+			".....LLE",
+			"....LMLE",
+			"...PMMLE",
+			"..PKMMLE",
+			".PKKKMLE",
+			"PKKKKMLE",
+			"PKKKKM..",
+			"PKKKKMLE",
+			"PKKKKMLE",
+			"PKKKKMLE",
+			"PKKKKMLE",
+			"PKKKKMLE",
+			"PKKKKM..",
+			"PKKKKMLE",
+			".PKKKMLE",
+			"..PKMMLE",
+			"...PMMLE",
+			"....LMLE",
+			".....LLE",
 		}
+		-- neon runes carved into both faces
+		local runes = {
+			"........", "........", "........", "........", "........",
+			".r.r....",
+			".rrr....",
+			"..r.....",
+			"........",
+			"..rr....",
+			"..r.....",
+			".rr.....",
+			"........",
+			"..r.....",
+		}
+		local face = { r = { col = VIOLET, d = 0.04, face = 0.23, mat = "Neon" } }
 		local CELL = 0.2
 		local yTop = HY + #blade * CELL / 2
 		pixels(blade, CELL, 0.36, yTop, 1, pal)
 		pixels(blade, CELL, -0.36, yTop, -1, pal)
+		pixels(runes, CELL, 0.36, yTop, 1, face)
+		pixels(runes, CELL, -0.36, yTop, -1, face)
 
 		------------------------------------------------------------------
 		-- top: stepped spear tip flanked by demon horns

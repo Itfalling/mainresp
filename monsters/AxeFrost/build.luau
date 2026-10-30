@@ -79,7 +79,7 @@ return {
 		B:block("Root", v(0.36, 0.8, 0.54), cf(-0.52, 4.7, 0), NAVY)
 		B:block("Root", v(0.1, 0.9, 0.58), cf(-0.38, 4.7, 0), SILVER)
 		icicle(-0.66, 4.72, -84, {
-			{ 0.2, 0.64, ICE_D, 0.46 }, { 0.18, 0.48, ICE, 0.38 }, { 0.16, 0.32, ICE_L, 0.3 }, { 0.14, 0.18, EDGE, 0.22 },
+			{ 0.18, 0.64, ICE_D, 0.46 }, { 0.16, 0.46, ICE, 0.38 }, { 0.14, 0.28, ICE_L, 0.28 }, { 0.12, 0.14, EDGE, 0.2 },
 		})
 
 		-- the big ice blade: columns step out and grow taller toward a pale edge
@@ -94,27 +94,25 @@ return {
 		for i, c in cols do
 			blade[i] = B:block("Root", v(c[2] + 0.02, c[3], c[4]), cf(c[1], 4.7, 0), c[5])
 			-- snow lying on each step
-			B:block("Root", v(c[2] + 0.04, 0.14, c[4] + 0.06), cf(c[1], 4.7 + c[3] / 2 + 0.03, 0), i % 2 == 1 and FROST or FROST_B)
+			B:block("Root", v(c[2] + 0.04, 0.14, c[4] + 0.06), cf(c[1], 4.7 + c[3] / 2 + 0.03, 0), FROST)
 		end
 		B:block("Root", v(0.22, 3.3, 0.3), cf(2.5, 4.7, 0), EDGE) -- cutting edge
 
 		-- curling icicle horns off the top and bottom of the edge
-		icicle(2.44, 6.3, 14, { { 0.2, 0.34, ICE_L }, { 0.18, 0.24, EDGE }, { 0.16, 0.14, EDGE } })
-		icicle(2.44, 3.1, 164, { { 0.24, 0.34, ICE_L }, { 0.22, 0.24, EDGE }, { 0.2, 0.14, EDGE }, { 0.16, 0.08, EDGE } })
+		icicle(2.46, 6.26, 32, { { 0.24, 0.34, ICE_L }, { 0.2, 0.24, EDGE }, { 0.18, 0.14, EDGE } })
+		icicle(2.46, 3.14, 146, { { 0.24, 0.34, ICE_L }, { 0.22, 0.24, EDGE }, { 0.2, 0.14, EDGE }, { 0.16, 0.08, EDGE } })
 		-- icicles hanging from the underside of the blade steps
 		icicle(1.06, 3.8, 180, { { 0.16, 0.3, ICE }, { 0.14, 0.2, ICE_L }, { 0.12, 0.1, EDGE } })
 		icicle(1.48, 3.55, 180, { { 0.2, 0.32, ICE }, { 0.18, 0.22, ICE_L }, { 0.16, 0.12, EDGE } })
 		icicle(1.88, 3.33, 180, { { 0.16, 0.3, ICE_L }, { 0.14, 0.18, EDGE } })
 
-		-- blade faces: pale facets, frost creeping from the socket, glowing crack
+		-- blade faces: pale ice facets and a glowing crack inside the edge
 		for _, s in { 1, -1 } do
 			local function z(t) return s * (t / 2 + 0.02) end
 			B:block("Root", v(0.3, 1.2, 0.04), cf(1.48, 5.0, z(0.44)), ICE_L)
 			B:block("Root", v(0.28, 1.7, 0.04), cf(1.88, 4.9, z(0.4)), ICE_L)
 			B:block("Root", v(0.36, 0.6, 0.04), cf(1.06, 4.3, z(0.48)), ICE)
-			B:block("Root", v(0.34, 0.16, 0.04), cf(0.66, 5.15, z(0.52)), FROST)
-			B:block("Root", v(0.44, 0.14, 0.04), cf(0.8, 4.2, z(0.52)), FROST_B)
-			B:block("Root", v(0.14, 0.4, 0.04), cf(1.08, 5.25, z(0.48)), FROST)
+			B:block("Root", v(0.3, 0.5, 0.04), cf(0.66, 4.95, z(0.52)), ICE_D)
 			B:block("Root", v(0.06, 2.5, 0.04), cf(2.36, 4.7, z(0.36)), GLOW, { mat = "Neon" })
 			B:block("Root", v(0.36, 0.06, 0.04), cf(2.04, 5.95, z(0.4)), GLOW, { mat = "Neon" })
 			B:block("Root", v(0.36, 0.06, 0.04), cf(2.04, 3.45, z(0.4)), GLOW, { mat = "Neon" })

@@ -5,16 +5,16 @@ return {
 	DisplayName = "Magma Axe",
 	Rarity = "Secret",
 	Element = "Tool",
-	Tool = { Name = "Magma Axe", ToolTip = "Magma Axe", GripY = -1.45 },
+	Tool = { Name = "Magma Axe", ToolTip = "Magma Axe", GripY = -1.65 },
 	Build = function(B, P)
 		local v, cf = P.v, P.cf
-		local OB_D, OB, OB_M, OB_L = "#17141c", "#29232f", "#3a3242", "#5b5068"
+		local OB_D, OB, OB_M, OB_L = "#17141c", "#2b2433", "#41374d", "#62566f"
 		local BASALT, BASALT_L = "#2b2420", "#463a33"
 		local GRIP, GRIP_D = "#7a2416", "#4e150c"
 		local IRON, IRON_D = "#5a5560", "#3a363f"
 		local RIM, HOT_D, HOT, HOT_L = "#b8320c", "#d4480f", "#ff8a1f", "#ffc35a"
-		local LAVA, LAVA_Y = "#ff6a0a", "#ffc02e" -- neon
-		local CY = 4.6 -- head centre height
+		local LAVA, LAVA_Y = "#ff5a00", "#ffb81f" -- neon
+		local CY = 4.7 -- head centre height
 
 		-- slab from a to b in the blade plane: w = width in plane, t = thickness (Z)
 		local function slab(a, b, w, t, col, opts)
@@ -30,7 +30,7 @@ return {
 		end
 
 		-- haft (the Handle): charred basalt from the pommel up through the head
-		B:block("Root", v(0.44, 5.0, 0.44), cf(0, 2.95, 0), BASALT, { name = "Handle" })
+		B:block("Root", v(0.44, 5.2, 0.44), cf(0, 3.05, 0), BASALT, { name = "Handle" })
 		B:block("Root", v(0.08, 1.0, 0.06), cf(-0.1, 3.4, 0.23), BASALT_L)
 		B:block("Root", v(0.08, 0.8, 0.06), cf(0.09, 3.3, -0.23), BASALT_L)
 		-- a glowing seam zig-zagging up the haft
@@ -82,10 +82,13 @@ return {
 		B:block("Root", v(0.42, 3.2, 0.42), cf(1.86, CY - 0.2, 0), OB_M)
 		-- horn sweeping up and the beard hooking down
 		slab(v(1.45, CY + 0.7, 0), v(2.25, CY + 1.8, 0), 0.62, 0.42, OB)
-		slab(v(1.45, CY - 1.0, 0), v(2.15, CY - 2.3, 0), 0.62, 0.42, OB)
+		slab(v(1.4, CY - 1.0, 0), v(2.1, CY - 2.55, 0), 0.62, 0.42, OB)
 		-- jagged obsidian teeth along the top of the horn
-		slab(v(1.5, CY + 1.05, 0), v(1.4, CY + 1.5, 0), 0.2, 0.3, OB_L)
-		slab(v(1.85, CY + 1.4, 0), v(1.8, CY + 1.85, 0), 0.2, 0.3, OB_L)
+		slab(v(1.52, CY + 1.0, 0), v(1.38, CY + 1.55, 0), 0.24, 0.3, OB_L)
+		slab(v(1.88, CY + 1.42, 0), v(1.78, CY + 1.98, 0), 0.24, 0.3, OB_L)
+		-- and jagged teeth hooking under the beard
+		slab(v(1.5, CY - 1.55, 0), v(1.3, CY - 2.0, 0), 0.24, 0.3, OB_L)
+		slab(v(1.12, CY - 0.7, 0), v(0.95, CY - 1.1, 0), 0.22, 0.3, OB_M)
 		-- lighter obsidian facets on both faces
 		for _, s in { 1, -1 } do
 			B:block("Root", v(0.3, 0.5, 0.04), cf(1.02, CY + 0.55, s * 0.26), OB_L)
@@ -97,7 +100,7 @@ return {
 		B:block("Root", v(0.26, 3.4, 0.36), cf(2.2, CY - 0.2, 0), HOT_D)
 		B:block("Root", v(0.18, 3.1, 0.3), cf(2.4, CY - 0.2, 0), HOT)
 		slab(v(2.08, CY + 1.5, 0), v(2.42, CY + 2.05, 0), 0.34, 0.32, HOT)
-		slab(v(2.0, CY - 2.0, 0), v(2.28, CY - 2.55, 0), 0.34, 0.32, HOT)
+		slab(v(1.96, CY - 2.25, 0), v(2.2, CY - 2.85, 0), 0.34, 0.32, HOT)
 		B:block("Root", v(0.08, 2.8, 0.24), cf(2.5, CY - 0.2, 0), HOT_L)
 		B:gem("Root", v(0.05, 2.4, 0.1), cf(2.55, CY - 0.2, 0), LAVA_Y)
 
@@ -107,13 +110,22 @@ return {
 		crack(v(1.4, CY + 0.35, 0), v(2.1, CY + 0.05, 0), 0.22)
 		crack(v(1.05, CY - 0.55, 0), v(1.65, CY - 1.2, 0), 0.24)
 		crack(v(1.65, CY - 1.2, 0), v(2.08, CY - 1.0, 0), 0.22)
-		crack(v(1.7, CY - 1.4, 0), v(1.95, CY - 2.0, 0), 0.22)
+		crack(v(1.7, CY - 1.4, 0), v(1.92, CY - 2.25, 0), 0.22)
 		crack(v(1.62, CY + 0.95, 0), v(2.08, CY + 1.4, 0), 0.22)
 
 		-- lava drips oozing off the beard
-		B:block("Root", v(0.2, 0.3, 0.2), cf(1.7, CY - 2.05, 0), HOT_D)
-		B:block("Root", v(0.14, 0.2, 0.14), cf(1.7, CY - 2.28, 0), HOT)
-		B:gem("Root", v(0.1, 0.12, 0.1), cf(1.7, CY - 2.43, 0), LAVA_Y)
+		B:block("Root", v(0.2, 0.3, 0.2), cf(1.62, CY - 2.1, 0), HOT_D)
+		B:block("Root", v(0.14, 0.2, 0.14), cf(1.62, CY - 2.33, 0), HOT)
+		B:gem("Root", v(0.1, 0.12, 0.1), cf(1.62, CY - 2.48, 0), LAVA_Y)
+		B:block("Root", v(0.16, 0.22, 0.16), cf(-1.0, CY - 0.36, 0), HOT_D)
+		B:gem("Root", v(0.1, 0.12, 0.1), cf(-1.0, CY - 0.53, 0), LAVA_Y)
+
+		-- molten pool where the cracks meet, on both faces
+		for _, s in { 1, -1 } do
+			B:block("Root", v(0.42, 0.42, 0.04), cf(1.4, CY + 0.35, s * 0.25), RIM)
+			B:block("Root", v(0.28, 0.28, 0.04), cf(1.4, CY + 0.35, s * 0.28), HOT)
+			B:gem("Root", v(0.14, 0.14, 0.03), cf(1.4, CY + 0.35, s * 0.31), LAVA_Y)
+		end
 
 		-- effects: embers rising off the edge, fire licking the top spike, smoke
 		local edge = B:block("Root", v(0.3, 2.4, 0.3), cf(2.2, CY - 0.2, 0), HOT, { tr = 1, name = "EmberCore" })

@@ -5,7 +5,7 @@ return {
 	DisplayName = "Crystal Axe",
 	Rarity = "Mythic",
 	Element = "Tool",
-	Tool = { Name = "Crystal Axe", ToolTip = "Crystal Axe", GripY = -1.4 },
+	Tool = { Name = "Crystal Axe", ToolTip = "Crystal Axe", GripY = -1.25 },
 	Build = function(B, P)
 		local v, cf = P.v, P.cf
 		local HAFT, HAFT_L = "#2f2752", "#463a72"
@@ -95,7 +95,7 @@ return {
 		shard(v(1.5, CY - 0.6, 0), v(2.36, CY - 1.85, 0), 0.62, 0.36, AM_M)
 		shard(v(2.16, CY - 1.58, 0), v(2.5, CY - 2.08, 0), 0.36, 0.28, ICE)
 		-- small shards poking out of the cutting edge
-		B:block("Root", v(0.16, 0.9, 0.24), cf(2.54, CY + 0.25, 0), ICE_L)
+		B:block("Root", v(0.16, 0.9, 0.24), cf(2.54, CY + 0.25, 0), ICE)
 		-- a cluster sprouting from the socket on each face
 		for _, s in { 1, -1 } do
 			B:bar("Root", v(0.6, CY + 0.15, s * 0.25), v(0.9, CY + 0.5, s * 0.48), 0.2, 0.2, AM_M)
