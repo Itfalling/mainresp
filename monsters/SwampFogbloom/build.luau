@@ -192,29 +192,34 @@ return {
 		end
 		local PCOLS = { PEARL, PEARL_PK, PEARL_CY }
 
-		-- PEARL POD: a seed pod split open like a clam, cradling pearls.
-		-- c: CFrame at the pod base, -Z = the side the pod opens toward
-		local function pearlPod(c, k, open)
-			B:block(crop, v(1.0 * k, 0.6 * k, 1.0 * k), c * CFrame.new(0, 0.2 * k, 0) * ang(0, 45, 0), POD_DK)
-			B:block(crop, v(2.2 * k, 0.5 * k, 1.9 * k), c * CFrame.new(0, 0.6 * k, 0), POD_DK)
-			B:block(crop, v(2.9 * k, 0.55 * k, 2.5 * k), c * CFrame.new(0, 1.05 * k, 0), POD)
-			B:block(crop, v(3.0 * k, 0.2 * k, 0.3 * k), c * CFrame.new(0, 1.15 * k, -1.2 * k), VIO_MD)
-			B:block(crop, v(2.5 * k, 0.2 * k, 2.1 * k), c * CFrame.new(0, 1.36 * k, 0), POD_IN)
-			-- lid hinged at the back, lifted open: stepped shell with fanned ribs
-			local hinge = c * CFrame.new(0, 1.3 * k, 1.2 * k) * CFrame.Angles(rad(open), 0, 0)
-			B:block(crop, v(2.9 * k, 0.45 * k, 2.5 * k), hinge * CFrame.new(0, 0.22 * k, -1.2 * k), POD)
-			B:block(crop, v(2.3 * k, 0.4 * k, 2.0 * k), hinge * CFrame.new(0, 0.6 * k, -1.1 * k), POD_DK)
-			B:block(crop, v(1.4 * k, 0.35 * k, 1.2 * k), hinge * CFrame.new(0, 0.9 * k, -0.9 * k), POD)
-			B:block(crop, v(2.5 * k, 0.12 * k, 2.1 * k), hinge * CFrame.new(0, -0.02 * k, -1.2 * k), POD_IN)
-			for j = -1, 1 do
-				local r = hinge * CFrame.new(0, 0, -0.1 * k) * CFrame.Angles(0, rad(j * 28), 0)
-				B:block(crop, v(0.28 * k, 0.22 * k, 2.4 * k), r * CFrame.new(0, 0.5 * k - math.abs(j) * 0.18 * k, -1.2 * k), VIO_MD)
+		-- PEARL POD: a long seed pod split open like a pea pod, a row of pearl
+		-- "peas" inside. c: frame at the stem end, pod runs along local -Z,
+		-- opens toward local +Y.
+		local function pearlPod(c, k, n)
+			local L = (n * 1.0 + 0.9) * k
+			local function at(x, y, z, rz)
+				return c * CFrame.new(x * k, y * k, z) * ang(0, 0, rz or 0)
 			end
-			B:block(crop, v(3.0 * k, 0.22 * k, 0.32 * k), hinge * CFrame.new(0, 0.15 * k, -2.4 * k), VIO_MD)
-			-- pearls
-			pearl(c * CFrame.new(0, 2.05 * k, 0.1 * k), 1.35 * k, PEARL)
-			pearl(c * CFrame.new(0.95 * k, 1.75 * k, -0.45 * k) * ang(0, 20, 0), 0.8 * k, PEARL_PK)
-			pearl(c * CFrame.new(-0.9 * k, 1.72 * k, -0.35 * k) * ang(0, -15, 0), 0.72 * k, PEARL_CY)
+			-- stem cap + keel (stepped, tapering at both ends)
+			B:block(crop, v(0.9 * k, 0.9 * k, 0.9 * k), at(0, 0, -0.2), STM_DK)
+			B:block(crop, v(1.2 * k, 0.6 * k, L * 0.8), at(0, -0.2, -L / 2), POD_DK)
+			B:block(crop, v(0.7 * k, 0.5 * k, L), at(0, -0.1, -L / 2), POD_DK)
+			B:block(crop, v(1.5 * k, 0.4 * k, L * 0.9), at(0, 0.1, -L / 2), POD)
+			-- two split halves leaning open
+			for sd = -1, 1, 2 do
+				B:block(crop, v(0.35 * k, 1.2 * k, L * 0.86), at(sd * 0.85, 0.55, -L / 2, -sd * 32), POD)
+				B:block(crop, v(0.38 * k, 0.3 * k, L * 0.7), at(sd * 1.2, 1.12, -L / 2, -sd * 32), PET_LT)
+				B:block(crop, v(0.2 * k, 0.9 * k, L * 0.8), at(sd * 0.68, 0.5, -L / 2, -sd * 32), POD_IN)
+			end
+			-- curled tip
+			B:block(crop, v(0.5 * k, 0.5 * k, 0.9 * k), c * CFrame.new(0, 0.1 * k, -L - 0.2 * k) * ang(30, 0, 0), POD_DK)
+			B:block(crop, v(0.3 * k, 0.6 * k, 0.3 * k), c * CFrame.new(0, 0.55 * k, -L - 0.5 * k) * ang(-20, 0, 0), POD)
+			-- pearl peas
+			for i = 1, n do
+				local z = -(0.45 + (i - 0.5) * 1.0) * k
+				local sz = (i == math.ceil(n / 2)) and 1.05 or 0.92
+				pearl(c * CFrame.new(0, 0.75 * k, z) * ang(0, i * 25, 0), sz * k, PCOLS[(i - 1) % 3 + 1])
+			end
 		end
 
 		---------------------------------------------------------------- main stem + giant lily
@@ -324,16 +329,16 @@ return {
 		end
 		-- pearl seed heads
 		local SH = {
-			{ v(0.6, WY + 0.4, -0.2), v(4.4, WY + 8.0, -2.4), v(0.8, 0.8, 0), 0.7, ang(-10, 0, 0), 1.2 },
-			{ v(-0.6, WY + 0.4, 0.2), v(-4.8, WY + 6.2, -0.8), v(-0.6, 1.2, -0.4), 0.64, ang(-10, 0, 0), 1.1 },
-			{ v(0.4, WY + 0.4, 0.8), v(3.0, WY + 4.6, 3.6), v(0.2, 1.2, 0.6), 0.58, ang(-10, 0, 0), 1.0 },
+			{ v(0.6, WY + 0.4, -0.2), v(3.0, WY + 8.4, -1.6), v(0.8, 0.8, 0), 0.7, ang(-12, 0, -25), 1.05 },
+			{ v(-0.6, WY + 0.4, 0.2), v(-3.0, WY + 6.4, -0.8), v(-0.6, 1.2, -0.4), 0.64, ang(-12, 0, 25), 1.0 },
+			{ v(0.4, WY + 0.4, 0.8), v(2.2, WY + 5.0, 2.6), v(0.2, 1.2, 0.6), 0.58, ang(-12, 0, -20), 0.95 },
 		}
 		local heads = {}
 		for _, h in SH do
 			sideStem(h[1], h[2], h[3], h[4])
-			local out = (v(h[2].X, 0, h[2].Z).Unit + v(0, 0, -0.9)).Unit
+			local out = (v(h[2].X, 0, h[2].Z).Unit + v(0, 0, -0.5)).Unit
 			local yaw = math.atan2(-out.X, -out.Z)
-			pearlPod(CFrame.new(h[2]) * CFrame.Angles(0, yaw, 0) * h[5], h[6], 55)
+			pearlPod(CFrame.new(h[2]) * CFrame.Angles(0, yaw, 0) * h[5], h[6], 4)
 			table.insert(heads, h[2])
 		end
 		-- second, smaller lily opening at the back-left
