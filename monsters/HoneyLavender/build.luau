@@ -31,9 +31,9 @@ return {
 		local CLOVER, CLOVER_DK = "#3f9a3c", "#2f7f30"
 		local PEB, PEB_LT = "#a49a8c", "#c4bcae"
 		local FL_PINK, FL_WHITE, FL_EYE = "#ff9cc4", "#fff6fa", "#ffc93a"
-		local SAGE_DK, SAGE, SAGE_LT, SAGE_XL = "#5f7d5c", "#76966f", "#8fae84", "#aac79a"
+		local SAGE_DK, SAGE, SAGE_LT, SAGE_XL = "#6f9468", "#86aa7c", "#9fc292", "#bad8aa"
 		local STEM, STEM_DK = "#6f8f5a", "#56744a"
-		local VIO_DK, VIO, LAV, LAV_LT, LILAC = "#5a3a9e", "#7350c2", "#9270dc", "#ae90ec", "#cbb4f6"
+		local VIO_DK, VIO, LAV, LAV_LT, LILAC = "#6c4cc0", "#8766da", "#a286ea", "#bfa6f4", "#e0d0ff"
 		local BUD_GLOW = "#e2ccff"
 		local NECTAR, RIB, RIB_DK, RIB_LT = "#ffd23a", "#e8961c", "#c27412", "#ffb43a"
 		local HONEY, HONEY_LT = "#ffa318", "#ffc54a"
@@ -160,14 +160,14 @@ return {
 			local a = pv(r0, deg, y0)
 			B:bar(crop, a, a + dir * len, w, w * 0.7, col)
 		end
+		for i = 0, 11 do
+			blade(i * 30 + jit(6), 0.9, TOP + 0.3, 30 + jit(6), 3.4, 0.6, (i % 2 == 0) and SAGE or SAGE_DK)
+		end
 		for i = 0, 9 do
-			blade(i * 36 + jit(6), 0.8, TOP + 0.3, 28 + jit(6), 3.0, 0.55, (i % 2 == 0) and SAGE or SAGE_DK)
+			blade(i * 36 + 18 + jit(6), 0.7, TOP + 0.8, 52 + jit(6), 3.4, 0.55, (i % 2 == 0) and SAGE_LT or SAGE)
 		end
-		for i = 0, 7 do
-			blade(i * 45 + 20 + jit(6), 0.6, TOP + 0.8, 50 + jit(6), 2.8, 0.5, (i % 2 == 0) and SAGE_LT or SAGE)
-		end
-		for i = 0, 5 do
-			blade(i * 60 + 5 + jit(6), 0.35, TOP + 1.2, 70 + jit(5), 2.4, 0.45, (i % 2 == 0) and SAGE_XL or SAGE_LT)
+		for i = 0, 6 do
+			blade(i * 360 / 7 + 5 + jit(6), 0.4, TOP + 1.2, 72 + jit(5), 3.2, 0.5, (i % 2 == 0) and SAGE_XL or SAGE_LT)
 		end
 
 		-- LAVENDER SPIKE: stem, then a head of twisting stepped florets
@@ -197,7 +197,7 @@ return {
 		end
 
 		-- tall centre spike
-		spike(v(0, TOP + 1.5, 0), v(0.02, 1, -0.02), 10.6, 8.6, 1.55, true)
+		spike(v(0, TOP + 1.5, 0), v(0.02, 1, -0.02), 9.8, 8.2, 1.55, true)
 		-- inner ring of five
 		for i = 0, 4 do
 			local deg = i * 72 + 36 + jit(5)
@@ -230,16 +230,19 @@ return {
 			-- calyx + caps + ribs around a neon nectar core
 			B:block(crop, v(0.9 * s, 0.28 * s, 0.9 * s), at(0, -0.25, 0) * ang(0, 45, 0), CALYX)
 			B:block(crop, v(1.0 * s, 0.32 * s, 1.0 * s), at(0, -0.55, 0), RIB_DK)
-			B:block(crop, v(1.05 * s, 1.5 * s, 1.05 * s), at(0, -1.45, 0) * ang(0, 45, 0), NECTAR, { mat = "Neon", name = "NectarCore" })
+			B:block(crop, v(1.2 * s, 1.7 * s, 1.2 * s), at(0, -1.6, 0) * ang(0, 45, 0), NECTAR, { mat = "Neon", name = "NectarCore" })
 			for k = 0, 3 do
-				local c = at(0, -1.45, 0) * CFrame.Angles(0, rad(k * 90), 0) * CFrame.new(0, 0, -0.62 * s)
-				B:block(crop, v(0.42 * s, 1.75 * s, 0.32 * s), c, (k % 2 == 0) and RIB or RIB_LT)
+				local R = F * CFrame.Angles(0, rad(k * 90), 0)
+				local col = (k % 2 == 0) and RIB or RIB_LT
+				-- upper rib leans out from the cap, lower rib curls back in
+				B:bar(crop, (R * CFrame.new(0, -0.6 * s, -0.5 * s)).Position, (R * CFrame.new(0, -1.55 * s, -0.78 * s)).Position, 0.42 * s, 0.32 * s, col)
+				B:bar(crop, (R * CFrame.new(0, -1.4 * s, -0.78 * s)).Position, (R * CFrame.new(0, -2.5 * s, -0.48 * s)).Position, 0.42 * s, 0.32 * s, col)
 			end
-			B:block(crop, v(0.95 * s, 0.32 * s, 0.95 * s), at(0, -2.35, 0), RIB_DK)
-			B:block(crop, v(0.5 * s, 0.32 * s, 0.5 * s), at(0, -2.65, 0) * ang(0, 45, 0), RIB)
-			local drop = at(0, -3.0, 0).Position
+			B:block(crop, v(0.95 * s, 0.32 * s, 0.95 * s), at(0, -2.55, 0), RIB_DK)
+			B:block(crop, v(0.5 * s, 0.32 * s, 0.5 * s), at(0, -2.85, 0) * ang(0, 45, 0), RIB)
+			local drop = at(0, -3.2, 0).Position
 			B:block(crop, v(0.32 * s, 0.32 * s, 0.32 * s), CFrame.new(drop) * ang(0, 45, 0), HONEY_LT)
-			table.insert(pods, { core = at(0, -1.45, 0).Position, drop = drop })
+			table.insert(pods, { core = at(0, -1.6, 0).Position, drop = drop })
 		end
 		pod(20, TOP + 5.2, 4.4, 3.0, 1.1)
 		pod(95, TOP + 7.0, 4.1, 2.8, 1.0)

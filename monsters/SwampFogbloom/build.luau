@@ -31,7 +31,9 @@ return {
 		local VIO_DK, VIO, VIO_MD = "#3a2163", "#5b3590", "#7e57c2"
 		local PET, PET_LT, PET_HI = "#a989ea", "#cdb8ff", "#efe8ff"
 		local SPOT = "#4a2a80"
-		local PEARL, PEARL_PK, PEARL_CY, PEARL_SH = "#f4f0ff", "#ffdcef", "#d6f8ff", "#c9c0e6"
+		local PEARL, PEARL_PK, PEARL_CY, PEARL_SH = "#f4f0ff", "#ffd2ea", "#c8f4ff", "#ddd4f4"
+		local POD_DK, POD, POD_IN = "#1f4f45", "#2f7560", "#e3d8ff"
+		local MIST, MIST2 = "#efeaff", "#dcf2ff"
 		local GLOW, GLOW_LT = "#7ff0ff", "#d8fffb"
 		local NEON = { mat = "Neon" }
 
@@ -190,20 +192,35 @@ return {
 			table.insert(pearls, h)
 		end
 		local PCOLS = { PEARL, PEARL_PK, PEARL_CY }
-		-- SEED HEAD: calyx cup heaped with pearls, frame +Y = growth direction
-		local function seedHead(c, k)
-			B:block(crop, v(1.0 * k, 0.6 * k, 1.0 * k), c * CFrame.new(0, 0.1 * k, 0) * ang(0, 45, 0), STM_DK)
-			B:block(crop, v(2.4 * k, 0.5 * k, 2.4 * k), c * CFrame.new(0, 0.55 * k, 0), LF_DK)
-			for i = 0, 4 do
-				local q = c * CFrame.Angles(0, rad(i * 72 + 10), 0)
-				B:bar(crop, (q * CFrame.new(0, 0.4 * k, -0.8 * k)).Position, (q * CFrame.new(0, 1.5 * k, -1.75 * k)).Position, 1.0 * k, 0.28 * k, (i % 2 == 0) and LF or LF_LT, { up = (q * CFrame.new(0, 0, -1)).Position - q.Position })
-			end
-			pearl(c * CFrame.new(0, 1.55 * k, 0), 1.15 * k, PEARL)
-			for i = 0, 4 do
-				local q = c * CFrame.Angles(0, rad(i * 72 + 46), 0)
-				pearl(q * CFrame.new(0, 1.05 * k, -0.95 * k), 0.85 * k, PCOLS[i % 3 + 1])
-			end
-			pearl(c * CFrame.new(0.2 * k, 2.45 * k, 0.1 * k), 0.7 * k, PEARL_PK)
+
+		-- PEARL POD: a seed pod split open like a clam, cradling pearls.
+		-- c: CFrame at the pod base, -Z = the side the pod opens toward
+		local function pearlPod(c, k, open)
+			B:block(crop, v(1.0 * k, 0.6 * k, 1.0 * k), c * CFrame.new(0, 0.2 * k, 0) * ang(0, 45, 0), POD_DK)
+			B:block(crop, v(2.2 * k, 0.5 * k, 1.9 * k), c * CFrame.new(0, 0.6 * k, 0), POD_DK)
+			B:block(crop, v(2.9 * k, 0.55 * k, 2.5 * k), c * CFrame.new(0, 1.05 * k, 0), POD)
+			B:block(crop, v(3.0 * k, 0.2 * k, 0.3 * k), c * CFrame.new(0, 1.15 * k, -1.2 * k), VIO_MD)
+			B:block(crop, v(2.5 * k, 0.2 * k, 2.1 * k), c * CFrame.new(0, 1.36 * k, 0), POD_IN)
+			-- lid hinged at the back, lifted open
+			local hinge = c * CFrame.new(0, 1.3 * k, 1.2 * k) * CFrame.Angles(rad(open), 0, 0)
+			B:block(crop, v(2.9 * k, 0.5 * k, 2.5 * k), hinge * CFrame.new(0, 0.25 * k, -1.2 * k), POD)
+			B:block(crop, v(2.1 * k, 0.45 * k, 1.7 * k), hinge * CFrame.new(0, 0.65 * k, -1.2 * k), POD_DK)
+			B:block(crop, v(2.5 * k, 0.12 * k, 2.1 * k), hinge * CFrame.new(0, -0.02 * k, -1.2 * k), POD_IN)
+			B:block(crop, v(0.3 * k, 0.2 * k, 2.6 * k), hinge * CFrame.new(0.7 * k, 0.88 * k, -1.2 * k), VIO_MD)
+			B:block(crop, v(0.3 * k, 0.2 * k, 2.6 * k), hinge * CFrame.new(-0.7 * k, 0.88 * k, -1.2 * k), VIO_MD)
+			-- pearls
+			pearl(c * CFrame.new(0, 2.05 * k, 0.1 * k), 1.35 * k, PEARL)
+			pearl(c * CFrame.new(0.95 * k, 1.75 * k, -0.45 * k) * ang(0, 20, 0), 0.8 * k, PEARL_PK)
+			pearl(c * CFrame.new(-0.9 * k, 1.72 * k, -0.35 * k) * ang(0, -15, 0), 0.72 * k, PEARL_CY)
+		end
+
+		-- stylized mist puff: soft translucent stepped cloud
+		local function puff(bone, c, sc, col, opts)
+			local o = opts or {}
+			o.tr = 0.5
+			B:block(bone, v(2.4 * sc, 0.8 * sc, 1.6 * sc), c, col, o)
+			B:block(bone, v(1.5 * sc, 0.75 * sc, 1.3 * sc), c * CFrame.new(-0.3 * sc, 0.5 * sc, 0.1 * sc), col, o)
+			B:block(bone, v(1.3 * sc, 0.6 * sc, 1.9 * sc), c * CFrame.new(0.8 * sc, 0.15 * sc, 0.2 * sc), col, o)
 		end
 
 		---------------------------------------------------------------- main stem + giant lily
@@ -211,8 +228,8 @@ return {
 			v(0, WY + 0.3, 0.2),
 			v(0.5, WY + 3.6, 0.5),
 			v(0.3, WY + 7.0, 0.3),
-			v(-0.3, WY + 10.0, 0),
-			v(0, WY + 12.2, -0.3),
+			v(-0.3, WY + 9.6, 0),
+			v(0, WY + 11.5, -0.3),
 		}
 		stem(mainPts, 1.55, 1.15, STM, STM_LT)
 		-- big lance leaves sprouting from the stem nodes
@@ -254,13 +271,13 @@ return {
 			end
 			local out = (q * CFrame.new(0, 0, -1)).Position - q.Position
 			local p0, p1, p2, p3, p4 = P3(0.7, 1.3), P3(1.45, 3.3), P3(2.75, 5.0), P3(4.05, 5.45), P3(4.85, 4.5)
-			B:bar(crop, p0, p1, 1.9 * s, 0.5, inner and VIO_MD or VIO, { up = out })
+			B:bar(crop, p0, p1, 1.9 * s, 0.5, VIO_MD, { up = out })
 			B:bar(crop, p1 - (p1 - p0).Unit * 0.25, p2, 3.0 * s, 0.48, inner and PET_LT or PET, { up = out })
 			B:bar(crop, p2 - (p2 - p1).Unit * 0.25, p3, 2.6 * s, 0.46, PET_LT, { up = out })
 			B:bar(crop, p3 - (p3 - p2).Unit * 0.25, p4, 1.5 * s, 0.44, PET_HI, { up = out })
 			-- paler inner layer + darker outer layer for a stepped, chunky petal
 			B:bar(crop, p1:Lerp(p2, 0.1) - out * 0.22, p2:Lerp(p3, 0.4) - out * 0.22, 1.7 * s, 0.2, PET_HI, { up = out })
-			B:bar(crop, p0:Lerp(p1, 0.4) + out * 0.24, p1:Lerp(p2, 0.6) + out * 0.24, 1.9 * s, 0.2, VIO_MD, { up = out })
+			B:bar(crop, p0:Lerp(p1, 0.4) + out * 0.24, p1:Lerp(p2, 0.6) + out * 0.24, 1.9 * s, 0.2, VIO, { up = out })
 			-- violet spots on the inner face
 			local f = CFrame.lookAt(p1:Lerp(p2, 0.35), p1:Lerp(p2, 0.35) + out)
 			B:block(crop, v(0.45 * s, 0.45 * s, 0.3), f * CFrame.new(0.55 * s, 0.1, 0.36), SPOT)
@@ -270,8 +287,8 @@ return {
 			table.insert(tips, { p4, out })
 		end
 		for i = 0, 2 do
-			petal(i * 120, 1.0, false)
-			petal(i * 120 + 60, 0.86, true)
+			petal(i * 120, 1.15, false)
+			petal(i * 120 + 60, 1.0, true)
 		end
 		-- stamens with pearl anthers + a central glowing pistil
 		for i = 0, 5 do
@@ -301,15 +318,20 @@ return {
 		end
 		-- pearl seed heads
 		local SH = {
-			{ v(0.6, WY + 0.4, -0.2), v(4.4, WY + 8.0, -2.4), v(0.8, 0.8, 0), 0.7, ang(-18, 0, -28), 1.3 },
-			{ v(-0.6, WY + 0.4, 0.2), v(-4.8, WY + 6.2, -0.8), v(-0.6, 1.2, -0.4), 0.64, ang(-8, 0, 30), 1.2 },
-			{ v(0.4, WY + 0.4, 0.8), v(3.0, WY + 4.6, 3.6), v(0.2, 1.2, 0.6), 0.58, ang(20, 0, -22), 1.05 },
+			{ v(0.6, WY + 0.4, -0.2), v(4.4, WY + 8.0, -2.4), v(0.8, 0.8, 0), 0.7, ang(-10, 0, 0), 1.2 },
+			{ v(-0.6, WY + 0.4, 0.2), v(-4.8, WY + 6.2, -0.8), v(-0.6, 1.2, -0.4), 0.64, ang(-10, 0, 0), 1.1 },
+			{ v(0.4, WY + 0.4, 0.8), v(3.0, WY + 4.6, 3.6), v(0.2, 1.2, 0.6), 0.58, ang(-10, 0, 0), 1.0 },
 		}
 		local heads = {}
 		for _, h in SH do
 			sideStem(h[1], h[2], h[3], h[4])
-			seedHead(CFrame.new(h[2]) * h[5], h[6])
+			local out = v(h[2].X, 0, h[2].Z).Unit
+			pearlPod(CFrame.lookAt(h[2], h[2] + out) * h[5], h[6], 62)
 			table.insert(heads, h[2])
+		end
+		-- low fog banks hugging the pond + a wisp of breath curling off the bloom
+		for _, f in { { -3.2, -1.0, 1.0, 20 }, { 2.6, -3.0, 0.9, -30 }, { 3.4, 2.2, 0.8, 60 }, { -1.8, 3.4, 0.85, -10 }, { 0.6, -4.3, 0.6, 5 } } do
+			puff(soil, cf(f[1], WY + 0.35 * f[3] + 0.15, f[2], 0, f[4], 0), f[3], (f[4] > 0) and MIST or MIST2, { name = "Soil" })
 		end
 		-- raised pads
 		sideStem(v(-0.4, WY + 0.4, 0.4), v(-3.0, WY + 4.6, 3.0), v(-0.2, 0.6, 0.2), 0.42)
