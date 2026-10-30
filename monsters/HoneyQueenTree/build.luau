@@ -469,7 +469,7 @@ return {
 		-- around the canopy
 		bee(4, CFrame.new(0, C1 + 0.6, 0) * ang(6, 30, 0), 12.6, 1, 1.25, true)
 		bee(5, CFrame.new(0, T2Y + 0.4, 0) * ang(-8, 200, 4), 10.2, -1, 1.2, true)
-		bee(6, CFrame.new(0, UNDER - 2.0, 0) * ang(0, 100, 7), 10.8, 1, 1.2, true)
+		bee(6, CFrame.new(0, UNDER - 2.0, 0) * ang(0, 100, 7), 12.2, 1, 1.2, true)
 		bee(7, CFrame.new(0, T3Y + 0.2, 0) * ang(10, 300, 0), 8.0, -1, 1.1, true)
 		bee(8, CFrame.new(0, C1 - 0.4, 0) * ang(-10, 160, -6), 12.8, -1, 1.2, true)
 

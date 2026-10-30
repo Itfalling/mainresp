@@ -254,11 +254,12 @@ return {
 			if i % 2 == 1 then
 				local o = outward(c.a)
 				local p = c.p + o * (c.s * 0.5 + 0.15) + v(0, c.s * 0.15, 0)
-				local F = face(p, c.a) * ang(-rnd() * 30, 0, rnd() * 45)
-				local col = (i % 4 == 1) and WHITE or PINK_HI
+				local F = face(p, c.a) * ang(10 + rnd() * 20, 0, rnd() * 45)
+				local hot = (i % 4 == 1)
+				local col = hot and "#ff6fa8" or "#fff6fb"
 				B:block(c.bone, v(1.5, 1.5, 0.25), F * ang(0, 0, 45), col)
 				B:block(c.bone, v(1.7, 0.7, 0.3), F, col)
-				B:block(c.bone, v(0.6, 0.6, 0.4), F * CFrame.new(0, 0, -0.05), HONEY_LT)
+				B:block(c.bone, v(0.6, 0.6, 0.4), F * CFrame.new(0, 0, -0.05), hot and "#ffe066" or "#ff7fb6")
 			end
 		end
 

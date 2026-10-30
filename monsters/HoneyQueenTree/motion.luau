@@ -79,7 +79,7 @@ function M.Update(t, pose, ctx)
 	-- crown hive: bob + wobble; squash + shake on the gather, pop up on the burst
 	pose.Hive = pa(0, 0.2 * w(t, 2, 0.3) - 0.7 * gather + 1.1 * pop, 0,
 		2.0 * w(t, 1, 0.15) + shX - 3 * kick, 3 * w(t, 1, 0.6), 2.0 * w(t, 1, 0.4) + shZ)
-	pose.Crown = pa(0, 2.2 * hop + 0.08 * w(t, 2, 0.5), 0,
+	pose.Crown = pa(0, 1.7 * hop + 0.08 * w(t, 2, 0.5), 0,
 		4 * w(t, 1, 0.7) + 10 * hop, 90 * spin + 6 * w(t, 1, 0.2), 4 * w(t, 1, 0.95) - 6 * hop)
 
 	-- wild comb sheets + honey-drop fruits
@@ -112,7 +112,7 @@ function M.Update(t, pose, ctx)
 	for k = 1, 2 do
 		for j = 1, 9 do
 			local band = 0.5 + 0.5 * w(t, 10, -j * 0.22 + k * 0.5)
-			ctx.transparency("Fall" .. k .. "Seg" .. j, clamp((0.04 + 0.26 * band + 0.15 * gather) * (1 - flash), 0, 0.5))
+			ctx.transparency("Fall" .. k .. "Seg" .. j, clamp((0.02 + 0.18 * band + 0.12 * gather) * (1 - flash), 0, 0.4))
 		end
 		ctx.transparency("FallCore" .. k, 1 - 0.85 * flash)
 	end

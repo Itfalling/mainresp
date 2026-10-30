@@ -241,8 +241,8 @@ return {
 
 		-- the four tulips -----------------------------------------------
 		-- centre: tall royal rose tulip (with crown)
-		local cB = v(0.3, 15.3, 0.9)
-		stem(v(0.1, TOP + 0.6, 0.3), v(-0.2, 9.4, 0.5), cB, 1.15)
+		local cB = v(0.3, 14.0, 0.9)
+		stem(v(0.1, TOP + 0.6, 0.3), v(-0.2, 8.8, 0.5), cB, 1.15)
 		local cO = tulip(cB, 4.6, 5.2, ROSE, 0, "JellyCore1", { orbScale = 1.4, drips = 3 })
 		-- front right: lavender
 		local rB = v(4.6, 10.9, -2.0)
@@ -253,7 +253,7 @@ return {
 		stem(v(-0.5, TOP + 0.6, -0.1), v(-2.6, 5.9, -1.4), lB, 0.95)
 		local lO = tulip(lB, 3.7, 4.2, BLUSH, -20, "JellyCore3", { orbScale = 1.1, drips = 1 })
 		-- back left: golden
-		local gB = v(-3.6, 12.6, 3.5)
+		local gB = v(-3.6, 11.9, 3.5)
 		stem(v(-0.4, TOP + 0.6, 0.7), v(-2.0, 8.0, 1.9), gB, 1.0)
 		local gO = tulip(gB, 3.9, 4.4, GOLDEN, 40, "JellyCore4", { orbScale = 1.15, drips = 2 })
 
@@ -328,7 +328,7 @@ return {
 		------------------------------------------------------------------
 		-- VFX: 7 emitters, 2 lights
 		------------------------------------------------------------------
-		local sparkZone = B:block(crop, v(10, 8, 10), cf(0, 15.5, 0), JELLY, { tr = 1, name = "SparkZone" })
+		local sparkZone = B:block(crop, v(10, 8, 10), cf(0, 14.5, 0), JELLY, { tr = 1, name = "SparkZone" })
 		B:emitter(sparkZone, "sparkle", { name = "JellySparkles", color = { "#ffffff", JELLY_CORE, "#ffb3d6" }, rate = 16, size = { 0.2, 0.7, 0 }, life = { 0.9, 1.8 }, speed = { 0.2, 0.7 }, light = 1 })
 		local cFx = B:block(crop, v(2, 2, 2), CFrame.new(cO), JELLY, { tr = 1, name = "RoyalFx" })
 		B:emitter(cFx, "glow", { name = "RoyalGlow", color = { "#fff6c8", JELLY_CORE }, rate = 2.5, size = { 2.6, 4.2, 1.5 }, trans = { 0.78, 0.68, 1 }, light = 1 })
@@ -338,7 +338,7 @@ return {
 		B:emitter(dripZone, "drip", { name = "JellyDrip", color = { JELLY_HI, JELLY_DK }, rate = 2.5, size = { 0.38, 0.32, 0.15 }, life = { 1.0, 1.6 }, accel = { 0, -18, 0 } })
 		local pollenZone = B:block(soil, v(14, 1, 14), cf(0, 3.6, 0), JELLY, { tr = 1, name = "PollenZone" })
 		B:emitter(pollenZone, "ember", { name = "PollenMotes", color = { "#fff3a0", GOLD, "#ffd36a" }, rate = 7, size = { 0.3, 0.24, 0 }, life = { 3, 5 }, speed = { 0.3, 0.9 }, spread = 30, accel = { 0.15, 0.9, 0 }, light = 1 })
-		local petalZone = B:block(crop, v(12, 1, 12), cf(0, 17.5, 0), JELLY, { tr = 1, name = "PetalZone" })
+		local petalZone = B:block(crop, v(12, 1, 12), cf(0, 16.5, 0), JELLY, { tr = 1, name = "PetalZone" })
 		B:emitter(petalZone, "leaf", { name = "PetalDrift", color = { ROSE[3], LAV[3], BLUSH[1] }, rate = 2.2, size = { 0.5, 0.5, 0.3 }, life = { 3.5, 5.5 }, speed = { 0.3, 0.7 }, accel = { 0.4, -1.2, 0.2 }, dir = "Bottom" })
 		local lowFx = B:block(crop, v(5, 4, 5), cf(-2.0, 10.5, 0.4), JELLY, { tr = 1, name = "LowFx" })
 		B:emitter(lowFx, "sparkle", { name = "LowSparkles", color = { "#ffffff", "#ffe27a" }, rate = 6, size = { 0.15, 0.5, 0 }, life = { 0.8, 1.5 }, speed = { 0.2, 0.5 }, light = 1 })
