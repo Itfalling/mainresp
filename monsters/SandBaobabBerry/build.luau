@@ -239,6 +239,8 @@ return {
 		-- top-centre stub branch + clump
 		B:bar(crop, base0, v(0.2, 18.8, 0.3), 1.2, 1.2, BARK_LT)
 		clump(v(0.2, 21.0, 0.3), 3.0)
+		berries(v(0.2, 21.0, 0.3), 200, 2.6)
+		berries(v(0.2, 21.0, 0.3), 20, 2.6)
 
 		---------------------------------------------------------------- velvety split pods
 		local podGlows = {}
@@ -259,8 +261,8 @@ return {
 			B:block(crop, v(1.15, L * 0.66, 0.2), mid, PULP_DK)
 			B:block(crop, v(0.8, L * 0.54, 0.2), mid * CFrame.new(0, 0, -0.08), PULP)
 			table.insert(podGlows, B:block(crop, v(0.32, L * 0.44, 0.14), mid * CFrame.new(0, 0, -0.16), PULP_GLOW, { mat = "Neon", name = "PodGlow" }))
-			B:block(crop, v(0.24, 0.24, 0.16), mid * CFrame.new(0.3, L * 0.12, -0.17), SEED)
-			B:block(crop, v(0.24, 0.24, 0.16), mid * CFrame.new(-0.3, -L * 0.14, -0.17), SEED)
+			B:block(crop, v(0.24, 0.24, 0.16), mid * CFrame.new(0.3, L * 0.05, -0.17), SEED)
+			B:block(crop, v(0.24, 0.24, 0.16), mid * CFrame.new(-0.3, -L * 0.05, -0.17), SEED)
 		end
 		for i, h in podHangs do
 			pod(h.p, 2.2 + rnd(-0.2, 0.4), h.a, (i % 2 == 0) and rnd(0.6, 1) or rnd(0, 0.4))
