@@ -41,6 +41,7 @@ return {
 		local LF_DK, LF, LF_MID, LF_LT, LF_LIME = "#3f9a2c", "#55b23a", "#6cc444", "#8fd64e", "#b5e05a"
 		local LF_GOLD, LF_GOLD2 = "#cfdc4e", "#e6d24a"
 		local COMB_DK, COMB_BASE, COMB, COMB_LT, COMB_CAP = "#7c3f0c", "#a55a12", "#eea21a", "#ffc93a", "#ffe7a0"
+		local COMB_BODY = "#cf7d1c"
 		local HONEY_DK, HONEY, HONEY_LT, HONEY_GLOW = "#c7740c", "#f0a215", "#ffc23a", "#ffd95a"
 		local HIVE_GR, HIVE_DK, HIVE, HIVE_LT = "#94561a", "#d4922e", "#f2b648", "#ffd66e"
 		local GOLD_DK, GOLD, GOLD_LT = "#f0b020", "#ffd23a", "#ffea8a"
@@ -233,7 +234,7 @@ return {
 			-- amber wax body; raised golden cells in a 2-3-2 hex cluster leave
 			-- dark seams between them = honeycomb
 			local H = h + 0.8
-			B:block(bone, v(s, H, s * 0.9), F, COMB_BASE)
+			B:block(bone, v(s, H, s * 0.9), F, COMB_BODY)
 			local cw = (s - 0.4) / 3 - 0.2
 			local ch = (H - 0.3) / 3 - 0.2
 			local cells = { { -0.5, 1 }, { 0.5, 1 }, { -1, 0 }, { 0, 0 }, { 1, 0 }, { -0.5, -1 }, { 0.5, -1 } }
