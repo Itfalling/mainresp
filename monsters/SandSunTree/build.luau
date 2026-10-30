@@ -34,12 +34,12 @@ return {
 		local CACT, CACT_DK = "#5da047", "#3f7d35"
 		local SHELL, SHELL_PK = "#fff1df", "#f6b9ad"
 		local PINK = "#ff86b4"
-		local TERRA_DK, TERRA, TERRA_LT, TERRA_HI = "#7e3420", "#a5482a", "#c8653a", "#dd8450"
+		local TERRA_DK, TERRA, TERRA_LT, TERRA_HI = "#8d3f24", "#b4552f", "#d06d3d", "#e68f55"
 		-- canopy: olive -> lime-gold -> sun-gold
-		local T1 = { "#5f8a2e", "#6f9a35", "#7fa93a" }
-		local T1_UNDER, T1_TOP = "#4a7027", { "#8fb53f", "#a3c247", "#7fa93a" }
-		local T2 = { "#93b23a", "#a8bd3f", "#b9c844" }
-		local T2_UNDER, T2_TOP = "#7c9a33", { "#c8cf4a", "#d6c84a", "#b9c844" }
+		local T1 = { "#5a9634", "#6caa3a", "#4f8a2e" }
+		local T1_UNDER, T1_TOP = "#3f7228", { "#8cc444", "#a4cf4a", "#7cb83e" }
+		local T2 = { "#9cc23e", "#b2c943", "#8ab53a" }
+		local T2_UNDER, T2_TOP = "#76992f", { "#cdd44c", "#e0cf4c", "#bccc46" }
 		local T3 = { "#e0b13a", "#eebf45", "#d49e2e" }
 		local T3_UNDER, T3_TOP = "#c08a2a", { "#f6cf55", "#ffd968", "#f0a83a" }
 		local ACCENT = "#f39a2e"
@@ -171,6 +171,7 @@ return {
 			B:block(bone, v(2.35 * s, 1.5 * s, 1.5 * s), F, FRUIT, o.slabOpts)
 			B:block(bone, v(1.5 * s, 2.35 * s, 1.5 * s), F, FRUIT_DK, o.slabOpts)
 			B:block(bone, v(1.5 * s, 1.5 * s, 2.35 * s), F, FRUIT, o.slabOpts)
+			B:block(bone, v(2.15 * s, 1.3 * s, 2.15 * s), F * ang(0, 45, 0), FRUIT_DK, o.slabOpts)
 			B:block(bone, v(0.55 * s, 0.55 * s, 0.14), F * CFrame.new(-0.35 * s, 0.35 * s, -1.2 * s), FRUIT_LT, o.slabOpts)
 			return F
 		end
@@ -194,22 +195,21 @@ return {
 		end
 		local SEG = {
 			-- width, y0, yaw, colour
-			{ 5.0, 1.4, 0, TERRA },
-			{ 4.6, 3.2, 16, TERRA_DK },
-			{ 4.25, 5.0, 32, TERRA },
-			{ 3.95, 6.8, 48, TERRA_DK },
-			{ 3.7, 8.4, 64, TERRA },
+			{ 4.9, 1.4, 0, TERRA },
+			{ 4.5, 3.0, 18, TERRA_DK },
+			{ 4.15, 4.6, 36, TERRA },
+			{ 3.85, 6.0, 54, TERRA_DK },
 		}
 		for i, s in SEG do
 			local ox, oz = polar(0.25, i * 70)
-			B:block(crop, v(s[1], 2.1, s[1]), cf(ox, BASE + s[2] + 1.0, oz, 0, s[3], 0), s[4])
+			B:block(crop, v(s[1], 1.9, s[1]), cf(ox, BASE + s[2] + 0.9, oz, 0, s[3], 0), s[4])
 		end
 		-- twisting ridges (three helices)
 		for _, a0 in { 20, 140, 260 } do
 			local prev
 			for i = 0, 4 do
 				local t = i / 4
-				local y = BASE + 1.6 + t * 8.2
+				local y = BASE + 1.6 + t * 6.6
 				local r = 2.55 - t * 0.6
 				local p = at(r, a0 + t * 110, y)
 				if prev then
@@ -219,12 +219,12 @@ return {
 			end
 		end
 		-- acacia limbs fanning out (first segment on the trunk)
-		local FORK = BASE + 9.4
+		local FORK = BASE + 7.8
 		local limbs = {}
 		for k = 0, 3 do
 			local a = 45 + k * 90 + jit(6)
 			local p0 = at(0.7, a, FORK - 0.6)
-			local p1 = at(3.6, a + 8, FORK + 1.6)
+			local p1 = at(4.0, a + 8, FORK + 1.7)
 			B:bar(crop, p0, p1, 1.8, 1.6, (k % 2 == 0) and TERRA or TERRA_DK)
 			limbs[k + 1] = { a = a, p1 = p1 }
 		end
@@ -236,8 +236,8 @@ return {
 		local function slab(bone, p, s, h, col, tilt)
 			return B:block(bone, v(s, h, s), CFrame.new(p) * ang(jit(tilt or 6), rnd() * 90, jit(tilt or 6)), col)
 		end
-		local function cube(bone, p, s, col)
-			return B:block(bone, v(s, s, s), CFrame.new(p) * ang(jit(18), rnd() * 90, jit(18)), col)
+		local function cube(bone, p, s, h, col)
+			return B:block(bone, v(s, h, s), CFrame.new(p) * ang(jit(10), rnd() * 90, jit(10)), col)
 		end
 		local cubes = {}
 		local function tier(bone, d)
@@ -258,42 +258,43 @@ return {
 			end
 			for i = 0, d.nb - 1 do
 				local a = (i + 0.5) * 360 / d.nb + d.phase + jit(6)
-				cube(bone, at(d.rb + jit(0.2), a, d.cy + d.h * 0.5 + d.bs * 0.25 + jit(0.15)), d.bs + jit(0.2), d.top[1 + (i % #d.top)])
+				cube(bone, at(d.rb + jit(0.2), a, d.cy + d.h * 0.5 + d.bh * 0.3 + jit(0.1)), d.bs + jit(0.2), d.bh, d.top[1 + (i % #d.top)])
 			end
 		end
 
 		-- TIER 1 (widest, olive-green)
 		local tier1 = B:bone("Tier1", "Crop", v(0, FORK + 0.6, 0))
 		for _, l in limbs do
-			local p2 = at(6.0, l.a - 6, FORK + 3.0)
+			local p2 = at(6.8, l.a - 6, FORK + 2.6)
 			B:bar(tier1, l.p1 - (l.p1 - at(0.7, l.a, FORK - 0.6)).Unit * 0.4, p2, 1.3, 1.2, TERRA_LT)
 		end
-		B:block(tier1, v(2.6, 6.2, 2.6), cf(0, FORK + 3.4, 0, 0, 20, 0), TERRA_DK) -- leader inside the crown
-		local C1 = FORK + 4.2
-		tier(tier1, { cy = C1, R = 8.4, n = 10, r = 6.7, s = 5.0, h = 2.6, cols = T1, phase = 0,
-			ni = 5, ri = 3.0, si = 5.2, nb = 9, rb = 5.6, bs = 2.8, top = T1_TOP, under = T1_UNDER })
+		B:block(tier1, v(2.6, 4.0, 2.6), cf(0, FORK + 2.4, 0, 0, 20, 0), TERRA_DK) -- leader inside the crown
+		local C1 = FORK + 3.3
+		tier(tier1, { cy = C1, R = 9.6, n = 12, r = 7.7, s = 4.8, h = 2.2, cols = T1, phase = 0,
+			ni = 7, ri = 4.0, si = 5.0, nb = 10, rb = 6.6, bs = 3.0, bh = 1.2, top = T1_TOP, under = T1_UNDER })
+		B:block(tier1, v(4.6, 2.3, 4.6), cf(0, C1 + 0.1, 0, 0, 15, 0), T1[3])
 		-- branches up to tier 2 (on tier 1)
-		local T2Y = C1 + 4.9
+		local T2Y = C1 + 4.7
 		for k = 0, 2 do
 			local a = 20 + k * 120
-			B:bar(tier1, at(0.6, a, C1 + 0.6), at(2.6, a + 10, T2Y - 1.0), 1.2, 1.1, TERRA)
+			B:bar(tier1, at(0.6, a, C1 + 0.6), at(3.0, a + 10, T2Y - 0.6), 1.2, 1.1, TERRA)
 		end
 
 		-- TIER 2 (lime-gold)
-		local tier2 = B:bone("Tier2", "Tier1", v(0, C1 + 2.2, 0))
-		B:block(tier2, v(2.0, 3.6, 2.0), cf(0, T2Y - 0.6, 0, 0, 40, 0), TERRA_DK)
-		tier(tier2, { cy = T2Y, R = 6.2, n = 8, r = 4.9, s = 4.3, h = 2.4, cols = T2, phase = 22,
-			ni = 4, ri = 1.9, si = 4.4, nb = 7, rb = 3.9, bs = 2.5, top = T2_TOP, under = T2_UNDER })
-		local T3Y = T2Y + 4.3
+		local tier2 = B:bone("Tier2", "Tier1", v(0, C1 + 2.4, 0))
+		B:block(tier2, v(2.0, 3.4, 2.0), cf(0, T2Y - 1.4, 0, 0, 40, 0), TERRA_DK)
+		tier(tier2, { cy = T2Y, R = 7.2, n = 10, r = 5.7, s = 4.2, h = 2.0, cols = T2, phase = 18,
+			ni = 4, ri = 2.2, si = 4.4, nb = 8, rb = 4.4, bs = 2.6, bh = 1.3, top = T2_TOP, under = T2_UNDER })
+		local T3Y = T2Y + 4.2
 		for k = 0, 2 do
 			local a = 80 + k * 120
-			B:bar(tier2, at(0.5, a, T2Y + 0.5), at(1.9, a + 10, T3Y - 0.9), 1.0, 0.95, TERRA_LT)
+			B:bar(tier2, at(0.5, a, T2Y + 0.5), at(2.2, a + 10, T3Y - 0.6), 1.0, 0.95, TERRA_LT)
 		end
 
 		-- TIER 3 (sun-gold)
 		local tier3 = B:bone("Tier3", "Tier2", v(0, T2Y + 1.9, 0))
-		tier(tier3, { cy = T3Y, R = 4.4, n = 6, r = 3.1, s = 3.6, h = 2.2, cols = T3, phase = 10,
-			ni = 1, ri = 0.0, si = 3.8, nb = 6, rb = 2.6, bs = 2.0, top = T3_TOP, under = T3_UNDER })
+		tier(tier3, { cy = T3Y, R = 4.8, n = 7, r = 3.6, s = 3.4, h = 1.8, cols = T3, phase = 10,
+			ni = 1, ri = 0.0, si = 3.6, nb = 6, rb = 2.9, bs = 2.2, bh = 1.0, top = T3_TOP, under = T3_UNDER })
 
 		-- little orange "sun-kissed" leaf caps + half-sunk sunfruits on the tier rims
 		local sunkN = 0
@@ -313,10 +314,11 @@ return {
 		------------------------------------------------------------------
 		-- SUN DISC CROWN (bone "Sun" on a golden stalk; rays on RayN bones)
 		------------------------------------------------------------------
-		local SC = v(0, T3Y + 7.4, 0)
+		local SC = v(0, T3Y + 7.3, 0)
 		-- stalk + leaf collar on tier 3
 		B:bar(tier3, v(0, T3Y + 0.6, 0), SC + v(0, -2.2, 0), 1.3, 1.3, GOLD_DK)
-		B:block(tier3, v(1.7, 0.6, 1.7), CFrame.new(v(0, T3Y + 3.4, 0)) * ang(0, 45, 0), GOLD)
+		B:block(tier3, v(1.8, 0.6, 1.8), CFrame.new(v(0, T3Y + 3.6, 0)) * ang(0, 45, 0), GOLD)
+		B:block(tier3, v(1.6, 0.5, 1.6), CFrame.new(v(0, T3Y + 4.9, 0)) * ang(0, 10, 0), ORANGE)
 		for i = 0, 4 do
 			local c = CFrame.new(0, T3Y + 1.9, 0) * CFrame.Angles(0, rad(i * 72 + 10), 0) * CFrame.new(0, 0, -1.3) * ang(-30, 0, 0)
 			B:block(tier3, v(1.4, 0.32, 1.9), c, (i % 2 == 0) and T3_TOP[1] or ACCENT)
@@ -356,17 +358,17 @@ return {
 		------------------------------------------------------------------
 		-- HANGING SUNFRUIT ORBS (bones FruitN on tier 1, pivot at the stem top)
 		------------------------------------------------------------------
-		local UNDER1 = C1 - 1.3
+		local UNDER1 = C1 - 1.1
 		local FRUITS = {
 			-- deg, radius, stem length, scale
-			{ 22, 5.6, 1.3, 1.0 },
-			{ 67, 6.6, 2.4, 0.95 },
-			{ 112, 5.6, 1.4, 1.0 },
-			{ 157, 6.6, 2.3, 0.95 },
-			{ 202, 5.6, 1.3, 1.0 },
-			{ 247, 6.6, 2.5, 0.95 },
-			{ 292, 5.6, 1.4, 1.0 },
-			{ 337, 6.6, 2.3, 0.95 },
+			{ 22, 6.0, 1.4, 1.2 },
+			{ 67, 7.4, 2.6, 1.1 },
+			{ 112, 6.0, 1.5, 1.2 },
+			{ 157, 7.4, 2.5, 1.1 },
+			{ 202, 6.0, 1.4, 1.2 },
+			{ 247, 7.4, 2.7, 1.1 },
+			{ 292, 6.0, 1.5, 1.2 },
+			{ 337, 7.4, 2.5, 1.1 },
 		}
 		for i, f in FRUITS do
 			local top = at(f[2], f[1], UNDER1 + 0.2)
