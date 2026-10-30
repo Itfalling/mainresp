@@ -25,7 +25,7 @@ return {
 		local STEM, STEM_DK = "#7c9a84", "#5b7563"
 		local MINT_N, MINT, MINT_DK = "#7dffd2", "#aef5dc", "#6fd8b4"
 		local BLUSH, EYE_DK = "#ffb3c8", "#2a2440"
-		local CARVE, RIM = "#36e8b0", "#3b3358" -- mint glow inside the carving, dusky rim
+		local CARVE, RIM = "#36e8b0", "#5d5683" -- mint glow inside the carving, dusky rim
 
 		local seed = 8808
 		local function rnd(a, b)
@@ -55,15 +55,15 @@ return {
 				B:block(soil, v(w, eh, d), p * ang(0, rnd(-6, 6), 0), pick(edgeCols), S)
 			end
 		end
-		tier(0, 0.8, 7.4, DIRT_DK, 16, { DIRT_DK, DIRT_DK2, DIRT_DK }, 0.35)
-		tier(0.8, 0.6, 5.4, DIRT, 11, { DIRT, DIRT_LT, DIRT }, 0.3)
-		tier(1.4, 0.4, 3.8, DIRT_LT, 7, { DIRT_LT, DIRT }, 0.2)
-		for _, g in { { 7.0, -3.0 }, { -6.6, 3.7 }, { 4.1, 6.2 }, { -7.2, -1.6 }, { 1.0, -7.4 } } do
+		tier(0, 0.8, 7.4, DIRT_DK, 13, { DIRT_DK, DIRT_DK2, DIRT_DK }, 0.35)
+		tier(0.8, 0.6, 5.4, DIRT, 8, { DIRT, DIRT_LT, DIRT }, 0.3)
+		tier(1.4, 0.4, 3.8, DIRT_LT, 5, { DIRT_LT, DIRT }, 0.2)
+		for _, g in { { 7.0, -3.0 }, { -6.6, 3.7 }, { 1.0, -7.4 } } do
 			B:block(soil, v(0.45, 0.9, 0.45), cf(g[1], 1.0, g[2], 0, rnd(0, 40), 0), GRASS, S)
 			B:block(soil, v(0.35, 0.6, 0.35), cf(g[1] + 0.35, 0.95, g[2] + 0.2, 0, rnd(0, 40), 0), GRASS_DK, S)
 		end
-		for _, h in { { 6.0, 0.8, 1.4, 30 }, { -5.8, 0.8, -2.4, -40 }, { 2.2, 0.8, -6.6, 70 }, { -2.0, 0.8, 6.2, 10 },
-			{ 4.4, 1.4, 2.6, 55 }, { -4.6, 1.4, 0.8, 80 }, { 5.2, 0.8, -3.8, 15 } } do
+		for _, h in { { 6.0, 0.8, 1.4, 30 }, { 2.2, 0.8, -6.6, 70 }, { -2.0, 0.8, 6.2, 10 },
+			{ -4.6, 1.4, 0.8, 80 } } do
 			B:block(soil, v(1.6, 0.22, 0.32), cf(h[1], h[2] + 0.12, h[3], 0, h[4], 0), HAY, S)
 			B:block(soil, v(1.1, 0.2, 0.28), cf(h[1] + 0.2, h[2] + 0.13, h[3] + 0.25, 0, h[4] + 35, 0), (h[4] % 20 == 0) and HAY_DK or HAY_LT, S)
 		end
@@ -101,9 +101,8 @@ return {
 			-- surprised "ooh": round eyes, little o mouth
 			ooh = {
 				"..##.......##..",
-				".####.....####.",
-				".####.....####.",
 				"..##.......##..",
+				"...............",
 				"...............",
 				"......###......",
 				".....#...#.....",
@@ -145,7 +144,7 @@ return {
 			-- carved face on the front: pixel art on a 15-col grid (unit w/15);
 			-- each run = a dark carved rim with the glowing hole in front of it
 			if face then
-				local u = w / 15
+				local u = w / 18
 				local z0 = -d / 2
 				local rows = FACES[face]
 				local nRows = #rows
@@ -193,7 +192,7 @@ return {
 		pumpkin(cf(-0.1, P3.y, 0.0, 0, 9, -3), P3.w, P3.h, "wink")
 		-- two little ones on the mound
 		pumpkin(cf(4.9, 0.8 + 1.15, -3.6, 0, -28, 2), 3.0, 2.3, "happy")
-		pumpkin(cf(-5.2, 0.8 + 0.95, -2.6, 0, 30, -3), 2.5, 1.9, "ooh")
+		pumpkin(cf(-5.2, 0.8 + 0.95, -2.6, 0, 30, -3), 2.5, 1.9, nil) -- uncarved baby
 
 		--------------------------------------------- the spiralling pumpkin vine
 		-- radius hugging the stack at height y
@@ -210,7 +209,7 @@ return {
 			for i = 0, N do
 				local t = i / N
 				local y = yA + t * (yB - yA)
-				local deg = 170 + (y - yA) * 46
+				local deg = 180 + 105 * math.sin(t * 2.5 * math.pi) -- serpentine round the back, never over the faces
 				local p = polar(deg, hugR(y), y)
 				if prev then seg(prev, p, 1.0 - 0.45 * t, (i % 2 == 0) and VINE or VINE_DK) end
 				table.insert(vinePts, { p = p, deg = deg, y = y })
@@ -219,18 +218,16 @@ return {
 		end
 		-- root collar + runners to the little pumpkins
 		B:block(crop, v(2.2, 0.7, 2.2), CFrame.new(vinePts[1].p + v(0, -0.1, 0)) * ang(0, 20, 0), VINE_DK)
-		seg(vinePts[1].p, v(-3.4, 2.2, 1.6), 0.5, VINE)
-		seg(v(-3.4, 2.2, 1.6), v(-4.6, 2.3, -1.4), 0.45, VINE_DK)
-		seg(vinePts[1].p, v(3.6, 2.0, 1.8), 0.5, VINE_DK)
-		seg(v(3.6, 2.0, 1.8), v(4.6, 2.4, -2.4), 0.45, VINE)
+		seg(vinePts[1].p, v(-4.0, 2.2, -0.2), 0.5, VINE)
+		seg(vinePts[1].p, v(4.2, 2.2, -0.4), 0.5, VINE_DK)
 
 		-- big leaf cubes along the vine, kept off the faces (front arc)
 		local leafCols = { LEAF, LEAF_DK, LEAF_LT, LEAF, LEAF_HI, LEAF_DK, LEAF_LT }
 		local li = 0
 		for i, q in vinePts do
 			local a = ((q.deg % 360) + 360) % 360
-			local nearFront = a < 75 or a > 285
-			if i % 2 == 0 and i >= 2 and not nearFront then
+			local nearFront = a < 100 or a > 260
+			if i >= 2 and not nearFront and (i % 2 == 0 or i == #vinePts) then
 				li += 1
 				local s = 3.4 - 1.2 * (i / #vinePts) + rnd(-0.2, 0.2)
 				leafAt(polar(q.deg + ((li % 2 == 0) and 12 or -12), hugR(q.y) + s * 0.35, q.y + 0.2), s, leafCols[(li - 1) % #leafCols + 1])
@@ -241,6 +238,13 @@ return {
 		leafAt(polar(215, 5.6, 2.3), 2.8, LEAF, 12)
 		leafAt(polar(95, 5.6, 2.0), 2.4, LEAF_LT, 12)
 		leafAt(polar(265, 5.3, 2.1), 2.5, LEAF_HI, 12)
+		-- leafy ruffs framing the faces where the pumpkins stack
+		local y1, y2 = P1.y + P1.h / 2, P2.y + P2.h / 2
+		for k, q in { { 62, y1, 2.4, LEAF_LT }, { 298, y1, 2.3, LEAF }, { 110, y1 + 0.2, 2.6, LEAF_DK }, { 250, y1 + 0.2, 2.5, LEAF_LT },
+			{ 66, y2, 1.9, LEAF }, { 294, y2, 2.0, LEAF_HI } } do
+			local r = ((q[2] == y1) and P2.w or P3.w) / 2 + 0.9
+			leafAt(polar(q[1], r, q[2] + 0.3), q[3], q[4])
+		end
 
 		-- wispy mint tendrils curling off the vine, glowing tips
 		local tips = {}
@@ -259,11 +263,10 @@ return {
 			local t = B:block(crop, v(sz * 1.1, sz * 1.1, sz * 1.1), CFrame.new(pts[#pts]) * ang(45, 0, 45), MINT_N, { mat = "Neon", name = "WispTip" })
 			table.insert(tips, t)
 		end
-		curl(vinePts[3].p, vinePts[3].deg - 40, 0.5, 1.1, 0.34)
-		curl(vinePts[6].p, vinePts[6].deg + 20, 0.6, 1.0, 0.32)
-		curl(vinePts[9].p, vinePts[9].deg - 30, 0.5, 1.0, 0.3)
-		curl(vinePts[12].p, vinePts[12].deg + 30, 0.5, 0.9, 0.3)
-		curl(vinePts[15].p, vinePts[15].deg - 20, 0.5, 0.85, 0.28)
+		curl(vinePts[3].p, vinePts[3].deg - 40, 0.7, 1.5, 0.42)
+		curl(vinePts[6].p, vinePts[6].deg + 20, 0.8, 1.4, 0.4)
+		curl(vinePts[9].p, vinePts[9].deg - 30, 0.7, 1.4, 0.38)
+		curl(vinePts[12].p, vinePts[12].deg + 30, 0.7, 1.3, 0.36)
 
 		------------------------------------------------------------- top crown
 		local topY = P3.y + P3.h / 2
@@ -300,8 +303,8 @@ return {
 			local m = B:block(crop, v(0.3 * s, 0.22 * s, 0.1), c * CFrame.new(0, -0.25 * s, -0.72 * s), MINT_N, { mat = "Neon", name = "GhostMouth" })
 			table.insert(ghosts, m)
 		end
-		ghost(v(-5.6, 13.0, -0.6), 1.0, -12)
-		ghost(v(5.4, 15.4, 0.8), 0.85, 14)
+		ghost(v(-6.0, 12.6, -0.8), 1.25, -12)
+		ghost(v(5.8, 15.2, 0.6), 1.05, 14)
 
 		---------------------------------------------------------------- bling
 		B:emitter(tips[1], "glow", { name = "WispGlow", color = "#7dffd2", rate = 2, size = 1.2 })
