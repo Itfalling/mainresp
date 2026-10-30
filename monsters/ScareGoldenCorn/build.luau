@@ -20,12 +20,12 @@ return {
 		local GRASS, GRASS_DK = "#58c23a", "#3f9a2a"
 		local HAY, HAY_DK, HAY_LT, TWINE = "#eac25a", "#c99a35", "#f7e095", "#8a5a2a"
 		local STALK, STALK_DK, STALK_LT = "#6fa83a", "#4f8a2a", "#86bc44"
-		-- leaf blades fade green -> gold-green -> straw gold toward the tips
-		local LEAF_A = { "#5f9e34", "#7fb23a", "#c9c24a", "#f3d469" }
-		local LEAF_B = { "#4f8c2c", "#6aa232", "#b5b440", "#e8c252" }
+		local L_GREEN = { "#4f8f2e", "#5f9e34", "#76b03c" }
+		local L_MID = { "#7fa834", "#9db63c", "#b9c24a" }
+		local L_STRAW = { "#cfa640", "#e2bd52", "#f0d36e" }
 		local GOLD, GOLD_DK, AMBER, AMBER_DK = "#ffd024", "#e39a14", "#f59a16", "#d9730c"
 		local GOLD_LT = "#ffe45c"
-		local HUSK, HUSK_DK = "#a9cc4e", "#7fae38"
+		local HUSK, HUSK_DK, HUSK_LT, STRAW_TIP = "#9cc44a", "#78a836", "#c3d660", "#e8cc62"
 		local SILK, SILK_DK = "#f2a640", "#b8641e"
 		local GLINT = "#fff2a8"
 		local RIB, RIB_DK = "#b8243a", "#86182a"
@@ -130,26 +130,25 @@ return {
 		pumpkin(-1.4, 2.3, -4.3, 1.1, -15)
 
 		------------------------------------------------------------------
-		-- STALKS (corn shock: three chunky stalks pinched together by the bow)
+		-- STALKS (corn shock: chunky stalks pinched together by the bow)
 		------------------------------------------------------------------
 		local BASEY = 2.2
 		local RIBY = 6.3
 		local stalks = {
-			-- x, z, height, width, splay x, splay z
-			{ 0.0, 0.5, 19.2, 2.0, 0.0, 0.3 },
-			{ -2.0, -0.5, 15.6, 1.7, -1.3, -0.2 },
-			{ 2.0, -0.3, 13.6, 1.6, 1.3, -0.1 },
+			-- x, z, height, width, splay x, splay z, tassel?
+			{ 0.0, 0.3, 12.8, 2.3, 0.0, 0.0, false },
+			{ -2.1, -0.5, 15.0, 1.7, -1.6, -0.3, true },
+			{ 2.1, -0.4, 13.2, 1.6, 1.6, -0.2, true },
+			{ 0.3, 2.2, 11.4, 1.5, 0.3, 1.4, true },
 		}
 		local stalkPt = {}
 		for si, s in stalks do
 			local x0, z0, H, W = s[1], s[2], s[3], s[4]
 			local function at(y)
-				local t = math.clamp((y - BASEY) / (H - BASEY), 0, 1)
-				-- pinched together at the ribbon, splaying out above it
 				local pinch = math.clamp(1 - math.abs(y - RIBY) / 4.5, 0, 1)
 				local up = math.clamp((y - RIBY) / (H - RIBY), 0, 1)
 				local k = 1 - 0.45 * pinch
-				return v(x0 * k + s[5] * up * up * 1.8, y, z0 * k + s[6] * up * up * 1.8)
+				return v(x0 * k + s[5] * up * up * 1.6, y, z0 * k + s[6] * up * up * 1.6)
 			end
 			stalkPt[si] = at
 			local cuts = { BASEY - 0.2 }
@@ -160,7 +159,7 @@ return {
 			end
 			for n = 1, #cuts - 1 do
 				local y0, y1 = cuts[n], cuts[n + 1]
-				local w = W * (1 - 0.35 * (y0 - BASEY) / (H - BASEY))
+				local w = W * (1 - 0.3 * (y0 - BASEY) / (H - BASEY))
 				B:beam(crop, at(y0), at(y1 + 0.1), w, w, (n % 2 == 0) and STALK_LT or STALK)
 				if n < #cuts - 1 then
 					local p = at(y1)
@@ -172,10 +171,10 @@ return {
 		end
 
 		------------------------------------------------------------------
-		-- LEAVES: broad arching straw-gold blades (up, out, then drooping)
+		-- LEAVES: broad arching blades, green low down, straw-gold up high
 		------------------------------------------------------------------
 		local function leafBlade(p, deg, len, w, pal, rise)
-			local pitches = { 42 + rise, 8 + rise * 0.5, -34 }
+			local pitches = { 40 + rise, 6 + rise * 0.5, -34 }
 			local seg = len / #pitches
 			local a = rad(deg)
 			local dir = v(math.sin(a), 0, -math.cos(a))
@@ -184,90 +183,122 @@ return {
 				local pr = rad(pt)
 				local nxt = cur + dir * (math.cos(pr) * seg) + v(0, math.sin(pr) * seg, 0)
 				local d = (nxt - cur).Unit
-				local ww = w * (1 - 0.2 * (i - 1))
-				B:beam(crop, cur - d * 0.3, nxt + d * 0.3, ww, 0.5, pal[i + 1])
+				B:beam(crop, cur - d * 0.3, nxt + d * 0.3, w * (1 - 0.2 * (i - 1)), 0.5, pal[i])
 				cur = nxt
 			end
-			return cur
 		end
 		local leaves = {
 			-- stalk, height, deg, len, width, palette, rise
-			{ 1, 4.4, 165, 7.4, 1.7, LEAF_A, 0 },
-			{ 1, 4.2, 20, 7.0, 1.7, LEAF_B, 0 },
-			{ 1, 8.6, 120, 7.0, 1.6, LEAF_B, 6 },
-			{ 1, 11.8, 245, 6.6, 1.5, LEAF_A, 8 },
-			{ 1, 15.0, 330, 5.6, 1.3, LEAF_B, 12 },
-			{ 1, 17.0, 150, 4.6, 1.15, LEAF_A, 16 },
-			{ 2, 4.8, 275, 7.0, 1.6, LEAF_A, 0 },
-			{ 2, 11.0, 300, 5.8, 1.4, LEAF_B, 8 },
-			{ 3, 4.6, 90, 6.8, 1.6, LEAF_B, 0 },
-			{ 3, 10.4, 50, 5.4, 1.4, LEAF_A, 8 },
-			{ 1, 6.8, 220, 6.2, 1.5, LEAF_A, 2 },
+			{ 1, 4.2, 170, 7.4, 1.8, L_GREEN, -4 },
+			{ 1, 4.0, 15, 7.0, 1.8, L_GREEN, -4 },
+			{ 2, 4.6, 280, 7.2, 1.7, L_GREEN, -4 },
+			{ 3, 4.4, 90, 7.0, 1.7, L_GREEN, -4 },
+			{ 4, 4.8, 215, 6.6, 1.6, L_GREEN, -2 },
+			{ 1, 8.8, 120, 6.6, 1.6, L_MID, 4 },
+			{ 1, 9.4, 240, 6.4, 1.6, L_MID, 4 },
+			{ 2, 10.4, 310, 6.0, 1.5, L_STRAW, 8 },
+			{ 3, 9.6, 45, 5.8, 1.5, L_STRAW, 8 },
+			{ 4, 9.0, 165, 5.4, 1.4, L_STRAW, 8 },
 		}
 		for _, l in leaves do
 			leafBlade(stalkPt[l[1]](l[2]), l[3] + jit(5), l[4], l[5], l[6], l[7])
 		end
 
 		------------------------------------------------------------------
-		-- GOLDEN COBS: stepped amber/gold kernel rows, gem glints, husks, silk
+		-- COBS: gold kernel rows over an amber kernel grid, gem glints, husks
 		------------------------------------------------------------------
 		local glints = {}
-		local function cob(p, deg, tilt, L, W)
-			local C = orient(p, deg, tilt) * CFrame.new(0, -0.2, -(W * 0.5 + 0.55))
-			B:block(crop, v(W, L, W), C * CFrame.new(0, L * 0.5, 0), GOLD)
-			local rows = 6
+		local function kernels(C, L, W, rows, gems)
+			-- stepped tapering kernel rows: amber grooves between plump gold rows
+			local pitch = L / rows
+			local function taper(t)
+				return 1 - 0.36 * math.clamp((t - 0.62) / 0.38, 0, 1) ^ 1.5
+			end
 			for r = 0, rows - 1 do
 				local t = r / (rows - 1)
-				local ww = (W + 0.32) * (1 - 0.28 * t)
-				B:block(crop, v(ww, 0.52, ww), C * CFrame.new(0, L * (0.14 + 0.76 * t), 0), (r % 2 == 0) and GOLD_LT or GOLD)
+				local wc = W * taper(t)
+				local y = pitch * (r + 0.5)
+				B:block(crop, v(wc, pitch + 0.04, wc), C * CFrame.new(0, y, 0), AMBER)
+				B:block(crop, v(wc + 0.36, pitch * 0.66, wc + 0.36), C * CFrame.new(0, y, 0), (r % 2 == 0) and GOLD_LT or GOLD)
 			end
-			B:block(crop, v(W * 0.62, 0.55, W * 0.62), C * CFrame.new(0, L + 0.2, 0), GOLD_LT)
-			-- gem kernels glinting on the outward face
-			local fz = -(W * 0.5 + 0.05)
-			table.insert(glints, B:block(crop, v(0.36, 0.36, 0.14), C * CFrame.new(-W * 0.22, L * 0.5, fz), GLINT, { mat = "Neon", name = "KernelGlint" }))
-			B:block(crop, v(0.3, 0.3, 0.14), C * CFrame.new(W * 0.24, L * 0.72, fz + 0.02), "#ffa81f", { mat = "Neon", name = "KernelGem" })
-			-- husks peeling open around the base (sides + back)
-			for _, hd in { { -1, 0, HUSK, 1 }, { 1, 0, HUSK_DK, 1 }, { 0, 1, HUSK, 0.9 } } do
-				local sx = hd[2] == 0 and 0.34 or W * 1.0
-				local sz = hd[2] == 0 and W * 1.0 or 0.34
-				local hc = C * CFrame.new(hd[1] * (W * 0.5 + 0.12), L * 0.28, hd[2] * (W * 0.5 + 0.12))
-					* CFrame.Angles(rad(hd[2] * 16), 0, rad(-hd[1] * 18))
-				B:block(crop, v(sx, L * 0.62 * hd[4], sz), hc, hd[3])
+			B:block(crop, v(W * 0.5, 0.5, W * 0.5), C * CFrame.new(0, L + 0.2, 0), GOLD_LT)
+			-- kernel columns: gold ribs crossing the amber grooves -> a kernel grid
+			for f = 0, 1 do
+				local a, b = W + 0.2, W * 0.28
+				B:block(crop, v(f == 0 and a or b, L * 0.66, f == 0 and b or a), C * CFrame.new(0, L * 0.36, 0), GOLD)
 			end
-			-- silk tuft at the tip
-			for k, sd in { { 0.15, -28, -18, SILK }, { -0.15, -18, 26, SILK_DK }, { 0, 10, 0, SILK } } do
-				B:block(crop, v(0.26, 1.0, 0.26), C * CFrame.new(sd[1], L + 0.85, 0) * CFrame.Angles(rad(sd[2]), 0, rad(sd[3])), sd[4])
+			-- gem kernels: tiny neon amber/gold glints in the grid
+			for k, g in gems do
+				local face = g[1]
+				local yaw = rad(face * 90)
+				local wl = W * taper(g[3])
+				local pc = C * CFrame.Angles(0, yaw, 0) * CFrame.new(g[2] * wl, L * g[3], -(wl * 0.5 + 0.2))
+				local part = B:block(crop, v(0.42, 0.42, 0.16), pc * CFrame.Angles(0, 0, rad(45)), (k % 2 == 1) and GLINT or "#ffb020", { mat = "Neon", name = "KernelGlint" })
+				table.insert(glints, part)
 			end
 		end
+		local function husks(C, n, r, y0, len, w, tilt, cols, phase)
+			for k = 0, n - 1 do
+				local a = k * (360 / n) + (phase or 0)
+				local base = C * CFrame.Angles(0, -rad(a), 0) * CFrame.new(0, y0, -r)
+				local h1 = base * CFrame.Angles(-rad(tilt), 0, 0)
+				B:block(crop, v(w, len, 0.4), h1 * CFrame.new(0, len * 0.5, 0), cols[k % #cols + 1])
+				local top = h1 * CFrame.new(0, len - 0.15, 0) * CFrame.Angles(-rad(tilt + 28), 0, 0)
+				B:block(crop, v(w * 0.72, len * 0.55, 0.38), top * CFrame.new(0, len * 0.27, 0), (k % 2 == 0) and HUSK_LT or STRAW_TIP)
+			end
+		end
+		local function silk(C, L, n, s)
+			for k = 0, n - 1 do
+				local a = rad(k * (360 / n) + 20)
+				B:block(crop, v(0.28 * s, 1.1 * s, 0.28 * s), C * CFrame.new(0, L + 0.6 * s, 0) * CFrame.Angles(0, a, 0) * CFrame.Angles(rad(-35), 0, 0) * CFrame.new(0, 0.3 * s, 0), (k % 2 == 0) and SILK or SILK_DK)
+			end
+		end
+
+		-- the GIANT golden cob crowning the main stalk
+		local CROWNY = 12.4
+		do
+			local C = cf(0, CROWNY, 0.3, 0, 15, 0)
+			local L, W = 7.0, 3.4
+			B:block(crop, v(2.6, 0.8, 2.6), C * CFrame.new(0, 0.1, 0), STALK_DK)
+			kernels(C * CFrame.new(0, 0.4, 0), L, W, 9, {
+				{ 0, -0.2, 0.35 }, { 0, 0.22, 0.62 }, { 1, 0.1, 0.48 }, { 2, -0.15, 0.3 }, { 2, 0.2, 0.7 }, { 3, 0.0, 0.55 },
+			})
+			husks(C, 6, 1.5, 0.3, 2.8, 1.9, 26, { HUSK, HUSK_DK }, 15)
+			silk(C * CFrame.new(0, 0.4, 0), L, 5, 1.3)
+		end
+		-- smaller cobs on the side stalks
 		local cobs = {
 			-- stalk, height, deg, tilt, length, width
-			{ 1, 9.4, 0, 18, 4.8, 2.0 },
-			{ 1, 13.0, 195, 18, 4.2, 1.8 },
-			{ 2, 8.0, 295, 22, 4.2, 1.8 },
-			{ 3, 7.4, 65, 22, 4.0, 1.75 },
-			{ 1, 12.2, 95, 18, 3.6, 1.6 },
+			{ 2, 8.2, 300, 20, 3.8, 1.7 },
+			{ 3, 7.8, 60, 20, 3.6, 1.6 },
+			{ 4, 7.4, 175, 20, 3.4, 1.5 },
+			{ 2, 11.4, 20, 18, 3.0, 1.4 },
 		}
 		for _, c in cobs do
-			cob(stalkPt[c[1]](c[2]), c[3], c[4], c[5], c[6])
+			local C = orient(stalkPt[c[1]](c[2]), c[3], c[4]) * CFrame.new(0, -0.3, -(c[6] * 0.5 + 0.6))
+			kernels(C * CFrame.new(0, 0.3, 0), c[5], c[6], 5, { { 0, -0.2, 0.5 } })
+			husks(C, 3, c[6] * 0.42, 0.2, c[5] * 0.5, c[6] * 0.9, 12, { HUSK_DK, HUSK }, 180)
+			silk(C * CFrame.new(0, 0.3, 0), c[5], 3, 0.8)
 		end
 
 		------------------------------------------------------------------
-		-- TASSELS: golden fans on top of each stalk
+		-- TASSELS: golden fans on top of the side stalks
 		------------------------------------------------------------------
 		local tips = {}
 		for si, s in stalks do
-			local top = stalkPt[si](s[3] - 0.3)
-			B:beam(crop, top - v(0, 0.3, 0), top + v(0, 2.6, 0), 0.5, 0.5, GOLD)
-			local n = 4
-			for k = 0, n - 1 do
-				local a = rad(k * (360 / n) + si * 30)
-				local d = v(math.sin(a), 0, -math.cos(a))
-				local mid = top + v(0, 1.5, 0) + d * 1.1
-				local tip = mid + d * 0.9 - v(0, 0.9, 0)
-				B:beam(crop, top + v(0, 0.7, 0), mid + d * 0.1, 0.4, 0.4, (k % 2 == 0) and GOLD or GOLD_LT)
-				B:beam(crop, mid - d * 0.1, tip, 0.34, 0.34, (k % 2 == 0) and GOLD_LT or GOLD)
+			if s[7] then
+				local top = stalkPt[si](s[3] - 0.3)
+				B:beam(crop, top - v(0, 0.3, 0), top + v(0, 2.4, 0), 0.5, 0.5, GOLD)
+				for k = 0, 3 do
+					local a = rad(k * 90 + si * 30)
+					local d = v(math.sin(a), 0, -math.cos(a))
+					local mid = top + v(0, 1.4, 0) + d * 1.0
+					local tip = mid + d * 0.8 - v(0, 0.9, 0)
+					B:beam(crop, top + v(0, 0.6, 0), mid + d * 0.1, 0.4, 0.4, (k % 2 == 0) and GOLD or GOLD_LT)
+					B:beam(crop, mid - d * 0.1, tip, 0.34, 0.34, (k % 2 == 0) and GOLD_LT or GOLD)
+				end
+				table.insert(tips, B:block(crop, v(0.36, 0.36, 0.36), CFrame.new(top + v(0, 2.7, 0)) * CFrame.Angles(rad(45), rad(45), 0), GLINT, { mat = "Neon", name = "TasselGlint" .. si }))
 			end
-			table.insert(tips, B:block(crop, v(0.36, 0.36, 0.36), CFrame.new(top + v(0, 2.9, 0)) * CFrame.Angles(rad(45), rad(45), 0), GLINT, { mat = "Neon", name = "TasselGlint" .. si }))
 		end
 		------------------------------------------------------------------
 		-- RIBBON BOW tying the corn shock together
@@ -293,8 +324,8 @@ return {
 		------------------------------------------------------------------
 		B:emitter(tips[1], "sparkle", { name = "GoldSparkle", color = { "#fff6c0", "#ffd23a" }, rate = 5, size = { 0.15, 0.55, 0 } })
 		B:emitter(glints[1], "sparkle", { name = "KernelSparkle", color = { "#ffffff", "#ffc23a" }, rate = 4, size = { 0.12, 0.45, 0 } })
-		B:emitter(glints[4], "sparkle", { name = "KernelSparkle2", color = { "#ffe27a", "#ffab1f" }, rate = 4, size = { 0.12, 0.45, 0 } })
-		local core = B:block(crop, v(0.4, 0.4, 0.4), cf(0, 11.5, 0.2), STALK, { name = "GlowCore" })
+		B:emitter(glints[3], "sparkle", { name = "KernelSparkle2", color = { "#ffe27a", "#ffab1f" }, rate = 4, size = { 0.12, 0.45, 0 } })
+		local core = B:block(crop, v(0.4, 0.4, 0.4), cf(0, 16.0, 0.3), GOLD_DK, { name = "GlowCore" })
 		B:emitter(core, "glow", { name = "HarvestGlow", color = "#ffcf4a", rate = 1.5, size = { 3, 0 } })
 		B:light(core, { color = "#ffcf6b", brightness = 1.3, range = 16, name = "HarvestLight" })
 	end,

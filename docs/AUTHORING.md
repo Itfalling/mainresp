@@ -73,7 +73,8 @@ base, jaw hinge, each tail segment). Chain them: `Tail1 → Tail2 → Tail3 …`
 |---|---|
 | `B:block(bone, size, cf, color, opts)` | studded box — 90% of every monster |
 | `B:wedge(bone, size, cf, color, opts)` | Roblox wedge: tall face at local +Z, slope descends toward −Z (snouts, beaks, claws, tail tips) |
-| `B:beam(bone, a, b, w, h, color, opts)` | box spanning point a → point b (horns, limbs, tusks, bars) |
+| `B:bar(bone, a, b, w, h, color, opts)` | box spanning point a → point b, exactly aimed (use this) |
+| `B:beam(bone, a, b, w, h, color, opts)` | legacy: same, but mis-aims spans that aren't level (Lune `CFrame.lookAt` bug); kept so old models don't change. `P.aim(a,b)` is the exact version of `P.span` |
 | `B:spike(bone, base, tip, width, depth, color, opts)` | tapered blade/horn/claw/tooth (2 wedges) |
 | `B:tri(bone, a, b, c, thickness, color, opts)` | flat triangle (2 wedges) — ONLY for big flat membranes: wings, fins |
 | `B:poly(bone, {p1, p2, ...}, thickness, color, opts)` | flat convex polygon (wings/fins) |

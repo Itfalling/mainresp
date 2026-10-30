@@ -1,10 +1,10 @@
 --!nocheck
 -- Candy Corn Stalk (Scarecrow Stage plant #2, Uncommon).
--- A little clump of chunky corn stalks on a stepped, straw-strewn dirt mound.
--- Long stepped leaf blades arch out and droop, drying to straw-gold at the
--- tips, golden tassels crown each stalk, and the cobs are giant candy corns:
--- a yellow base, an orange middle and a white tip, peeking out of peeled
--- green husks. A few loose candy-corn kernels lie on the soil.
+-- One thick corn stalk with node rings on a straw-strewn stepped mound, six
+-- broad arching leaf blades (twisted to face the front, straw-gold tips) and
+-- a single small golden tassel. The hero is three big candy-corn cobs fanning
+-- out at the front: yellow base, orange middle, white tip with a glowing cap,
+-- in small peeled husks. Two loose candy-corn kernels lie on the soil.
 -- Static prop: no motion.luau.
 return {
 	DisplayName = "Candy Corn Stalk",
@@ -21,7 +21,7 @@ return {
 		local LEAF_DK, LEAF, LEAF_TIP = "#3a8530", "#5aa83e", "#b5b444"
 		local HUSK, HUSK_LT = "#7fae45", "#b9cf68"
 		local TASSEL, TASSEL_DK = "#f0cc5a", "#c9962e"
-		local CC_Y, CC_O, CC_W = "#ffc61f", "#ff7a14", "#ffffff"
+		local CC_Y, CC_O, CC_W = "#ffc61f", "#ff7a14", "#fff9ec"
 		local SHINE = "#fffbe6"
 
 		local seed = 202
@@ -65,96 +65,77 @@ return {
 		kernel(-1.4, 1.5, -1.9, 20)
 		kernel(2.3, 0.95, -2.4, -40)
 
-		------------------------------------------------------------ stalks
+		------------------------------------------------------------ stalk
 		local crop = B:bone("Crop", "Root", v(0, 1.6, 0))
 		local leafParts = {}
+		local SX, SZ = 0, 0.5
 
-		-- stalk: stacked segments with darker node rings
-		local function stalk(x, z, h, w, lean)
-			local top
-			local n = math.floor(h / 1.5 + 0.5)
-			local segH = h / n
-			for i = 0, n - 1 do
-				local y = 1.5 + i * segH
-				local ox = lean * (i * segH) / h
-				B:block(crop, v(w, segH + 0.05, w), cf(x + ox, y + segH / 2, z, 0, i * 9, 0), (i % 2 == 0) and STALK or STALK_LT)
-				if i > 0 then
-					B:block(crop, v(w + 0.2, 0.25, w + 0.2), cf(x + ox, y, z, 0, i * 9 + 45, 0), STALK_DK)
-				end
+		-- one thick stalk: stacked segments with darker node rings
+		local segH, n = 1.4, 5
+		for i = 0, n - 1 do
+			local y = 1.5 + i * segH
+			local w = 1.5 - i * 0.08
+			B:block(crop, v(w, segH + 0.05, w), cf(SX, y + segH / 2, SZ, 0, i * 8, 0), (i % 2 == 0) and STALK or STALK_LT)
+			if i > 0 then
+				B:block(crop, v(w + 0.25, 0.3, w + 0.25), cf(SX, y, SZ, 0, i * 8 + 45, 0), STALK_DK)
 			end
-			top = v(x + lean, 1.5 + h, z)
-			return top
 		end
+		local topY = 1.5 + n * segH
 
-		-- leaf blade: chain of flat segments that arches out and droops
-		local bladeN = 0
-		local function blade(p, yaw, pitch, segs, len, w)
-			bladeN += 1
-			local roll = (bladeN % 2 == 0) and 55 or -55
-			local c = CFrame.new(p) * ang(0, yaw, 0) * ang(pitch, 0, 0)
-			for i = 1, segs do
-				local col = (i == segs) and LEAF_TIP or ((i % 2 == 1) and LEAF or LEAF_DK)
-				local ww = w * (1 - (i - 1) * 0.2)
-				local part = B:block(crop, v(ww, 0.35, len + 0.1), c * CFrame.new(0, 0, -len / 2) * ang(0, 0, roll), col)
+		-- broad arching leaf blade: 3 wide stepped slabs, same arch for every leaf
+		local function blade(y, yaw, s)
+			local c = CFrame.new(SX, y, SZ) * ang(0, yaw, 0) * ang(38, 0, 0) * CFrame.new(0, 0, -0.5)
+			local widths = { 2.1, 1.75, 1.3 }
+			local lens = { 1.9, 1.6, 1.3 }
+			-- twist the blade so its broad face turns toward the front of the plant
+			local roll = (math.sin(math.rad(yaw)) > 0) and -40 or 40
+			for i = 1, 3 do
+				local col = (i == 3) and LEAF_TIP or ((i == 1) and LEAF or LEAF_DK)
+				local L = lens[i] * s
+				local part = B:block(crop, v(widths[i] * s, 0.4, L + 0.15), c * CFrame.new(0, 0, -L / 2) * ang(0, 0, roll), col)
 				table.insert(leafParts, part)
-				c = c * CFrame.new(0, 0, -len) * ang(-22, 0, 0)
+				c = c * CFrame.new(0, 0, -L) * ang(-26, 0, 0)
 			end
 		end
+		-- leaves go out to the sides and back, keeping the front clear for the cobs
+		blade(2.6, 90, 1.0)
+		blade(3.6, 270, 1.0)
+		blade(4.8, 145, 0.95)
+		blade(5.8, 215, 0.9)
+		blade(6.7, 110, 0.8)
+		blade(7.2, 250, 0.75)
 
-		-- tassel: golden stepped spikes on top
-		local function tassel(p, s)
-			B:block(crop, v(0.5 * s, 0.9 * s, 0.5 * s), CFrame.new(p + v(0, 0.35 * s, 0)), TASSEL)
-			B:block(crop, v(0.3 * s, 0.7 * s, 0.3 * s), CFrame.new(p + v(0, 1.1 * s, 0)) * ang(0, 45, 0), TASSEL_DK)
-			for i = 0, 4 do
-				local yaw = i * 72 + 15
-				local c = CFrame.new(p + v(0, 0.45 * s, 0)) * ang(0, yaw, 0) * ang(35, 0, 0)
-				B:block(crop, v(0.32, 0.32, 1.1 * s), c * CFrame.new(0, 0, -0.55 * s), (i % 2 == 0) and TASSEL or TASSEL_DK)
-			end
+		-- one small tassel on top
+		local tp = v(SX, topY, SZ)
+		B:block(crop, v(0.6, 0.8, 0.6), CFrame.new(tp + v(0, 0.35, 0)), TASSEL)
+		B:block(crop, v(0.36, 0.7, 0.36), CFrame.new(tp + v(0, 1.05, 0)) * ang(0, 45, 0), TASSEL_DK)
+		for i = 0, 2 do
+			local c = CFrame.new(tp + v(0, 0.55, 0)) * ang(0, i * 120 + 30, 0) * ang(40, 0, 0)
+			B:block(crop, v(0.32, 0.32, 1.0), c * CFrame.new(0, 0, -0.5), TASSEL)
 		end
 
-		-- candy-corn cob, local +Y along the cob, base at c
+		-- candy-corn cob, local +Y along the cob
 		local shines = 0
 		local function cob(p, yaw, tilt, s)
-			local c = CFrame.new(p) * ang(0, yaw, 0) * ang(-tilt, 0, 0) * CFrame.new(0, 0, -0.35)
-			-- husk collar + peeled husk leaves
+			local c = CFrame.new(p) * ang(0, yaw, 0) * ang(-tilt, 0, 0) * CFrame.new(0, 0, -0.5)
+			-- husk collar + two husk leaves peeled back behind the cob
 			B:block(crop, v(1.0 * s, 0.5 * s, 1.0 * s), c * CFrame.new(0, 0.2 * s, 0), HUSK)
-			B:block(crop, v(0.8 * s, 1.1 * s, 0.22), c * CFrame.new(0, 0.6 * s, 0.66 * s) * ang(-22, 0, 0), HUSK)
-			B:block(crop, v(0.22, 1.0 * s, 0.75 * s), c * CFrame.new(0.7 * s, 0.55 * s, 0) * ang(0, 0, -24), HUSK_LT)
-			B:block(crop, v(0.22, 0.9 * s, 0.7 * s), c * CFrame.new(-0.7 * s, 0.5 * s, 0) * ang(0, 0, 24), HUSK)
-			-- candy corn: yellow base, orange middle, white tip (stepped taper)
-			B:block(crop, v(1.2 * s, 1.0 * s, 1.2 * s), c * CFrame.new(0, 0.85 * s, 0), CC_Y)
-			B:block(crop, v(1.0 * s, 0.9 * s, 1.0 * s), c * CFrame.new(0, 1.75 * s, 0), CC_O)
-			B:block(crop, v(0.75 * s, 0.7 * s, 0.75 * s), c * CFrame.new(0, 2.5 * s, 0), CC_W)
-			B:block(crop, v(0.42 * s, 0.4 * s, 0.42 * s), c * CFrame.new(0, 3.0 * s, 0), CC_W)
+			B:block(crop, v(0.22, 0.8 * s, 0.6 * s), c * CFrame.new(0.6 * s, 0.45 * s, 0.15 * s) * ang(0, 0, -20), HUSK_LT)
+			B:block(crop, v(0.22, 0.8 * s, 0.6 * s), c * CFrame.new(-0.6 * s, 0.45 * s, 0.15 * s) * ang(0, 0, 20), HUSK_LT)
+			-- candy corn: yellow base, orange middle, white tip
+			B:block(crop, v(1.25 * s, 1.0 * s, 1.25 * s), c * CFrame.new(0, 0.9 * s, 0), CC_Y)
+			B:block(crop, v(1.0 * s, 0.95 * s, 1.0 * s), c * CFrame.new(0, 1.85 * s, 0), CC_O)
+			B:block(crop, v(0.75 * s, 0.75 * s, 0.75 * s), c * CFrame.new(0, 2.65 * s, 0), CC_W)
 			shines += 1
-			B:block(crop, v(0.24, 0.24, 0.24), c * CFrame.new(-0.3 * s, 2.6 * s, -0.36 * s), SHINE, { mat = "Neon", name = "Shine" .. shines })
+			B:block(crop, v(0.42 * s, 0.4 * s, 0.42 * s), c * CFrame.new(0, 3.2 * s, 0), SHINE, { mat = "Neon", name = "Shine" .. shines })
 		end
-
-		-- main stalk
-		local mainTop = stalk(0, 0.3, 6.3, 1.3, 0.15)
-		tassel(mainTop, 1.3)
-		blade(v(0, 3.0, 0.3), 200, 38, 3, 1.7, 1.5)
-		blade(v(0, 4.2, 0.3), 80, 40, 3, 1.6, 1.45)
-		blade(v(0, 5.4, 0.3), 300, 42, 3, 1.5, 1.35)
-		blade(v(0.1, 6.6, 0.3), 150, 48, 3, 1.4, 1.25)
-		blade(v(0.15, 7.6, 0.3), 30, 55, 2, 1.3, 1.1)
-		cob(v(0.4, 3.6, -0.2), 330, 30, 1.3)
-		cob(v(-0.5, 5.0, -0.1), 35, 34, 1.15)
-		-- left side stalk
-		local lTop = stalk(-1.8, 1.0, 4.2, 1.0, -0.3)
-		tassel(lTop, 1.0)
-		blade(v(-1.8, 2.7, 1.0), 110, 38, 3, 1.4, 1.2)
-		blade(v(-1.9, 4.1, 1.0), 240, 45, 3, 1.3, 1.1)
-		cob(v(-2.1, 3.3, 0.6), 65, 40, 1.0)
-		-- right side stalk
-		local rTop = stalk(1.7, 1.2, 5.0, 1.05, 0.3)
-		tassel(rTop, 1.1)
-		blade(v(1.7, 2.9, 1.2), 285, 38, 3, 1.4, 1.2)
-		blade(v(1.8, 4.6, 1.2), 175, 45, 3, 1.3, 1.1)
-		cob(v(2.0, 3.8, 0.8), 295, 38, 1.05)
+		-- three big cobs, all facing the front
+		cob(v(SX - 0.5, 2.8, SZ - 0.3), 300, 44, 1.4)
+		cob(v(SX + 0.5, 4.4, SZ - 0.3), 60, 44, 1.3)
+		cob(v(SX, 6.2, SZ - 0.6), 0, 18, 1.05)
 
 		------------------------------------------------------------ fx
 		B:emitter(leafParts[1], "sparkle", { name = "CandySparkle", color = { "#fff6d6", "#ffb347" }, rate = 2.5, size = 0.3 })
-		B:light(leafParts[4], { color = "#ffc46b", brightness = 0.8, range = 9, name = "CandyLight" })
+		B:light(leafParts[1], { color = "#ffc46b", brightness = 0.8, range = 9, name = "CandyLight" })
 	end,
 }

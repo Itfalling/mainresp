@@ -36,7 +36,7 @@ return {
 		local GRASS, GRASS_DK = "#5fd23c", "#3fa82a"
 		local STRAW, STRAW_D, STRAW_L = "#f3d466", "#d4a63a", "#fbe8a2"
 		local STEM_DK, STEM = "#3a2430", "#4e3240"
-		local LEAF_LT, LEAF, LEAF_DK = "#86649f", "#5b4076", "#3b2852"
+		local LEAF_LT, LEAF, LEAF_DK = "#86649f", "#5b4076", "#45305e"
 		local BERRY, BERRY_DK, BERRY_SH = "#9150ff", "#6b2fd8", "#d2b2ff"
 		local CROWN = "#24122e"
 		local FEATHER, FEATHER_SH, QUILL = "#16141d", "#2a3866", "#6d7088"
@@ -166,7 +166,7 @@ return {
 			local a = math.rad(deg)
 			local ox, oz = math.sin(a), math.cos(a)
 			local rx, rz = oz, -ox
-			bar(crop, v(ox * (r - 1.4), y + 0.9, oz * (r - 1.4)), v(ox * r, y + 0.2, oz * r), 0.26, 0.26, STEM_DK)
+			bar(crop, v(ox * (r - 1.0), y + 0.55, oz * (r - 1.0)), v(ox * r, y + 0.2, oz * r), 0.26, 0.26, STEM_DK)
 			for _, b in list do
 				berry(ox * (r + b[3]) + rx * b[1] * 1.15, y + b[2] * 1.1, oz * (r + b[3]) + rz * b[1], b[4], deg + b[5], b[6] or BERRY, b[7])
 			end
@@ -179,6 +179,7 @@ return {
 		cluster(285, 4.3, 4.4, { { -0.5, -0.45, 0, 1.1, 0 }, { 0.55, -0.5, 0, 1.0, 20, BERRY_DK, true }, { 0, -1.35, 0, 0.9, -15 } })
 		cluster(20, 4.4, 4.7, { { -0.5, -0.45, 0, 1.1, 10, BERRY_DK }, { 0.55, -0.5, 0, 1.0, -10 }, { 0, -1.4, 0, 0.95, 20 } })
 		cluster(330, 4.0, 7.4, { { -0.5, -0.4, 0, 1.0, 0 }, { 0.5, -0.5, 0, 1.05, 20, BERRY_DK } })
+		cluster(215, 4.4, 7.9, { { -0.5, -0.4, 0, 1.0, 10, BERRY_DK }, { 0.5, -0.5, 0, 1.05, -15, BERRY, true } })
 		-- a little bunch sitting on top of the crown
 		berry(-0.9, Y + 4.1, -0.6, 1.0, 20, BERRY, true)
 		berry(0.2, Y + 4.0, -1.0, 0.9, -10, BERRY_DK)

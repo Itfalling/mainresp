@@ -146,6 +146,28 @@ function P.span(a, b, up)
 	end
 	return CFrame.lookAt(mid, b, upv), len
 end
+-- NOTE: Lune's CFrame.lookAt is wrong for directions that aren't level, so
+-- P.look / P.span (and B:beam) aim non-level spans off-target. They're kept
+-- as-is so existing models don't change; new work should use P.aim / B:bar.
+local function lookAtExact(pos, target, up)
+	local look = (target - pos).Unit
+	local right = look:Cross(up)
+	if right.Magnitude < 1e-4 then
+		right = look:Cross(Vector3.new(0, 0, 1))
+	end
+	right = right.Unit
+	local up2 = right:Cross(look).Unit
+	local back = -look
+	return CFrame.new(pos.X, pos.Y, pos.Z, right.X, up2.X, back.X, right.Y, up2.Y, back.Y, right.Z, up2.Z, back.Z)
+end
+-- Exact version of P.span: CFrame halfway between a and b with local -Z
+-- pointing from a to b, plus the distance.
+function P.aim(a, b, up)
+	a, b = toVec(a), toVec(b)
+	local len = (b - a).Magnitude
+	assert(len > 1e-4, "P.aim: points must differ")
+	return lookAtExact((a + b) / 2, b, up and toVec(up) or Vector3.new(0, 1, 0)), len
+end
 P.color = toColor
 
 ---------------------------------------------------------------------------
@@ -382,6 +404,12 @@ function Builder:ellipsoid(bone, size, cf, color, opts) return self:make("ellips
 
 -- A block spanning from point a to point b (thickness w x h). Handy for limbs,
 -- tusks, spikes, bars. Local -Z runs from a toward b.
+-- Box from point a to point b with exact aiming (use this instead of B:beam).
+function Builder:bar(bone, a, b, w, h, color, opts)
+	local cf, len = P.aim(a, b, opts and opts.up)
+	return self:block(bone, Vector3.new(w, h or w, len), cf, color, opts)
+end
+
 function Builder:beam(bone, a, b, w, h, color, opts)
 	local cf, len = P.span(a, b, opts and opts.up)
 	return self:block(bone, Vector3.new(w, h or w, len), cf, color, opts)

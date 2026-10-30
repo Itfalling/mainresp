@@ -23,7 +23,7 @@ return {
 		local LEAF_DK, LEAF, LEAF_LT, LEAF_HI = "#2f7d2a", "#43a23a", "#62bf48", "#86d65e"
 		local PUMP, PUMP_DK, PUMP_LT = "#f07a1a", "#d25f12", "#ff9a3a"
 		local STEM, STEM_DK = "#6b5a2a", "#4c3f1c"
-		local CARVE = "#ffbe2e" -- neon glow inside the carving
+		local CARVE = "#ffc232" -- neon glow inside the carving
 		local RIM = "#6e2c08" -- dark shadowy edge of the carved holes
 		local BLOSSOM, BLOSSOM_DK = "#ffd23a", "#f0a81c"
 
@@ -51,9 +51,9 @@ return {
 				B:block(soil, v(w, eh, d), p * ang(0, rnd(-6, 6), 0), pick(edgeCols), S)
 			end
 		end
-		tier(0, 0.8, 7.0, DIRT_DK, 19, { DIRT_DK, DIRT_DK2, DIRT_DK }, 0.35)
-		tier(0.8, 0.6, 4.8, DIRT, 13, { DIRT, DIRT_LT, DIRT }, 0.3)
-		tier(1.4, 0.4, 2.9, DIRT_LT, 6, { DIRT_LT, DIRT }, 0.2)
+		tier(0, 0.8, 7.0, DIRT_DK, 17, { DIRT_DK, DIRT_DK2, DIRT_DK }, 0.35)
+		tier(0.8, 0.6, 4.8, DIRT, 11, { DIRT, DIRT_LT, DIRT }, 0.3)
+		tier(1.4, 0.4, 2.9, DIRT_LT, 0, {}, 0)
 		for _, c in { { 7.4, 0.35, 1.8, 20 }, { -7.2, 0.3, -2.4, -15 }, { 1.6, 0.3, 7.5, 35 }, { -2.4, 0.3, -7.4, 10 } } do
 			B:block(soil, v(1.1, 0.6, 0.9), cf(c[1], c[2], c[3], 0, c[4], 0), DIRT_DK2, S)
 		end
@@ -98,14 +98,20 @@ return {
 		local DF = { [0] = 1.0, 0.95, 0.66 }
 		local carves = {}
 		local function pumpkin(c, W, H, D, face, faceY, carved)
-			local rw = W / 5
-			for k = -2, 2 do
-				local a = math.abs(k)
+			local nr = carved and 2 or 1 -- 5 ribs on the jacks, 3 on the babies
+			local rw = W / (2 * nr + 1)
+			for k = -nr, nr do
+				local a = math.abs(k) * (nr == 1 and 2 or 1)
 				local col = (a == 1) and PUMP_DK or PUMP
 				local x = k * rw
 				local hh, dd = H * HF[a], D * DF[a]
-				B:block(crop, v(rw + 0.04, hh, dd * 0.72), c * CFrame.new(x, 0, 0), col)
-				B:block(crop, v(rw + 0.02, hh * 0.78, dd), c * CFrame.new(x, 0, 0), (a == 0) and PUMP_LT or col)
+				if a == 2 then
+					-- outer ribs: one rounded-off block
+					B:block(crop, v(rw + 0.04, hh * 0.9, dd * 0.86), c * CFrame.new(x, 0, 0), col)
+				else
+					B:block(crop, v(rw + 0.04, hh, dd * 0.72), c * CFrame.new(x, 0, 0), col)
+					B:block(crop, v(rw + 0.02, hh * 0.78, dd), c * CFrame.new(x, 0, 0), (a == 0) and PUMP_LT or col)
+				end
 			end
 			-- stem with a little curl
 			B:block(crop, v(0.7, 1.1, 0.7), c * CFrame.new(0.05, H / 2 + 0.45, 0.05) * ang(8, 20, -10), STEM)
@@ -221,8 +227,6 @@ return {
 		bigLeaf(205, 2.0, 5.8, 50, 3.6, LEAF_DK)
 		bigLeaf(150, 2.2, 6.4, 46, 3.4, LEAF_LT)
 		-- small leaves tucked between the jacks
-		cube(-2.8, 2.6, -1.0, 2.2, 20, 30, 15, LEAF)
-		cube(2.8, 2.5, -0.9, 2.2, -15, 55, -20, LEAF_LT)
 		-- flat pumpkin leaves lying on the mound in front
 		local function flatLeaf(x, y, z, yaw, tilt, s, col)
 			local c = cf(x, y, z, 0, yaw, 0) * ang(tilt, 0, 0)
@@ -261,7 +265,6 @@ return {
 		tendril(v(-1.6, 9.0, 3.6), v(-0.4, 1, 0.3).Unit, v(0, 0, 1), 0.9, 1.2, 5, 1.7, 0.32, VINE_LT)
 		tendril(v(4.6, 8.2, 2.4), v(0.7, 1, -0.2).Unit, v(0, 0, -1), 0.9, 1.2, 5, 1.5, 0.32, VINE_LT)
 		tendril(v(-4.6, 8.0, 2.4), v(-0.7, 1, -0.2).Unit, v(0, 0, 1), 0.9, 1.2, 5, 1.5, 0.32, VINE_LT)
-		tendril(v(1.0, 6.8, 6.6), v(0.2, 0.8, 1).Unit, v(1, 0, 0), 0.8, 1.2, 5, 1.3, 0.3, VINE_LT)
 
 		------------------------------------------------------------ blossoms
 		local blossoms = {}
@@ -273,7 +276,6 @@ return {
 		end
 		blossom(v(-2.4, 8.4, 0.9), 20, -30)
 		blossom(v(2.6, 8.0, 1.0), -30, 25)
-		blossom(v(0.4, 5.2, 6.4), 10, 40)
 		blossom(v(-6.4, 3.4, 0.9), 60, 20)
 
 		---------------------------------------------------------------- glow

@@ -1,10 +1,9 @@
 --!nocheck
 -- Striped Gourd Vine (Scarecrow Stage plant #1, Common).
--- A low, bushy autumn gourd vine on a stepped dirt mound sprinkled with straw:
--- a stubby vine crown of big rotated studded leaf cubes, runners crawling over
--- the mound, a curly tendril on top and four small striped gourds (orange /
--- cream, yellow / green bicolour, a green crookneck and a little cream one)
--- resting on the soil and nestled in the leaves. Tiny neon shine accents.
+-- A clean, low gourd vine: a stepped straw-strewn dirt mound, four big flat
+-- studded leaves lying around it, one short vine curling into a tendril, and
+-- three chunky striped gourds (orange, yellow with a bent neck, cream), each
+-- with bold green bands, a stem and a tiny neon shine.
 -- Static prop: no motion.luau.
 return {
 	DisplayName = "Striped Gourd Vine",
@@ -52,119 +51,68 @@ return {
 		B:block(soil, v(0.3, 0.5, 0.3), cf(-3.1, 0.25, 1.85), GRASS, S)
 		B:block(soil, v(0.35, 0.6, 0.35), cf(3.0, 0.3, 2.3), GRASS, S)
 		-- straw bits lying on the mound
-		for _, h in { { -2.2, 1.27, 1.6, 30 }, { 2.4, 0.72, 1.9, -55 }, { 1.0, 1.27, -1.8, 75 }, { -2.9, 0.72, -1.2, 10 } } do
+		for _, h in { { -3.0, 0.72, 1.3, 30 }, { 2.9, 0.72, 1.3, -55 }, { 0.4, 0.72, -3.1, 10 } } do
 			B:block(soil, v(1.4, 0.14, 0.18), cf(h[1], h[2] + 0.07, h[3], 0, h[4], 0), HAY, S)
 			B:block(soil, v(1.0, 0.12, 0.16), cf(h[1] + 0.1, h[2] + 0.09, h[3] + 0.15, 0, h[4] + 25, 0), HAY_DK, S)
 		end
 
-		------------------------------------------------------------ vine
+		------------------------------------------------------------ vine + leaves
 		local crop = B:bone("Crop", "Root", v(0, 1.6, 0))
-		B:block(crop, v(1.3, 0.8, 1.3), cf(0, 1.9, 0, 0, 30, 0), VINE_DK)
-		B:block(crop, v(0.9, 1.4, 0.9), cf(0.1, 2.7, 0, 0, 10, 8), VINE)
-
-		-- runners crawling out over the mound to the gourds
-		local function runner(a, b)
-			B:beam(crop, a, b, 0.45, 0.45, VINE_DK)
-		end
-
-		------------------------------------------------------------ leaves
 		local leafParts = {}
-		local function leaf(x, y, z, s, rx, ry, rz, col)
-			local p = B:block(crop, v(s, s, s), cf(x, y, z, rx, ry, rz), col)
-			table.insert(leafParts, p)
-			return p
-		end
-		local CY = 3.0
-		local LZ = 0.6
-		leaf(0, CY, LZ, 2.7, 12, 25, 8, LEAF)
-		leaf(-1.4, CY - 0.5, LZ + 0.1, 2.2, -10, 40, 15, LEAF_DK)
-		leaf(1.4, CY - 0.45, LZ + 0.4, 2.2, 15, -20, -12, LEAF_DK)
-		leaf(0.3, CY - 0.5, LZ + 1.5, 2.1, 20, 10, -15, LEAF)
-		leaf(-0.3, CY - 0.6, LZ - 1.3, 2.0, -15, 62, 10, LEAF)
-		leaf(0.6, CY + 0.85, LZ - 0.2, 1.8, 30, 45, 20, LEAF_LT)
-		leaf(-0.8, CY + 0.6, LZ + 0.7, 1.7, -22, 15, 30, AUTUMN)
-		-- flat leaves lying on the mound (ground cover)
-		B:block(crop, v(1.9, 0.35, 1.9), cf(-2.2, 1.45, -0.2, 8, 30, -10), LEAF_DK)
-		B:block(crop, v(1.7, 0.35, 1.7), cf(1.9, 1.45, -1.3, -10, 15, 8), LEAF)
-		B:block(crop, v(1.6, 0.35, 1.6), cf(1.2, 1.4, 2.2, 6, 50, 10), LEAF_DK)
 
-		-- curly tendril on top
-		local tx, ty, tz = 0.4, CY + 1.5, LZ - 0.3
-		for i = 0, 6 do
-			local a = math.rad(i * 70)
-			local r = 0.5 - i * 0.03
-			B:block(crop, v(0.3, 0.3, 0.3), cf(tx + math.cos(a) * r, ty + i * 0.28, tz + math.sin(a) * r, 0, -i * 70, 0), VINE)
+		-- 4 big flat studded leaves lying on the mound, each with a lighter centre patch
+		local function bigLeaf(yaw, r, s, col, colC)
+			local c = cf(0, 1.55, 0, 0, yaw, 0) * CFrame.new(0, -0.15, -r) * ang(-14, 0, 0) * ang(0, 45, 0)
+			local p = B:block(crop, v(s, 0.4, s), c, col)
+			B:block(crop, v(s * 0.45, 0.4, s * 0.45), c * CFrame.new(0, 0.08, 0), colC)
+			table.insert(leafParts, p)
+		end
+		bigLeaf(55, 2.6, 2.5, LEAF, LEAF_LT)
+		bigLeaf(145, 2.6, 2.4, LEAF_DK, LEAF)
+		bigLeaf(235, 2.6, 2.5, LEAF, LEAF_LT)
+		bigLeaf(325, 2.5, 2.4, LEAF_DK, LEAF)
+
+		-- one short vine rising from the centre and curling into a tendril
+		B:block(crop, v(1.3, 0.6, 1.3), cf(0, 1.85, 0.2, 0, 30, 0), VINE_DK)
+		B:block(crop, v(0.8, 1.2, 0.8), cf(0.1, 2.7, 0.2, 0, 10, -8), VINE)
+		B:block(crop, v(0.65, 1.0, 0.65), cf(0.35, 3.65, 0.25, 0, 25, -18), VINE)
+		local tx, ty, tz = 0.5, 4.25, 0.25
+		for i = 0, 5 do
+			local a = math.rad(i * 65)
+			local r = 0.5 - i * 0.04
+			B:block(crop, v(0.4, 0.4, 0.4), cf(tx + math.cos(a) * r, ty + i * 0.24, tz + math.sin(a) * r, 0, -i * 65, 0), VINE)
 		end
 
 		------------------------------------------------------------ gourds
 		local shines = 0
-		local function shine(c, x, y, z)
-			shines += 1
-			B:block(crop, v(0.28, 0.28, 0.28), c * CFrame.new(x, y, z), SHINE, { mat = "Neon", name = "Shine" .. shines })
-		end
-		local function stem(c, h)
-			B:block(crop, v(0.3, 0.55, 0.3), c * CFrame.new(0, h / 2 + 0.2, 0) * ang(0, 0, 12), STEM)
-			B:block(crop, v(0.5, 0.2, 0.2), c * CFrame.new(0.2, h / 2 + 0.45, 0), STEM)
-		end
-		-- round striped gourd: stepped round body + a # of thin rib stripes (like a ribbed pumpkin)
-		local function roundGourd(c, s, body, stripe)
-			local w, h = 1.5 * s, 1.1 * s
+		-- chunky gourd: body + stepped round cap + neck + stem, 2 bold bands each way
+		local function gourd(c, s, body, stripe, neckH, lean)
+			local w, h = 1.5 * s, 1.15 * s
 			B:block(crop, v(w, h, w), c, body)
-			B:block(crop, v(w * 0.7, h + 0.3 * s, w * 0.7), c, body)
-			for _, k in { -0.27, 0.27 } do
-				B:block(crop, v(0.22 * s, h + 0.08, w + 0.08), c * CFrame.new(k * w, 0, 0), stripe)
-				B:block(crop, v(w + 0.08, h + 0.08, 0.22 * s), c * CFrame.new(0, 0, k * w), stripe)
+			B:block(crop, v(w * 0.72, h + 0.3 * s, w * 0.72), c, body)
+			for _, k in { -0.26, 0.26 } do
+				B:block(crop, v(0.24 * s, h + 0.08, w + 0.08), c * CFrame.new(k * w, 0, 0), stripe)
+				B:block(crop, v(w + 0.08, h + 0.08, 0.24 * s), c * CFrame.new(0, 0, k * w), stripe)
 			end
-			stem(c, h + 0.3 * s)
-			shine(c, -0.36 * w, 0.42 * h, -0.5 * w - 0.03)
-		end
-		-- bottle gourd: bicolour bulb + neck
-		local function bottleGourd(c, s, bulb, stripe, neck)
-			local w, h = 1.4 * s, 1.0 * s
-			B:block(crop, v(w, h, w), c, bulb)
-			B:block(crop, v(w + 0.25 * s, h * 0.65, w * 0.7), c, bulb)
-			B:block(crop, v(w * 0.7, h * 0.65, w + 0.25 * s), c, bulb)
-			for _, x in { -0.4, 0.4 } do
-				B:block(crop, v(0.24 * s, h + 0.08, w + 0.08), c * CFrame.new(x * w, 0, 0), stripe)
-			end
-			B:block(crop, v(w * 0.85, 0.5 * s, w * 0.85), c * CFrame.new(0, h / 2 + 0.2 * s, 0), neck)
-			B:block(crop, v(0.75 * s, 0.75 * s, 0.75 * s), c * CFrame.new(0.08 * s, h / 2 + 0.75 * s, 0) * ang(0, 0, 8), neck)
-			B:block(crop, v(0.6 * s, 0.4 * s, 0.6 * s), c * CFrame.new(0.2 * s, h / 2 + 1.25 * s, 0) * ang(0, 0, 16), stripe)
-			stem(c * CFrame.new(0.28 * s, 1.3 * s, 0) * ang(0, 0, 16), h)
-			shine(c, -0.32 * w, 0.4 * h, -0.5 * w)
-		end
-		-- crookneck: bulb + bent neck
-		local function crookGourd(c, s, body, stripe)
-			local w, h = 1.3 * s, 1.0 * s
-			B:block(crop, v(w, h, w * 1.1), c, body)
-			B:block(crop, v(w * 0.7, h * 0.65, w * 1.35), c, body)
-			B:block(crop, v(w + 0.08, h + 0.08, 0.24 * s), c * CFrame.new(0, 0, 0.25 * w), stripe)
-			B:block(crop, v(w + 0.08, h + 0.08, 0.24 * s), c * CFrame.new(0, 0, -0.25 * w), stripe)
-			local n1 = c * CFrame.new(0, h / 2 + 0.3 * s, 0.1 * s) * ang(-25, 0, 0)
-			B:block(crop, v(0.75 * s, 0.8 * s, 0.75 * s), n1, body)
-			local n2 = n1 * CFrame.new(0, 0.55 * s, 0.25 * s) * ang(-40, 0, 0)
-			B:block(crop, v(0.55 * s, 0.7 * s, 0.55 * s), n2, stripe)
-			B:block(crop, v(0.25, 0.4, 0.25), n2 * CFrame.new(0, 0.5 * s, 0), STEM)
-			shine(c, 0.3 * w, 0.4 * h, -0.55 * w)
+			local n = c * CFrame.new(0, h / 2 + 0.15 * s + neckH / 2, 0) * ang(0, 0, lean)
+			B:block(crop, v(0.6 * s, neckH, 0.6 * s), n, body)
+			B:block(crop, v(0.28 * s, 0.5 * s, 0.28 * s), n * CFrame.new(0, neckH / 2 + 0.2 * s, 0) * ang(0, 0, lean), STEM)
+			shines += 1
+			B:block(crop, v(0.26, 0.26, 0.26), c * CFrame.new(-0.36 * w, 0.4 * h, -0.5 * w - 0.03), SHINE, { mat = "Neon", name = "Shine" .. shines })
 		end
 
-		-- front-left: big orange / cream round gourd on the mid tier
-		local g1 = cf(-1.5, 1.25 + 0.7, -1.9, 0, 25, 0)
-		roundGourd(g1, 1.25, ORANGE, GREEN_DK)
-		runner(v(-0.3, 2.0, 0.0), v(-1.4, 2.6, -1.7))
-		-- front-right: yellow bottle gourd with a green bulb
-		local g2 = cf(2.1, 0.7 + 0.6, -1.7, 0, -20, -10)
-		bottleGourd(g2, 1.15, GREEN, YELLOW, YELLOW)
-		runner(v(0.4, 2.0, 0.0), v(2.0, 1.5, -1.5))
-		-- back-left: green crookneck lying on the mound
-		local g3 = cf(-2.3, 0.7 + 0.55, 1.6, 0, 200, 0)
-		crookGourd(g3, 1.1, GREEN_DK, YELLOW)
-		runner(v(-0.4, 2.0, 0.5), v(-2.1, 1.5, 1.5))
-		-- small cream / orange gourd nestled in the leaves (front, up top)
-		local g4 = cf(0.9, 3.6, -1.0, 0, 40, 8)
-		roundGourd(g4, 0.85, CREAM, GREEN)
+		-- front-left: big orange gourd with dark green bands
+		gourd(cf(-1.5, 1.3 + 0.8, -1.6, 0, 20, 0), 1.35, ORANGE, GREEN_DK, 0.45, 10)
+		-- front-right: yellow gourd with green bands and a taller bent neck
+		gourd(cf(1.75, 1.3 + 0.68, -1.3, 0, -25, 0), 1.15, YELLOW, GREEN, 0.8, -18)
+		-- back: cream gourd with green bands
+		gourd(cf(0.6, 1.3 + 0.62, 2.0, 0, 40, 0), 1.05, CREAM, GREEN, 0.4, 12)
+		-- runners from the vine base to each gourd
+		B:beam(crop, v(-0.4, 1.9, -0.1), v(-1.2, 2.2, -1.2), 0.45, 0.45, VINE_DK)
+		B:beam(crop, v(0.4, 1.9, -0.1), v(1.5, 2.0, -1.0), 0.45, 0.45, VINE_DK)
+
 		------------------------------------------------------------ fx
-		B:emitter(leafParts[6], "sparkle", { name = "GourdSparkle", color = { "#fff2a8", "#ffb347" }, rate = 2, size = 0.3 })
+		B:emitter(leafParts[1], "sparkle", { name = "GourdSparkle", color = { "#fff2a8", "#ffb347" }, rate = 2, size = 0.3 })
 		B:light(leafParts[1], { color = "#ffc46b", brightness = 0.7, range = 8, name = "GourdLight" })
 	end,
 }
