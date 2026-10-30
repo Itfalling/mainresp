@@ -38,7 +38,7 @@ return {
 		local BARK_DK, BARK, BARK_LT = "#5e3a26", "#7a4c30", "#9a6440"
 		local PINK_DK, PINK, PINK_LT, PINK_HI = "#e47aa8", "#ff9cc4", "#ffbcd7", "#ffd9e8"
 		local LAV, LAV_DK, WHITE = "#d6b4ff", "#b993ee", "#fff1f7"
-		local HIVE_DK, HIVE, HIVE_LT = "#d4861c", "#f2b232", "#ffd463"
+		local HIVE_DK, HIVE, HIVE_LT = "#c97a14", "#ffbd33", "#ffd86b"
 		local HOLE, GLOW = "#3a2412", "#ffb21f"
 		local FRUIT_CORE = "#ffc93a"
 		local BEE_Y, BEE_YD, BEE_K, WING = "#ffc21a", "#e59a0e", "#2a2230", "#ffffff"
@@ -189,7 +189,7 @@ return {
 			local p1 = at(r[4] - 0.25, r[1] + 25, TOP + r[3])
 			B:bar(crop, p0, p1, 0.55, 0.5, BARK_LT)
 		end
-		local FY = TOP + 7.8
+		local FY = TOP + 7.3
 		-- limbs into the canopy (first segment on the trunk)
 		local limbs = {}
 		for _, a in { 150, 235, 310, 10 } do
@@ -236,18 +236,18 @@ return {
 				cube(bone, at(capR, a, capY + jit(0.3)), capS, capCols[1 + (i % #capCols)])
 			end
 		end
-		local AY = FY + 3.9
+		local AY = FY + 3.5
 		-- under-shade plate so the canopy has a darker belly
 		B:block(canopy, v(9.5, 0.8, 9.5), cf(0, AY - 1.9, 0, 0, 22, 0), PINK_DK)
-		tier(canopy, 9, 5.6, AY, 4.4, { PINK, PINK_DK, PINK_LT }, {
-			{ 2.4, 30, AY + 0.8, 4.8, PINK }, { 2.4, 120, AY + 0.9, 4.8, LAV }, { 2.4, 210, AY + 0.8, 4.6, PINK_DK }, { 2.4, 300, AY + 0.9, 4.8, PINK_LT },
-		}, 4.5, AY + 2.2, 3.2, { PINK_LT, LAV, PINK_HI, PINK }, 5)
+		tier(canopy, 11, 5.5, AY, 3.8, { PINK, PINK_DK, PINK_LT, PINK, LAV_DK }, {
+			{ 2.4, 30, AY + 0.8, 4.4, PINK }, { 2.4, 120, AY + 0.9, 4.4, LAV }, { 2.4, 210, AY + 0.8, 4.2, PINK_DK }, { 2.4, 300, AY + 0.9, 4.4, PINK_LT },
+		}, 4.3, AY + 2.0, 3.0, { PINK_LT, LAV, PINK_HI, PINK, WHITE }, 5)
 		local canopyTop = B:bone("CanopyTop", "Canopy", v(0, AY + 2.2, 0))
 		local BY = AY + 4.4
-		tier(canopyTop, 7, 3.9, BY, 4.0, { PINK_LT, PINK, LAV_DK }, {
-			{ 1.3, 60, BY + 0.7, 4.2, PINK }, { 1.3, 240, BY + 0.7, 4.2, PINK_LT },
-		}, 2.8, BY + 2.0, 2.8, { PINK_HI, WHITE, LAV, PINK_LT }, 25)
-		cube(canopyTop, v(0, BY + 3.2, 0), 2.6, PINK_HI)
+		tier(canopyTop, 8, 3.7, BY, 3.5, { PINK_LT, PINK, LAV_DK, PINK_DK }, {
+			{ 1.3, 60, BY + 0.7, 4.0, PINK }, { 1.3, 240, BY + 0.7, 4.0, PINK_LT },
+		}, 2.5, BY + 1.9, 2.6, { PINK_HI, WHITE, LAV, PINK_LT }, 25)
+		cube(canopyTop, v(0, BY + 2.9, 0), 2.4, PINK_HI)
 
 		-- little five-petal blossoms dotted over the canopy cubes
 		for i, c in cubes do
@@ -256,9 +256,9 @@ return {
 				local p = c.p + o * (c.s * 0.5 + 0.15) + v(0, c.s * 0.15, 0)
 				local F = face(p, c.a) * ang(-rnd() * 30, 0, rnd() * 45)
 				local col = (i % 4 == 1) and WHITE or PINK_HI
-				B:block(c.bone, v(1.1, 1.1, 0.25), F * ang(0, 0, 45), col)
-				B:block(c.bone, v(1.25, 0.5, 0.3), F, col)
-				B:block(c.bone, v(0.45, 0.45, 0.4), F * CFrame.new(0, 0, -0.05), HONEY_LT)
+				B:block(c.bone, v(1.5, 1.5, 0.25), F * ang(0, 0, 45), col)
+				B:block(c.bone, v(1.7, 0.7, 0.3), F, col)
+				B:block(c.bone, v(0.6, 0.6, 0.4), F * CFrame.new(0, 0, -0.05), HONEY_LT)
 			end
 		end
 
@@ -270,14 +270,14 @@ return {
 		B:block(canopy, v(1.9, 0.6, 1.9), CFrame.new(hb2 + v(-0.2, -0.4, 0.1)) * ang(0, 30, 0), HIVE_DK)
 		B:block(hive, v(0.8, 1.4, 0.8), CFrame.new(HP + v(0, -0.4, 0)) * ang(0, 15, 0), BARK_DK)
 		local LAYERS = { -- width, height, colour
-			{ 2.3, 0.6, HIVE_DK },
-			{ 3.3, 0.75, HIVE },
-			{ 4.0, 0.75, HIVE_DK },
-			{ 4.4, 0.85, HIVE },
-			{ 4.3, 0.8, HIVE_DK },
-			{ 3.8, 0.75, HIVE },
-			{ 3.0, 0.65, HIVE_DK },
-			{ 1.8, 0.55, HIVE_LT },
+			{ 2.6, 0.65, HIVE_DK },
+			{ 3.8, 0.8, HIVE },
+			{ 4.6, 0.8, HIVE_DK },
+			{ 5.0, 0.9, HIVE },
+			{ 4.9, 0.85, HIVE_DK },
+			{ 4.4, 0.8, HIVE },
+			{ 3.5, 0.7, HIVE_DK },
+			{ 2.2, 0.6, HIVE_LT },
 		}
 		local y = HP.Y - 0.9
 		local layerY = {}
@@ -295,12 +295,12 @@ return {
 		local EDEG = 25
 		do
 			local F = face(v(HP.X, layerY[5] + 0.1, HP.Z), EDEG)
-			B:block(hive, v(1.6, 1.15, 0.5), F * CFrame.new(0, 0, -2.0), HOLE)
-			B:block(hive, v(1.1, 0.75, 0.3), F * CFrame.new(0, 0, -2.15), GLOW, { mat = "Neon", name = "HiveGlow" })
-			B:block(hive, v(2.0, 0.3, 0.9), F * CFrame.new(0, -0.7, -2.1), HIVE_LT)
+			B:block(hive, v(1.7, 1.2, 0.5), F * CFrame.new(0, 0, -2.3), HOLE)
+			B:block(hive, v(1.15, 0.8, 0.3), F * CFrame.new(0, 0, -2.45), GLOW, { mat = "Neon", name = "HiveGlow" })
+			B:block(hive, v(2.1, 0.3, 0.9), F * CFrame.new(0, -0.72, -2.4), HIVE_LT)
 			-- a small second hole higher on the side
 			local G = face(v(HP.X, layerY[2], HP.Z), EDEG + 120)
-			B:block(hive, v(0.75, 0.55, 0.4), G * CFrame.new(0, 0, -1.55), HOLE)
+			B:block(hive, v(0.8, 0.6, 0.4), G * CFrame.new(0, 0, -1.8), HOLE)
 		end
 		-- honey drips running down the hive
 		for k, d in { { 100, 3, 1.4 }, { 220, 4, 1.1 }, { 330, 2, 1.0 } } do
@@ -366,11 +366,11 @@ return {
 		end
 		-- the hive swarm: name, centre y offset, radius, start angle, tilt
 		local HIVE_BEES = {
-			{ 0.3, 3.5, 0, 14 },
-			{ -0.6, 3.7, 72, 10 },
-			{ 0.9, 3.4, 144, 16 },
-			{ -0.2, 3.9, 216, 8 },
-			{ 0.5, 3.6, 288, 12 },
+			{ 0.3, 3.8, 0, 14 },
+			{ -0.6, 4.0, 72, 10 },
+			{ 0.9, 3.7, 144, 16 },
+			{ -0.2, 4.2, 216, 8 },
+			{ 0.5, 3.9, 288, 12 },
 		}
 		for i, b in HIVE_BEES do
 			bee("Bee" .. i, "Canopy", tilted(HC + v(0, b[1], 0), HIVE_DEG, b[4]), b[2], b[3], 0.9)
@@ -384,7 +384,7 @@ return {
 		------------------------------------------------------------------
 		local dripPart = B:block(hive, v(0.5, 0.3, 0.5), CFrame.new(HP.X, HBOT - 1.2, HP.Z), HONEY, { tr = 1, name = "DripPoint" })
 		B:emitter(dripPart, "drip", { name = "HoneyDrip", color = { HONEY_LT, HONEY }, rate = 2.5, size = { 0.45, 0.4, 0.2 }, life = { 0.5, 0.7 }, accel = { 0, -20, 0 } })
-		local mouth = B:block(hive, v(1.0, 0.7, 0.3), face(v(HP.X, layerY[5] + 0.1, HP.Z), EDEG) * CFrame.new(0, 0, -2.4), GLOW, { tr = 1, name = "HiveMouth" })
+		local mouth = B:block(hive, v(1.0, 0.7, 0.3), face(v(HP.X, layerY[5] + 0.1, HP.Z), EDEG) * CFrame.new(0, 0, -2.7), GLOW, { tr = 1, name = "HiveMouth" })
 		B:emitter(mouth, "burst", { name = "HoneyBurst", color = { "#fff3a8", HONEY_LT, HONEY }, size = { 0.7, 0.5, 0 }, speed = { 6, 13 }, life = { 0.6, 1.2 }, drag = 2.5, accel = { 0, -6, 0 }, light = 1 })
 		local hiveFx = B:block(hive, v(4, 5, 4), CFrame.new(HC), HIVE, { tr = 1, name = "HiveFx" })
 		B:emitter(hiveFx, "glow", { name = "HiveAura", color = { "#ffe08a", HIVE }, rate = 2, size = { 3.0, 4.6, 1.5 }, trans = { 0.8, 0.72, 1 }, light = 1 })
