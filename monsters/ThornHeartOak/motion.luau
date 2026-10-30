@@ -28,8 +28,8 @@ local function beat(t, ph)
 		local e = math.abs(x - c)
 		return math.min(e, 1 - e)
 	end
-	local a = math.exp(-(d(0.18) / 0.09) ^ 2)
-	local b = 0.6 * math.exp(-(d(0.42) / 0.1) ^ 2)
+	local a = math.exp(-(d(0.2) / 0.13) ^ 2)
+	local b = 0.6 * math.exp(-(d(0.48) / 0.14) ^ 2)
 	return clamp(a + b, 0, 1)
 end
 
@@ -65,13 +65,13 @@ function M.Update(t, pose, ctx)
 
 	-- glow pulse: a slow heartbeat (0 = brightest)
 	local hb = beat(t, 0)
-	ctx.transparency("HeartwoodCore", 0.4 * (1 - hb))
-	ctx.transparency("CrownCore", 0.4 * (1 - beat(t, 0.08)))
-	ctx.transparency("CrownCoreB", 0.4 * (1 - beat(t, 0.08)))
+	ctx.transparency("HeartwoodCore", 0.35 * (1 - hb))
+	ctx.transparency("CrownCore", 0.35 * (1 - beat(t, 0.08)))
+	ctx.transparency("CrownCoreB", 0.35 * (1 - beat(t, 0.08)))
 	for i = 1, 6 do
 		local b = beat(t, i * 0.11)
-		ctx.transparency("HeartCore" .. i, 0.45 * (1 - b))
-		ctx.transparency("HeartCore" .. i .. "B", 0.45 * (1 - b))
+		ctx.transparency("HeartCore" .. i, 0.38 * (1 - b))
+		ctx.transparency("HeartCore" .. i .. "B", 0.38 * (1 - b))
 	end
 	ctx.light("HeartLight", 1.3 + 0.6 * hb)
 end
