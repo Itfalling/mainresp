@@ -25,7 +25,7 @@ return {
 		local STEM, STEM_DK = "#3f9440", "#2f7a34"
 		local LEAF_DK, LEAF, LEAF_LT = "#2f8a42", "#47ad57", "#64c468"
 		local HONEY, HONEY_TOP, DROP, COMB_DK = "#ffc532", "#fff2b8", "#ff9d0a", "#c97a10"
-		local PET_DK, PET, PET_LT, PET_HL = "#f7c51a", "#ffe23a", "#fff07a", "#fffbe0"
+		local PET_DK, PET, PET_LT, PET_HL = "#f7c51a", "#ffe23a", "#fff07a", "#fff8c2"
 		local STAMEN, KNOB = "#ff9a1e", "#7cc44a"
 		local GOLD_DK, GOLD, GOLD_LT, SEED = "#f2a51c", "#ffbf2e", "#ffd95a", "#a8601a"
 		local BEE_Y, BEE_K, BEE_W = "#ffcf2e", "#2a2320", "#f4fbff"
@@ -160,6 +160,17 @@ return {
 		bloom(v(-0.3, 1.6, 0.4), v(-0.6, 6.8, 1.0), v(-0.9, 10.6, 1.8), v(-0.3, 1, 0.4), 1.05)
 		bloom(v(0.3, 1.6, -0.5), v(0.6, 4.2, -1.6), v(0.9, 6.0, -2.6), v(0.2, 1, -0.9), 0.85)
 
+		-- small three-finger leaves clasping the flower stems
+		local function stemLeaf(p, outYaw, s)
+			for k = -1, 1 do
+				local G = CFrame.new(p) * ang(0, outYaw + k * 34, 0) * ang(22 - math.abs(k) * 6, 0, 0)
+				B:block(crop, v(0.5 * s, 0.32, 1.7 * s), G * CFrame.new(0, 0, -0.85 * s), k == 0 and LEAF_LT or LEAF)
+			end
+		end
+		stemLeaf(v(1.45, 6.4, -0.5), -100, 1.0)
+		stemLeaf(v(-1.35, 6.1, -0.2), 95, 1.0)
+		stemLeaf(v(1.0, 5.5, 1.4), -150, 0.9)
+
 		-- golden seed fruit standing on its stalk
 		local function seedFruit(base, mid, top, s, yaw)
 			stem(base, mid, top)
@@ -171,15 +182,15 @@ return {
 			B:block(crop, v(1.25 * s, 1.7 * s, 1.25 * s), c * CFrame.new(0, 0.05 * s, 0) * ang(0, 45, 0), GOLD_DK)
 			B:block(crop, v(1.1 * s, 0.5 * s, 1.1 * s), c * CFrame.new(0, 0.82 * s, 0), GOLD_LT)
 			B:block(crop, v(0.22, 0.6 * s, 0.22), c * CFrame.new(0, 1.25 * s, 0) * ang(0, 0, -20), STEM_DK)
-			for k = 0, 5 do -- bronze seeds dotted around the faces
-				local g = c * ang(0, k * 60 + 15, 0)
+			for k = 0, 3 do -- bronze seeds dotted around the faces
+				local g = c * ang(0, k * 90 + 15, 0)
 				B:block(crop, v(0.3 * s, 0.3 * s, 0.14), g * CFrame.new(0, k % 2 == 0 and 0.28 * s or -0.3 * s, -0.8 * s), SEED)
 			end
 		end
-		seedFruit(v(-0.3, 1.6, -0.4), v(-1.0, 5.2, -1.2), v(-1.7, 7.3, -2.0), 1.0, 15)
-		seedFruit(v(0.5, 1.6, 0.1), v(1.6, 5.4, 0.4), v(3.0, 7.0, 0.7), 0.95, -20)
-		seedFruit(v(-0.5, 1.6, 0.3), v(-1.5, 5.0, 0.9), v(-2.7, 6.6, 1.3), 0.95, 40)
-		seedFruit(v(0.2, 1.6, 0.3), v(0.6, 7.0, 0.6), v(1.2, 10.4, 0.9), 1.0, 30)
+		seedFruit(v(-0.3, 1.6, -0.4), v(-1.0, 5.2, -1.2), v(-1.8, 7.1, -2.1), 1.15, 15)
+		seedFruit(v(0.5, 1.6, 0.1), v(1.6, 5.4, 0.4), v(3.1, 6.8, 0.6), 1.1, -20)
+		seedFruit(v(-0.5, 1.6, 0.3), v(-1.5, 5.0, 0.9), v(-2.8, 6.5, 1.4), 1.1, 40)
+		seedFruit(v(0.2, 1.6, 0.3), v(0.6, 7.0, 0.6), v(1.2, 10.2, 0.9), 1.15, 30)
 
 		------------------------------------------------------------ bee in a cup
 		local beeF = fBee * CFrame.new(0, 0, -0.95) * ang(-90, 0, 0) * ang(0, 30, 0)

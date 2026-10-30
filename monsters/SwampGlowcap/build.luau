@@ -27,9 +27,9 @@ return {
 		local PAD_DK, PAD, PAD_LT = "#3b7a3a", "#4f9a46", "#77bf5c"
 		local STONE_DK, STONE, STONE_LT = "#56605e", "#6f7a77", "#8c9893"
 		local REED, REED_DK, CATTAIL = "#7a8a3e", "#5d6e30", "#4a2f1e"
-		local STALK_DK, STALK, STALK_LT, STALK_BASE = "#c9bde0", "#e6def3", "#f6f2fc", "#a596c2"
+		local STALK_DK, STALK, STALK_LT, STALK_BASE = "#c4b3e3", "#e0d3f5", "#f2ebfd", "#a08cc8"
 		local GILL, GILL_DK = "#ddd0ef", "#b7a3d6"
-		local GLOW_CY, GLOW_PK = "#7ff7ff", "#f2b6ff"
+		local GLOW_CY, GLOW_PK = "#7ff7ff", "#ff9cf2"
 		local VIO = { "#4a2789", "#6a3cbd", "#8a5bdb", "#a982ee", GLOW_CY, "#d2f8ff" }
 		local TEAL = { "#135c5b", "#1d8781", "#2aaca2", "#56cfc2", GLOW_PK, "#f3dcff" }
 		local NEON = { mat = "Neon" }
@@ -158,11 +158,12 @@ return {
 			end
 			-- stepped dome
 			local layers = big and {
-				{ 1.0, 0.7, 1, 0 },
-				{ 0.9, 0.22 * R, 2, 45 },
-				{ 0.74, 0.2 * R, 2, 0 },
-				{ 0.53, 0.17 * R, 3, 45 },
-				{ 0.3, 0.12 * R, 4, 0 },
+				{ 1.0, 0.6, 1, 0 },
+				{ 0.94, 0.17 * R, 2, 45 },
+				{ 0.82, 0.17 * R, 2, 0 },
+				{ 0.66, 0.15 * R, 3, 45 },
+				{ 0.46, 0.12 * R, 3, 0 },
+				{ 0.26, 0.09 * R, 4, 45 },
 			} or {
 				{ 1.0, 0.55, 1, 0 },
 				{ 0.82, 0.28 * R, 2, 45 },
@@ -170,7 +171,7 @@ return {
 				{ 0.3, 0.14 * R, 4, 45 },
 			}
 			local y0 = 0.45
-			local s = math.clamp(0.34 * R, 0.75, 1.7)
+			local s = big and math.clamp(0.3 * R, 0.9, 1.6) or math.clamp(0.42 * R, 0.9, 1.4)
 			for j, l in layers do
 				local rr, h = R * l[1], l[2]
 				local lc = c * CFrame.new(0, y0 + h / 2, 0) * ang(0, l[4], 0)
@@ -191,7 +192,7 @@ return {
 			-- crown spot + ledge spots (read from above)
 			B:block(crop, v(R * 0.26, 0.24, R * 0.26), c * CFrame.new(0, y0 + 0.02, 0) * ang(0, 20, 0), pal[6])
 			local yL = 0.45 + layers[1][2] + layers[2][2] + (big and layers[3][2] or 0)
-			local rL = big and R * 0.64 or R * 0.7
+			local rL = big and R * 0.73 or R * 0.7
 			for k = 0, (big and 3 or 1) do
 				local q = c * CFrame.Angles(0, rad(40 + k * (big and 90 or 180) + jit(15)), 0) * CFrame.new(0, yL + 0.05, -rL)
 				B:block(crop, v(s * 0.75, 0.24, s * 0.75), q * ang(0, rnd() * 45, 0), (k % 2 == 0) and pal[6] or pal[5], (k % 2 == 1) and NEON or nil)
@@ -206,8 +207,8 @@ return {
 			{ p = v(0, TOP - 0.3, 0), w = 2.9 },
 			{ p = v(0.35, 6.0, 0.25), w = 2.5 },
 			{ p = v(-0.25, 10.5, -0.1), w = 2.25 },
-			{ p = v(0.2, 14.5, 0.1), w = 2.1 },
-			{ p = v(0, 17.4, 0), w = 2.0 },
+			{ p = v(0.2, 15.0, 0.1), w = 2.1 },
+			{ p = v(0, 18.4, 0), w = 2.0 },
 		}
 		for i = 1, #path - 1 do
 			local a, b = path[i], path[i + 1]
@@ -222,7 +223,7 @@ return {
 		B:block(crop, v(3.1, 0.7, 3.1), cf(0.1, TOP + 1.8, 0.1, 0, 25, 0), STALK)
 		-- frilly skirt ring
 		do
-			local yS = 13.6
+			local yS = 14.4
 			local c = CFrame.new(v(0.15, yS, 0.05))
 			B:block(crop, v(3.2, 0.35, 3.2), c, STALK_LT)
 			B:block(crop, v(3.15, 0.33, 3.15), c * ang(0, 45, 0), STALK_LT)
@@ -232,7 +233,7 @@ return {
 			end
 		end
 		-- glowing freckles + dark stalk flecks
-		for _, f in { { 4.5, 30, 1.3 }, { 7.2, 160, 1.2 }, { 9.0, 290, 1.15 }, { 11.6, 80, 1.1 }, { 15.8, 210, 1.05 }, { 6.0, 250, 1.25 } } do
+		for _, f in { { 4.5, 30, 1.3 }, { 7.2, 160, 1.2 }, { 9.0, 290, 1.15 }, { 11.6, 80, 1.1 }, { 16.6, 210, 1.05 }, { 6.0, 250, 1.25 } } do
 			local q = CFrame.new(v(0, f[1], 0)) * CFrame.Angles(0, rad(-f[2]), 0) * CFrame.new(0, 0, -f[3])
 			B:block(crop, v(0.4, 0.4, 0.2), q, GLOW_CY, NEON)
 		end
@@ -240,28 +241,28 @@ return {
 			local q = CFrame.new(v(0, f[1], 0)) * CFrame.Angles(0, rad(-f[2]), 0) * CFrame.new(0, 0, -f[3])
 			B:block(crop, v(0.6, 0.9, 0.2), q, STALK_DK)
 		end
-		local CAPY = 17.2
+		local CAPY = 18.2
 		local bigCap = CFrame.new(v(0, CAPY, 0)) * ang(2, 12, -3)
-		local bigTop = cap(bigCap, 5.4, VIO, { "1111", "1011", "0110" }, true)
+		local bigTop = cap(bigCap, 5.0, VIO, { "1111", "1011", "0110", "1001" }, true)
 
 		------------------------------------------------------------------
 		-- RING OF GIANT TOADSTOOLS
 		------------------------------------------------------------------
 		local RING = {
 			-- angle, cap height, cap radius, palette, outward tilt, stem width
-			{ 335, 6.0, 2.1, TEAL, 16, 1.0 },
-			{ 30, 8.6, 2.5, VIO, 14, 1.15 },
-			{ 95, 11.3, 2.9, TEAL, 12, 1.3 },
-			{ 155, 9.2, 2.7, VIO, 14, 1.2 },
-			{ 220, 12.0, 3.0, TEAL, 11, 1.35 },
-			{ 278, 7.6, 2.4, VIO, 15, 1.1 },
+			{ 335, 6.2, 2.2, TEAL, 22, 1.0 },
+			{ 30, 8.8, 2.6, VIO, 18, 1.15 },
+			{ 95, 11.4, 2.9, TEAL, 16, 1.3 },
+			{ 155, 9.4, 2.7, VIO, 18, 1.2 },
+			{ 220, 12.2, 3.0, TEAL, 15, 1.35 },
+			{ 278, 7.8, 2.5, VIO, 20, 1.1 },
 		}
 		local ringCaps = {}
 		for i, r in RING do
 			local a, H, R, pal, tilt, w = r[1], r[2], r[3], r[4], r[5], r[6]
-			local base = pv(4.15, a, 1.45)
+			local base = pv(4.4, a, 1.45)
 			local out = pv(1, a, 0)
-			local top = base + v(0, H - 1.5, 0) + out * (math.sin(rad(tilt)) * (H - 1.5) * 0.9)
+			local top = base + v(0, H - 1.5, 0) + out * (math.sin(rad(tilt)) * (H - 1.5) * 0.75)
 			local mid = base:Lerp(top, 0.5) + out * -0.25
 			B:bar(crop, base, mid, w, w, STALK)
 			B:bar(crop, mid, top, w * 0.92, w * 0.92, STALK_LT)

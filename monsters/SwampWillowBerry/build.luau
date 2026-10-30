@@ -30,7 +30,7 @@ return {
 		local VIOLET, VIOLET_LT = "#9a6ad8", "#c9a6f2"
 		local BARK_XD, BARK_DK, BARK, BARK_LT = "#2c221c", "#3d3028", "#504034", "#66523f"
 		local LF_XD, LF_DK, LF, LF_MID, LF_LT, LF_TIP = "#2f5a34", "#3d7040", "#4f8a48", "#64a052", "#82b85e", "#a6cf72"
-		local B_DK, B_MD, B_LT, B_HI = "#0f8a86", "#1fc2b4", "#5ce8d6", "#c2fff6"
+		local B_DK, B_MD, B_LT, B_HI = "#0e938c", "#22d6c6", "#7cf3e4", "#d2fff9"
 		local STEM = "#3a4a26"
 
 		local seed = 51551
@@ -283,12 +283,19 @@ return {
 		-- in every other curtain gap, hanging out of the crown rim
 		for i = 0, OUTN / 2 - 1 do
 			local a = (2 * i + 0.5) * 360 / OUTN
-			cluster(a, CUR_R - 0.3, CY + 0.2, 3.8 + (i % 3) * 0.8, 1.3)
+			cluster(a, CUR_R - 0.2, CY + 0.2, 3.8 + (i % 3) * 0.8, 1.42)
 		end
 		-- berries peeking from the crown (readable from above)
-		for _, m in { { 70, 4.5, CY + 2.9 }, { 200, 4.4, CY + 2.9 }, { 320, 4.6, CY + 2.8 }, { 140, 2.0, CY + 4.3 } } do
+		for _, m in { { 70, 4.6, CY + 2.9 }, { 200, 4.5, CY + 2.9 }, { 320, 4.7, CY + 2.8 }, { 140, 2.2, CY + 4.3 }, { 260, 6.3, CY + 1.6 }, { 15, 6.4, CY + 1.6 } } do
 			local F = CFrame.new(pv(m[2], m[1], m[3])) * ang(0, -m[1], 0) * ang(-10, 25, 8)
-			berry(F, 0.85, false)
+			berry(F, 1.0, false)
+		end
+
+		-- little violet willow blossoms dotting the crown (swamp-magic accent)
+		for _, m in { { 105, 5.6, CY + 2.0 }, { 235, 5.5, CY + 2.0 }, { 345, 3.3, CY + 3.6 }, { 170, 3.4, CY + 3.6 }, { 40, 6.9, CY + 0.9 } } do
+			local F = CFrame.new(pv(m[2], m[1], m[3])) * ang(0, -m[1] + 20, 0) * ang(-15, 0, 0)
+			B:block(crop, v(0.9, 0.35, 0.9), F, VIOLET)
+			B:block(crop, v(0.45, 0.3, 0.45), F * CFrame.new(0, 0.2, 0) * ang(0, 45, 0), VIOLET_LT)
 		end
 
 		------------------------------------------------------------------

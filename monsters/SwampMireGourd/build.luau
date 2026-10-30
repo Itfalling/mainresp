@@ -26,14 +26,14 @@ return {
 		local PAD, PAD_DK, PAD_FL, PAD_FL_C = "#4f9e45", "#3a7d36", "#d9a8f0", "#fff0a8"
 		local REED, REED_DK, CATTAIL = "#7a9a44", "#5b7a34", "#5a3a26"
 		local STONE, STONE_LT, STONE_DK = "#66726c", "#84908a", "#4c5652"
-		local BARK, BARK_DK, BARK_LT = "#6b6157", "#4f473f", "#837868"
+		local BARK, BARK_DK, BARK_LT = "#7a6e60", "#564d44", "#948672"
 		local WOOD, HOLLOW = "#a8946e", "#2a231d"
 		local FUNGUS, FUNGUS_LT = "#8a6ab8", "#b49ad8"
 		local VINE, VINE_DK = "#2f6a33", "#234f29"
-		local LEAF = { "#3f8f5a", "#4fa368", "#2f7a4c" }
+		local LEAF = { "#3f9a58", "#56b46a", "#2f8350" }
 		local FLOWER, FLOWER_C = "#efe6ff", "#ffd95a"
-		local GOURD, GOURD_DK, GOURD_LT, STRIPE = "#6fae4a", "#4f8a38", "#8cc45e", "#b9e08a"
-		local GCAP, DRIP = "#3c6b2e", "#567f34"
+		local GOURD, GOURD_DK, GOURD_LT, STRIPE = "#5c9e44", "#3f7a33", "#82c25c", "#c8e89c"
+		local GCAP, DRIP = "#2f5a26", "#4a7a30"
 
 		local seed = 1547
 		local function rnd(a, b)
@@ -247,7 +247,7 @@ return {
 			B:block(crop, v(s, s * 0.8, s), CFrame.new(p + out * (0.3 + s * 0.35)) * ang(rnd(-25, 25), rnd(0, 90), rnd(-25, 25)), LEAF[(j % 3) + 1])
 		end
 		-- leafy crown around the spire top + along the hook
-		for j, l in { { -1.4, 13.6, 1.0, 2.0 }, { 0.6, 14.2, 1.9, 1.8 }, { -1.6, 15.4, -0.6, 1.7 }, { 0.3, 16.0, 1.2, 1.6 }, { -0.9, 16.9, 0.3, 1.5 }, { 0.9, 17.6, -0.6, 1.3 }, { -0.6, 17.9, -1.5, 1.2 }, { 1.3, 15.2, 0.0, 1.4 } } do
+		for j, l in { { -1.5, 13.6, 1.1, 1.7 }, { 0.5, 14.3, 1.8, 1.5 }, { -1.5, 15.6, -0.4, 1.4 }, { -0.8, 17.0, 0.5, 1.3 }, { -0.4, 18.1, -1.3, 1.0 } } do
 			B:block(crop, v(l[4], l[4] * 0.8, l[4]), cf(l[1], l[2], l[3], rnd(-25, 25), rnd(0, 90), rnd(-25, 25)), LEAF[(j % 3) + 1])
 		end
 		-- vines out along the branches, a leaf + tendril on each
@@ -272,10 +272,11 @@ return {
 		end
 		flower(vinePts[4] + v(vinePts[4].X, 0, vinePts[4].Z).Unit * 1.4 + v(0, 0.9, 0), 1.0)
 		flower(vinePts[10] + v(vinePts[10].X, 0, vinePts[10].Z).Unit * 1.3 + v(0, 0.8, 0), 0.9)
-		flower(v(0.6, 16.85, 1.3), 0.85)
+		flower(v(-0.8, 17.62, 0.5), 0.75)
 
 		---------------------------------------------------------------- mossy bottle gourds
-		-- hangs from p (stem top); s = scale
+		-- hangs from p (stem top); s = scale. Calabash shape: small neck bulb,
+		-- pinched waist, big stepped-round lower bulb shaded light->dark.
 		local function gourd(p, s, deg, stemLen)
 			local sl = stemLen or 0.7
 			local F = CFrame.new(p) * CFrame.Angles(0, rad(deg), 0)
@@ -284,28 +285,35 @@ return {
 			local function at(yy)
 				return F * CFrame.new(0, y - yy * s, 0)
 			end
-			-- moss cap + drips
-			B:block(crop, v(1.0 * s, 0.4 * s, 1.0 * s), at(0.15) * ang(0, 45, 0), GCAP)
-			B:block(crop, v(0.3 * s, 0.8 * s, 0.3 * s), at(0.55) * CFrame.new(0.45 * s, 0, -0.25 * s), DRIP)
-			-- neck bulb + waist
-			B:block(crop, v(1.05 * s, 0.95 * s, 1.05 * s), at(0.7), GOURD_LT)
-			B:block(crop, v(0.85 * s, 0.95 * s, 0.85 * s), at(0.7) * ang(0, 45, 0), GOURD_LT)
-			B:block(crop, v(0.8 * s, 0.4 * s, 0.8 * s), at(1.25), GOURD_DK)
-			-- big lower bulb (stepped round)
-			disc(crop, at(2.4), 1.2 * s, 1.9 * s, GOURD)
-			B:block(crop, v(1.7 * s, 2.5 * s, 1.7 * s), at(2.4) * ang(0, 45, 0), GOURD_DK)
-			B:block(crop, v(1.1 * s, 0.4 * s, 1.1 * s), at(3.65), GOURD_DK)
-			-- pale stripes on the arm faces + a moss patch
+			-- moss cap + a drip
+			B:block(crop, v(0.95 * s, 0.4 * s, 0.95 * s), at(0.15) * ang(0, 45, 0), GCAP)
+			B:block(crop, v(0.3 * s, 0.9 * s, 0.3 * s), at(0.6) * CFrame.new(0.42 * s, 0, -0.3 * s), DRIP)
+			-- neck bulb + pinched waist
+			B:block(crop, v(1.1 * s, 1.0 * s, 1.1 * s), at(0.75), GOURD_LT)
+			B:block(crop, v(0.9 * s, 0.98 * s, 0.9 * s), at(0.75) * ang(0, 45, 0), GOURD_LT)
+			B:block(crop, v(0.75 * s, 0.45 * s, 0.75 * s), at(1.4), GOURD)
+			-- big lower bulb: shoulder / belly / base
+			disc(crop, at(1.8), 0.95 * s, 0.45 * s, GOURD_LT)
+			disc(crop, at(2.65), 1.3 * s, 1.35 * s, GOURD)
+			B:block(crop, v(1.75 * s, 0.5 * s, 1.75 * s), at(3.5) * ang(0, 45, 0), GOURD_DK)
+			B:block(crop, v(1.25 * s, 0.45 * s, 1.25 * s), at(3.85), GOURD_DK)
+			B:block(crop, v(0.45 * s, 0.25 * s, 0.45 * s), at(4.15), GCAP)
+			-- dark ribs on the belly arm faces + pale speckles
 			for i = 0, 3 do
-				B:block(crop, v(0.36 * s, 1.6 * s, 0.12), at(2.4) * CFrame.Angles(0, rad(i * 90), 0) * CFrame.new(0, 0, -1.2 * s - 0.03), STRIPE)
+				local f = at(2.65) * CFrame.Angles(0, rad(i * 90), 0)
+				B:block(crop, v(0.3 * s, 1.45 * s, 0.14), f * CFrame.new(0, 0, -1.3 * s - 0.02), GOURD_DK)
+				if i % 2 == 0 then
+					B:block(crop, v(0.35 * s, 0.35 * s, 0.14), f * CFrame.new(0.42 * s, 0.25 * s, -1.3 * s - 0.03), STRIPE)
+				end
 			end
-			B:block(crop, v(1.0 * s, 0.35 * s, 0.9 * s), at(1.55) * CFrame.new(0.3 * s, 0, 0.2 * s) * ang(0, 20, 0), MOSS)
+			-- moss blanket draped over the neck + shoulder
+			B:block(crop, v(1.25 * s, 0.4 * s, 1.0 * s), at(1.62) * CFrame.new(0.25 * s, 0, 0.25 * s) * ang(0, 20, 8), MOSS)
 		end
-		gourd(h3 - v(0, 0.1, 0), 0.95, 10, 0.6)
-		gourd(tips[1], 1.15, 65, 0.8)
-		gourd(tips[2], 1.0, 200, 0.7)
-		gourd(tips[3], 0.9, 305, 0.6)
-		gourd(tips[4], 0.85, 135, 0.6)
+		gourd(h3 - v(0, 0.1, 0), 1.05, 10, 0.6)
+		gourd(tips[1], 1.3, 65, 0.8)
+		gourd(tips[2], 1.15, 200, 0.7)
+		gourd(tips[3], 1.05, 305, 0.6)
+		gourd(tips[4], 1.0, 135, 0.6)
 		-- a ripe gourd lying on the mound (on its side)
 		do
 			local C = cf(-2.5, 2.95, -3.4, 0, -35, 80)
@@ -313,7 +321,9 @@ return {
 			B:block(soil, v(1.6, 2.4, 1.6), C * ang(0, 45, 0), GOURD_DK, S)
 			B:block(soil, v(1.0, 0.9, 1.0), C * CFrame.new(0, 1.45, 0), GOURD_LT, S)
 			B:block(soil, v(0.8, 0.35, 0.8), C * CFrame.new(0, 2.0, 0) * ang(0, 45, 0), GCAP, S)
-			B:block(soil, v(0.35, 1.6, 0.12), C * CFrame.new(0, 0, -1.18), STRIPE, S)
+			B:block(soil, v(0.32, 1.6, 0.14), C * CFrame.new(0, 0, -1.17), GOURD_DK, S)
+			B:block(soil, v(0.32, 1.6, 0.14), C * CFrame.new(-1.17, 0, 0) * ang(0, 90, 0), GOURD_DK, S)
+			B:block(soil, v(1.1, 0.35, 0.9), C * CFrame.new(0.3, 0.9, 0.5), MOSS, S)
 		end
 	end,
 }

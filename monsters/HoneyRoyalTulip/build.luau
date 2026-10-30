@@ -119,6 +119,15 @@ return {
 		hex(v(-6.65, 1.35, -0.55), 1.5, 0.7, COMB, COMB_DK)
 		hex(v(-5.25, 1.35, -1.0), 1.5, 1.35, HONEY_LT, COMB_DK)
 
+		-- two meadow stones
+		local function stone(x, y, z, sc, yaw)
+			B:block(soil, v(1.6 * sc, 0.8 * sc, 1.3 * sc), cf(x, y + 0.4 * sc, z, 0, yaw, 0), PEB, S)
+			B:block(soil, v(1.1 * sc, 0.6 * sc, 1.0 * sc), cf(x - 0.15 * sc, y + 1.0 * sc, z + 0.1 * sc, 0, yaw + 18, 0), PEB_LT, S)
+			B:block(soil, v(0.9 * sc, 0.2 * sc, 0.7 * sc), cf(x + 0.3 * sc, y + 0.85 * sc, z - 0.2 * sc, 0, yaw - 10, 0), TURF_DK, S)
+		end
+		stone(6.0, 1.35, 1.8, 1.1, 25)
+		stone(-1.4, 2.6, 5.2, 0.9, -15)
+		stone(2.0, 1.35, -7.0, 0.75, 40)
 		-- pebbles
 		for _, p in { { 5.0, 1.35, -5.5 }, { 7.0, 1.35, 2.5 }, { -2.0, 2.6, 5.4 }, { 3.2, 3.55, 2.8 }, { -6.5, 1.35, 3.6 }, { 1.3, 1.35, -7.3 } } do
 			B:block(soil, v(0.6, 0.36, 0.5), cf(p[1], p[2] + 0.16, p[3], 0, rnd() * 90, 0), rnd() > 0.5 and PEB or PEB_LT, S)
@@ -164,15 +173,18 @@ return {
 		B:block(crop, v(1.9, 0.7, 1.9), cf(0, TOP + 0.9, 0.2, 0, -15, 0), STEM)
 
 		-- royal-jelly orb: neon core peeking out between cream slabs
-		local function orb(c, s, yaw, coreName)
+		local function orb(c, s, yaw, coreName, bone, o)
+			bone = bone or crop
 			local F = CFrame.new(c) * ang(0, yaw, 0)
-			B:block(crop, v(1.85 * s, 1.85 * s, 1.85 * s), F, JELLY_CORE, { mat = "Neon", name = coreName })
-			B:block(crop, v(2.35 * s, 1.5 * s, 1.5 * s), F, JELLY)
-			B:block(crop, v(1.5 * s, 2.35 * s, 1.5 * s), F, JELLY_DK)
-			B:block(crop, v(1.5 * s, 1.5 * s, 2.35 * s), F, JELLY)
-			B:block(crop, v(2.15 * s, 1.3 * s, 2.15 * s), F * ang(0, 45, 0), JELLY_DK)
-			B:block(crop, v(0.55 * s, 0.55 * s, 0.14), F * CFrame.new(-0.35 * s, 0.4 * s, -1.2 * s), JELLY_HI)
+			B:block(bone, v(1.85 * s, 1.85 * s, 1.85 * s), F, JELLY_CORE, { mat = "Neon", name = coreName })
+			B:block(bone, v(2.35 * s, 1.5 * s, 1.5 * s), F, JELLY, o)
+			B:block(bone, v(1.5 * s, 2.35 * s, 1.5 * s), F, JELLY_DK, o)
+			B:block(bone, v(1.5 * s, 1.5 * s, 2.35 * s), F, JELLY, o)
+			B:block(bone, v(2.15 * s, 1.3 * s, 2.15 * s), F * ang(0, 45, 0), JELLY_DK, o)
+			B:block(bone, v(0.55 * s, 0.55 * s, 0.14), F * CFrame.new(-0.35 * s, 0.4 * s, -1.2 * s), JELLY_HI, o)
 		end
+		-- a fallen jelly orb resting on the mound
+		orb(v(3.6, 2.6 + 0.85 * 0.75, -4.6), 0.75, 25, "Soil", soil, S)
 
 		-- one giant tulip: cup base centre `b`, width W, petal height H
 		local function tulip(b, W, H, pal, yaw, coreName, opts)

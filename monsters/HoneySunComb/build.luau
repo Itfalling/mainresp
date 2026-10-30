@@ -212,7 +212,7 @@ return {
 		end
 		-- closed bud (left)
 		do
-			local a, b = v(-0.4, 6.6, 0.6), v(-3.0, 9.0, 0.5)
+			local a, b = v(-0.5, 5.4, 0.6), v(-4.2, 7.0, 0.3)
 			B:bar(crop, a, b, 0.7, 0.7, STEM)
 			local bud = B:bone("BudL", "Crop", b)
 			local c = b + v(-0.4, 1.0, 0)

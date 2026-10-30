@@ -292,7 +292,7 @@ return {
 		for k = 0, 4 do
 			local a = 72 * k + 72 + 20
 			local p0 = at(5.6, a, FORK + 6.6) + v(0, 0, TZ)
-			local p1 = at(7.6, a + 6, FORK + 8.6) + v(0, 0, TZ)
+			local p1 = at(7.0, a + 6, FORK + 8.0) + v(0, 0, TZ)
 			local p2 = p1 + at(1.0, a + 70, 0.9)
 			B:bar(canopy, p0, p1, 0.5, 0.5, BARK_LT)
 			B:bar(canopy, p1, p2, 0.35, 0.35, BARK_HI)
