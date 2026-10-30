@@ -127,10 +127,9 @@ return {
 			-- posts
 			for _, sz in { -1, 1 } do
 				B:block(crop, v(0.75, COL_TOP - Y2 + 0.2, 0.75), cf(x, (Y2 + COL_TOP) / 2 + 0.1, sz * CZ), WOOD)
-				B:block(crop, v(0.12, 3.0, 0.1), cf(x + sx * 0.1, Y2 + 3.2 + (sz + 1) * 2, sz * CZ - 0.4), WOOD_DK)
 			end
 			-- rungs
-			for _, y in { Y2 + 1.0, 7.4, COL_TOP - 0.6 } do
+			for _, y in { Y2 + 1.0, COL_TOP - 0.6 } do
 				B:block(crop, v(0.5, 0.5, 2 * CZ + 0.9), cf(x, y, 0), WOOD_DK)
 			end
 			-- diamond lattice between the posts
@@ -206,7 +205,7 @@ return {
 			for _, deg in (sx > 0 and { 10, 40, 70 } or { 170, 140, 110 }) do
 				table.insert(pts, arcPt(deg, AR + 0.65, -CZ - 0.2))
 			end
-			vineThrough(pts, 0.42, 2, 1.7)
+			vineThrough(pts, 0.42, 2, 1.9)
 		end
 		-- back vine over the arch
 		do
@@ -228,6 +227,10 @@ return {
 		end
 		for _, deg in { 62, 118 } do
 			mass(arcPt(deg, AR + 0.9, 0), 3, 2.0, 1.0)
+		end
+		-- leafy clumps low on the panels
+		for _, l in { { CX + 0.9, 3.6, -1.6, 1 }, { CX - 0.2, 6.6, -1.9, 2 }, { CX + 1.1, 11.4, 0.6, 3 }, { -CX - 0.9, 4.4, -1.5, 4 }, { -CX + 0.2, 9.0, -1.9, 1 }, { -CX - 1.0, 3.2, 1.4, 2 } } do
+			leaf(v(l[1], l[2], l[3]), 1.8, LEAF[l[4]])
 		end
 		-- leaf collar round the plaque post
 		leaf(v(-0.9, AY + AR + 0.7, 0.3), 1.6, LEAF[2], 20)
@@ -294,9 +297,9 @@ return {
 			end
 		end
 		-- hanging under the arch
-		bunch(arcPt(40, AR - 0.45, -CZ), 1.0, 4)
-		bunch(arcPt(140, AR - 0.45, -CZ), 0.95, 4)
-		bunch(arcPt(90, AR - 0.45, 0), 1.1, 5)
+		bunch(arcPt(40, AR - 0.45, -CZ), 1.15, 4)
+		bunch(arcPt(140, AR - 0.45, -CZ), 1.1, 4)
+		bunch(arcPt(90, AR - 0.45, 0), 1.25, 5)
 		-- on the panels
 		bunch(v(CX + 1.0, 8.0, -0.2), 0.9, 3)
 		bunch(v(-CX - 1.0, 6.0, 0.4), 0.9, 3)

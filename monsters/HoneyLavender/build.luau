@@ -160,14 +160,23 @@ return {
 			local a = pv(r0, deg, y0)
 			B:bar(crop, a, a + dir * len, w, w * 0.7, col)
 		end
-		for i = 0, 11 do
-			blade(i * 30 + jit(6), 0.9, TOP + 0.3, 30 + jit(6), 3.4, 0.6, (i % 2 == 0) and SAGE or SAGE_DK)
+		-- rounded bush body of rotated sage leaf cubes
+		for i = 0, 6 do
+			local deg = i * 360 / 7 + jit(8)
+			local sz = 1.9 + rnd() * 0.4
+			B:block(crop, v(sz, sz * 0.85, sz), CFrame.new(pv(1.75 + jit(0.15), deg, TOP + 0.55 + jit(0.15))) * ang(jit(15), rnd() * 90, jit(15)), (i % 3 == 0) and SAGE_DK or ((i % 3 == 1) and SAGE or SAGE_LT))
 		end
+		for i = 0, 4 do
+			local deg = i * 72 + 30 + jit(8)
+			local sz = 1.6 + rnd() * 0.3
+			B:block(crop, v(sz, sz, sz), CFrame.new(pv(1.0, deg, TOP + 1.7 + jit(0.15))) * ang(jit(15), rnd() * 90, jit(15)), (i % 2 == 0) and SAGE_LT or SAGE_XL)
+		end
+		-- narrow silvery blades sticking out of the clump
 		for i = 0, 9 do
-			blade(i * 36 + 18 + jit(6), 0.7, TOP + 0.8, 52 + jit(6), 3.4, 0.55, (i % 2 == 0) and SAGE_LT or SAGE)
+			blade(i * 36 + jit(6), 1.2, TOP + 0.6, 34 + jit(8), 3.3, 0.5, (i % 2 == 0) and SAGE_LT or SAGE)
 		end
 		for i = 0, 6 do
-			blade(i * 360 / 7 + 5 + jit(6), 0.4, TOP + 1.2, 72 + jit(5), 3.2, 0.5, (i % 2 == 0) and SAGE_XL or SAGE_LT)
+			blade(i * 360 / 7 + 18 + jit(6), 0.6, TOP + 1.5, 62 + jit(6), 3.0, 0.45, (i % 2 == 0) and SAGE_XL or SAGE_LT)
 		end
 
 		-- LAVENDER SPIKE: stem, then a head of twisting stepped florets
@@ -202,7 +211,7 @@ return {
 		for i = 0, 4 do
 			local deg = i * 72 + 36 + jit(5)
 			local x, z = polar(0.2 + jit(0.04), deg)
-			spike(pv(0.6, deg, TOP + 1.3), v(x, 1, z), 8.6 + jit(0.6), 6.4 + jit(0.4), 1.25, i % 2 == 0)
+			spike(pv(0.6, deg, TOP + 1.3), v(x, 1, z), 8.6 + jit(0.6), 6.4 + jit(0.4), 1.25, true)
 		end
 		-- outer ring of seven
 		for i = 0, 6 do
