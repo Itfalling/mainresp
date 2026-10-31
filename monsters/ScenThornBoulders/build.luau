@@ -63,29 +63,33 @@ return {
 			tier(T3, w * 0.62, d * 0.64, h3, STONE_LT, STONE)
 			-- flank lump breaks up the outline (lit or shaded side)
 			local L = T1 * CFrame.new(lumpSide * w * 0.48, h1 * 0.1, -0.1 * d) * ang(6, 30, lumpSide * 8)
-			tier(L, w * 0.36, d * 0.5, h1 * 1.1, lumpSide > 0 and STONE or STONE_DK, STONE_DK)
-			B:block(R, v(w * 0.24, 0.3, d * 0.3), L * CFrame.new(0, h1 * 0.55 + 0.1, 0) * ang(0, 20, 0), STONE_LT)
+			tier(L, w * 0.42, d * 0.62, h1 * 0.9, lumpSide > 0 and STONE or STONE_DK, STONE_DK)
+			B:block(R, v(w * 0.28, 0.3, d * 0.36), L * CFrame.new(0, h1 * 0.45 + 0.1, 0) * ang(0, 20, 0), STONE_LT)
 			-- highlight ledge on the middle tier
-			B:block(R, v(w * 0.5, 0.14, 0.3), T2 * CFrame.new(0.1 * w, h2 / 2 + 0.06, -0.42 * d), STONE_LT)
+			B:block(R, v(0.3, 0.14, d * 0.5), T2 * CFrame.new(lumpSide * 0.4 * w, h2 / 2 + 0.06, -0.1 * d), STONE_LT)
 			-- crack on the front
 			crack(T1 * CFrame.new(0, 0, -d * 0.36 - 0.02), { { 0.15 * w, 0.35 * h1 }, { -0.05 * w, 0.0 }, { 0.12 * w, -0.32 * h1 } })
 			if mossy then
 				local top = T3 * CFrame.new(0, h3 / 2, 0)
 				tier(top * CFrame.new(0, 0.12, 0), w * 0.64, d * 0.66, 0.26, MOSS, MOSS)
 				B:block(R, v(w * 0.36, 0.2, d * 0.36), top * CFrame.new(-0.05 * w, 0.32, 0.05 * d) * ang(0, 25, 0), MOSS_LT)
-				-- moss spilling down the back and one side, and onto the middle ledge
+				-- moss spilling down the front, back and one side, and over the ledges
+				B:block(R, v(w * 0.5, h3 * 0.8, 0.24), T3 * CFrame.new(0.05 * w, 0.1, -d * 0.33), MOSS_DK)
 				B:block(R, v(w * 0.56, h3 * 0.8, 0.24), T3 * CFrame.new(0, 0.1, d * 0.33), MOSS_DK)
 				B:block(R, v(0.24, h3 * 0.7, d * 0.5), T3 * CFrame.new(-lumpSide * w * 0.31, 0.12, 0), MOSS)
+				B:block(R, v(w * 0.6, 0.22, d * 0.24), T2 * CFrame.new(-0.1 * w, h2 / 2 + 0.1, -0.38 * d), MOSS)
+				B:block(R, v(w * 0.34, h2 * 0.65, 0.22), T2 * CFrame.new(-0.2 * w, h2 * 0.12, -0.45 * d), MOSS_DK)
 				B:block(R, v(w * 0.7, 0.22, d * 0.3), T2 * CFrame.new(-0.05 * w, h2 / 2 + 0.1, 0.36 * d), MOSS_DK)
-				B:block(R, v(w * 0.4, h2 * 0.6, 0.22), T2 * CFrame.new(-0.15 * w, h2 * 0.15, 0.45 * d), MOSS)
+				B:block(R, v(w * 0.5, 0.22, d * 0.28), T1 * CFrame.new(0.15 * w, h1 / 2 + 0.1, -0.38 * d), MOSS_LT)
 			end
 			return T3 * CFrame.new(0, h3 / 2, 0), T2 * CFrame.new(0, h2 / 2, 0)
 		end
 
 		---------------------------------------------------------------- footing
-		B:block(R, v(13.0, 0.14, 9.0), cf(0, 0.07, 0.4, 0, 6, 0), DIRT_DK)
-		B:block(R, v(8.0, 0.2, 5.0), cf(-2.6, 0.1, -1.6, 0, -14, 0), MOSS_DK)
-		B:block(R, v(5.0, 0.24, 3.0), cf(3.6, 0.12, -2.4, 0, 20, 0), DIRT)
+		B:block(R, v(11.0, 0.14, 7.0), cf(0, 0.07, 0.8, 0, 6, 0), DIRT_DK)
+		B:block(R, v(8.0, 0.2, 4.0), cf(-2.6, 0.1, -1.6, 0, -14, 0), MOSS_DK)
+		B:block(R, v(3.0, 0.24, 1.8), cf(3.0, 0.12, -2.6, 0, 20, 0), DIRT)
+		B:block(R, v(2.4, 0.22, 1.6), cf(5.2, 0.11, -2.2, 0, -25, 0), MOSS_DK)
 		B:block(R, v(4.0, 0.22, 2.6), cf(4.0, 0.11, 3.6, 0, -10, 0), MOSS)
 
 		---------------------------------------------------------------- rocks
@@ -124,14 +128,14 @@ return {
 				local d = v(math.sin(a), 0, math.cos(a))
 				local p1 = base + d * (1.1 * sz) + v(0, 1.5 * sz, 0)
 				local p2 = p1 + d * (1.2 * sz) + v(0, -0.5 * sz, 0)
-				B:bar(R, base, p1, 0.6 * sz, 0.16, (k % 2 == 0) and FERN or FERN_DK)
+				B:bar(R, base, p1, 0.6 * sz, 0.18, (k % 2 == 0) and FERN or FERN_DK)
 				B:bar(R, p1, p2, 0.48 * sz, 0.14, (k % 2 == 0) and FERN_LT or FERN)
 			end
 		end
-		fern(-3.4, -1.6, 1.1, 10, 6) -- between the left and front rocks
-		fern(3.0, -1.9, 1.0, 40, 5) -- foot of the tall rock
-		fern(-7.0, 1.6, 0.9, 70, 5)
-		fern(7.2, 2.4, 0.9, 20, 5)
+		fern(-4.0, -2.4, 1.45, 10, 6) -- between the left and front rocks
+		fern(3.4, -2.6, 1.3, 40, 5) -- foot of the tall rock
+		fern(-7.4, 1.8, 1.2, 70, 5)
+		fern(7.6, 2.6, 1.2, 20, 5)
 
 		---------------------------------------------------------------- toadstools
 		local function toadstool(C, k, h)

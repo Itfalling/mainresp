@@ -130,9 +130,10 @@ return {
 		end
 		-- peeled bark: pale wood showing through on the front side
 		for _, r in { { 1, 6.0, 2.2, -75, 1.5 }, { 2, 1.4, 1.8, -80, 1.3 }, { 2, 5.4, 2.4, -70, 1.4 } } do
-			local c = onLog(r[1], r[2], r[4], 0.0)
-			B:block(R, v(r[5], 0.16, r[3]), c, CUT_DK)
-			B:block(R, v(r[5] * 0.7, 0.2, r[3] * 0.75), c * CFrame.new(0.05, 0.02, -0.1), CUT)
+			local c = onLog(r[1], r[2], r[4], 0.0) * ang(0, 14, 0)
+			B:block(R, v(r[5], 0.16, r[3]), c, BARK_LT)
+			B:block(R, v(r[5] * 0.75, 0.2, r[3] * 0.55), c * CFrame.new(0.15, 0.02, -0.35) * ang(0, -20, 0), CUT_DK)
+			B:block(R, v(r[5] * 0.4, 0.24, r[3] * 0.3), c * CFrame.new(0.1, 0.04, -0.5) * ang(0, 10, 0), CUT)
 		end
 		-- knot
 		local kn = onLog(2, 2.0, 90, -0.05)

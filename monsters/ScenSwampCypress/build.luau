@@ -163,12 +163,12 @@ return {
 			B:bar(R, mid - d * 0.2, tip, 0.6, 0.6, BARK)
 			pad(CFrame.new(tip + v(0, 0.2, 0)), s)
 		end
-		branch(2.75, 70, 4.6, 1.6, 4.6)
-		branch(3.1, 200, 4.4, 1.2, 4.4)
-		branch(3.5, 310, 3.8, 1.8, 4.0)
-		branch(3.85, 130, 3.6, 2.0, 3.8)
-		branch(4.3, 20, 2.8, 1.4, 3.4)
-		branch(4.5, 245, 2.6, 1.6, 3.2)
+		branch(2.75, 70, 4.8, 1.6, 5.0)
+		branch(3.1, 200, 4.6, 1.2, 4.8)
+		branch(3.5, 310, 4.0, 1.8, 4.4)
+		branch(3.85, 130, 3.8, 2.0, 4.2)
+		branch(4.3, 20, 3.0, 1.4, 3.8)
+		branch(4.5, 245, 2.8, 1.6, 3.6)
 		-- stepped crown on top of the trunk
 		local top = path[#path]
 		oct(CFrame.new(top + v(0, 0.3, 0)) * ang(0, 15, 0), 4.2, 1.2, LF_DK, LF_XD)

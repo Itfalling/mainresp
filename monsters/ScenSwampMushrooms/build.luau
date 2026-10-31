@@ -74,6 +74,9 @@ return {
 			-- stepped bulb foot
 			oct(CFrame.new(base + v(0, 0.45, 0)) * ang(0, spin, 0), 2.6 * sw, 0.9, STALK_BASE)
 			oct(CFrame.new(base + v(0, 1.2, 0)) * ang(0, spin + 20, 0), 2.1 * sw, 0.8, STALK_DK)
+			-- moss creeping round the foot
+			B:block(R, v(1.6 * sw, 0.4, 1.0 * sw), CFrame.new(base + v(0, 0.2, 0)) * ang(0, spin + 30, 0) * CFrame.new(0, 0, -1.3 * sw), MOSS)
+			B:block(R, v(1.2 * sw, 0.45, 0.9 * sw), CFrame.new(base + v(0, 0.22, 0)) * ang(0, spin + 160, 0) * CFrame.new(0, 0, -1.25 * sw), MOSS_LT)
 			-- curved octagonal stalk (2 segments)
 			local p0 = base + v(0, 1.3, 0)
 			local p1 = base + lean * 0.35 + v(0, H * 0.5, 0)

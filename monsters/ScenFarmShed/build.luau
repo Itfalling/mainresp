@@ -180,6 +180,13 @@ return {
 		B:block(R, v(0.12, 0.9, 0.12), cf(0, RY - 2.0, -HZ - 1.6), ROPE)
 		B:block(R, v(0.12, 0.3, 0.4), cf(0, RY - 2.5, -HZ - 1.5), IRON)
 
+		-- back gable: a cream-framed diamond vent with dark slats
+		B:block(R, v(1.7, 1.7, 0.3), cf(0, 8.3, HZ + 0.05, 0, 0, 45), CREAM)
+		B:block(R, v(1.2, 1.2, 0.3), cf(0, 8.3, HZ + 0.1, 0, 0, 45), DARK)
+		for _, dy in { -0.3, 0.05, 0.4 } do
+			B:block(R, v(1.1 - math.abs(dy) * 1.2, 0.14, 0.2), cf(0, 8.3 + dy - 0.05, HZ + 0.22), RED_DK)
+		end
+
 		------------------------------------------------------------ side windows + flower boxes
 		for _, s in { -1, 1 } do
 			local x = s * (HX + 0.08)

@@ -69,7 +69,7 @@ return {
 		for _, s in { -1, 1 } do
 			wb(0.65, 0.5, 0.25, s * 0.45, 1.2, -1.35, PINK_LT, 0, s * 15)
 		end
-		B:block(R, v(0.4, 0.4, 0.12), cf(0, 1.75 * K, -1.0 * K, 0, 0, 45), N_PINK, { mat = "Neon", name = "Heart" })
+		B:block(R, v(0.4, 0.4, 0.12), cf(0, 1.68 * K, -1.25 * K - 0.07, 0, 0, 45), N_PINK, { mat = "Neon", name = "Heart" })
 		-- dark side seams + small gold studs on the corners of the foot
 		for _, s in { -1, 1 } do
 			wb(0.1, 0.9, 0.5, s * 1.27, 1.6, 0, GOLD_DK)

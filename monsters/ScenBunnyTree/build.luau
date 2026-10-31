@@ -126,7 +126,7 @@ return {
 			B:bar(R, a, m, 0.12, 0.12, WIRE)
 			B:bar(R, m, b, 0.12, 0.12, WIRE)
 			B:block(R, v(0.26, 0.2, 0.26), cf(m.X, m.Y - 0.12, m.Z), WIRE)
-			B:block(R, v(0.34, 0.42, 0.34), cf(m.X, m.Y - 0.42, m.Z, 0, 45, 0), bulbCols[(i - 1) % 3 + 1], { mat = "Neon", name = "Bulb" .. i })
+			B:block(R, v(0.4, 0.5, 0.4), cf(m.X, m.Y - 0.46, m.Z, 0, 45, 0), bulbCols[(i - 1) % 3 + 1], { mat = "Neon", name = "Bulb" .. i })
 		end
 
 		------------------------------------------------------------ grounding

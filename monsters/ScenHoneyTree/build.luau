@@ -79,6 +79,10 @@ return {
 				B:block(R, v(0.6, 0.18, 0.6), cf(x + math.sin(rad(k * 120)) * 0.35, 0.3, z - math.cos(rad(k * 120)) * 0.35, 0, k * 120 + 45, 0), (k == 0) and CLOVER_DK or CLOVER)
 			end
 		end
+		-- fallen blossom petals on the grass
+		for i, pt in { { -2.6, -2.2 }, { 1.4, -2.8 }, { 3.0, -0.6 }, { -1.0, 3.0 }, { 2.4, 2.6 }, { -3.4, 0.8 }, { 0.4, -4.4 } } do
+			B:block(R, v(0.6, 0.12, 0.6), cf(pt[1], 0.3, pt[2], 0, i * 37, 0), (i % 2 == 0) and "#ffa9c9" or "#ffd23a")
+		end
 		clover(1.6, -3.6)
 		clover(-4.6, 2.6)
 		clover(3.0, 4.2)
