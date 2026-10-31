@@ -58,10 +58,10 @@ return {
 			B:block(R, v(0.4, 0.35, 0.4), cf(0.25 + c[1] * 1.15, 2.65, 0.08 + c[2] * 1.15), GOLD_LT)
 		end
 		-- flat roots
-		for i, r in { { 30, 3.4 }, { 120, 3.0 }, { 200, 3.3 }, { 290, 2.9 } } do
+		for i, r in { { 30, 2.7 }, { 120, 2.5 }, { 200, 2.7 }, { 290, 2.4 } } do
 			local a = math.rad(r[1])
 			local dx, dz = math.cos(a), math.sin(a)
-			B:bar(R, v(dx * 1.2, 0.5, dz * 1.2), v(dx * r[2], 0.35, dz * r[2]), 0.9, 0.7, (i % 2 == 0) and BARK or BARK_DK)
+			B:bar(R, v(dx * 1.3, 0.35, dz * 1.3), v(dx * r[2], 0.22, dz * r[2]), 1.0, 0.45, (i % 2 == 0) and BARK or BARK_DK)
 		end
 		-- branches into the side puffs
 		B:bar(R, v(0.2, 7.2, 0.1), v(3.7, 9.6, 1.4), 1.0, 1.0, BARK)
@@ -82,8 +82,8 @@ return {
 		end
 		local LOW = { 0, 8.6, 0, 9.6, 4.6, 0 }
 		puff(LOW[1], LOW[2], LOW[3], LOW[4], LOW[5], LOW[6])
-		puff(0.4, 12.4, 0.2, 7.2, 3.8, 0)
-		puff(-0.2, 15.4, -0.2, 4.6, 2.9, 0)
+		puff(0.4, 12.0, 0.2, 7.8, 4.2, 10)
+		puff(-0.2, 15.3, -0.2, 5.0, 3.0, 25)
 		puff(4.1, 9.3, 1.5, 4.0, 3.2, 20)
 		puff(-3.9, 9.9, -1.7, 3.8, 3.1, -15)
 
@@ -98,9 +98,10 @@ return {
 				leaf(cx + math.cos(a) * rad, cy + (rnd() - 0.5) * 0.6, cz + math.sin(a) * rad, s * (0.85 + rnd() * 0.3), col, cap)
 			end
 		end
-		ring(0.4, 14.6, 0.2, 3.5, 6, 2.0, 20, PK, PK_LT)
-		ring(-0.2, 17.0, -0.2, 2.0, 3, 1.6, 60, PK_LT, PK_HI)
-		ring(0, 11.9, 0, 4.4, 7, 2.1, 5, PK, PK_LT)
+		ring(0.4, 14.6, 0.2, 3.7, 7, 2.1, 20, PK, PK_LT)
+		ring(-0.2, 17.1, -0.2, 2.1, 4, 1.7, 60, PK_LT, PK_HI)
+		ring(0, 12.0, 0, 4.5, 8, 2.2, 5, PK, PK_LT)
+		ring(0, 9.7, 0, 4.0, 7, 2.0, 30, PK_DK, PK)
 		leaf(5.4, 11.3, 2.2, 1.8, PK, PK_LT)
 		leaf(-5.2, 11.9, -2.4, 1.7, PK, PK_LT)
 		leaf(3.0, 12.0, 3.1, 1.6, PK_LT, PK_HI)
