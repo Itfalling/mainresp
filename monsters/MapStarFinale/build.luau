@@ -197,6 +197,13 @@ return {
 			local c = dc < 5 and VOID3 or (dc < 12 and VOID2 or VOID)
 			B:block(R, v(2 * hw, 2, 1 + (k % 2) * 0.1), cf(0, PY + (y0 + y1) / 2, -1.8), c)
 		end
+		-- starfield specks on the void
+		for i = 1, 16 do
+			local a = i * 137.5
+			local r = 3.5 + (i % 8) * 1.1 + rnd(-0.4, 0.4)
+			local sz = (i % 3 == 0) and 0.5 or 0.35
+			B:block(R, v(sz, sz, 0.15), pxy(0, PY, -2.4, a, r) * CFrame.Angles(0, 0, rad(45)), (i % 4 == 0) and PK_LT or STARW, NEON)
+		end
 		-- inner glow halo plates on the void (static, subtle depth rings)
 		for i = 0, 11 do
 			local a = i * 30 + 15
@@ -571,6 +578,17 @@ return {
 			B:block(moon, v(0.9, 0.9, 0.4), cf(MX + p1[1] - 0.5, MY + p1[2] - 0.6, MZ - 1.6, 0, 0, 45), STARW, N("MoonTip1"))
 			B:block(moon, v(0.9, 0.9, 0.4), cf(MX + p2[1] - 0.8, MY + p2[2] + 0.3, MZ - 1.6, 0, 0, 45), STARW, N("MoonTip2"))
 		end
+		-- tilted gold orbit ring around the moon (precesses about Y)
+		local mring = B:bone("MoonRing", "Moon", CFrame.new(MX, MY, MZ))
+		local RC = CFrame.new(MX, MY, MZ) * CFrame.Angles(rad(72), 0, rad(22))
+		B:ring(mring, RC, 12.6, 22, v(3.75, 0.45, 0.75), GOLD)
+		for i = 0, 5 do
+			local bc = RC * CFrame.Angles(0, rad(i * 60 + 8), 0) * CFrame.new(0, 0, -12.6)
+			B:block(mring, v(0.9, 0.9, 0.9), bc * CFrame.Angles(rad(45), rad(45), 0), (i % 2 == 0) and CYAN or PINK, NEON)
+			if i == 0 or i == 3 then
+				B:trail(mring, (bc * CFrame.new(0, 0.6, 0)).Position, (bc * CFrame.new(0, -0.6, 0)).Position, { name = "MoonRingTrail" .. (i == 0 and 1 or 2), color = (i == 0) and { STARW, CYAN } or { STARW, PINK }, life = 0.5, width = { 1, 0.05 }, trans = { 0.2, 1 } })
+			end
+		end
 		local SXp, SYp, SZp = MX + 5.6, MY + 1.0, MZ - 1.2
 		local star = B:bone("StarTop", "Moon", CFrame.new(SXp, SYp, SZp))
 		B:block(star, v(2.4, 2.4, 1.4), cf(SXp, SYp, SZp, 0, 0, 45), GOLD)
@@ -607,10 +625,10 @@ return {
 			B:block(cb, v(0.7 * s, 0.7 * s, 0.7 * s), CFrame.new(pos + Vector3.new(3.4 * s, 1.5 * s, 0)) * CFrame.Angles(rad(45), rad(30), 0), GOLD_LT)
 			B:block(cb, v(0.6 * s, 0.6 * s, 0.6 * s), CFrame.new(pos + Vector3.new(-3.0 * s, -1.8 * s, 1.0 * s)) * CFrame.Angles(rad(30), rad(45), 0), set[3])
 		end
-		crystal("CrystalL", Vector3.new(-26.5, topL + 10.5, PZ), 1.0, CR_V, CYAN)
-		crystal("CrystalR", Vector3.new(26.5, topR + 13, PZ), 1.0, CR_C, PINK)
-		crystal("CrystalL2", Vector3.new(-50, 58 + 7.5, 1), 0.85, CR_P, CYAN)
-		crystal("CrystalR2", Vector3.new(50, 54 + 9.0, 1), 0.9, CR_V, PINK)
+		crystal("CrystalL", Vector3.new(-26.5, topL + 11.5, PZ), 1.2, CR_V, CYAN)
+		crystal("CrystalR", Vector3.new(26.5, topR + 14.5, PZ), 1.2, CR_C, PINK)
+		crystal("CrystalL2", Vector3.new(-50, 58 + 7.5, 1), 0.95, CR_P, CYAN)
+		crystal("CrystalR2", Vector3.new(50, 54 + 9.0, 1), 1.0, CR_V, PINK)
 
 		------------------------------------------------------------------
 		-- VFX: 7 emitters, 2 lights, 6 trails

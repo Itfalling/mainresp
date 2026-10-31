@@ -104,6 +104,7 @@ function M.Update(t, pose, ctx)
 	-- moon + star
 	pose.Moon = pa(0, 1.1 * w(c, 1) + 0.6 * hop, 0, 0, 0, 3.5 * w(c, 1, 0.25))
 	pose.StarTop = ang(0, 0, -360 * c / C)
+	pose.MoonRing = ang(0, 360 * c / C, 0)
 	ctx.transparency("StarCore", 0.45 * (0.5 + 0.5 * w(c, 2)) * (1 - flash))
 	ctx.transparency("MoonTip1", 0.7 * (0.5 + 0.5 * w(c, 4, 0.0)))
 	ctx.transparency("MoonTip2", 0.7 * (0.5 + 0.5 * w(c, 4, 0.5)))

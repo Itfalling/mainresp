@@ -10,7 +10,7 @@
 -- * a straw beehive skep crowns the middle, ringed with stripes, a dark
 --   entrance and a honey drip; five chunky bees hover around it and the
 --   pillar tops (static)
--- * sunflowers and daisies grow at the pillar feet, clover leaves on the plinths
+-- * sunflowers and daisies grow at the pillar feet
 -- * the stage "Sign" (cream) sits in a chunky chocolate-wood frame with honey
 --   hex corners on the front; the back shows the honeycomb cells
 -- Opening x -32..32 is clear up to y 19.4. Static landmark (Filler).
@@ -25,7 +25,7 @@ return {
 		local SQ3 = math.sqrt(3)
 
 		local HONEY, HONEY2, HONEY_LT, HONEY_DK = "#f7b733", "#f2a51d", "#ffcc4d", "#d98a14"
-		local FILL, FILL2, WAX, EMPTY = "#e0860f", "#ee9a18", "#ffeaa6", "#a8601a"
+		local FILL, FILL2, WAX, EMPTY = "#d4740a", "#e88c12", "#fff0bf", "#8a4a12"
 		local GLAZE, GLAZE_LT = "#ffb229", "#ffd36b"
 		local STRAW, STRAW_DK, STRAW_LT = "#e8b04a", "#c98f2e", "#f5cd72"
 		local HOLE = "#4a2c14"
@@ -51,7 +51,7 @@ return {
 				B:block(R, v(F, s, D), cf(cx, cy, cz, 0, 0, k * 60), col)
 			end
 		end
-		local INNER = { FILL, WAX, FILL2, EMPTY, FILL, WAX }
+		local INNER = { FILL, WAX, EMPTY, FILL2, WAX, EMPTY, FILL }
 
 		------------------------------------------------------------ pillars
 		local F, D = 5.4, 7.6
@@ -71,7 +71,7 @@ return {
 		for _, sx in { 1, -1 } do
 			local x0 = sx * PX
 			-- plinth
-			B:block(R, v(14.4, 1.2, 10.4), cf(x0 + sx * 1.2, 0.6, 0), PLINTH_DK)
+			B:block(R, v(14.0, 1.2, 10.4), cf(x0 + sx * 1.2, 0.6, 0), PLINTH_DK)
 			B:block(R, v(13.6, 1.0, 9.6), cf(x0 + sx * 1.2, 1.7, 0), PLINTH)
 			B:block(R, v(13.0, 0.6, 9.0), cf(x0 + sx * 1.2, 2.5, 0), PLINTH_LT)
 			-- wax core behind the cells
@@ -86,12 +86,6 @@ return {
 				end
 			end
 			pillarTop[sx] = { x = x0, y = Y0 + 5 * ROW + RR }
-			-- clover leaves on the plinth front corners
-			for _, side in { -1, 1 } do
-				local lx = x0 + sx * 6.0
-				B:block(R, v(1.6, 0.3, 1.6), cf(lx, 3.0, side * 4.0, 0, 45, 0), LEAF)
-				B:block(R, v(1.6, 0.3, 1.6), cf(lx + 1.0, 3.0, side * 4.0 - 0.4, 0, 20, 0), LEAF_LT)
-			end
 		end
 
 		------------------------------------------------------------ beam: row of big cells
@@ -143,7 +137,7 @@ return {
 		end
 
 		------------------------------------------------------------ the Sign
-		local SY, SW, SH = 23.4, 28.0, 5.4
+		local SY, SW, SH = 23.8, 28.0, 5.4
 		local SZ = -BD / 2 - 1.1
 		B:block(R, v(SW, SH, 1.0), cf(0, SY, SZ), SIGN, { name = "Sign" })
 		B:block(R, v(SW, SH, 1.2), cf(0, SY, SZ + 0.9), CHOC_DK) -- backing against the cells
@@ -154,33 +148,36 @@ return {
 		B:block(R, v(1.6, SH, FD), cf(-SW / 2 - 0.8, SY, FZ), CHOC_DK)
 		for _, sx in { 1, -1 } do
 			for _, sy in { 1, -1 } do
-				hex(sx * (SW / 2 + 0.9), SY + sy * (SH / 2 + 0.55), FZ - 0.2, 2.6, FD + 0.2, HONEY_LT)
+				hex(sx * (SW / 2 + 0.9), SY + sy * (SH / 2 + 0.6), FZ - 0.2, 2.3, FD + 0.2, HONEY_LT)
 			end
 		end
 		-- little honey drip off the frame's top bar
-		drip(-9.0, SY + SH / 2 + 1.3, FZ - 0.6, -1, 0.0001)
-		drip(10.5, SY + SH / 2 + 1.3, FZ - 0.6, -1, 0.0001)
+		for _, dx in { -9.0, 10.5 } do
+			B:block(R, v(1.4, 0.8, 0.5), cf(dx, SY + SH / 2 + 0.9, FZ - 0.95), GLAZE)
+			B:block(R, v(0.7, 0.7, 0.5), cf(dx, SY + SH / 2 + 0.2, FZ - 1.0), GLAZE_LT)
+		end
 
 		------------------------------------------------------------ beehive skep crown
 		local KY = BY + 3.6
-		local rings = { { 10.0, 1.3 }, { 9.4, 1.3 }, { 8.4, 1.2 }, { 7.0, 1.1 }, { 5.2, 1.0 }, { 3.0, 0.7 } }
+		local rings = { { 13.0, 1.3 }, { 12.4, 1.2 }, { 11.2, 1.2 }, { 9.4, 1.1 }, { 7.0, 1.0 }, { 4.0, 0.8 } }
 		local y = KY
 		for i, r in rings do
 			local w, h = r[1], r[2]
 			local col = (i % 2 == 0) and STRAW_LT or STRAW
-			B:block(R, v(w, h + 0.02, w * 0.7), cf(0, y + h / 2, 0), col)
-			B:block(R, v(w * 0.86, h + 0.04, w * 0.86), cf(0, y + h / 2, 0, 0, 45, 0), STRAW_DK)
+			local dz = math.min(w * 0.6, 7.4)
+			B:block(R, v(w, h + 0.02, dz), cf(0, y + h / 2, 0), col)
+			B:block(R, v(w - 1.6, h + 0.05, dz + 1.4), cf(0, y + h / 2, 0), STRAW_DK)
 			y += h
 		end
-		B:block(R, v(1.2, 0.8, 1.2), cf(0, y + 0.3, 0, 0, 45, 0), STRAW_DK) -- knob
 		-- entrance (front + back) with a honey drip
 		for _, side in { -1, 1 } do
-			B:block(R, v(2.6, 1.6, 0.4), cf(0, KY + 1.5, side * 3.55), HOLE)
-			B:block(R, v(1.6, 0.6, 0.4), cf(0, KY + 2.5, side * 3.55), HOLE)
-			B:block(R, v(3.4, 0.4, 0.8), cf(0, KY + 0.55, side * 3.6), STRAW_DK) -- landing lip
+			local zf = side * (7.4 * 0.5 + 0.7)
+			B:block(R, v(3.0, 1.6, 0.4), cf(0, KY + 1.5, zf), HOLE)
+			B:block(R, v(1.8, 0.6, 0.4), cf(0, KY + 2.5, zf), HOLE)
+			B:block(R, v(4.0, 0.4, 0.8), cf(0, KY + 0.55, zf), STRAW_DK) -- landing lip
 		end
-		B:block(R, v(1.6, 2.0, 0.6), cf(2.6, KY + 4.4, -3.2), GLAZE)
-		B:block(R, v(1.0, 1.0, 0.6), cf(2.6, KY + 2.9, -3.25), GLAZE)
+		B:block(R, v(1.6, 2.0, 0.6), cf(3.4, KY + 4.2, -4.0), GLAZE)
+		B:block(R, v(1.0, 1.0, 0.6), cf(3.4, KY + 2.7, -4.05), GLAZE_LT)
 
 		------------------------------------------------------------ bees
 		local function bee(x, y, z, yaw, s)
@@ -196,11 +193,12 @@ return {
 			B:block(R, v(1.6 * s, 0.15 * s, 1.0 * s), c * CFrame.new(1.0 * s, 1.0 * s, 0.2 * s) * ang(0, 0, -25), WING, { tr = 0.25 })
 			B:block(R, v(0.3 * s, 0.3 * s, 0.5 * s), c * CFrame.new(0, -0.1 * s, 1.4 * s), BEE_K) -- stinger
 		end
-		bee(-8.0, 31.0, -1.6, 30, 1.0)
-		bee(7.6, 32.4, 0.8, -150, 0.9)
-		bee(38.0, 32.6, -1.0, -20, 1.0)
-		bee(-37.0, 33.0, 1.2, 160, 0.95)
-		bee(-14.5, 29.4, 2.0, -60, 0.8)
+		bee(-10.6, 31.4, -1.6, 35, 1.4)
+		bee(10.2, 32.0, 0.8, -150, 1.3)
+		bee(43.6, 31.0, -1.0, -30, 1.3)
+		bee(-43.2, 31.4, 1.2, 160, 1.3)
+		bee(-18.5, 29.6, 2.0, -60, 1.1)
+		bee(19.0, 29.4, -1.8, 70, 1.1)
 
 		------------------------------------------------------------ sunflowers + daisies
 		local function sunflower(x, z, h, yaw)
@@ -224,7 +222,7 @@ return {
 			sunflower(sx * 46.8, -3.0, 11.0, sx * 10)
 			sunflower(sx * 44.6, -4.2, 7.5, -sx * 15)
 			sunflower(sx * 46.4, 3.4, 9.0, 180 + sx * 15)
-			for _, d in { { 33.6, -5.4, 1.4 }, { 35.2, -5.6, 1.0 }, { 41.0, -5.5, 1.2 }, { 34.4, 5.4, 1.2 }, { 40.0, 5.6, 1.0 }, { 47.4, 0.4, 1.3 } } do
+			for _, d in { { 33.6, -5.0, 1.6 }, { 35.4, -4.9, 1.2 }, { 41.0, -5.0, 1.4 }, { 34.4, 5.0, 1.4 }, { 40.0, 5.0, 1.2 }, { 47.4, 0.4, 1.5 } } do
 				daisy(sx * d[1], d[2], d[3])
 			end
 		end
