@@ -174,19 +174,23 @@ return {
 		leaf(armPts[3], v(0, 0.2, -1).Unit, LEAF)
 		leaf(armPts[4], v(0.3, 0.2, 1).Unit, LEAF_DK)
 		---------------------------------------------------------------- roses
-		local function rose(p, out, k)
+		local function rose(p, out, k, pink)
+			local c1, c2, c3, c4 = ROSE_DK, ROSE, ROSE_LT, ROSE_HI
+			if pink then
+				c1, c2, c3, c4 = "#e8588f", "#ff86b3", "#ffc4da", "#fff0f5"
+			end
 			local f = look(p, out) * CFrame.new(0, 0, -0.25 * k)
 			-- sepals
 			for j = 0, 3 do
 				B:block(R, v(0.5 * k, 0.5 * k, 0.16), f * ang(0, 0, j * 90 + 45) * CFrame.new(0, 0.5 * k, 0.15), LEAF)
 			end
-			B:block(R, v(1.15 * k, 1.15 * k, 0.55 * k), f * CFrame.new(0, 0, -0.2 * k), ROSE_DK)
-			B:block(R, v(1.0 * k, 1.0 * k, 0.5 * k), f * CFrame.new(0, 0, -0.45 * k) * ang(0, 0, 45), ROSE)
-			B:block(R, v(0.62 * k, 0.62 * k, 0.4 * k), f * CFrame.new(0, 0, -0.7 * k), ROSE_LT)
-			B:block(R, v(0.3 * k, 0.3 * k, 0.2 * k), f * CFrame.new(0, 0, -0.88 * k) * ang(0, 0, 45), ROSE_HI)
+			B:block(R, v(1.15 * k, 1.15 * k, 0.55 * k), f * CFrame.new(0, 0, -0.2 * k), c1)
+			B:block(R, v(1.0 * k, 1.0 * k, 0.5 * k), f * CFrame.new(0, 0, -0.45 * k) * ang(0, 0, 45), c2)
+			B:block(R, v(0.62 * k, 0.62 * k, 0.4 * k), f * CFrame.new(0, 0, -0.7 * k), c3)
+			B:block(R, v(0.3 * k, 0.3 * k, 0.2 * k), f * CFrame.new(0, 0, -0.88 * k) * ang(0, 0, 45), c4)
 		end
 		rose(pts[4].p, (pts[4].out + v(0, 0.3, 0)).Unit, 1.0)
-		rose(pts[9].p, (pts[9].out + v(0, 0.3, 0)).Unit, 1.15)
+		rose(pts[9].p, (pts[9].out + v(0, 0.3, 0)).Unit, 1.15, true)
 		rose(pts[14].p, (pts[14].out + v(0, 0.4, 0)).Unit, 0.9)
 		rose(pts[18].p, (pts[18].out + v(0, 0.3, 0)).Unit, 0.95)
 		rose(armPts[3] + v(0, 0.2, 0), v(0, 1, -0.6).Unit, 1.05)
@@ -196,12 +200,12 @@ return {
 		for _, c in { { 0, 0.85, 0, 1.3, LEAF_DK }, { 0.6, 0.75, 0.4, 1.0, LEAF }, { -0.5, 0.72, 0.3, 1.0, LEAF }, { 0.2, 1.4, -0.1, 0.9, LEAF_LT } } do
 			B:block(R, v(c[4], c[4], c[4]), CFrame.new(bush + v(c[1], c[2], c[3])) * ang(rnd(-20, 20), rnd(0, 90), rnd(-20, 20)), c[5])
 		end
-		rose(bush + v(0.1, 1.5, -0.3), v(0, 1, -0.8).Unit, 0.85)
+		rose(bush + v(0.1, 1.5, -0.3), v(0, 1, -0.8).Unit, 0.85, true)
 		rose(bush + v(0.8, 0.9, -0.3), v(0.6, 0.4, -0.7).Unit, 0.7)
 		local bush2 = v(PX - 1.6, 0, PZ + 0.9)
 		B:block(R, v(1.1, 1.1, 1.1), CFrame.new(bush2 + v(0, 0.75, 0)) * ang(10, 30, -8), LEAF_DK)
 		B:block(R, v(0.8, 0.8, 0.8), CFrame.new(bush2 + v(-0.4, 0.9, -0.3)) * ang(-15, 60, 10), LEAF)
-		rose(bush2 + v(-0.2, 1.2, -0.5), v(-0.4, 0.8, -0.8).Unit, 0.65)
+		rose(bush2 + v(-0.2, 1.2, -0.5), v(-0.4, 0.8, -0.8).Unit, 0.7, true)
 
 		---------------------------------------------------------------- vfx
 		B:emitter(flame, "glow", { name = "LanternGlow", color = GLASS, rate = 2, size = { 1.6, 2.2, 1.2 }, life = { 0.8, 1.2 } })

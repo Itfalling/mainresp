@@ -341,9 +341,9 @@ return {
 			B:block(R, v(3.4 * s, 0.4 * s, 0.6 * s), F * CFrame.new(0, 0.85 * s, 0.1 * s), BONE_LT)
 			B:block(R, v(0.6 * s, 0.6 * s, 1.3 * s), F * CFrame.new(0, 1.3 * s, 0.4 * s) * CFrame.Angles(rad(20), 0, 0), BONE_LT)
 		end
-		vert(v(-0.4, 0.2, ZB + 3.2), 8, 1.1)
-		vert(v(-1.9, 0.2, ZB + 5.6), 25, 0.95)
-		vert(v(-4.0, 0.2, ZB + 7.4), 45, 0.8)
+		vert(v(-5.0, 0.2, ZB + 2.6), 20, 1.1)
+		vert(v(-6.8, 0.2, ZB + 4.4), 40, 0.95)
+		vert(v(-8.9, 0.2, ZB + 5.4), 65, 0.8)
 
 		------------------------------------------------------------------
 		-- DEAD TWISTED TREE (right side)
