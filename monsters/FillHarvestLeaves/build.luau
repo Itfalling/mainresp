@@ -29,17 +29,17 @@ return {
 		---------------------------------------------------------------- heap
 		-- oval tiers: two crossed slabs each {wx, wz, y0, h, dx, dz, yaw, c1, c2}
 		local tiers = {
-			{ 4.8, 3.2, 0.0, 0.6, 0.0, 0.0, 6, BROWN, OR_DK },
-			{ 3.8, 2.5, 0.5, 0.58, -0.15, 0.05, -4, OR_DK, RED },
-			{ 2.8, 1.9, 0.98, 0.56, 0.05, -0.05, 10, OR, GOLD_DK },
-			{ 1.8, 1.3, 1.44, 0.5, -0.2, 0.05, -12, GOLD, OR_LT },
+			{ 4.8, 3.2, 0.0, 0.65, 0.0, 0.0, 6, BROWN, OR_DK },
+			{ 3.8, 2.5, 0.55, 0.62, -0.15, 0.05, -4, OR_DK, RED },
+			{ 2.8, 1.9, 1.07, 0.6, 0.05, -0.05, 10, OR, GOLD_DK },
+			{ 1.8, 1.3, 1.57, 0.55, -0.2, 0.05, -12, GOLD, OR_LT },
 		}
 		for _, t in tiers do
 			local C = cf(t[5], t[3] + t[4] / 2, t[6], 0, t[7], 0)
 			B:block(R, v(t[1], t[4], t[2]), C, t[8])
 			B:block(R, v(t[1] * 0.78, t[4] - 0.02, t[2] * 1.28), C, t[9])
 		end
-		B:block(R, v(1.0, 0.3, 0.8), cf(-0.15, 2.0, 0.0, 0, 30, 0), GOLD_LT)
+		B:block(R, v(1.0, 0.3, 0.8), cf(-0.15, 2.18, 0.0, 0, 30, 0), GOLD_LT)
 
 		---------------------------------------------------------------- leaves
 		-- one leaf: blade + turned lobe toward the tip + tiny stem
@@ -69,15 +69,16 @@ return {
 		for _, s in shingles do
 			local a = rad(s[1])
 			local d = v(math.cos(a), 0, math.sin(a))
-			local p = v(d.X * s[2], s[3] + 0.2 + (s[3] > 0.9 and 0.1 or 0) + (s[3] > 1.3 and 0.12 or 0) + (s[3] > 1.8 and 0.12 or 0), d.Z * s[2] * 0.7)
+			local ledgeTop = (s[3] > 1.8 and 2.33) or (s[3] > 1.3 and 1.67) or (s[3] > 0.9 and 1.17) or 0.65
+			local p = v(d.X * s[2], ledgeTop + 0.16, d.Z * s[2] * 0.7)
 			local frame = (P.aim(p, p + d))
 			leaf(frame * CFrame.Angles(0, rad(s[5]), 0) * CFrame.Angles(rad(-s[4]), 0, 0), s[6], s[7], s[8])
 		end
 
 		---------------------------------------------------------------- twig + acorns
-		B:bar(R, v(0.5, 1.5, 0.2), v(1.6, 2.4, -0.2), 0.2, 0.2, TWIG)
-		B:bar(R, v(1.6, 2.4, -0.2), v(2.0, 2.6, -0.35), 0.16, 0.16, TWIG_LT)
-		B:bar(R, v(1.25, 2.1, -0.1), v(1.25, 2.7, 0.2), 0.14, 0.14, TWIG)
+		B:bar(R, v(0.5, 1.6, 0.2), v(1.6, 2.55, -0.2), 0.2, 0.2, TWIG)
+		B:bar(R, v(1.6, 2.55, -0.2), v(2.0, 2.75, -0.35), 0.16, 0.16, TWIG_LT)
+		B:bar(R, v(1.25, 2.25, -0.1), v(1.25, 2.85, 0.2), 0.14, 0.14, TWIG)
 		local function acorn(x, z, yaw, tip)
 			local C = cf(x, 0, z, 0, yaw, tip)
 			B:block(R, v(0.5, 0.55, 0.5), C * CFrame.new(0, 0.3, 0), NUT)
