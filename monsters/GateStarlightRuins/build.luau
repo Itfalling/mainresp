@@ -132,6 +132,10 @@ return {
 			-- gold trim line
 			B:block(R, v(88.2, 0.35, 0.2), cf(0, 21.0, z), GOLD)
 			for _, sx in { 1, -1 } do
+				-- night-sky panel (indigo, gold frame) behind the constellation
+				B:block(R, v(27.0, 4.6, 0.2), cf(sx * 30.6, 23.9, z + side * 0.02), TILE)
+				B:block(R, v(27.6, 0.3, 0.25), cf(sx * 30.6, 26.25, z + side * 0.03), GOLD_DK)
+				B:block(R, v(27.6, 0.3, 0.25), cf(sx * 30.6, 21.55, z + side * 0.03), GOLD_DK)
 				-- dentils under the cornice (outside the sign)
 				for k = 0, 8 do
 					B:block(R, v(1.1, 0.8, 0.4), cf(sx * (17.6 + k * 3.1), AY1 - 0.5, z + side * 0.1), STONE_HI)
@@ -162,7 +166,7 @@ return {
 		end
 
 		------------------------------------------------------------ the Sign
-		local SY, SW, SH = 23.4, 28.0, 5.4
+		local SY, SW, SH = 23.8, 28.0, 5.4
 		local SZ = -AZ - 0.5
 		B:block(R, v(SW, SH, 1.0), cf(0, SY, SZ), SIGN, { name = "Sign" })
 		local FZ, FD = SZ - 0.15, 1.8
@@ -176,13 +180,13 @@ return {
 			for _, sy in { 1, -1 } do
 				local y = SY + sy * (SH / 2 + 0.6)
 				local x = sx * (SW / 2 + 0.85)
-				B:block(R, v(2.2, 2.2, FD + 0.3), cf(x, y, FZ, 0, 0, 45), GOLD)
-				B:block(R, v(1.2, 1.2, FD + 0.5), cf(x, y, FZ), GOLD_LT)
+				B:block(R, v(1.8, 1.8, FD + 0.3), cf(x, y, FZ, 0, 0, 45), GOLD)
+				B:block(R, v(1.1, 1.1, FD + 0.5), cf(x, y, FZ), GOLD_LT)
 			end
 		end
 
 		------------------------------------------------------------ voussoir arch + moon keystone
-		local RA, RB, RY = 30.0, 4.6, AY1 + 1.0 -- ellipse centre line
+		local RA, RB, RY = 30.0, 4.0, AY1 + 1.0 -- ellipse centre line
 		local N = 15
 		local function arcPt(t)
 			return RA * math.cos(t), RY + RB * math.sin(t)
@@ -195,17 +199,21 @@ return {
 				local x0, y0 = arcPt(t0)
 				local x1, y1 = arcPt(t1)
 				local a, b = v(x0, y0, 0), v(x1, y1, 0)
-				local float = (i == 11 or i == 12)
-				local off = float and v(-0.6, 1.4 + (i - 11) * 0.6, 0) or v(0, 0, 0)
-				local c, len = P.aim(a + off, b + off, UP)
-				if float then
-					c = c * ang(0, 0, (i == 11) and 8 or -10)
+				local float = (i == 11)
+				local c, len = P.aim(a, b, UP)
+				if i == 12 then
+					c = c * CFrame.new(0.3, 0, 0) * ang(0, 0, 0) * CFrame.Angles(0, rad(-6), 0) -- knocked askew
 				end
 				-- local X is radial (in-plane), local Y is depth
-				B:block(R, v(2.8, 4.6, len - 0.25), c, (i % 2 == 0) and STONE_LT or STONE)
-				B:block(R, v(0.5, 4.8, len - 0.6), c * CFrame.new(1.25, 0, 0), GOLD) -- gold extrados trim
-				if i % 3 == 1 and not float then
-					B:block(R, v(0.8, 4.9, 0.8), c * CFrame.new(0, 0, 0), STONE_DK) -- joint stud
+				if float then
+					-- this one fell out: it lies tilted on the cornice below its gap
+					B:block(R, v(2.8, 4.4, len - 0.4), cf(-24.6, AY1 + 2.3, -0.6, 0, 18, 64), STONE)
+					B:block(R, v(0.5, 4.6, len - 0.8), cf(-24.6, AY1 + 2.3, -0.6, 0, 18, 64) * CFrame.new(1.25, 0, 0), GOLD)
+				else
+					B:block(R, v(3.4, 5.0, len - 0.2), c, (i % 2 == 0) and STONE_LT or STONE)
+					B:block(R, v(0.5, 5.2, len - 0.5), c * CFrame.new(1.6, 0, 0), GOLD) -- gold extrados trim
+					B:block(R, v(1.2, 5.1, len - 0.9), c * CFrame.new(-0.5, 0, 0), TILE) -- indigo soffit band
+					B:block(R, v(0.4, 5.2, 0.4), c * CFrame.new(-0.5, 0, 0), RUNE, NEON) -- star dot on each stone
 				end
 			end
 		end
@@ -213,38 +221,35 @@ return {
 		B:block(R, v(1.6, 0.6, 1.4), cf(-17.0, AY1 + 1.3, 1.0, 0, 20, 0), STONE_DK)
 
 		-- crescent moon keystone (XY plane, depth 4)
-		local MY = 30.0
-		local MR = 3.9
+		local MY = 29.5
+		local MR = 4.25
 		-- crescent: arc of blocks on the left of the circle, opening to the right
 		for k = 0, 8 do
 			local a = rad(40 + k * 35) -- 40..320 deg
 			local w = 1.4 + 0.9 * math.sin(rad(k / 8 * 180))
 			local px, py = math.cos(a) * (MR - w / 2), math.sin(a) * (MR - w / 2)
-			B:block(R, v(w, 1.9, 4.0), CFrame.new(px, MY + py, 0) * ang(0, 0, math.deg(a) + 90), (k % 2 == 0) and MOON or MOON_LT)
+			B:block(R, v(2.1, w, 4.0), CFrame.new(px, MY + py, 0) * ang(0, 0, math.deg(a) + 90), (k % 2 == 0) and MOON or MOON_LT)
 		end
 		-- gold rim along the outer edge
 		for k = 0, 9 do
 			local a = rad(30 + k * 33)
-			B:block(R, v(1.2, 0.5, 4.4), CFrame.new(math.cos(a) * (MR + 0.15), MY + math.sin(a) * (MR + 0.15), 0) * ang(0, 0, math.deg(a) + 90), GOLD)
+			B:block(R, v(2.2, 0.5, 4.4), CFrame.new(math.cos(a) * (MR + 0.1), MY + math.sin(a) * (MR + 0.1), 0) * ang(0, 0, math.deg(a) + 90), GOLD)
 		end
 		-- inner shadow + a glowing star in the crescent's mouth
-		B:block(R, v(1.0, 3.4, 4.2), cf(-1.2, MY, 0), MOON_DK)
 		star(1.5, MY + 0.2, -2.2, 1.1, GOLD_LT, RUNE)
 		star(1.5, MY + 0.2, 2.2, 1.1, GOLD_LT, RUNE)
 		B:block(R, v(0.5, 0.5, 4.6), cf(1.5, MY + 0.2, 0, 0, 0, 45), RUNE, NEON)
-		-- seat block under the moon
-		B:block(R, v(5.0, 1.0, 4.8), cf(0, AY1 + 1.4, 0), STONE_DK)
-		B:block(R, v(5.4, 0.3, 5.0), cf(0, AY1 + 1.95, 0), GOLD)
 
 		------------------------------------------------------------ floating crystals + stars
-		crystal(-36.5, 25.8, -0.4, 1.2, VIO, VIO_LT, 10) -- (above the left capital, in the arch gap area)
-		crystal(43.6, 24.6, 0.6, 1.1, CY, CY_LT, -12)
-		crystal(-44.6, 30.6, -0.8, 1.0, CY, CY_LT, 8)
-		crystal(39.4, 31.8, 0.2, 1.3, VIO, VIO_LT, -6)
-		crystal(-21.8, 33.0, 0.4, 0.8, VIO_DK, VIO_LT, 15)
-		crystal(9.6, 33.0, -0.6, 0.85, CY_DK, CY_LT, -15)
-		crystal(-9.0, 32.4, 0.8, 0.7, VIO, VIO_LT, 5)
-		for _, st in { { 32.6, 31.6, 1.0 }, { -30.0, 33.0, 0.8 }, { 19.4, 32.8, 0.7 }, { -47.0, 25.0, 0.8 }, { 47.2, 29.4, 0.9 } } do
+		crystal(-40.0, 31.0, -0.4, 1.2, VIO, VIO_LT, 10)
+		crystal(47.0, 23.0, 0.6, 1.0, CY, CY_LT, -12)
+		crystal(-47.0, 22.0, -0.8, 0.9, CY, CY_LT, 8)
+		crystal(40.0, 31.0, 0.2, 1.3, VIO, VIO_LT, -6)
+		crystal(-14.6, 29.6, 0.4, 0.62, VIO_DK, VIO_LT, 15)
+		crystal(14.6, 29.6, -0.6, 0.62, CY_DK, CY_LT, -15)
+		crystal(43.0, 13.0, -5.0, 0.8, VIO, VIO_LT, 5)
+		crystal(-43.4, 15.0, 5.0, 0.8, CY, CY_LT, -8)
+		for _, st in { { 33.8, 31.0, 1.0 }, { -32.6, 32.4, 0.8 }, { 24.5, 33.0, 0.7 }, { -46.8, 27.0, 0.8 }, { 46.8, 29.4, 0.9 }, { -7.6, 31.8, 0.6 } } do
 			for _, side in { -1, 1 } do
 				star(st[1], st[2], side * 0.15, st[3], GOLD, GOLD_LT)
 			end

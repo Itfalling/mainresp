@@ -444,8 +444,8 @@ return {
 		-- axle + posts standing in the pool
 		B:block(R, v(0.5, 0.5, 4.4), WF, WOOD_XDK)
 		for _, zz in { -2.0, 2.0 } do
-			B:block(R, v(0.7, WC.Y + 0.4, 0.6), cf(WC.X - 0.9, (WC.Y + 0.4) / 2, WC.Z + zz, 0, 0, -10), WOOD_DK)
-			B:block(R, v(0.7, WC.Y + 0.4, 0.6), cf(WC.X + 0.9, (WC.Y + 0.4) / 2, WC.Z + zz, 0, 0, 10), WOOD_DK)
+			B:block(R, v(0.7, WC.Y + 0.2, 0.6), cf(WC.X - 0.9, (WC.Y + 0.2) / 2 + 0.12, WC.Z + zz, 0, 0, -10), WOOD_DK)
+			B:block(R, v(0.7, WC.Y + 0.2, 0.6), cf(WC.X + 0.9, (WC.Y + 0.2) / 2 + 0.12, WC.Z + zz, 0, 0, 10), WOOD_DK)
 			B:block(R, v(1.2, 0.8, 0.8), cf(WC.X, WC.Y, WC.Z + zz), WOOD)
 			B:block(R, v(2.6, 0.4, 0.5), cf(WC.X, 1.2, WC.Z + zz), WOOD)
 		end
@@ -513,8 +513,45 @@ return {
 		tuft(18.2, 14.4, -8, 0.9, nil)
 		tuft(-18.7, 14.4, -1, 0.9, WHITE)
 		tuft(17, 26.4, 8, 1.0, nil)
+		-- rocky outcrops sticking out of the cliff faces (face normal -Z)
+		local function outcrop(x, y, z, sc, fl)
+			B:block(R, v(3.0 * sc, 1.6 * sc, 1.6 * sc), cf(x, y, z - 0.6 * sc), DIRT2)
+			B:block(R, v(2.2 * sc, 1.2 * sc, 1.4 * sc), cf(x + 0.4 * sc, y - 1.1 * sc, z - 0.4 * sc), DIRT3)
+			B:block(R, v(1.6 * sc, 0.9 * sc, 1.0 * sc), cf(x - 0.6 * sc, y + 0.9 * sc, z - 0.3 * sc), DIRT_HI)
+			B:block(R, v(3.2 * sc, 0.4, 1.9 * sc), cf(x, y + 0.85 * sc, z - 0.7 * sc), GRASS)
+			B:block(R, v(0.8, 0.7, 0.3), cf(x - 0.9 * sc, y + 0.4 * sc, z - 1.62 * sc), GRASS2)
+			if fl then
+				flower(x + 0.6 * sc, y + 0.85 * sc + 0.2, z - 0.9 * sc, fl)
+			end
+		end
+		outcrop(-7.6, 29.5, 5, 1.0, PINK)
+		outcrop(7.4, 31.0, 5, 0.9, nil)
+		outcrop(-6.8, 38.5, 7, 0.85, YELLOW)
+		outcrop(8.0, 38.0, 7, 0.8, WHITE)
+		outcrop(12.0, 25.5, 3, 0.9, WHITE)
+		outcrop(-12.0, 28.5, 3, 0.9, nil)
+		outcrop(17.2, 19.5, 4, 0.9, PINK)
+		outcrop(-17.4, 21.0, 4, 0.9, YELLOW)
+		outcrop(10.6, 12.5, -4, 0.8, nil)
+		outcrop(-10.4, 14.0, -4, 0.8, PINK)
+		-- hanging ivy strands from the grass edges
+		local function ivy(x, y, z, n)
+			for k = 0, n - 1 do
+				local yy = y - 0.6 - k * 0.95
+				B:block(R, v(0.35, 1.0, 0.35), cf(x + ((k % 2 == 0) and 0 or 0.15), yy, z - 0.2), GRASS_DK)
+				B:block(R, v(0.7, 0.55, 0.3), cf(x + ((k % 2 == 0) and 0.35 or -0.3), yy + 0.1, z - 0.35, 0, 0, (k % 2 == 0) and 25 or -25), (k % 2 == 0) and GRASS or GRASS2)
+			end
+		end
+		ivy(-5.3, 34, 4.75, 5)
+		ivy(9.3, 34, 4.75, 4)
+		ivy(5.0, 43, 6.75, 4)
+		ivy(-9.2, 44, 6.75, 5)
+		ivy(11.2, 18, -4.25, 4)
+		ivy(-12.2, 18, -4.25, 5)
+		ivy(15.8, 26, 3.75, 4)
+		ivy(-15.0, 26, 3.75, 5)
 		-- dirt nubs on cliff faces (texture)
-		for _ = 1, 26 do
+		for _ = 1, 14 do
 			local face = floor(rnd(0, 4))
 			if face == 0 then -- right inner side wall
 				nub(rnd(12.9, 13.1), rnd(1, 4.5), rnd(-14, 3), rnd(0.6, 1.0), pick({ DIRT_HI, DIRT_LO }))
@@ -526,6 +563,25 @@ return {
 			else -- front faces of side walls / buttresses
 				local s = pick({ 1, -1 })
 				nub(s * rnd(8, 12.5), rnd(1, 7.5), -5.05, rnd(0.6, 1.0), pick({ DIRT_HI, DIRT_LO }))
+			end
+		end
+
+		------------------------------------------------------------------
+		-- a little rainbow in the spray (see-through)
+		------------------------------------------------------------------
+		do
+			local RCN = v(0, 0.9, -7.6)
+			local COLS = { "#ff5a5a", "#ffa04a", "#ffe45a", "#6fe06a", "#5ab8ff", "#a77cff" }
+			for bi, col in COLS do
+				local r = 9.3 - (bi - 1) * 0.55
+				local n = 9
+				for k = 0, n - 1 do
+					local a0 = rad(12 + k * (156 / n))
+					local a1 = rad(12 + (k + 1) * (156 / n))
+					local p0 = RCN + v(cos(a0) * r, sin(a0) * r, 0)
+					local p1 = RCN + v(cos(a1) * r, sin(a1) * r, 0)
+					B:bar(R, p0, p1 + (p1 - p0).Unit * 0.12, 0.58, 0.3, col, { tr = 0.3 })
+				end
 			end
 		end
 
