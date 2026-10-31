@@ -260,6 +260,9 @@ return {
 			B:block(R, v(f[2], h + 0.05, 1.8), cf(0, KY + f[1] + h / 2, KZ + 1.6), col)
 		end
 		B:block(R, v(23.4, 0.7, 2.2), cf(0, KY + 0.2, KZ + 1.6), BONE_DK)
+		for _, side in { -1, 1 } do
+			B:block(R, v(12.0, 3.2, 0.2), cf(0, KY + 2.6, KZ + 1.6 + side * 1.0), ST_DK) -- dark inner frill band
+		end
 		-- spiky rim (epoccipitals)
 		for k = 0, 10 do
 			local a = rad(-82 + k * 16.4)
@@ -275,21 +278,22 @@ return {
 		-- cranium + snout
 		B:block(R, v(8.0, 4.6, 5.0), cf(0, KY + 2.3, KZ - 1.6), BONE)
 		B:block(R, v(6.6, 4.0, 6.0), cf(0, KY + 2.3, KZ - 1.8), BONE_DK)
-		B:block(R, v(5.0, 3.2, 3.4), cf(0, KY + 1.6, KZ - 5.0), BONE_LT)
+		B:block(R, v(5.0, 2.4, 3.4), cf(0, KY + 1.3, KZ - 5.0), BONE_LT)
 		B:block(R, v(3.6, 2.4, 1.2), cf(0, KY + 1.2, KZ - 6.6), BONE)
 		B:block(R, v(2.4, 1.8, 0.6), cf(0, KY + 0.7, KZ - 7.1), BONE_SH) -- beak
 		B:block(R, v(4.6, 1.0, 3.6), cf(0, KY + 0.2, KZ - 4.4), BONE_DK) -- jaw
 		for k = -1, 1 do
 			B:block(R, v(0.55, 0.55, 0.5), cf(k * 1.2, KY - 0.15, KZ - 5.9), BONE_LT)
 		end
-		B:block(R, v(0.7, 0.6, 0.2), cf(-1.0, KY + 2.0, KZ - 6.75), SOCK)
-		B:block(R, v(0.7, 0.6, 0.2), cf(1.0, KY + 2.0, KZ - 6.75), SOCK)
-		B:bar(R, v(0, KY + 2.8, KZ - 5.4), v(0, KY + 4.3, KZ - 6.0), 1.4, 1.4, BONE_LT)
-		B:bar(R, v(0, KY + 4.3, KZ - 6.0), v(0, KY + 5.0, KZ - 6.2), 0.7, 0.7, BONE_SH)
+		B:block(R, v(0.7, 0.6, 0.2), cf(-1.0, KY + 1.8, KZ - 6.75), SOCK)
+		B:block(R, v(0.7, 0.6, 0.2), cf(1.0, KY + 1.8, KZ - 6.75), SOCK)
+		B:bar(R, v(0, KY + 2.4, KZ - 5.6), v(0, KY + 4.0, KZ - 6.2), 1.4, 1.4, BONE_LT)
+		B:bar(R, v(0, KY + 4.0, KZ - 6.2), v(0, KY + 4.7, KZ - 6.4), 0.7, 0.7, BONE_SH)
 		for _, sx in { 1, -1 } do
-			B:block(R, v(2.2, 1.8, 0.3), cf(sx * 2.1, KY + 2.9, KZ - 4.2), SOCK)
-			B:block(R, v(1.0, 1.0, 0.2), cf(sx * 2.1, KY + 2.9, KZ - 4.4), TEAL, NEON)
-			B:block(R, v(3.0, 0.9, 1.2), cf(sx * 2.0, KY + 4.1, KZ - 3.9, 0, 0, sx * 10), BONE_DK)
+			B:block(R, v(2.4, 2.0, 0.3), cf(sx * 2.0, KY + 3.4, KZ - 4.9), SOCK)
+			B:block(R, v(1.2, 1.2, 0.2), cf(sx * 2.0, KY + 3.3, KZ - 5.1), TEAL, NEON)
+			B:block(R, v(0.5, 0.5, 0.2), cf(sx * 2.3, KY + 3.6, KZ - 5.2), TEAL_LT, NEON)
+			B:block(R, v(3.0, 0.8, 1.2), cf(sx * 2.0, KY + 4.6, KZ - 4.6, 0, 0, sx * 10), BONE_DK)
 			local hb = v(sx * 2.2, KY + 4.2, KZ - 3.0)
 			local hm = v(sx * 3.0, KY + 4.5, KZ - 4.8)
 			local ht = v(sx * 3.3, KY + 4.6, KZ - 6.6)

@@ -64,7 +64,6 @@ return {
 
 		------------------------------------------------------------ columns
 		local PX = 38.5
-		local tops = {}
 		for _, sx in { 1, -1 } do
 			local x = sx * PX
 			local broken = (sx == 1)
@@ -73,101 +72,135 @@ return {
 			B:block(R, v(11.6, 0.3, 10.8), cf(x + sx * 0.2, 1.35, 0), GOLD)
 			B:block(R, v(10.6, 1.6, 9.8), cf(x, 2.3, 0), STONE)
 			B:block(R, v(9.6, 0.8, 8.8), cf(x, 3.5, 0), STONE_LT)
-			-- shaft: three drums
-			local drums = { { 3.9, 8.6 }, { 8.9, 13.6 }, { 13.9, 17.4 } }
+			-- shaft: four drums (the right column snaps off in the last one)
+			local drums = { { 3.9, 9.2 }, { 9.5, 14.8 }, { 15.1, 20.4 }, { 20.7, broken and 23.6 or 25.8 } }
 			for di, d in drums do
 				local y0, y1 = d[1], d[2]
 				local h = y1 - y0
-				local yaw = (broken and di == 2) and 7 or 0
-				local dx = (broken and di == 2) and sx * 0.5 or 0
-				local c = cf(x + dx, (y0 + y1) / 2, 0, 0, yaw, 0)
-				B:block(R, v(7.0, h, 3.2), c, (di % 2 == 0) and STONE or STONE_LT)
-				B:block(R, v(3.2, h - 0.02, 7.0), c, (di % 2 == 0) and STONE or STONE_LT)
+				local yaw = (broken and di == 3) and 6 or ((di % 2 == 0) and 2 or -2)
+				local c = cf(x, (y0 + y1) / 2, 0, 0, yaw, 0)
+				local col = (di % 2 == 0) and STONE or STONE_LT
+				B:block(R, v(7.0, h, 3.2), c, col)
+				B:block(R, v(3.2, h - 0.02, 7.0), c, col)
 				B:block(R, v(5.4, h - 0.04, 5.4), c * ang(0, 45, 0), STONE2)
-				-- flute ribs on the diagonals
 				for f = 0, 3 do
 					B:block(R, v(0.5, h - 0.6, 0.3), c * ang(0, 45 + f * 90, 0) * CFrame.new(0, 0, -2.75), STONE_HI)
 				end
-				if di < 3 then
-					B:block(R, v(6.2, 0.4, 6.2), cf(x, y1 + 0.15, 0, 0, 45, 0), GOLD) -- gold band between drums
+				if di < 4 then
+					B:block(R, v(6.2, 0.4, 6.2), cf(x, y1 + 0.15, 0, 0, 45, 0), GOLD) -- gold band
 				end
 			end
 			-- constellation glow strip up the front + back faces
 			for _, side in { -1, 1 } do
 				local z = side * 3.55
-				B:block(R, v(1.0, 12.6, 0.2), cf(x, 10.8, z), TILE_DK)
-				B:block(R, v(0.25, 12.0, 0.25), cf(x, 10.8, z + side * 0.05), RUNE, NEON)
-				for k, sy in { 5.6, 9.4, 12.4, 16.0 } do
+				B:block(R, v(1.0, 17.4, 0.2), cf(x, 13.4, z), TILE_DK)
+				B:block(R, v(0.25, 16.8, 0.25), cf(x, 13.4, z + side * 0.05), RUNE, NEON)
+				for k, sy in { 5.6, 9.4, 13.0, 17.4, 21.0 } do
 					B:block(R, v(0.9, 0.9, 0.3), cf(x, sy, z + side * 0.12, 0, 0, 45), (k % 2 == 0) and GOLD_LT or GOLD)
 				end
 			end
-			-- capital
-			B:block(R, v(8.0, 0.5, 8.0), cf(x, 17.65, 0), GOLD)
-			B:block(R, v(8.6, 0.9, 8.6), cf(x, 18.35, 0), STONE)
-			B:block(R, v(10.4, 1.0, 9.6), cf(x + sx * 0.3, 19.3, 0), STONE_LT)
-			tops[sx] = x
-			if broken then
-				-- chipped corner on the capital + crack line
-				B:block(R, v(1.6, 1.0, 1.6), cf(x + sx * 4.8, 18.9, -4.2, 0, 20, 0), STONE_DK)
-				B:block(R, v(0.3, 3.4, 0.2), cf(x - sx * 1.2, 11.0, -3.6, 0, 0, 20), STONE_DK)
-				-- moss on the knocked drum
-				B:block(R, v(3.4, 0.4, 3.0), cf(x + sx * 1.6, 13.85, 1.6, 0, 7, 0), MOSS)
-				B:block(R, v(0.6, 2.0, 0.3), cf(x + sx * 2.8, 12.6, 3.5), MOSS_DK)
-			else
+			if not broken then
+				-- full capital + pedestal with a hovering crystal finial
+				B:block(R, v(8.0, 0.5, 8.0), cf(x, 26.05, 0), GOLD)
+				B:block(R, v(8.6, 0.9, 8.6), cf(x, 26.75, 0), STONE)
+				B:block(R, v(10.4, 1.2, 9.6), cf(x, 27.8, 0), STONE_LT)
+				B:block(R, v(10.6, 0.3, 9.8), cf(x, 27.3, 0), GOLD)
+				B:block(R, v(9.4, 0.4, 8.6), cf(x, 28.55, 0), STONE_HI)
+				B:block(R, v(4.0, 0.8, 4.0), cf(x, 29.0, 0), STONE2)
+				crystal(x, 31.2, 0, 1.0, VIO, VIO_LT, 0)
 				B:block(R, v(3.0, 0.4, 2.6), cf(x - sx * 2.2, 3.95, 2.8), MOSS)
 				B:block(R, v(0.6, 1.6, 0.3), cf(x - sx * 3.2, 3.0, 4.95), MOSS_DK)
+			else
+				-- jagged snapped top
+				for k, j in { { -1.6, 1.4, 1.2 }, { 1.4, 0.8, -1.0 }, { 0.2, 2.0, 0.4 }, { -0.6, 0.6, -1.6 } } do
+					B:block(R, v(2.6, j[2], 2.6), cf(x + sx * j[1], 23.6 + j[2] / 2 - 0.1, j[3], 0, k * 20, 0), (k % 2 == 0) and STONE_HI or STONE)
+				end
+				B:block(R, v(3.2, 0.4, 3.0), cf(x + sx * 1.4, 23.7, 1.4, 0, 10, 0), MOSS)
+				B:block(R, v(0.6, 2.4, 0.3), cf(x + sx * 2.6, 22.4, 3.55), MOSS_DK)
+				-- its capital floats above, tilted (static)
+				local fc = CFrame.new(x + sx * 0.6, 28.4, 0) * ang(6, 0, -sx * 14)
+				B:block(R, v(8.6, 0.9, 8.6), fc * CFrame.new(0, -0.9, 0), STONE)
+				B:block(R, v(10.4, 1.2, 9.4), fc, STONE_LT)
+				B:block(R, v(10.6, 0.3, 9.6), fc * CFrame.new(0, -0.45, 0), GOLD)
+				B:block(R, v(9.2, 0.4, 8.4), fc * CFrame.new(0, 0.75, 0), STONE_HI)
+				B:block(R, v(2.4, 1.0, 2.2), cf(x - sx * 1.0, 25.8, -0.6, 20, 30, 10), STONE2) -- floating chip
+				crystal(x + sx * 1.2, 31.6, 0, 0.8, CY, CY_LT, 15)
 			end
 		end
 
-		------------------------------------------------------------ architrave
-		local AY0, AY1, AZ = 19.8, 27.0, 3.2
-		B:block(R, v(88.0, AY1 - AY0, AZ * 2), cf(0, (AY0 + AY1) / 2, 0), STONE)
-		B:block(R, v(88.4, 0.8, AZ * 2 + 0.4), cf(0, AY0 + 0.4, 0), STONE_DK)
-		B:block(R, v(90.0, 1.0, AZ * 2 + 1.0), cf(0, AY1 + 0.5, 0), STONE_LT) -- cornice
-		B:block(R, v(90.4, 0.3, AZ * 2 + 1.3), cf(0, AY1 + 0.15, 0), GOLD)
-		-- broken end of the cornice on the left (ruin)
-		B:block(R, v(3.0, 1.2, 2.0), cf(-44.0, AY1 + 0.4, -3.2, 0, 15, 8), STONE_DK)
-		for _, side in { -1, 1 } do
-			local z = side * AZ
-			-- gold trim line
-			B:block(R, v(88.2, 0.35, 0.2), cf(0, 21.0, z), GOLD)
-			for _, sx in { 1, -1 } do
-				-- night-sky panel (indigo, gold frame) behind the constellation
-				B:block(R, v(27.0, 4.6, 0.2), cf(sx * 30.6, 23.9, z + side * 0.02), TILE)
-				B:block(R, v(27.6, 0.3, 0.25), cf(sx * 30.6, 26.25, z + side * 0.03), GOLD_DK)
-				B:block(R, v(27.6, 0.3, 0.25), cf(sx * 30.6, 21.55, z + side * 0.03), GOLD_DK)
-				-- dentils under the cornice (outside the sign)
-				for k = 0, 8 do
-					B:block(R, v(1.1, 0.8, 0.4), cf(sx * (17.6 + k * 3.1), AY1 - 0.5, z + side * 0.1), STONE_HI)
-				end
-				-- constellation: gold star studs joined by thin glowing lines
-				local pts = { { 18.6, 23.0 }, { 22.4, 25.0 }, { 26.6, 22.8 }, { 30.2, 24.6 }, { 34.4, 23.2 }, { 38.6, 25.0 }, { 42.2, 23.4 } }
-				for i = 1, #pts - 1 do
-					local a, b = pts[i], pts[i + 1]
-					B:bar(R, v(sx * a[1], a[2], z + side * 0.08), v(sx * b[1], b[2], z + side * 0.08), 0.22, 0.2, RUNE, { mat = "Neon", up = UP })
-				end
-				for i, p in pts do
-					B:block(R, v(0.95, 0.95, 0.3), cf(sx * p[1], p[2], z + side * 0.15, 0, 0, 45), (i % 2 == 0) and GOLD_LT or GOLD)
-				end
+		------------------------------------------------------------ voussoir arch
+		-- a flat elliptical arch springs from the columns (inner edge a=33.4, b=8.4)
+		local AY = 19.6
+		local TH = 4.2
+		local CA, CB = 33.4 + TH / 2, 7.8 + TH / 2
+		local function arcPt(t)
+			return CA * math.cos(t), AY + CB * math.sin(t)
+		end
+		local N = 17
+		local faceStars = {}
+		for i = 0, N - 1 do
+			local t0 = math.pi * i / N
+			local t1 = math.pi * (i + 1) / N
+			local x0, y0 = arcPt(t0)
+			local x1, y1 = arcPt(t1)
+			local a, b = v(x0, y0, 0), v(x1, y1, 0)
+			local c, len = P.aim(a, b, UP)
+			if i == 13 then
+				c = c * CFrame.new(0.35, 0, 0) * CFrame.Angles(0, rad(-5), 0) -- knocked askew (ruin)
 			end
+			if i ~= 8 then -- the middle one is the moon keystone
+				B:block(R, v(TH, 5.2, len - 0.3), c, (i % 2 == 0) and STONE_LT or STONE)
+				for _, zs in { -1, 1 } do -- gold trim lines along the outer edge, front + back
+					B:block(R, v(0.7, 0.5, len - 0.4), c * CFrame.new(TH / 2 - 0.25, zs * 2.6, 0), GOLD)
+				end
+				if i % 4 == 2 then
+					B:block(R, v(0.4, 3.0, len * 0.7), c * CFrame.new(TH / 2 + 0.05, 0, 0), STONE_HI) -- worn top
+				end
+				B:block(R, v(1.0, 5.3, len - 0.8), c * CFrame.new(-TH / 2 + 0.4, 0, 0), TILE) -- indigo soffit band
+				B:block(R, v(TH - 0.6, 5.0, 0.5), c * CFrame.new(0, 0, len / 2 - 0.1), STONE_DK) -- mortar joint
+			end
+			if i % 2 == 1 and i ~= 8 then
+				faceStars[#faceStars + 1] = c
+			end
+		end
+		-- constellation following the arch on both faces: gold studs + glow lines
+		for _, side in { -1, 1 } do
+			local prev
+			for k, c in faceStars do
+				local p = (c * CFrame.new(0, side * 2.72, 0)).Position
+				B:block(R, v(0.9, 0.9, 0.3), CFrame.new(p) * ang(0, 0, 45), (k % 2 == 0) and GOLD_LT or GOLD)
+				if prev and math.abs(prev.X - p.X) < 12 then
+					B:bar(R, prev + v(0, 0, side * 0.02), p + v(0, 0, side * 0.02), 0.22, 0.2, RUNE, { mat = "Neon", up = UP })
+				end
+				prev = p
+			end
+		end
+
+		------------------------------------------------------------ crown tablet (holds the sign)
+		local TZ = 2.6
+		B:block(R, v(34.0, 7.0, TZ * 2), cf(0, 23.3, 0), STONE)
+		B:block(R, v(34.4, 0.6, TZ * 2 + 0.4), cf(0, 20.1, 0), STONE_DK)
+		for _, sx in { 1, -1 } do
+			B:block(R, v(1.6, 7.6, TZ * 2 + 0.3), cf(sx * 16.6, 23.4, 0), STONE_DK)
+			B:block(R, v(0.5, 7.8, TZ * 2 + 0.5), cf(sx * 17.4, 23.4, 0), GOLD)
 		end
 		-- back: a big gold star where the sign is on the front
 		do
-			local z = AZ + 0.15
-			B:block(R, v(12, 4.6, 0.3), cf(0, 23.4, z), TILE)
-			B:block(R, v(1.2, 4.0, 0.3), cf(0, 23.4, z + 0.15), GOLD)
-			B:block(R, v(4.4, 1.2, 0.3), cf(0, 23.4, z + 0.15), GOLD)
+			local z = TZ + 0.15
+			B:block(R, v(14, 5.0, 0.3), cf(0, 23.4, z), TILE)
+			B:block(R, v(1.2, 4.2, 0.3), cf(0, 23.4, z + 0.15), GOLD)
+			B:block(R, v(4.6, 1.2, 0.3), cf(0, 23.4, z + 0.15), GOLD)
 			B:block(R, v(2.0, 2.0, 0.3), cf(0, 23.4, z + 0.25, 0, 0, 45), GOLD_LT)
 			B:block(R, v(0.7, 0.7, 0.3), cf(0, 23.4, z + 0.4, 0, 0, 45), RUNE, NEON)
 			for _, sx in { 1, -1 } do
-				star(sx * 4.2, 24.6, z + 0.15, 0.7, GOLD_LT)
-				star(sx * 3.4, 22.0, z + 0.15, 0.5, GOLD)
+				star(sx * 4.6, 24.8, z + 0.15, 0.7, GOLD_LT)
+				star(sx * 3.6, 21.8, z + 0.15, 0.5, GOLD)
 			end
 		end
 
 		------------------------------------------------------------ the Sign
-		local SY, SW, SH = 23.8, 28.0, 5.4
-		local SZ = -AZ - 0.5
+		local SY, SW, SH = 23.4, 28.0, 5.4
+		local SZ = -TZ - 0.5
 		B:block(R, v(SW, SH, 1.0), cf(0, SY, SZ), SIGN, { name = "Sign" })
 		local FZ, FD = SZ - 0.15, 1.8
 		B:block(R, v(SW + 3.2, 1.3, FD), cf(0, SY + SH / 2 + 0.65, FZ), STONE_DK)
@@ -180,90 +213,43 @@ return {
 			for _, sy in { 1, -1 } do
 				local y = SY + sy * (SH / 2 + 0.6)
 				local x = sx * (SW / 2 + 0.85)
-				B:block(R, v(1.8, 1.8, FD + 0.3), cf(x, y, FZ, 0, 0, 45), GOLD)
-				B:block(R, v(1.1, 1.1, FD + 0.5), cf(x, y, FZ), GOLD_LT)
+				local ds = (sy == 1) and 1.8 or 1.4
+				B:block(R, v(ds, ds, FD + 0.3), cf(x, y, FZ, 0, 0, 45), GOLD)
+				B:block(R, v(ds * 0.6, ds * 0.6, FD + 0.5), cf(x, y, FZ), GOLD_LT)
 			end
 		end
 
-		------------------------------------------------------------ voussoir arch + moon keystone
-		local RA, RB, RY = 30.0, 4.0, AY1 + 1.0 -- ellipse centre line
-		local N = 15
-		local function arcPt(t)
-			return RA * math.cos(t), RY + RB * math.sin(t)
-		end
-		for i = 0, N - 1 do
-			local t0 = math.pi * i / N
-			local t1 = math.pi * (i + 1) / N
-			local tm = (t0 + t1) / 2
-			if i ~= 7 then -- the middle one is the moon keystone
-				local x0, y0 = arcPt(t0)
-				local x1, y1 = arcPt(t1)
-				local a, b = v(x0, y0, 0), v(x1, y1, 0)
-				local float = (i == 11)
-				local c, len = P.aim(a, b, UP)
-				if i == 12 then
-					c = c * CFrame.new(0.3, 0, 0) * ang(0, 0, 0) * CFrame.Angles(0, rad(-6), 0) -- knocked askew
-				end
-				-- local X is radial (in-plane), local Y is depth
-				if float then
-					-- this one fell out: it lies tilted on the cornice below its gap
-					B:block(R, v(2.8, 4.4, len - 0.4), cf(-24.6, AY1 + 2.3, -0.6, 0, 18, 64), STONE)
-					B:block(R, v(0.5, 4.6, len - 0.8), cf(-24.6, AY1 + 2.3, -0.6, 0, 18, 64) * CFrame.new(1.25, 0, 0), GOLD)
-				else
-					B:block(R, v(3.4, 5.0, len - 0.2), c, (i % 2 == 0) and STONE_LT or STONE)
-					B:block(R, v(0.5, 5.2, len - 0.5), c * CFrame.new(1.6, 0, 0), GOLD) -- gold extrados trim
-					B:block(R, v(1.2, 5.1, len - 0.9), c * CFrame.new(-0.5, 0, 0), TILE) -- indigo soffit band
-					B:block(R, v(0.4, 5.2, 0.4), c * CFrame.new(-0.5, 0, 0), RUNE, NEON) -- star dot on each stone
-				end
-			end
-		end
-		-- rubble of the fallen voussoirs' mortar on the architrave
-		B:block(R, v(1.6, 0.6, 1.4), cf(-17.0, AY1 + 1.3, 1.0, 0, 20, 0), STONE_DK)
-
-		-- crescent moon keystone (XY plane, depth 4)
-		local MY = 29.5
-		local MR = 4.25
-		-- crescent: arc of blocks on the left of the circle, opening to the right
+		------------------------------------------------------------ crescent moon keystone
+		local MY = 29.7
+		local MR = 3.8
+		-- night-sky disc behind the crescent
+		B:block(R, v(5.9, 5.9, 5.0), cf(0, MY, 0), TILE)
+		B:block(R, v(5.4, 5.4, 5.02), cf(0, MY, 0, 0, 0, 45), TILE_DK)
 		for k = 0, 8 do
-			local a = rad(40 + k * 35) -- 40..320 deg
-			local w = 1.5 + 1.3 * math.sin(rad(k / 8 * 180))
+			local a = rad(40 + k * 35)
+			local w = 1.4 + 1.4 * math.sin(rad(k / 8 * 180))
 			local px, py = math.cos(a) * (MR - w / 2), math.sin(a) * (MR - w / 2)
-			B:block(R, v(2.5, w, 4.0), CFrame.new(px, MY + py, 0) * ang(0, 0, math.deg(a) + 90), (k % 2 == 0) and MOON or MOON_LT)
+			B:block(R, v(2.4, w, 5.6), CFrame.new(px, MY + py, 0) * ang(0, 0, math.deg(a) + 90), (k % 2 == 0) and MOON or MOON_LT)
 		end
-		-- gold rim along the outer edge
 		for k = 0, 9 do
 			local a = rad(30 + k * 33)
-			B:block(R, v(2.2, 0.5, 4.4), CFrame.new(math.cos(a) * (MR + 0.1), MY + math.sin(a) * (MR + 0.1), 0) * ang(0, 0, math.deg(a) + 90), GOLD)
+			B:block(R, v(2.2, 0.5, 5.9), CFrame.new(math.cos(a) * (MR + 0.1), MY + math.sin(a) * (MR + 0.1), 0) * ang(0, 0, math.deg(a) + 90), GOLD)
 		end
-		-- inner shadow + a glowing star in the crescent's mouth
-		star(1.5, MY + 0.2, -2.2, 1.1, GOLD_LT, RUNE)
-		star(1.5, MY + 0.2, 2.2, 1.1, GOLD_LT, RUNE)
-		B:block(R, v(0.5, 0.5, 4.6), cf(1.5, MY + 0.2, 0, 0, 0, 45), RUNE, NEON)
+		for _, side in { -1, 1 } do
+			star(1.5, MY + 0.1, side * 2.9, 1.2, GOLD_LT, RUNE)
+		end
+		B:block(R, v(0.6, 0.6, 5.9), cf(1.5, MY + 0.1, 0, 0, 0, 45), RUNE, NEON)
 
 		------------------------------------------------------------ floating crystals + stars
-		-- pedestal stubs on the architrave ends, each with a hovering crystal
-		for _, sx in { 1, -1 } do
-			local x = sx * 39.6
-			B:block(R, v(5.0, 0.6, 5.0), cf(x, AY1 + 1.3, 0), STONE_DK)
-			B:block(R, v(3.6, 1.6, 3.6), cf(x, AY1 + 2.4, 0), STONE_LT)
-			B:block(R, v(3.0, 1.62, 3.0), cf(x, AY1 + 2.4, 0, 0, 45, 0), STONE2)
-			if sx == 1 then
-				B:block(R, v(1.4, 0.8, 1.6), cf(x - 0.8, AY1 + 3.5, 0.6, 0, 20, 10), STONE) -- broken
-				B:block(R, v(1.0, 0.5, 1.0), cf(x + 0.9, AY1 + 3.3, -0.7, 0, 40, -8), STONE_HI)
-			else
-				B:block(R, v(4.0, 0.4, 4.0), cf(x, AY1 + 3.4, 0), GOLD)
-			end
-		end
-		crystal(-39.6, 32.0, 0.0, 0.85, VIO, VIO_LT, 0)
-		crystal(39.6, 32.0, 0.0, 0.85, CY, CY_LT, 12)
-		crystal(47.0, 23.0, 0.6, 1.0, CY, CY_LT, -12)
-		crystal(-47.0, 22.0, -0.8, 0.9, CY, CY_LT, 8)
-		crystal(45.6, 31.0, 0.2, 1.0, VIO, VIO_LT, -6)
-		crystal(-14.6, 29.6, 0.4, 0.62, VIO_DK, VIO_LT, 15)
-		crystal(14.6, 29.6, -0.6, 0.62, CY_DK, CY_LT, -15)
+		crystal(-27.6, 21.6, -0.4, 0.7, VIO, VIO_LT, 10) -- hanging in the arch corners
+		crystal(27.6, 21.6, 0.4, 0.7, CY, CY_LT, -10)
+		crystal(-46.4, 22.0, -0.8, 0.9, CY, CY_LT, 8)
+		crystal(46.6, 26.0, 0.6, 1.0, VIO, VIO_LT, -12)
+		crystal(-9.4, 32.6, 0.0, 0.55, VIO_DK, VIO_LT, 15)
+		crystal(9.4, 32.6, 0.0, 0.55, CY_DK, CY_LT, -15)
 		crystal(43.0, 13.0, -5.0, 0.8, VIO, VIO_LT, 5)
 		crystal(-43.4, 15.0, 5.0, 0.8, CY, CY_LT, -8)
-		for _, st in { { 33.8, 31.0, 1.0 }, { -32.6, 32.4, 0.8 }, { 24.5, 33.0, 0.7 }, { -46.8, 27.0, 0.8 }, { 46.8, 29.4, 0.9 }, { -7.6, 31.8, 0.6 } } do
+		for _, st in { { 31.4, 30.4, 0.9 }, { -31.0, 30.8, 0.8 }, { 19.0, 33.2, 0.6 }, { -18.6, 33.0, 0.7 }, { -46.8, 28.0, 0.8 }, { 47.0, 20.6, 0.8 } } do
 			for _, side in { -1, 1 } do
 				star(st[1], st[2], side * 0.15, st[3], GOLD, GOLD_LT)
 			end

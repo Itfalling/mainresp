@@ -245,7 +245,8 @@ return {
 				end
 				-- knuckle at the joint (axis aligned so the low ones stay out of the lane)
 				if i > 1 then
-					B:block(R, v(p0[4] * 0.9, p0[4] * 0.9, p0[4] * 1.08), cf(p0[1], p0[2], p0[3]), WOOD_DK)
+					B:block(R, v(p0[4] * 0.78, p0[4] * 0.78, p0[4] * 1.06), cf(p0[1], p0[2], p0[3], 0, 0, 45), WOOD)
+					B:block(R, v(p0[4] * 0.3, p0[4] * 0.3, p0[4] * 1.12), cf(p0[1] + 0.4, p0[2] + 0.6, p0[3], 0, 0, 20), WOOD_XD) -- knot
 				end
 			end
 		end
