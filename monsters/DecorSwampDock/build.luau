@@ -249,23 +249,24 @@ return {
 		-- moss tuft on the post top
 		B:block(R, v(0.9, 0.18, 0.9), CFrame.new(lp2 + v(0, 0.3, 0)) * ang(0, 20, 0), MOSS)
 		-- hanging lantern
+		local K = 1.3
 		local hang = armEnd + v(-0.2, -0.35, 0)
 		B:bar(R, hang, hang - v(0, 0.6, 0), 0.12, 0.12, IRON)
 		local L = CFrame.new(hang - v(0, 0.6, 0))
 		local function at(px, py, pz)
 			return L * CFrame.new(px, py, pz)
 		end
-		B:block(R, v(0.5, 0.25, 0.5), at(0, -0.1, 0), IRON)
-		B:block(R, v(1.15, 0.28, 1.15), at(0, -0.35, 0) * ang(0, 45, 0), VIO_DK)
-		B:block(R, v(0.9, 0.22, 0.9), at(0, -0.25, 0), VIO)
+		B:block(R, v(0.5 * K, 0.25 * K, 0.5 * K), at(0, -0.1 * K, 0), IRON)
+		B:block(R, v(1.15 * K, 0.28 * K, 1.15 * K), at(0, -0.35 * K, 0) * ang(0, 45, 0), VIO_DK)
+		B:block(R, v(0.9 * K, 0.22 * K, 0.9 * K), at(0, -0.25 * K, 0), VIO)
 		for _, c in { { 1, 1 }, { 1, -1 }, { -1, 1 }, { -1, -1 } } do
-			B:block(R, v(0.18, 1.3, 0.18), at(c[1] * 0.42, -1.15, c[2] * 0.42), VIO_LT)
+			B:block(R, v(0.18 * K, 1.3 * K, 0.18 * K), at(c[1] * 0.42 * K, -1.15 * K, c[2] * 0.42 * K), VIO_LT)
 		end
-		B:block(R, v(0.8, 1.2, 0.8), at(0, -1.15, 0), GLASS, { tr = 0.55 })
-		local core = B:block(R, v(0.5, 0.5, 0.5), at(0, -1.1, 0) * ang(45, 0, 45), WISP, { mat = "Neon", name = "LanternCore" })
-		B:block(R, v(0.2, 0.35, 0.2), at(0, -0.7, 0), WISP_LT, { mat = "Neon" })
-		B:block(R, v(1.0, 0.25, 1.0), at(0, -1.9, 0) * ang(0, 45, 0), VIO_DK)
-		B:block(R, v(0.25, 0.3, 0.25), at(0, -2.15, 0), VIO)
+		B:block(R, v(0.8 * K, 1.2 * K, 0.8 * K), at(0, -1.15 * K, 0), GLASS, { tr = 0.55 })
+		local core = B:block(R, v(0.5 * K, 0.5 * K, 0.5 * K), at(0, -1.1 * K, 0) * ang(45, 0, 45), WISP, { mat = "Neon", name = "LanternCore" })
+		B:block(R, v(0.2 * K, 0.35 * K, 0.2 * K), at(0, -0.7 * K, 0), WISP_LT, { mat = "Neon" })
+		B:block(R, v(1.0 * K, 0.25 * K, 1.0 * K), at(0, -1.9 * K, 0) * ang(0, 45, 0), VIO_DK)
+		B:block(R, v(0.25 * K, 0.3 * K, 0.25 * K), at(0, -2.15 * K, 0), VIO)
 
 		---------------------------------------------------------------- VFX
 		B:emitter(core, "sparkle", { name = "LanternMotes", color = { "#ffffff", WISP }, rate = 3, size = { 0.12, 0.3, 0 }, speed = { 0.2, 0.5 }, life = { 1.4, 2.4 }, accel = { 0, 0.6, 0 }, light = 1 })

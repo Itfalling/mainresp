@@ -165,9 +165,9 @@ return {
 		shroom(v(-0.6, 1.2, -1.0), 0.65, VIO, VIO_LT, PINK)
 		-- on the rim
 		local t5 = tops[5]
-		shroom((t5.rot * CFrame.new(0.2, Y0 + t5.h + 0.05, -RAD)).Position, 0.7, VIO, VIO_LT, PINK)
+		shroom((t5.rot * CFrame.new(0.2, Y0 + t5.h + 0.05, -RAD)).Position, 1.0, VIO, VIO_LT, PINK)
 		local t11 = tops[11]
-		shroom((t11.rot * CFrame.new(-0.2, Y0 + t11.h + 0.05, -RAD)).Position, 0.6, TEAL, TEAL_LT, WISP)
+		shroom((t11.rot * CFrame.new(-0.2, Y0 + t11.h + 0.05, -RAD)).Position, 0.85, TEAL, TEAL_LT, WISP)
 		-- at the roots
 		shroom(v(-2.6, 0.35, -2.3), 0.8, TEAL, TEAL_LT, WISP, 8)
 		shroom(v(-2.0, 0.35, -3.0), 0.55, VIO, VIO_LT, PINK)

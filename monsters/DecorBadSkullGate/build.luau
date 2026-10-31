@@ -319,6 +319,8 @@ return {
 		B:bar(R, v(-3.6, 16.24, ZC + 4.6), v(-3.4, 16.24, ZC + 5.6), 0.2, 0.12, BONE_SH)
 		B:block(R, v(0.12, 1.4, 1.6), cf(7.12, 9.4, ZC + 4.6), STAIN)
 		B:block(R, v(2.0, 1.2, 0.12), cf(-3.4, 12.4, ZB + 0.86), STAIN)
+		B:bar(R, v(2.6, 15.4, ZB + 0.6), v(3.4, 13.6, ZB + 0.98), 0.2, 0.14, BONE_SH)
+		B:bar(R, v(3.4, 13.6, ZB + 0.98), v(2.8, 12.2, ZB + 1.52), 0.2, 0.14, BONE_SH)
 
 		------------------------------------------------------------------
 		-- BACK ARCH + trailing neck vertebrae
@@ -333,11 +335,11 @@ return {
 			B:block(R, v(1.0, 1.0, 1.0), cf(sg * 1.0, GH + 1.3, AZ + 0.7), BONE_DK)
 		end
 		local function vert(c, yaw, s)
-			local F = CFrame.new(c) * CFrame.Angles(0, rad(yaw), 0) * CFrame.Angles(rad(-18), 0, 0)
-			B:block(R, v(2.0 * s, 1.4 * s, 1.6 * s), F * CFrame.new(0, 0.7 * s, 0), BONE)
-			B:block(R, v(2.2 * s, 0.4 * s, 1.8 * s), F * CFrame.new(0, 0.2 * s, 0), BONE_DK)
-			B:block(R, v(0.7 * s, 1.0 * s, 0.9 * s), F * CFrame.new(0, 1.7 * s, 0.2 * s), BONE_LT)
-			B:block(R, v(4.0 * s, 0.5 * s, 0.6 * s), F * CFrame.new(0, 1.0 * s, 0), BONE_LT)
+			local F = CFrame.new(c) * CFrame.Angles(0, rad(yaw), 0)
+			B:block(R, v(2.2 * s, 0.5 * s, 1.9 * s), F * CFrame.new(0, 0.25 * s, 0), BONE_DK)
+			B:block(R, v(1.9 * s, 0.7 * s, 1.6 * s), F * CFrame.new(0, 0.8 * s, 0), BONE)
+			B:block(R, v(3.4 * s, 0.4 * s, 0.6 * s), F * CFrame.new(0, 0.85 * s, 0.1 * s), BONE_LT)
+			B:block(R, v(0.6 * s, 0.6 * s, 1.3 * s), F * CFrame.new(0, 1.3 * s, 0.4 * s) * CFrame.Angles(rad(20), 0, 0), BONE_LT)
 		end
 		vert(v(-0.4, 0.2, ZB + 3.2), 8, 1.1)
 		vert(v(-1.9, 0.2, ZB + 5.6), 25, 0.95)
@@ -353,7 +355,7 @@ return {
 		}
 		for i = 1, #trunk - 1 do
 			local d = (trunk[i + 1] - trunk[i]).Unit
-			local w = 1.9 - i * 0.24
+			local w = 2.3 - i * 0.27
 			B:bar(R, trunk[i] - d * 0.3, trunk[i + 1] + d * 0.3, w, w, (i % 2 == 0) and WOOD or WOOD_DK)
 			-- bark ridge twisting around the trunk
 			local a = rad(i * 75)

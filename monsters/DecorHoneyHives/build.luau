@@ -171,30 +171,30 @@ return {
 		local hb = B:bone("Hives", "Root", v(0, TOP, 0))
 		local DECK = 3.7 -- deck top
 		for _, lx in { -5.0, 5.0 } do
-			for _, lz in { -2.3, 2.3 } do
+			for _, lz in { -2.9, 2.9 } do
 				B:block(hb, v(0.9, DECK - TOP + 0.05, 0.9), cf(lx, (DECK + TOP) / 2 - 0.25, lz), WOOD)
 				B:block(hb, v(1.15, 0.35, 1.15), cf(lx, TOP + 0.15, lz), WOOD_DK)
 			end
 			-- side braces
-			B:bar(hb, v(lx, TOP + 0.6, -2.3), v(lx, DECK - 0.6, 2.3), 0.35, 0.4, WOOD_DK)
+			B:bar(hb, v(lx, TOP + 0.6, -2.9), v(lx, DECK - 0.6, 2.9), 0.35, 0.4, WOOD_DK)
 		end
 		-- deck planks
-		for i = 0, 3 do
-			local z = -2.25 + i * 1.5
-			B:block(hb, v(11.4, 0.5, 1.45), cf(jit(0.06), DECK - 0.25, z), (i % 2 == 0) and WOOD_LT or WOOD)
+		for i = 0, 4 do
+			local z = -2.8 + i * 1.4
+			B:block(hb, v(11.4, 0.5, 1.38), cf(jit(0.06), DECK - 0.25, z), (i % 2 == 0) and WOOD_LT or WOOD)
 		end
-		B:block(hb, v(11.0, 0.4, 0.5), cf(0, DECK - 0.7, -2.6), WOOD_DK) -- front apron
+		B:block(hb, v(11.0, 0.4, 0.5), cf(0, DECK - 0.7, -3.2), WOOD_DK) -- front apron
 		-- lower shelf with honey jars
 		local SH = 1.75
-		B:block(hb, v(10.2, 0.35, 4.4), cf(0, SH, 0), WOOD)
-		B:block(hb, v(10.3, 0.2, 0.3), cf(0, SH + 0.05, -2.2), WOOD_DK)
-		for k, jx in { -2.4, -1.2, 3.4 } do
+		B:block(hb, v(10.2, 0.35, 5.6), cf(0, SH, 0), WOOD)
+		B:block(hb, v(10.3, 0.2, 0.3), cf(0, SH + 0.05, -2.8), WOOD_DK)
+		for k, jx in { -2.6, -1.3, 3.4 } do
 			local base = SH + 0.18
-			local c = cf(jx, base + 0.55, -1.2 + (k == 2 and 0.5 or 0))
-			pad(hb, c, 0.55, 1.1, HONEY)
-			pad(hb, c * CFrame.new(0, 0.1, 0), 0.6, 0.6, HONEY_LT)
-			pad(hb, c * CFrame.new(0, 0.66, 0), 0.5, 0.22, JAR_LID)
-			B:block(hb, v(1.1, 0.14, 1.1), c * CFrame.new(0, 0.82, 0) * ang(0, 45 + k * 10, 0), CLOTH)
+			local c = cf(jx, base + 0.6, -1.9 + (k == 2 and 0.6 or 0), 0, k * 20, 0)
+			B:block(hb, v(1.0, 1.2, 1.0), c, HONEY)
+			B:block(hb, v(1.1, 0.7, 0.8), c * CFrame.new(0, -0.05, 0), HONEY_LT)
+			B:block(hb, v(0.9, 0.25, 0.9), c * CFrame.new(0, 0.72, 0), JAR_LID)
+			B:block(hb, v(1.15, 0.12, 1.15), c * CFrame.new(0, 0.82, 0) * ang(0, 45, 0), CLOTH)
 		end
 
 		------------------------------------------------------------------
@@ -218,15 +218,17 @@ return {
 		end
 		local entrances = {}
 		-- tall stack (left = -X)
-		local AX, AZ = -2.7, 0.2
+		local AX, AZ = -3.0, -0.8
 		bottomBoard(AX, AZ)
 		local y = DECK + 0.5
 		box(AX, AZ, y, 2.6, BOX_Y, BOX_Y_DK, true)
 		y += 2.6
 		box(AX, AZ, y, 2.6, BOX_C, BOX_C_DK, true)
 		y += 2.6
-		box(AX, AZ, y, 1.8, BOX_P, BOX_P_DK, true)
-		y += 1.8
+		box(AX, AZ, y, 2.6, BOX_P, BOX_P_DK, true)
+		y += 2.6
+		box(AX, AZ, y, 1.7, BOX_Y, BOX_Y_DK, true)
+		y += 1.7
 		-- a hex emblem on the cream box
 		do
 			local Fc = cf(AX, DECK + 0.5 + 2.6 + 1.0, AZ - W / 2 - 0.02) * CFrame.Angles(rad(90), 0, 0)
@@ -248,7 +250,7 @@ return {
 		table.insert(entrances, v(AX, DECK + 0.72, AZ - W / 2 - 0.1))
 
 		-- short stack (right = +X)
-		local BX, BZ = 2.8, -0.1
+		local BX, BZ = 3.0, 0.9
 		bottomBoard(BX, BZ)
 		y = DECK + 0.5
 		box(BX, BZ, y, 2.6, BOX_P, BOX_P_DK, true)
@@ -343,12 +345,12 @@ return {
 			return CFrame.new(c) * CFrame.Angles(0, -rad(deg), 0) * ang(tlt, 0, 0) * CFrame.Angles(0, rad(deg), 0)
 		end
 		-- name, centre, radius, start angle, tilt dir, tilt, scale
-		bee("Bee1", tilted(v(AX, DECK + 5.2, AZ), 30, 10), 4.4, 20, 1.0)
-		bee("Bee2", tilted(v(AX, DECK + 8.4, AZ), 200, 12), 4.2, 200, 0.95)
+		bee("Bee1", tilted(v(AX, DECK + 5.8, AZ), 30, 10), 4.4, 20, 1.0)
+		bee("Bee2", tilted(v(AX, DECK + 10.0, AZ), 200, 12), 4.2, 200, 0.95)
 		bee("Bee3", tilted(v(BX, DECK + 4.4, BZ), 120, 9), 4.0, 110, 0.95)
 		bee("Bee4", tilted(v(BX, DECK + 6.6, BZ), 300, 14), 3.6, 290, 0.9)
-		bee("Bee5", tilted(v(0, DECK + 10.0, 0), 60, 8), 7.2, 150, 1.05)
-		bee("Bee6", tilted(v(0, DECK + 7.0, 0), 240, 10), 7.8, 330, 1.0)
+		bee("Bee5", tilted(v(0, DECK + 11.5, 0), 60, 8), 7.0, 150, 1.05)
+		bee("Bee6", tilted(v(0, DECK + 7.6, 0), 240, 10), 7.8, 330, 1.0)
 
 		------------------------------------------------------------------
 		-- VFX
