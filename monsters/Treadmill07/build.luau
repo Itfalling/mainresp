@@ -187,31 +187,34 @@ return {
 			B:block("Root", v(0.5, 1.3, 1.1), C(3.2, -0.1, 0), Y_D)
 			B:block("Root", v(0.52, 0.12, 1.12), C(3.2, 0.2, 0), BK)
 		end)
-		-- tachometer (white stepped dial) with a needle
+		-- tachometer: yellow stepped bezel, white stepped face, long needle
 		local TX, TY = -0.2, 0.0
-		B:block("Root", v(1.5, 1.5, 0.06), C(TX, TY, 0.67), BK_D)
-		B:block("Root", v(1.3, 1.3, 0.06), C(TX, TY, 0.69), WHITE)
-		B:block("Root", v(1.3, 1.3, 0.06), C(TX, TY, 0.69) * ang(0, 0, 45), WHITE)
-		for i = 0, 8 do
-			local a = 225 - i * 33.75
-			local col = i >= 7 and RED or BK
-			B:block("Root", v(0.06, 0.16, 0.04), C(TX, TY, 0.73) * ang(0, 0, a - 90) * CFrame.new(0, 0.5, 0), col)
+		local function disc(r, z, col)
+			B:block("Root", v(r * 2, r * 1.2, 0.06), C(TX, TY, z), col)
+			B:block("Root", v(r * 1.2, r * 2, 0.06), C(TX, TY, z), col)
+			B:block("Root", v(r * 1.7, r * 1.7, 0.06), C(TX, TY, z), col)
 		end
-		B:block("Root", v(0.5, 0.16, 0.04), C(TX, TY - 0.32, 0.73), RED)
+		disc(0.8, 0.67, Y)
+		disc(0.68, 0.69, WHITE)
+		for i = 0, 6 do
+			local a = 210 - i * 40
+			B:block("Root", v(0.07, 0.18, 0.04), C(TX, TY, 0.73) * ang(0, 0, a - 90) * CFrame.new(0, 0.52, 0), i >= 5 and RED or BK)
+		end
 		local nd = B:bone("Needle", "Root", C(TX, TY, 0.76))
-		B:block(nd, v(0.08, 0.55, 0.04), C(TX, TY, 0.76) * CFrame.new(0, 0.25, 0), RED, { mat = "Neon" })
-		B:block(nd, v(0.18, 0.18, 0.06), C(TX, TY, 0.78), BK)
+		B:block(nd, v(0.09, 0.62, 0.04), C(TX, TY, 0.76) * CFrame.new(0, 0.28, 0), RED, { mat = "Neon" })
+		B:block(nd, v(0.2, 0.2, 0.06), C(TX, TY, 0.78), BK)
 		-- boost gauge (small) with a needle
 		local GX, GY = 1.55, 0.1
-		B:block("Root", v(0.9, 0.9, 0.06), C(GX, GY, 0.67), BK_D)
-		B:block("Root", v(0.75, 0.75, 0.06), C(GX, GY, 0.69) * ang(0, 0, 45), "#1d2a44")
-		B:block("Root", v(0.75, 0.75, 0.06), C(GX, GY, 0.69), "#1d2a44")
+		B:block("Root", v(0.9, 0.56, 0.06), C(GX, GY, 0.67), CH)
+		B:block("Root", v(0.56, 0.9, 0.06), C(GX, GY, 0.67), CH)
+		B:block("Root", v(0.76, 0.76, 0.06), C(GX, GY, 0.67), CH)
+		B:block("Root", v(0.62, 0.62, 0.06), C(GX, GY, 0.69), "#1d2a44")
 		local bn = B:bone("Boost", "Root", C(GX, GY, 0.74))
 		B:block(bn, v(0.06, 0.34, 0.04), C(GX, GY, 0.74) * CFrame.new(0, 0.15, 0), "#3dd6ff", { mat = "Neon" })
 		-- shift lights over the tach
 		local SL = { "#3dff6a", "#3dff6a", "#ffe23d", "#ffe23d", RED }
 		for i = 1, 5 do
-			B:block("Root", v(0.26, 0.18, 0.06), C(TX - 0.64 + (i - 1) * 0.32, 0.86, 0.66), SL[i], { mat = "Neon", name = "Shift" .. i })
+			B:block("Root", v(0.3, 0.2, 0.06), C(TX - 0.76 + (i - 1) * 0.38, 0.86, 0.66), SL[i], { mat = "Neon", name = "Shift" .. i })
 		end
 		-- gear indicator left of the tach + start button
 		B:block("Root", v(0.8, 0.9, 0.06), C(-1.75, 0.15, 0.67), BK_D)
@@ -226,6 +229,20 @@ return {
 		end)
 		local glow = B:block("Root", v(0.2, 0.2, 0.2), C(TX, TY, 0.4), BK, { tr = 1, name = "DashGlowSrc" })
 		B:light(glow, { color = FLAME, brightness = 0.5, range = 6, name = "DashGlow" })
+
+		------------------------------------------------------------------ race start-light gantry over the dash
+		B:sym(function()
+			B:block("Root", v(0.45, 2.3, 0.45), cf(2.9, 7.65, -4.4), BK)
+			B:block("Root", v(0.5, 0.5, 0.5), cf(2.9, 7.3, -4.4), Y)
+			B:block("Root", v(0.6, 0.3, 0.6), cf(2.9, 6.6, -4.4), BK_L)
+		end)
+		B:block("Root", v(6.4, 0.5, 0.6), cf(0, 8.95, -4.4), Y)
+		B:block("Root", v(6.2, 0.14, 0.64), cf(0, 8.72, -4.4), BK)
+		for i, gx in { -1.65, -0.55, 0.55, 1.65 } do
+			B:block("Root", v(0.8, 0.95, 0.5), cf(gx, 8.2, -4.4), BK_D)
+			B:block("Root", v(0.5, 0.34, 0.56), cf(gx, 8.38, -4.4), RED, { mat = "Neon", name = "Start" .. i })
+			B:block("Root", v(0.5, 0.26, 0.56), cf(gx, 7.96, -4.4), "#3dff6a", { mat = "Neon", name = "Go" .. i })
+		end
 
 		------------------------------------------------------------------ handrails
 		B:sym(function(side)

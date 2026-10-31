@@ -32,8 +32,8 @@ function M.Update(t, pose, ctx)
 		rev = 1 - E.backOut(k) * 0.75
 	end
 	local gear = math.floor(c) + 1
-	-- needle sweeps clockwise from 225 deg (0) to -45 deg (redline)
-	pose.Needle = L.ang(0, 0, 135 - rev * 270)
+	-- needle sweeps clockwise from the 210 deg tick (0) to the -30 deg tick (redline)
+	pose.Needle = L.ang(0, 0, 120 - rev * 240)
 	pose.Boost = L.ang(0, 0, 60 - rev * 120 + 6 * L.wave(t, 6))
 
 	local lit = math.floor(rev * 5.5)
@@ -60,6 +60,12 @@ function M.Update(t, pose, ctx)
 			ctx.emit("SmokeR", 5)
 			ctx.emit("SmokeL", 5)
 		end
+	end
+	-- start lights: one more red per gear, all green on the final shift
+	local go = c >= 3.82
+	for i = 1, 4 do
+		ctx.transparency("Start" .. i, (not go and i <= gear) and 0 or 0.9)
+		ctx.transparency("Go" .. i, go and 0 or 0.9)
 	end
 	ctx.light("DashGlow", 0.3 + 0.8 * rev)
 	ctx.transparency("TailR", 0.2 + 0.5 * (1 - rev))

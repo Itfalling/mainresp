@@ -27,6 +27,8 @@ function M.Update(t, pose, ctx)
 	local front = L.ang((t * 360) % 360, 0, 0) -- 1 rev/s
 	local rear = L.ang((t * 450) % 360, 0, 0) -- smaller hubs spin faster
 	pose.HubFR, pose.HubFL, pose.HubRR, pose.HubRL = front, front, rear, rear
+	-- giant rear snowflake: slow turn, whips an extra half-turn on the burst
+	pose.BigFlake = L.ang((45 * c + 180 * E.backOut(L.clamp01((c - 2.6) / 0.9))) % 360, 0, 0)
 
 	-- crystal: steady turn + an extra eased whirl through the burst
 	local extra = 360 * E.cubicInOut(L.clamp01((c - 2.45) / 1.1))
@@ -35,6 +37,7 @@ function M.Update(t, pose, ctx)
 	pose.Crystal = CFrame.new(0, bob, 0) * L.ang(8 * L.wave(t, 0.25) - 10 * wind, spin, 6 * L.wave(t, 0.5, 0.25))
 
 	-- shard ring orbits the other way (2 turns per loop), shards fly out on the burst
+	pose.FrostHalo = L.ang(0, (t * 270) % 360, 0)
 	pose.ShardRing = CFrame.new(0, 0.15 * L.wave(t, 0.5, 0.5), 0) * L.ang(0, -(180 * c) % 360, 0)
 	for k = 1, 3 do
 		local out = 0.9 * burst - 0.25 * wind
@@ -64,7 +67,7 @@ function M.Update(t, pose, ctx)
 	ctx.transparency("Led", (t * 2) % 1 < 0.5 and 0 or 0.7)
 
 	-- icicle tips twinkle one after another
-	for i = 1, 18 do
+	for i = 1, 22 do
 		local ph = (t * 1.5 + i * 0.37) % 1
 		ctx.transparency("IcTip" .. i, ph < 0.18 and 0 or 0.55)
 	end
@@ -77,6 +80,7 @@ function M.Update(t, pose, ctx)
 	ctx.transparency("SpTipL", (t * 2 + 0.5) % 1 < 0.5 and 0 or 0.4)
 	ctx.transparency("CrysCore", 0.15 * (1 - burst) + 0.1 * L.wave01(t, 1))
 	ctx.transparency("PedRing", burst > 0.2 and 0 or 0.4 + 0.3 * L.wave01(t, 1))
+	ctx.transparency("BridgeGlow", burst > 0.2 and 0 or 0.3 + 0.3 * L.wave01(t, 0.5))
 	ctx.light("CrystalLight", 0.8 + 1.0 * burst)
 
 	if ctx.crossed(2.7) then

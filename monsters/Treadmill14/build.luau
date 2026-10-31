@@ -26,6 +26,8 @@ return {
 			B:block("Root", v(0.1, 0.12, 10.6), cf(2.92, 1.08, -0.1), G2)
 			for i = 0, 3 do
 				B:block("Root", v(0.08, 0.42, 1.9), cf(2.9, 0.72, -3.0 + i * 2.1), W1)
+				B:block("Root", v(0.1, 0.12, 0.12), cf(2.95, 0.98, -3.0 + i * 2.1 - 0.75), G1)
+				B:block("Root", v(0.1, 0.12, 0.12), cf(2.95, 0.98, -3.0 + i * 2.1 + 0.75), G1)
 			end
 		end)
 		-- side running rails (where the runner can step aside)
@@ -63,9 +65,25 @@ return {
 		B:block("Root", v(4.8, 0.5, 1.2), cf(0, 1.3, 4.6), W2)
 		B:block("Root", v(4.9, 0.1, 1.25), cf(0, 1.58, 4.6), G2)
 		B:block("Root", v(3.4, 0.08, 0.3), cf(0, 1.6, 4.15), G3)
-		-- entry step
-		B:block("Root", v(3.6, 0.5, 0.9), cf(0, 0.55, 5.75), W2)
-		B:block("Root", v(3.7, 0.08, 1.0), cf(0, 0.83, 5.75), G2)
+		-- grand entry stairs
+		B:block("Root", v(3.8, 0.6, 0.8), cf(0, 0.6, 5.6), W1)
+		B:block("Root", v(3.9, 0.08, 0.85), cf(0, 0.92, 5.6), G2)
+		B:block("Root", v(4.4, 0.3, 0.8), cf(0, 0.15, 6.3), W2)
+		B:block("Root", v(4.5, 0.08, 0.85), cf(0, 0.33, 6.3), G2)
+		-- rear lanterns with flickering holy flames
+		B:sym(function(side)
+			local x, z = 2.45, 4.55
+			B:block("Root", v(0.6, 0.25, 0.6), cf(x, 1.68, z), G3)
+			B:block("Root", v(0.3, 0.8, 0.3), cf(x, 2.2, z), W1)
+			B:block("Root", v(0.62, 0.12, 0.62), cf(x, 2.62, z), G2)
+			for _, o in { { 0.24, 0.24 }, { -0.24, 0.24 }, { 0.24, -0.24 }, { -0.24, -0.24 } } do
+				B:block("Root", v(0.1, 0.55, 0.1), cf(x + o[1], 2.95, z + o[2]), G2)
+			end
+			B:block("Root", v(0.26, 0.36, 0.26), cf(x, 2.88, z), NGOLD, { mat = "Neon", name = "Flame" .. side })
+			B:block("Root", v(0.66, 0.14, 0.66), cf(x, 3.28, z), G2)
+			B:block("Root", v(0.38, 0.16, 0.38), cf(x, 3.42, z), G1)
+			B:block("Root", v(0.14, 0.2, 0.14), cf(x, 3.6, z), G1)
+		end)
 
 		----------------------------------------- sunburst roller hubs (spin)
 		for _, h in { { "HubFR", 2.98, -4.55 }, { "HubFL", -2.98, -4.55 }, { "HubRR", 2.98, 4.45 }, { "HubRL", -2.98, 4.45 } } do
@@ -126,14 +144,14 @@ return {
 		B:gem("Root", v(0.34, 0.4, 0.34), con * CFrame.new(0, 1.0, -0.1), NSKY)
 
 		-------------------------------- glory halo behind the console (spins)
-		local GC = v(0, 6.6, -5.25)
+		local GC = v(0, 6.4, -5.25)
 		local glory = B:bone("Glory", "Root", GC)
 		local gcf = CFrame.new(GC) * ang(90, 0, 0)
 		B:ring(glory, gcf, 2.4, 10, v(0.8, 0.5, 0.4), G2)
 		B:ring(glory, gcf * ang(0, 18, 0), 2.4, 10, v(0.8, 0.46, 0.4), G1)
 		B:ring(glory, gcf * ang(0, 9, 0), 2.0, 12, v(0.5, 0.2, 0.16), W1)
-		local rays = B:ring(glory, gcf * ang(0, 22.5, 0), 2.95, 8, v(0.3, 0.3, 0.75), W1)
-		B:ring(glory, gcf * ang(0, 22.5, 0) * CFrame.new(0, 0, 0), 3.4, 8, v(0.36, 0.34, 0.2), G2)
+		local rays = B:ring(glory, gcf * ang(0, 22.5, 0), 2.85, 8, v(0.3, 0.3, 0.7), W1)
+		B:ring(glory, gcf * ang(0, 22.5, 0) * CFrame.new(0, 0, 0), 3.25, 8, v(0.36, 0.34, 0.2), G2)
 		for i = 0, 3 do
 			B:block(glory, v(0.42, 0.6, 0.52), gcf * ang(0, i * 90, 0) * CFrame.new(0, 0, -2.4), NGOLD, { mat = "Neon", name = "GloryGem" .. (i + 1) })
 		end
@@ -149,10 +167,10 @@ return {
 		B:emitter(burstP, "burst", { color = { "#ffffff", NGOLD, NSKY }, size = { 0.7, 0.45, 0 }, name = "Burst" })
 
 		-- light cubes orbiting the glory halo
-		for i, m in { { 3.7, -5.75, G1, false }, { 3.7, -5.75, NSKY, true }, { 4.1, -4.9, W1, false }, { 4.1, -4.9, NGOLD, true } } do
-			local b = B:bone("Mote" .. i, "Root", v(0, 6.6, m[2]))
+		for i, m in { { 3.3, -5.75, G1, false }, { 3.3, -5.75, NSKY, true }, { 3.55, -4.9, W1, false }, { 3.55, -4.9, NGOLD, true } } do
+			local b = B:bone("Mote" .. i, "Root", v(0, 6.4, m[2]))
 			local a = math.rad(i * 90 + 20)
-			local p = v(math.cos(a) * m[1], 6.6 + math.sin(a) * m[1], m[2])
+			local p = v(math.cos(a) * m[1], 6.4 + math.sin(a) * m[1], m[2])
 			if m[4] then
 				B:block(b, v(0.3, 0.3, 0.3), CFrame.new(p) * ang(45, 45, 0), m[3], { mat = "Neon" })
 			else
@@ -177,12 +195,19 @@ return {
 			B:bar(w2, at(2.0, 1.95, 0), at(3.25, 2.55, 0), 0.34, 0.3, G1, { up = N })
 			B:gem(w2, v(0.36, 0.36, 0.36), WF * CFrame.new(3.3, 2.58, 0) * ang(0, 0, 45), NGOLD)
 			B:block(w1, v(0.62, 0.62, 0.62), WF * CFrame.new(1.45, 1.3, 0) * ang(0, 0, 45), G1)
+			local fi = 0
 			local function feather(bone, u, w, deg, len)
+				fi += 1
 				local du, dw = math.sin(math.rad(deg)), -math.cos(math.rad(deg))
 				local p, e = at(u, w), at(u + du * len, w + dw * len)
-				B:bar(bone, p, e, 0.62, 0.22, W1, { up = N })
+				B:bar(bone, p, e, 0.6, 0.22, fi % 2 == 0 and W2 or W1, { up = N })
 				B:bar(bone, at(u + du * (len - 0.5), w + dw * (len - 0.5)), at(u + du * (len + 0.03), w + dw * (len + 0.03)), 0.68, 0.26, G1, { up = N })
 				B:bar(bone, at(u, w, 0.17), at(u + du * len * 0.46, w + dw * len * 0.46, 0.17), 0.72, 0.16, W2, { up = N })
+			end
+			for k = 0, 5 do
+				local u = 0.1 + k * 0.55
+				local w = u <= 1.45 and (u / 1.45 * 1.3) or (1.3 + (u - 1.45) / 1.35 * 1.0)
+				B:block(k < 3 and w1 or w2, v(0.5, 0.36, 0.34), WF * CFrame.new(u, w + 0.3, 0.02) * ang(0, 0, 40 - k * 3), k % 2 == 0 and G1 or W1)
 			end
 			for _, f in { { 0.18, 4, 1.4 }, { 0.42, 11, 1.7 }, { 0.66, 18, 2.0 }, { 0.9, 26, 2.25 } } do
 				feather(w1, 1.45 * f[1], 1.3 * f[1], f[2], f[3])
@@ -202,6 +227,9 @@ return {
 			B:block("Root", v(1.5, 0.5, 1.5), cf(x, 0.25, AZ), W3)
 			B:block("Root", v(1.3, 0.2, 1.3), cf(x, 0.6, AZ), G2)
 			B:block("Root", v(0.95, 6.0, 0.95), cf(x, 3.7, AZ), W1)
+			B:block("Root", v(0.08, 5.6, 0.3), cf(x + 0.48, 3.75, AZ), W2)
+			B:block("Root", v(0.3, 5.6, 0.08), cf(x, 3.75, AZ - 0.48), W2)
+			B:block("Root", v(0.3, 5.6, 0.08), cf(x, 3.75, AZ + 0.48), W2)
 			B:block("Root", v(1.05, 0.2, 1.05), cf(x, 2.0, AZ), G1)
 			B:block("Root", v(1.05, 0.2, 1.05), cf(x, 5.2, AZ), G1)
 			B:block("Root", v(1.25, 0.3, 1.25), cf(x, 6.8, AZ), G2)
@@ -218,6 +246,19 @@ return {
 		B:block("Root", v(1.3, 0.95, 1.12), cf(0, 8.55, AZ), G2)
 		B:block("Root", v(0.9, 0.55, 1.18), cf(0, 8.55, AZ), G1)
 		B:gem("Root", v(0.36, 0.36, 1.24), cf(0, 8.55, AZ, 0, 0, 45), NSKY)
+
+		-- golden bells swinging under the arch
+		B:sym(function(side)
+			local bp = v(1.85, 7.72, AZ)
+			local bell = B:bone("Bell" .. side, "Root", bp)
+			B:block(bell, v(0.12, 0.4, 0.12), cf(1.85, 7.55, AZ), G3)
+			B:block(bell, v(0.4, 0.25, 0.4), cf(1.85, 7.3, AZ), G2)
+			B:block(bell, v(0.6, 0.35, 0.6), cf(1.85, 7.03, AZ), G2)
+			B:block(bell, v(0.78, 0.14, 0.78), cf(1.85, 6.8, AZ), G1)
+			B:block(bell, v(0.18, 0.18, 0.18), cf(1.85, 6.66, AZ), W1)
+		end)
+		-- heaven beam onto the runner (shown during the blessing)
+		B:block("Root", v(1.5, 4.6, 1.5), cf(0, 4.2, AZ), "#fff2b0", { mat = "Neon", tr = 1, name = "Beam" })
 
 		------------------------------------- floating halo above the runner
 		local HC = v(0, 7.35, AZ)

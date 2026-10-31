@@ -7,20 +7,22 @@ M.Cycle = 4
 local SPEED = 3.5 -- studs/s (14 per cycle: whole number of 1.0 periods)
 local PERIOD = 1.0 -- two-tone slat pattern repeats every 1.0 studs
 local PROFILE = { 1, 2, 3, 3, 4, 5, 4, 3, 2, 2, 3, 4, 5, 5, 3, 2 }
-local NECG = 11
+local NECG = 13
 
 function M.Update(t, pose, ctx)
 	pose.Belt = CFrame.new(0, 0, (t * SPEED) % PERIOD)
 	local spin = L.ang((t * 540) % 360, 0, 0) -- 6 turns per cycle
 	pose.HubFR, pose.HubFL, pose.HubRR, pose.HubRL = spin, spin, spin, spin
 	pose.Fan = L.ang(0, 0, -(t * 720) % 360)
+	pose.BackFan = L.ang(0, 0, (t * 540) % 360)
+	pose.Flywheel = L.ang((t * 450) % 360, 0, 0) -- 5 turns per cycle
 
 	-- scrolling bar graph (16 steps per cycle)
 	local step = math.floor(t * 4) % 16
-	for col = 1, 10 do
+	for col = 1, 12 do
 		local h = PROFILE[(col + step - 1) % 16 + 1]
 		for row = 1, 5 do
-			ctx.transparency(("Cell%d_%d"):format(col, row), row <= h and 0 or 0.88)
+			ctx.transparency(("Cell%d_%d"):format(col, row), row <= h and 0 or 0.96)
 		end
 	end
 
@@ -30,6 +32,10 @@ function M.Update(t, pose, ctx)
 	for i = 1, 5 do
 		ctx.transparency("Heart" .. i, beat)
 	end
+	for i = 1, 5 do
+		ctx.transparency("Beacon" .. i, beat * 0.9)
+	end
+	ctx.light("ScreenGlow", beat == 0 and 0.8 or 0.45)
 	ctx.transparency("GripR", beat)
 	ctx.transparency("GripL", beat)
 	-- ECG sweep: head runs across once per beat, short glowing tail

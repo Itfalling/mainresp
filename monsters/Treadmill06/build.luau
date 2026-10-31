@@ -22,7 +22,7 @@ return {
 			B:block("Root", v(0.5, 0.18, 9.1), cf(2.17, 0.3, 0), DK_D)
 			B:block("Root", v(0.3, 0.12, 8.6), cf(2.3, 0.62, 0), DK_L)
 			-- lower magenta pin-stripe
-			B:block("Root", v(0.06, 0.08, 8.4), cf(2.43, 0.42, 0), MG, { mat = "Neon" })
+			B:block("Root", v(0.05, 0.07, 8.4), cf(2.43, 0.42, 0), MG, { mat = "Neon" })
 			-- chase segments along the top outer edge
 			for i = 1, 14 do
 				B:block("Root", v(0.14, 0.14, 0.4), cf(2.42, 0.9, -3.4 + (i - 1) * 0.52), CY, { mat = "Neon", name = ("Chase%s%d"):format(side, i) })
@@ -41,7 +41,7 @@ return {
 		for i = 0, 15 do
 			local z = -3.75 + i * 0.5
 			B:block(belt, v(3.2, 0.07, 0.38), cf(0, 1.135, z), "#2a2d40")
-			B:block(belt, v(3.1, 0.05, 0.07), cf(0, 1.15, z + 0.25), CY, { mat = "Neon", name = "Seam" .. (i + 1) })
+			B:block(belt, v(3.1, 0.03, 0.06), cf(0, 1.16, z + 0.25), CY, { mat = "Neon", name = "Seam" .. (i + 1) })
 		end
 
 		------------------------------------------------------------------ motor hood: twin fans + neon chevron
@@ -100,12 +100,25 @@ return {
 			B:bar("Root", v(2.48, 2.0, -4.4), v(2.48, 5.4, -4.0), 0.06, 0.12, CY, { mat = "Neon" })
 			B:block("Root", v(0.85, 0.5, 0.85), cf(2.15, 1.95, -4.42), DK_L)
 			-- speaker pylon beside the upright
-			local px, pz = 3.05, -4.25
-			B:block("Root", v(0.9, 4.4, 1.0), cf(px, 2.3, pz), DK)
+			local px, pz = 3.85, -4.25
+			B:block("Root", v(0.9, 5.6, 1.0), cf(px, 2.9, pz), DK)
 			B:block("Root", v(1.0, 0.3, 1.1), cf(px, 0.15, pz), DK_D)
 			B:block("Root", v(1.0, 0.2, 1.1), cf(px, 4.55, pz), DK_L)
-			B:block("Root", v(0.7, 0.1, 0.8), cf(px, 4.7, pz), MG, { mat = "Neon", name = "Cap" .. side })
-			B:block("Root", v(0.4, 0.5, 0.4), cf(2.6, 2.4, pz), DK_D) -- brace to the upright
+			B:block("Root", v(0.06, 1.0, 0.1), cf(px + 0.46, 5.15, pz - 0.3), CY, { mat = "Neon" })
+			B:block("Root", v(1.0, 0.2, 1.1), cf(px, 5.75, pz), DK_L)
+			B:block("Root", v(0.7, 0.1, 0.8), cf(px, 5.9, pz), MG, { mat = "Neon", name = "Cap" .. side })
+			-- spinning club beacon on top
+			B:block("Root", v(0.4, 0.4, 0.4), cf(px, 6.1, pz), MET)
+			local bk = B:bone("Beacon" .. side, "Root", v(px, 6.4, pz))
+			B:block(bk, v(1.3, 0.16, 0.16), cf(px, 6.4, pz), DK_L)
+			B:block(bk, v(0.22, 0.22, 0.22), cf(px + 0.65, 6.4, pz), CY, { mat = "Neon" })
+			B:block(bk, v(0.22, 0.22, 0.22), cf(px - 0.65, 6.4, pz), MG, { mat = "Neon" })
+			B:block(bk, v(0.3, 0.3, 0.3), cf(px, 6.4, pz), DK)
+			B:trail(bk, v(px + 0.65, 6.5, pz), v(px + 0.65, 6.3, pz), { color = CY, life = 0.3, name = "BeamA" .. side })
+			B:trail(bk, v(px - 0.65, 6.5, pz), v(px - 0.65, 6.3, pz), { color = MG, life = 0.3, name = "BeamB" .. side })
+			B:block("Root", v(1.2, 0.4, 0.4), cf(2.95, 2.4, pz), DK_D) -- braces to the upright
+			B:block("Root", v(1.2, 0.4, 0.4), cf(2.95, 4.2, pz), DK_D)
+			B:block("Root", v(1.22, 0.06, 0.1), cf(2.95, 4.2, pz - 0.2), MG, { mat = "Neon" })
 			-- woofers on the front face (pump on the beat)
 			for k, wy in { 1.25, 3.35 } do
 				B:block("Root", v(0.8, 0.8, 0.06), cf(px, wy, pz - 0.52), DK_D)
@@ -153,16 +166,20 @@ return {
 		-- track map: a loop of 14 segments, the lit one is the runner
 		local TX, TY = SX - 0.75, SY + 0.05
 		local trk = {}
-		for i = 0, 4 do table.insert(trk, { -0.96 + i * 0.48, 0.42, 0.42, 0.1 }) end -- top, left->right
-		table.insert(trk, { 1.2, 0.14, 0.1, 0.4 })
-		table.insert(trk, { 1.2, -0.28, 0.1, 0.4 })
-		for i = 4, 0, -1 do table.insert(trk, { -0.96 + i * 0.48, -0.48, 0.42, 0.1 }) end -- bottom, right->left
-		table.insert(trk, { -1.2, -0.28, 0.1, 0.4 })
-		table.insert(trk, { -1.2, 0.14, 0.1, 0.4 })
+		for i = 0, 4 do table.insert(trk, { -0.96 + i * 0.48, 0.42, 0.42, 0.14 }) end -- top, left->right
+		table.insert(trk, { 1.2, 0.14, 0.14, 0.4 })
+		table.insert(trk, { 1.2, -0.28, 0.14, 0.4 })
+		for i = 4, 0, -1 do table.insert(trk, { -0.96 + i * 0.48, -0.48, 0.42, 0.14 }) end -- bottom, right->left
+		table.insert(trk, { -1.2, -0.28, 0.14, 0.4 })
+		table.insert(trk, { -1.2, 0.14, 0.14, 0.4 })
 		for i, sg in trk do
 			B:block("Root", v(sg[3], sg[4], 0.05), C(TX + sg[1], TY + sg[2], 0.7), CY, { mat = "Neon", name = "Trk" .. i })
 		end
 		B:block("Root", v(2.0, 0.55, 0.05), C(TX, TY - 0.03, 0.695), "#10203a")
+		-- distance progress bar inside the track (fills over the loop)
+		for k = 1, 6 do
+			B:block("Root", v(0.24, 0.16, 0.05), C(TX - 0.75 + (k - 1) * 0.3, TY - 0.03, 0.71), MG, { mat = "Neon", name = "Dist" .. k })
+		end
 		-- rising speed bars
 		for i = 1, 6 do
 			local hgt = 0.18 + (i - 1) * 0.15

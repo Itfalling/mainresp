@@ -77,7 +77,7 @@ function M.Update(t, pose, ctx)
 	for i = 1, 8 do
 		ctx.transparency("Bar" .. i, i <= lit and 0 or 0.85)
 	end
-	local beat = L.bounce(t, 1) -- 2 beats per second
+	local beat = L.bounce(t, 1) -- 1 beat per second
 	ctx.transparency("PulseH", 0.6 - 0.6 * beat)
 	ctx.transparency("PulseV", 0.6 - 0.6 * beat)
 
@@ -88,6 +88,15 @@ function M.Update(t, pose, ctx)
 	end
 	ctx.light("GloryLight", 0.8 + 1.0 * flash)
 	ctx.light("HaloLight", 0.7 + 0.2 * wave(t, hz(3)) + 0.8 * hop)
+	-- bells swing (2 swings per second... 1 Hz), ring hard on the beat
+	local bellAmp = 10 + 22 * flap
+	pose.BellR = ang(0, 0, bellAmp * wave(t, hz(6)))
+	pose.BellL = ang(0, 0, -bellAmp * wave(t, hz(6), 0.15))
+	-- lantern flames flicker
+	ctx.transparency("FlameR", 0.15 + 0.25 * L.wave01(t, hz(15)) * L.wave01(t, hz(9), 0.3))
+	ctx.transparency("FlameL", 0.15 + 0.25 * L.wave01(t, hz(15), 0.4) * L.wave01(t, hz(9), 0.7))
+	-- heaven beam shines down on the runner during the blessing
+	ctx.transparency("Beam", 1 - 0.55 * L.env(c, 3.45, 0.12, 0.5, 1.0, "quadOut", "quadIn"))
 	if ctx.crossed(3.5) then
 		ctx.emit("Burst", 45)
 	end

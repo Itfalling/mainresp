@@ -88,6 +88,9 @@ return {
 			tipN += 1
 			B:block("Root", v(w * 0.3, len * 0.16, w * 0.3), CFrame.new(top - Vector3.new(0, len * 0.98, 0)), NEON2, { mat = "Neon", name = "IcTip" .. tipN })
 		end
+		for i, x in { -1.2, -0.4, 0.4, 1.2 } do
+			icicle(Vector3.new(x, 4.75, 4.3), ({ 0.6, 0.85, 0.7, 0.5 })[i], 0.24)
+		end
 		for i, x in { -2.0, -1.2, -0.4, 0.4, 1.2, 2.0 } do
 			icicle(Vector3.new(x, 1.95, -5.05), ({ 0.7, 0.5, 0.8, 0.6, 0.45, 0.75 })[i], 0.26)
 		end
@@ -125,9 +128,9 @@ return {
 
 		------------------------------------------ snowflake roller hubs
 		-- 6-arm snowflakes in the YZ plane, spinning about X.
-		local function snowflake(name, x, y, z, r, trail)
-			local b = B:bone(name, "Root", v(x, y, z))
-			local c = cf(x, y, z)
+		local function snowflake(name, x, y, z, r, trail, base)
+			local c = base or cf(x, y, z)
+			local b = B:bone(name, "Root", c)
 			for k = 0, 2 do
 				B:block(b, v(0.18, 0.2, 2 * r), c * ang(60 * k, 0, 0), ICE_L)
 			end
@@ -139,13 +142,22 @@ return {
 			B:block(b, v(0.24, 0.5 * r + 0.1, 0.5 * r + 0.1), c * ang(45, 0, 0), ICE_D)
 			B:block(b, v(0.28, 0.22, 0.22), c, NEON, { mat = "Neon" })
 			if trail then
-				B:trail(b, v(x, y + r * 0.7, z), v(x, y + r, z), { color = { NEON2, NEON }, life = 0.22, trans = { 0.3, 1 }, name = name .. "Trail" })
+				B:trail(b, v(x, y + r * 0.6, z), v(x, y + r, z), { color = { NEON2, NEON }, life = 0.22, trans = { 0.3, 1 }, name = name .. "Trail" })
 			end
 		end
 		snowflake("HubFR", 2.66, 1.45, -4.2, 0.75, true)
 		snowflake("HubFL", -2.66, 1.45, -4.2, 0.75, true)
 		snowflake("HubRR", 2.66, 1.3, 4.25, 0.6, false)
 		snowflake("HubRL", -2.66, 1.3, 4.25, 0.6, false)
+
+		-------------------------------- rear ice bridge + giant snowflake
+		B:block("Root", v(3.4, 0.55, 0.9), cf(0, 5.25, 4.3), ICE, { tr = CR })
+		B:block("Root", v(3.0, 0.2, 1.0), cf(0, 5.6, 4.3), SNOW)
+		B:block("Root", v(2.2, 0.25, 0.7), cf(0, 4.88, 4.3), GLASS, { tr = CR })
+		B:block("Root", v(1.0, 0.35, 0.8), cf(0, 5.85, 4.3), ICE_D)
+		B:block("Root", v(0.9, 0.08, 0.85), cf(0, 5.72, 4.3), NEON, { mat = "Neon", name = "BridgeGlow" })
+		-- giant snowflake spinning about Z above the bridge (faces the camera behind)
+		snowflake("BigFlake", 0, 7.3, 4.3, 1.3, true, cf(0, 7.3, 4.3) * ang(0, 90, 0))
 
 		------------------------------------------------------ uprights
 		B:sym(function()
@@ -204,12 +216,11 @@ return {
 		B:block("Root", v(1.6, 0.35, 1.2), cf(0, 6.45, -4.15), ICE_D)
 		B:block("Root", v(1.2, 0.3, 0.9), cf(0, 6.75, -4.15), ICE_L)
 		B:block("Root", v(1.3, 0.08, 1.0), cf(0, 6.62, -4.15), NEON, { mat = "Neon", name = "PedRing" })
-		B:block("Root", v(0.7, 0.2, 0.5), cf(0, 6.98, -4.15), SNOW)
 
 		------------------------------------------ rotating ice crystal
 		-- tall faceted bipyramid: stepped layers alternately turned 45 degrees,
 		-- translucent so the glowing core shows through.
-		local CY = 8.1
+		local CY = 7.9
 		local crys = B:bone("Crystal", "Root", v(0, CY, -4.15))
 		local layers = { { 0.25, -1.45, 0.3 }, { 0.5, -1.15, 0.35 }, { 0.78, -0.8, 0.4 }, { 1.05, -0.4, 0.45 }, { 1.25, 0.05, 0.5 }, { 1.05, 0.5, 0.45 }, { 0.8, 0.92, 0.42 }, { 0.55, 1.3, 0.38 }, { 0.32, 1.64, 0.34 } }
 		for i, l in layers do
