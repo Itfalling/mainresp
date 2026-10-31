@@ -112,6 +112,20 @@ function M.Update(t, pose, ctx)
 		ctx.transparency("Sheet" .. k, tr)
 	end
 
+	-- veins: dim crackle crawling along each one, full blaze on strikes
+	for n = 1, 8 do
+		local base = (t * (1 + (n % 3) * 0.5) + n * 0.17) % 1
+		for k = 1, 3 do
+			local tr = 0.85
+			if anyBolt then
+				tr = (math.floor(c * 20 + n + k) % 3 == 0) and 0.6 or 0
+			elseif base < 0.3 and math.floor(base * 10) == k - 1 then
+				tr = 0.1
+			end
+			ctx.transparency(("Vein%d_%d"):format(n, k), tr)
+		end
+	end
+
 	-- cloud flashes
 	for k = 1, 4 do
 		local on = anyBolt and (boltOn[k] or big > 0.3) and math.floor(c * 20 + k) % 2 == 0

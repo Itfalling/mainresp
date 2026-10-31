@@ -187,6 +187,24 @@ return {
 		for k, p in { { 0, -1.75, 5.0, 0.12 }, { 0, 3.75, 5.0, 0.12 }, { 3.0, 1.0, 0.12, 4.6 }, { -3.0, 1.0, 0.12, 4.6 }, { -1.6, 1.6, 1.6, 0.1 }, { 1.4, -0.5, 1.4, 0.1 } } do
 			B:block(cloud, v(p[3], 0.08, p[4]), cf(p[1], 7.78, p[2]), k % 2 == 0 and ELEC or BOLT, { mat = "Neon", name = "Sheet" .. k })
 		end
+		-- crackling lightning veins on the cloud's outer faces
+		local veins = {
+			{ "x", 4.12, -1.0, 0.9, 8.75 }, { "x", 4.12, 1.8, 3.4, 8.85 },
+			{ "x", -4.02, -1.3, 0.5, 8.8 }, { "x", -4.22, 1.3, 3.2, 8.7 },
+			{ "z", -2.82, -2.0, 0.1, 8.7 }, { "z", -2.72, 0.6, 2.2, 8.85 },
+			{ "z", 4.92, -2.4, -0.4, 8.75 }, { "z", 4.92, 0.5, 2.3, 8.7 },
+		}
+		for n, vn in veins do
+			local pts = {}
+			for k = 0, 3 do
+				local u = vn[3] + (vn[4] - vn[3]) * k / 3
+				local y = vn[5] - k * 0.17 + (k % 2 == 1 and -0.28 or 0.12)
+				pts[k + 1] = vn[1] == "x" and v(vn[2], y, u) or v(u, y, vn[2])
+			end
+			for k = 1, 3 do
+				B:bar(cloud, pts[k], pts[k + 1], 0.1, 0.1, n % 2 == 0 and ELEC or BOLT, { mat = "Neon", name = ("Vein%d_%d"):format(n, k) })
+			end
+		end
 		local rainPlate = B:block(cloud, v(5.6, 0.2, 5.4), cf(0, 7.7, CZ), CL_D, { tr = 1 })
 		B:emitter(rainPlate, "drip", { color = { "#bfe8ff", "#7fc8ff" }, rate = 22, size = { 0.12, 0.1, 0.06 }, life = { 0.35, 0.55 }, speed = { 4, 6 }, accel = { 0, -30, 0 }, name = "Rain" })
 		B:emitter(B:block(cloud, v(6.5, 0.6, 5.5), cf(0, 8.8, CZ), CL_M, { tr = 1 }), "smoke", { color = { "#c9d0dc", "#8a93a6" }, rate = 3, size = { 1.5, 3, 4 }, speed = { 0.2, 0.6 }, accel = { 0, 0.2, 0 }, name = "CloudMist" })
