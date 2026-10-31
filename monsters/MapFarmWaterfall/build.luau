@@ -488,14 +488,14 @@ return {
 		-- dressing: bushes, flowers, tufts, nubs
 		------------------------------------------------------------------
 		-- top
-		bush(-8.0, 44.4, 13.0, 0.9, RED)
+		bush(-8.0, 44.4, 13.0, 0.6, RED)
 		bush(7.5, 43.4, 9.5, 0.8, nil)
 		bush(16.8, 26.4, 12, 1.0, PINK)
 		bush(-17.2, 26.4, 9, 0.9, nil)
 		bush(12, 34.4, 10, 0.75, YELLOW)
 		bush(-12, 34.4, 13, 0.8, RED)
 		bush(18.4, 14.4, -2, 0.75, nil)
-		bush(-19.0, 14.4, -7, 0.7, PINK)
+		bush(-18.5, 14.4, -7, 0.7, PINK)
 		bush(11.4, 18.4, 0.5, 0.65, nil)
 		for _, f in {
 			{ -6.4, 44.4, 8.4, PINK }, { -9.0, 44.4, 9.6, WHITE }, { 6.2, 43.4, 13.6, YELLOW }, { 8.8, 43.4, 12.2, PINK },
@@ -551,6 +551,21 @@ return {
 		ivy(-12.2, 18, -4.25, 5)
 		ivy(15.8, 26, 3.75, 4)
 		ivy(-15.0, 26, 3.75, 5)
+		-- reeds / cattails at the pool edges
+		local function reeds(x, z, n)
+			for k = 1, n do
+				local ox, oz = rnd(-0.7, 0.7), rnd(-0.6, 0.6)
+				local h = rnd(1.8, 2.8)
+				B:block(R, v(0.2, h, 0.2), cf(x + ox, 0.25 + h / 2, z + oz, rnd(-6, 6), 0, rnd(-8, 8)), (k % 2 == 0) and GRASS_DK or GRASS)
+				if k % 2 == 1 then
+					B:block(R, v(0.38, 0.7, 0.38), cf(x + ox, 0.25 + h - 0.1, z + oz, rnd(-6, 6), 0, rnd(-8, 8)), WOOD_DK)
+				end
+			end
+			B:block(R, v(0.6, 0.9, 0.25), cf(x + 0.5, 0.7, z - 0.4, 0, 30, -20), GRASS2)
+		end
+		reeds(12.0, -14.0, 4)
+		reeds(-13.6, -14.2, 3)
+		reeds(12.2, -4.6, 3)
 		-- dirt nubs on cliff faces (texture)
 		for _ = 1, 14 do
 			local face = floor(rnd(0, 4))

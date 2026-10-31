@@ -561,7 +561,7 @@ return {
 		B:block(R, v(1.1, 0.25, bl * 0.6), bf * CFrame.new(0, 0.85, 0.8), MOSS)
 		B:block(R, v(0.8, 0.25, 2.2), bf * CFrame.new(0.1, 0.92, -3.6), MOSS_LT)
 		gtoad((bf * CFrame.new(0.1, 0.9, -2.2)).Position, 0.6, GLOW_V, 0)
-		rose((bf * CFrame.new(0, 1.0, 3.6)).Position + v(0, 0.3, 0), v(0, 0.6, -1), 0.7)
+		rose((bf * CFrame.new(0, 0.95, 3.6)).Position, v(0, 0.3, -1), 0.6)
 
 		------------------------------------------------------------------
 		-- gnarled roots over the lips and down the faces
@@ -612,7 +612,7 @@ return {
 		bramble(17.0, 26.45, 11.0, 1.0, 3)
 		bramble(-17.4, 26.45, 9.0, 0.95, 2)
 		bramble(12.0, 34.45, 12.0, 0.8, 2)
-		bramble(-8.0, 44.45, 13.5, 0.6, 2)
+		bramble(-8.0, 44.45, 13.5, 0.6, 1)
 		bramble(18.6, 14.45, -4.0, 0.75, 2)
 		fern(14.0, 5.4, -5.0, 2.0, 10)
 		fern(-14.6, 5.4, -12.0, 2.0, 40)
@@ -627,6 +627,12 @@ return {
 		gtoad(v(-16.4, 26.45, 6.0), 1.2, GLOW_V, 0)
 		gtoad(v(18.6, 14.45, -13.0), 1.0, GLOW_T, 0)
 		gtoad(v(7.6, 43.45, 13.0), 1.0, GLOW_V, 0)
+		-- toadstools on a pool boulder, ferns at the pool corners
+		gtoad(v(7.7, 2.15, -9.6), 0.8, GLOW_V, 0)
+		fern(-12.4, 0.9, -13.8, 1.7, 15)
+		fern(12.0, 0.9, -13.8, 1.6, 55)
+		B:block(R, v(1.6, 0.9, 1.6), cf(-12.4, 0.45, -13.8, 0, 20, 0), STONE_DK)
+		B:block(R, v(1.6, 0.9, 1.6), cf(12.0, 0.45, -13.8, 0, -15, 0), STONE)
 		outcrop(-7.6, 29.5, 5, 1.0)
 		outcrop(7.4, 31.0, 5, 0.9)
 		outcrop(12.0, 25.5, 3, 0.9)

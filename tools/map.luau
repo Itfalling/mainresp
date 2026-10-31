@@ -730,13 +730,13 @@ for k, b in BIOMES do
 							break
 						end
 						place(f, id, side * math.max(mid, inner + hx * 0.75), T1, zz + hz, yaw)
-						zz += hz * 2 + rint(math.max(3, 14 - k), math.max(7, 18 - k))
+						zz += hz * 2 + rint(math.max(3, 11 - k), math.max(6, 15 - k))
 					end
 				end
 			end
 
 			-- 3) second / third tiers: one big piece per segment for a layered backdrop
-			if kind ~= "waterfall" and rnd() < 0.3 + 0.05 * k then
+			if kind ~= "waterfall" and rnd() < 0.45 + 0.04 * k then
 				local id = nextScenery()
 				local e = getModel(id)
 				if e then
@@ -873,7 +873,7 @@ for k, b in BIOMES do
 			bunting(f, zs + zz, 23, 5, { "#ff8a1f", "#e8452c", "#ffc93a", "#9a5a2a" }, { tip = i == 2 and "#ffb347" or nil })
 		end
 	elseif k == 5 then
-		for _, zz in { 26, 52, 78, 108, 134 } do
+		for _, zz in { 26, 52, 78, 104 } do
 			vineCurtain(f, zs + zz, 25, 4)
 		end
 		-- glowing pods dotting the cliff faces
@@ -1263,6 +1263,7 @@ local cams = {
 	start = { 0, 9, 8, 0, 6, 80 },
 	sky = { 230, 260, -120, 0, 0, 520 },
 	skyfar = { 420, 520, -260, 0, 0, 760 },
+	overview = { 520, 560, ZEND * 0.5 - 380, 0, 0, ZEND * 0.5 + 60 },
 }
 for k, b in BIOMES do
 	local zs = stageZ(k)
