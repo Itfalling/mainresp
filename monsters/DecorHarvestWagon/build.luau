@@ -225,7 +225,7 @@ return {
 		local gtop = pumpkin(gp, 2.2, OR2)
 		stemTop(gtop, 2.2 / 2.6, 60, true)
 		for _, l in { { -4.2, -2.75, LF_RED, 20 }, { 2.6, -2.75, LF_GOLD, -15 }, { 5.3, 1.0, LF_OR, 30 } } do
-			B:block(root, v(0.8, 0.8, 0.14), cf(l[1], BY + 2.0, l[2], 0, 0, l[4]), l[3])
+			B:block(root, v(0.75, 0.75, 0.14), cf(l[1], BY + 2.0, l[2], 0, 0, 45 + l[4] * 0.5), l[3])
 		end
 	end,
 }

@@ -156,7 +156,7 @@ return {
 			end
 		end
 		-- the STAR (8 points, built in the X-Y plane, thickened + a crossed copy)
-		local SC = CFrame.new(0, R0 + 3.05, 0)
+		local SC = CFrame.new(0, R0 + 3.05, 0) * ang(0, -45, 0) -- turned to face the front-right corner so it reads from front, side and 3/4
 		-- stepped points: thick inner segment + thin tip, four long + four short
 		for k = 0, 3 do
 			local A = SC * ang(0, 0, k * 90)

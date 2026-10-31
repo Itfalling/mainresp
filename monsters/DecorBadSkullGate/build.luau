@@ -33,7 +33,7 @@ return {
 		local BONE_LT, BONE, BONE_DK, BONE_SH = "#fbf1d8", "#efe0bc", "#d8c398", "#b89f74"
 		local STAIN = "#c08a5a"
 		local SOCK, MOUTH = "#2a1f24", "#3a2228"
-		local TONGUE, TONGUE_DK = "#9a4450", "#7a3340"
+		local TONGUE, TONGUE_DK = "#8e4a52", "#6c3842"
 		local TEAL, TEAL_LT, TEAL_DK = "#2fe0c8", "#9affee", "#1f8f86"
 		local LAVA, LAVA_Y = "#ff7a1a", "#ffb43a"
 		local WOOD_DK, WOOD, WOOD_LT = "#3a2f2c", "#54443e", "#6e5c54"
@@ -290,7 +290,7 @@ return {
 
 		-- big round eye sockets with teal glow crystals
 		local sockets = {}
-		local FZ = ZC
+		local FZ = ZC - 0.42
 		for sg = -1, 1, 2 do
 			local x, y = sg * 3.3, 13.7
 			B:block(R, v(3.2, 3.2, 0.3), cf(x, y, FZ - 0.1), SOCK)
