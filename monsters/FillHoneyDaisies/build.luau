@@ -35,7 +35,7 @@ return {
 			local base, top = v(bx, 0.2, bz), v(tx, ty, tz)
 			B:bar(R, base, top, 0.22, 0.22, STEM)
 			local lean = v(tx - bx, 0, tz - bz)
-			local tilt = math.clamp(lean.Magnitude * 18, 0, 35)
+			local tilt = math.clamp(lean.Magnitude * 24, 0, 35)
 			local yaw = lean.Magnitude > 0.01 and math.deg(math.atan2(-lean.X, -lean.Z)) or 0
 			local h = CFrame.new(top) * ang(0, yaw, 0) * ang(-tilt, 0, 0) * ang(0, spin, 0)
 			B:block(R, v(1.5 * s, 0.18, 0.55 * s), h, DAISY)

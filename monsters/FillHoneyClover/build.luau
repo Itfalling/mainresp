@@ -21,7 +21,7 @@ return {
 		local CLV_FL, CLV_TIP = "#fff4f8", "#ffb6d0"
 
 		-- flat grass footing
-		B:block(R, v(2.8, 0.16, 2.2), cf(0, 0.08, 0, 0, 25, 0), GR_DK)
+		B:block(R, v(2.2, 0.16, 1.6), cf(0, 0.08, 0, 0, 25, 0), GR_DK)
 
 		-- clover: three heart leaflets around a point (stem only if raised)
 		local function clover(x, z, y, s, yaw, col)
@@ -39,15 +39,15 @@ return {
 		clover(0.0, 0.1, 1.0, 1.2, 10, LEAF)
 		clover(1.25, -0.45, 0.55, 1.0, 50, LEAF_DK)
 		clover(-1.2, -0.3, 0.7, 1.05, -30, LEAF)
-		clover(0.7, 1.05, 0.45, 0.9, 80, LEAF)
+		clover(0.7, 1.05, 0.45, 0.9, 80, LEAF_LT)
 		clover(-0.6, -1.25, 0.4, 0.9, 25, LEAF_DK)
 
 		-- clover blossoms: pink base under a white stepped pom
 		local function blossom(x, z, y, lean)
 			local top = v(x + lean.X, y, z + lean.Z)
 			B:bar(R, v(x, 0.15, z), top, 0.16, 0.16, STEM)
-			B:block(R, v(0.48, 0.32, 0.48), CFrame.new(top + v(0, 0.12, 0)) * ang(0, 45, 0), CLV_TIP)
-			B:block(R, v(0.62, 0.5, 0.62), CFrame.new(top + v(0, 0.48, 0)), CLV_FL)
+			B:block(R, v(0.55, 0.3, 0.55), CFrame.new(top + v(0, 0.1, 0)), CLV_TIP)
+			B:block(R, v(0.5, 0.62, 0.5), CFrame.new(top + v(0, 0.5, 0)) * ang(0, 45, 0), CLV_FL)
 		end
 		blossom(0.4, -0.2, 1.65, v(0.3, 0, -0.15))
 		blossom(-0.5, 0.5, 1.35, v(-0.3, 0, 0.25))

@@ -39,13 +39,18 @@ return {
 				local x = 0.45 + (HALF - 0.45) * u
 				return v(s * x, HOOK - SAG * (1 - (1 - u) ^ 2), -0.05)
 			end
-			local a, m, b = pt(0), pt(0.5), pt(1)
-			B:bar(R, a, m, 0.55, 0.55, VELVET)
-			B:bar(R, m, b - v(s * 0.2, 0, 0), 0.55, 0.55, VELVET)
-			B:block(R, v(0.62, 0.62, 0.62), CFrame.new(m) * P.ang(45, 0, 0), VELVET_DK)
+			local a, b = pt(0), pt(1)
+			local tip = b - v(s * 0.2, 0, 0)
+			local p1, p2 = pt(1 / 3), pt(2 / 3)
+			B:bar(R, a, p1, 0.55, 0.55, VELVET)
+			B:bar(R, p1, p2, 0.55, 0.55, VELVET)
+			B:bar(R, p2, tip, 0.55, 0.55, VELVET)
+			for _, k in { p1, p2 } do
+				B:block(R, v(0.62, 0.62, 0.62), CFrame.new(k) * P.ang(45, 0, 0), VELVET_DK)
+			end
 			-- gold clip at the hook, gold end cap at the stub tip
 			B:block(R, v(0.55, 0.5, 0.7), CFrame.new(a), GOLD_DK)
-			B:block(R, v(0.4, 0.62, 0.62), CFrame.new(b - v(s * 0.2, 0, 0)), GOLD)
+			B:block(R, v(0.4, 0.66, 0.66), CFrame.new(tip), GOLD)
 		end
 	end,
 }
