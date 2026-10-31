@@ -95,6 +95,23 @@ function M.Update(t, pose, ctx)
 	ctx.transparency("CoilR", (arcOn or charge > 0.95) and 0 or 0.5 - 0.4 * charge)
 	ctx.transparency("CoilL", (arcOn or charge > 0.95) and 0 or 0.5 - 0.4 * charge)
 
+	-- charge climbs the pylons (faster as the storm charges), strobes on strikes
+	for k = 1, 6 do
+		local ph = (t * 2 - k / 6) % 1
+		local on = ph < 0.35 or anyBolt
+		ctx.transparency("UpR" .. k, on and 0 or 0.8)
+		ctx.transparency("UpL" .. k, on and 0 or 0.8)
+	end
+	-- sheet lightning inside the cloud: soft glow + random-looking flickers
+	for k = 1, 6 do
+		local fk = (t * (1.5 + k * 0.5) + k * 0.31) % 1
+		local tr = 0.7 - 0.25 * L.wave01(t, 1, k / 6)
+		if fk < 0.08 or anyBolt then
+			tr = 0
+		end
+		ctx.transparency("Sheet" .. k, tr)
+	end
+
 	-- cloud flashes
 	for k = 1, 4 do
 		local on = anyBolt and (boltOn[k] or big > 0.3) and math.floor(c * 20 + k) % 2 == 0

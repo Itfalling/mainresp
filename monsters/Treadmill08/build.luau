@@ -262,6 +262,8 @@ return {
 		B:emitter(core, "sparkle", { color = { "#ffffff", G1 }, rate = 8, size = { 0.15, 0.5, 0 }, name = "JewelSparkle" })
 		B:emitter(core, "burst", { color = { "#fff6b8", G2 }, size = { 0.5, 0.35, 0 }, speed = { 5, 9 }, name = "Shine" })
 		B:light(core, { color = "#ffd76a", brightness = 0.9, range = 10, name = "JewelLight" })
+		local vault = B:block("Root", v(3.0, 0.1, 0.5), cf(0, 2.75, -4.35), G1, { tr = 1, name = "CoinSrc" })
+		B:emitter(vault, "burst", { color = { G1, G2 }, size = { 0.35, 0.3, 0.1 }, speed = { 4, 7 }, spread = 35, accel = { 0, -16, 0 }, rotSpeed = { -360, 360 }, name = "CoinBurst" })
 		local railR = B:block("Root", v(0.2, 0.1, 6.8), cf(2.12, 1.7, 0.25), G1, { tr = 1, name = "SparkR" })
 		local railL = B:block("Root", v(0.2, 0.1, 6.8), cf(-2.12, 1.7, 0.25), G1, { tr = 1, name = "SparkL" })
 		B:emitter(railR, "sparkle", { color = { "#ffffff", G1 }, rate = 3, size = { 0.1, 0.3, 0 }, name = "RailSparkR" })

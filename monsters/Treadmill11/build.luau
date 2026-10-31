@@ -126,6 +126,31 @@ return {
 			B:block("Root", v(1.0, 0.2, 1.0), cf(x, 3.8, 4.3, 0, 45, 0), SNOW)
 		end
 
+		------------------------------- side crystal pylons + floating crystals
+		for _, s in { 1, -1 } do
+			local x, z = 3.45 * s, 0.6
+			local tag = s > 0 and "R" or "L"
+			B:block("Root", v(1.6, 0.5, 1.8), cf(x - 0.35 * s, 0.25, z), NAVY_D)
+			B:block("Root", v(1.4, 0.4, 1.4), cf(x, 0.7, z), ICE_D)
+			B:block("Root", v(1.5, 0.1, 1.5), cf(x, 0.95, z), ICE_L)
+			B:block("Root", v(0.95, 1.8, 0.95), cf(x, 1.9, z, 0, 45, 0), ICE, { tr = CR })
+			B:block("Root", v(0.7, 1.4, 0.7), cf(x, 3.4, z), GLASS, { tr = CR })
+			B:block("Root", v(0.45, 0.6, 0.45), cf(x, 4.35, z, 0, 45, 0), ICE, { tr = CR })
+			B:block("Root", v(0.26, 3.0, 0.26), cf(x, 2.6, z), NEON, { mat = "Neon", name = "PyCore" .. tag })
+			B:block("Root", v(1.0, 0.2, 1.0), cf(x, 2.85, z, 0, 45, 0), SNOW)
+			B:block("Root", v(0.4, 1.2, 0.4), cf(x + 0.45 * s, 1.5, z - 0.55, -15, 45, -20 * s), ICE, { tr = CR })
+			B:block("Root", v(0.35, 0.9, 0.35), cf(x + 0.5 * s, 1.3, z + 0.6, 18, 45, -16 * s), GLASS, { tr = CR })
+			-- floating crystal above the pylon (spins + bobs)
+			local fy = 5.6
+			local fb = B:bone("Float" .. tag, "Root", v(x, fy, z))
+			B:block(fb, v(0.55, 0.7, 0.55), cf(x, fy, z, 0, 45, 0), ICE, { tr = 0.25 })
+			B:block(fb, v(0.36, 0.45, 0.36), cf(x, fy + 0.55, z), GLASS, { tr = 0.25 })
+			B:block(fb, v(0.36, 0.45, 0.36), cf(x, fy - 0.55, z), GLASS, { tr = 0.25 })
+			B:block(fb, v(0.16, 0.3, 0.16), cf(x, fy + 0.9, z), NEON2, { mat = "Neon" })
+			B:block(fb, v(0.16, 0.3, 0.16), cf(x, fy - 0.9, z), NEON2, { mat = "Neon" })
+			B:block(fb, v(0.24, 0.9, 0.24), cf(x, fy, z, 0, 22, 0), NEON, { mat = "Neon" })
+		end
+
 		------------------------------------------ snowflake roller hubs
 		-- 6-arm snowflakes in the YZ plane, spinning about X.
 		local function snowflake(name, x, y, z, r, trail, base)

@@ -26,6 +26,7 @@ function M.Update(t, pose, ctx)
 	local spinY = (t * 90) % 360 + 360 * L.ease.cubicInOut(L.clamp01(c / 0.9))
 	pose.Jewel = L.pa(0, 0.18 * L.wave(t, 0.5) + 0.25 * twirl, 0, 0, spinY % 360, 0)
 	if ctx.crossed(0.05) then ctx.emit("Shine", 24) end
+	if ctx.crossed(2.0) then ctx.emit("CoinBurst", 16) end
 	ctx.light("JewelLight", 0.7 + 0.6 * twirl)
 
 	-- rear trophy stars spin opposite ways (1 rev / 2 s)

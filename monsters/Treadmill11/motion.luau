@@ -36,6 +36,12 @@ function M.Update(t, pose, ctx)
 	local bob = 0.22 * L.wave(t, 0.5) - 0.25 * wind + 0.45 * burst
 	pose.Crystal = CFrame.new(0, bob, 0) * L.ang(8 * L.wave(t, 0.25) - 10 * wind, spin, 6 * L.wave(t, 0.5, 0.25))
 
+	-- side floating crystals spin opposite ways and bob, hop up on the burst
+	pose.FloatR = CFrame.new(0, 0.25 * L.wave(t, 0.5) + 0.5 * burst, 0) * L.ang(0, (c * 180) % 360, 0)
+	pose.FloatL = CFrame.new(0, 0.25 * L.wave(t, 0.5, 0.5) + 0.5 * burst, 0) * L.ang(0, -(c * 180) % 360, 0)
+	ctx.transparency("PyCoreR", math.max(0, 0.4 + 0.3 * L.wave(t, 1) - burst))
+	ctx.transparency("PyCoreL", math.max(0, 0.4 + 0.3 * L.wave(t, 1, 0.5) - burst))
+
 	-- shard ring orbits the other way (2 turns per loop), shards fly out on the burst
 	pose.FrostHalo = L.ang(0, (t * 270) % 360, 0)
 	pose.ShardRing = CFrame.new(0, 0.15 * L.wave(t, 0.5, 0.5), 0) * L.ang(0, -(180 * c) % 360, 0)

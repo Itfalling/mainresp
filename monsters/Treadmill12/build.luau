@@ -17,7 +17,7 @@ return {
 		local INK, STEEL = "#181c27", "#c9d2e3"
 		local COPPER, COPPER_D, COPPER_L = "#d9893a", "#9a5a22", "#f2b46a"
 		local HAZ = "#ffd23a"
-		local CL_W, CL_L, CL_M, CL_D = "#dfe4ee", "#b6bfcf", "#8b94a9", "#5c647c"
+		local CL_W, CL_L, CL_M, CL_D = "#eef1f7", "#c8cfdc", "#8b94a9", "#5c647c"
 		local BOLT, ELEC = "#fff6a0", "#7fe3ff"
 
 		---------------------------------------------------------------- base
@@ -121,6 +121,11 @@ return {
 			for k = 1, 6 do
 				B:block("Root", v(0.08, 0.36, 0.5), cf(x - 0.69 * s, 2.1 + (k - 1) * 0.47, z), k > 4 and BOLT or ELEC, { mat = "Neon", name = "Cap" .. tag .. k })
 			end
+			-- charge flowing up the pylon front (chase lights)
+			B:block("Root", v(0.55, 3.3, 0.1), cf(x, 3.6, z - 0.6), INK)
+			for k = 1, 6 do
+				B:block("Root", v(0.36, 0.34, 0.08), cf(x, 2.2 + (k - 1) * 0.55, z - 0.66), ELEC, { mat = "Neon", name = "Up" .. tag .. k })
+			end
 			-- wind turbine on the outer face (spins about X)
 			B:block("Root", v(0.7, 0.8, 1.3), cf(x + 0.85 * s, 5.2, z), SLATE_D)
 			B:block("Root", v(0.75, 0.2, 1.35), cf(x + 0.85 * s, 5.65, z), HAZ)
@@ -177,6 +182,10 @@ return {
 		-- hidden flash patches inside the cloud underside
 		for k, p in { { -2.2, -1.5 }, { 2.4, 1.0 }, { -0.8, 1.9 }, { 1.0, -2.2 } } do
 			B:block(cloud, v(1.1, 0.06, 1.1), cf(p[1], 7.48, CZ + p[2]), BOLT, { mat = "Neon", tr = 1, name = "Flash" .. k })
+		end
+		-- sheet-lightning strips glowing along the cloud belly edges
+		for k, p in { { 0, -1.75, 5.0, 0.12 }, { 0, 3.75, 5.0, 0.12 }, { 3.0, 1.0, 0.12, 4.6 }, { -3.0, 1.0, 0.12, 4.6 }, { -1.6, 1.6, 1.6, 0.1 }, { 1.4, -0.5, 1.4, 0.1 } } do
+			B:block(cloud, v(p[3], 0.08, p[4]), cf(p[1], 7.78, p[2]), k % 2 == 0 and ELEC or BOLT, { mat = "Neon", name = "Sheet" .. k })
 		end
 		local rainPlate = B:block(cloud, v(5.6, 0.2, 5.4), cf(0, 7.7, CZ), CL_D, { tr = 1 })
 		B:emitter(rainPlate, "drip", { color = { "#bfe8ff", "#7fc8ff" }, rate = 22, size = { 0.12, 0.1, 0.06 }, life = { 0.35, 0.55 }, speed = { 4, 6 }, accel = { 0, -30, 0 }, name = "Rain" })
