@@ -37,7 +37,7 @@ return {
 		-- nail plates where rails cross the posts
 		for _, x in { -1.5, 1.5 } do
 			for _, y in { 1.5, 3.1 } do
-				B:block(R, v(0.4, 0.3, 0.1), cf(x, y, -0.9), "#7c858f")
+				B:block(R, v(0.4, 0.3, 0.1), cf(x, y, -0.9), "#5f6770")
 			end
 		end
 	end,

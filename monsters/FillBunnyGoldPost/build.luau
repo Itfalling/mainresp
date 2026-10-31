@@ -46,7 +46,7 @@ return {
 			B:bar(R, p1, p2, 0.55, 0.55, VELVET)
 			B:bar(R, p2, tip, 0.55, 0.55, VELVET)
 			for _, k in { p1, p2 } do
-				B:block(R, v(0.62, 0.62, 0.62), CFrame.new(k) * P.ang(45, 0, 0), VELVET_DK)
+				B:block(R, v(0.6, 0.6, 0.6), CFrame.new(k) * P.ang(45, 0, 0), VELVET_DK)
 			end
 			-- gold clip at the hook, gold end cap at the stub tip
 			B:block(R, v(0.55, 0.5, 0.7), CFrame.new(a), GOLD_DK)
