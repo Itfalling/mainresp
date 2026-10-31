@@ -55,9 +55,12 @@ return {
 		-- SPINE CURVE
 		------------------------------------------------------------------
 		local function yC(z) -- centrum centre height
-			local y = 36.0 - 0.0011 * (z + 4) ^ 2
+			local y = 35.0 - 0.0011 * (z + 4) ^ 2
 			if z > 26 then
 				y -= 0.0022 * (z - 26) ^ 2
+			end
+			if z < -38 then
+				y -= 0.009 * (-38 - z) ^ 2
 			end
 			return y
 		end
@@ -72,7 +75,7 @@ return {
 			end
 			return 1 + 0.06 * (1 - ((z + 4) / 28) ^ 2)
 		end
-		local G = 1.28 -- global vertebra chunkiness
+		local G = 1.4 -- global vertebra chunkiness
 		local function frameAt(z)
 			return CFrame.new(0, yC(z), z) * CFrame.Angles(-math.atan(slope(z)), 0, 0)
 		end
@@ -116,12 +119,12 @@ return {
 			blk(v(6.8 * s, 5.8 * s, 1.1 * s), 0, 0, L / 2 - 0.55 * s, BONE_LT)
 			blk(v(6.15 * s, 5.15 * s, 0.7 * s), 0, 0, jit(0.6) * s, BONE_SH)
 			-- ventral keel (seen from the lane below)
-			blk(v(3.0 * s, 1.4 * s, 3.4 * s), 0, -3.0 * s, 0, BONE_DK)
+			blk(v(3.0 * s, 1.4 * s, 3.4 * s), 0, -3.0 * s, 0, BONE_LT)
 			-- neural arch
 			blk(v(4.0 * s, 3.2 * s, 4.4 * s), 0, 3.6 * s, 0, BONE)
 			-- dorsal spine plate, stepped, leaning back toward the tail
-			local h = 0.86
-			if i % 2 == 0 then h = 0.78 end
+			local h = 0.8
+			if i % 2 == 0 then h = 0.72 end
 			blk(v(2.4 * s, 3.4 * s * h, 4.6 * s), 0, 6.4 * s * h, 0.2 * s, BONE_DK, -6)
 			blk(v(1.8 * s, 3.0 * s * h, 3.6 * s), 0, 9.0 * s * h, 0.7 * s, BONE_LT, -10)
 			blk(v(1.3 * s, 1.4 * s, 2.4 * s), 0, 10.9 * s * h, 1.1 * s, BONE, -12)
@@ -131,6 +134,13 @@ return {
 				blk(v(4.2 * s, 1.8 * s, 2.8 * s), sx * 4.6 * s, 1.5 * s, 0, BONE_LT)
 				-- zygapophysis knobs bridging to the next vertebra
 				blk(v(1.0 * s, 1.3 * s, 2.6 * s), sx * 1.7 * s, 4.7 * s, L / 2, BONE_DK)
+			end
+			-- chevrons (haemal arches) under the tail
+			if z > 43 then
+				local c0 = (F * CFrame.new(0, -2.6 * s, L / 2 + 0.3 * s)).Position
+				local c1 = (F * CFrame.new(0, -6.8 * s, L / 2 + 2.6 * s)).Position
+				B:bar(R, c0, c1, 1.3 * s, 1.1 * s, BONE_DK)
+				B:block(R, v(1.6 * s, 1.0 * s, 1.4 * s), CFrame.new(c1), BONE)
 			end
 			-- dark disc in the gap to the next vertebra
 			local zn = VZ[i + 1]
@@ -149,28 +159,18 @@ return {
 			local u = 1 - t
 			return p0 * (u * u * u) + p1 * (3 * u * u * t) + p2 * (3 * u * t * t) + p3 * (t * t * t)
 		end
-		-- 2D rib curve (x outward, y up) for one side
-		local function ribCurve(x0, y0, bx, tx, ty)
-			local function build(p2x)
-				local p0 = Vector2.new(x0, y0)
-				local p1 = Vector2.new(x0 + 0.45 * (bx - x0), y0 - 0.5)
-				local p2 = Vector2.new(p2x, y0 - 0.42 * (y0 - ty))
-				local p3 = Vector2.new(tx, ty)
-				local pts, mx = {}, -1e9
-				for k = 0, 80 do
-					local p = bez(p0, p1, p2, p3, k / 80)
-					table.insert(pts, p)
-					mx = math.max(mx, p.X)
-				end
-				return pts, mx
+		-- 2D rib curve (x outward, y up) for one side: two cubic pieces,
+		-- spine -> widest point M (vertical tangent) -> tip curling inward
+		local function ribCurve(x0, y0, bx, tx, ty, mf)
+			local yM = ty + mf * (y0 - ty)
+			local S, M, T = Vector2.new(x0, y0), Vector2.new(bx, yM), Vector2.new(tx, ty)
+			local dA, dB = y0 - yM, yM - ty
+			local pts = {}
+			for k = 0, 60 do
+				table.insert(pts, bez(S, S + Vector2.new(0.5 * (bx - x0), -0.1 * dA), M + Vector2.new(0, 0.6 * dA), M, k / 60))
 			end
-			local lo, hi = bx - 4, bx + 20
-			local pts
-			for _ = 1, 30 do
-				local mid = (lo + hi) / 2
-				local p, mx = build(mid)
-				pts = p
-				if mx > bx then hi = mid else lo = mid end
+			for k = 1, 30 do
+				table.insert(pts, bez(M, M + Vector2.new(0, -0.45 * dB), T + Vector2.new(0.85 * (bx - tx), 0.45 * dB), T, k / 30))
 			end
 			return pts
 		end
@@ -216,16 +216,18 @@ return {
 				local ty = 12.6 - 2.4 * f + jit(0.8)
 				local sweep = 1.0 + 0.7 * k + jit(1.0) -- tip slides toward the tail
 				local x0 = 6.4 * s * G
-				local pts2 = resample(ribCurve(x0, y0, bx, tx, ty), N)
+				local lean = jit(2.2)
+				local pts2 = resample(ribCurve(x0, y0, bx, tx, ty, 0.44 + jit(0.04)), N)
 				local pts = {}
 				for i, p in pts2 do
 					local t = (i - 1) / N
-					table.insert(pts, Vector3.new(sx * p.X, p.Y, z + sweep * t * t))
+					table.insert(pts, Vector3.new(sx * p.X, p.Y, z + sweep * t * t + lean * (p.X - x0) / 36))
 				end
 				local broken = (k == 6 and sx == -1)
 				local base = (rnd() > 0.45) and BONE or BONE_LT
 				local thick = 0.86 + 0.16 * f
 				local last = broken and 6 or N
+				local vary = 2 + math.floor(rnd() * 9)
 				for i = 1, last do
 					local a, b = pts[i], pts[i + 1]
 					local d = (b - a).Unit
@@ -235,17 +237,18 @@ return {
 					local e = tr * 0.38
 					local a0 = a - d * ((i == 1) and 0.6 or e)
 					local b0 = b + d * e
-					local col = base
-					if i % 5 == 3 then col = BONE_DK end
+					-- tone gradient: clean bone at the top, darker/stained toward the cliff
+					local col = (i <= 5) and base or ((i <= 9) and BONE or BONE_DK)
+					if i == vary then col = (col == BONE_DK) and BONE or BONE_DK end
 					B:bar(R, a0, b0, tr, tz, col, { up = ZUP })
 					-- outward normal in the rib plane
 					local out = d:Cross(ZUP).Unit
 					if out.X * sx + out.Y * 0.6 < 0 then out = -out end
 					if i <= N - 1 then
 						-- light outer ridge
-						B:bar(R, a0 + out * tr * 0.3 + d * 0.1, b0 + out * tr * 0.3 - d * 0.1, tr * 0.5, tz * 0.72, BONE_LT, { up = ZUP })
+						B:bar(R, a0 + out * tr * 0.3, b0 + out * tr * 0.3, tr * 0.5, tz * 0.72, BONE_LT, { up = ZUP })
 					end
-					if i <= N - 2 then
+					if i <= 7 then
 						-- darker groove along the inner face (what the player looks at)
 						B:bar(R, a0 - out * tr * 0.3 + d * 0.15, b0 - out * tr * 0.3 - d * 0.15, tr * 0.46, tz * 0.5, BONE_DK, { up = ZUP })
 					end
@@ -309,6 +312,44 @@ return {
 		end
 
 		------------------------------------------------------------------
+		-- PELVIS over the tail end of the cage (lowest point y > 20)
+		------------------------------------------------------------------
+		do
+			local zc = 37
+			local y = yC(zc)
+			local pit = -math.atan(slope(zc))
+			local PF = CFrame.new(0, y, zc) * CFrame.Angles(pit, 0, 0)
+			for _, sx in { -1, 1 } do
+				local IF = PF * CFrame.new(sx * 6.2, 2.0, 0) * CFrame.Angles(0, 0, rad(-sx * 5))
+				-- ilium blade: stepped plate with a lighter rim
+				B:block(R, v(1.8, 5.4, 15.0), IF, BONE)
+				B:block(R, v(2.0, 1.4, 12.4), IF * CFrame.new(0, 3.0, 0.4), BONE_LT)
+				B:block(R, v(1.7, 4.0, 4.4), IF * CFrame.new(0, -0.4, -8.6) * CFrame.Angles(rad(-18), 0, 0), BONE_LT)
+				B:block(R, v(1.7, 3.2, 3.4), IF * CFrame.new(0, -0.8, 8.4) * CFrame.Angles(rad(14), 0, 0), BONE_DK)
+				B:block(R, v(1.95, 5.2, 0.7), IF * CFrame.new(0, 0, 2.6), BONE_SH)
+				-- hip socket
+				local hip = (PF * CFrame.new(sx * 8.0, -1.8, 0.5)).Position
+				B:block(R, v(2.4, 3.6, 4.2), CFrame.new(hip), BONE_DK)
+				-- pubis: forward and down to the shared pubic boot
+				local pa = (PF * CFrame.new(sx * 6.8, -3.0, -1.5)).Position
+				local pb = Vector3.new(sx * 1.6, y - 9.4, zc - 8.5)
+				local pm = pa:Lerp(pb, 0.5) + Vector3.new(sx * 0.8, 0, 0)
+				B:bar(R, pa, pm, 2.4, 2.0, BONE)
+				B:bar(R, pm, pb, 2.0, 1.7, BONE)
+				B:bar(R, pa:Lerp(pm, 0.3), pm:Lerp(pb, 0.6), 1.0, 2.2, BONE_LT)
+				-- ischium: back and down
+				local ia = (PF * CFrame.new(sx * 6.4, -3.0, 3.2)).Position
+				local ib = Vector3.new(sx * 3.0, y - 9.0, zc + 9.0)
+				B:bar(R, ia, ib, 1.8, 1.5, BONE_DK)
+				B:block(R, v(2.2, 1.8, 2.2), CFrame.new(ib) * ang(0, 45, 0), BONE)
+			end
+			-- pubic boot
+			local bz = zc - 8.5
+			B:block(R, v(5.6, 1.8, 5.6), cf(0, y - 10.0, bz - 0.6), BONE_DK)
+			B:block(R, v(4.4, 1.2, 4.0), cf(0, y - 9.0, bz), BONE_LT)
+		end
+
+		------------------------------------------------------------------
 		-- BRAMBLE climbing two ribs
 		------------------------------------------------------------------
 		local function berries(p, s)
@@ -334,12 +375,12 @@ return {
 			end
 			for k = 1, #vp - 1 do
 				local d = (vp[k + 1] - vp[k]).Unit
-				B:bar(R, vp[k] - d * 0.2, vp[k + 1] + d * 0.2, 0.6, 0.6, (k % 2 == 0) and BR_LT or BR)
+				B:bar(R, vp[k] - d * 0.25, vp[k + 1] + d * 0.25, 0.8, 0.8, (k % 2 == 0) and BR_LT or BR)
 				if k % 2 == 1 then
 					B:bar(R, vp[k + 1], vp[k + 1] + Vector3.new(0, 0.5, 0) + d:Cross(Vector3.new(0, 1, 0)).Unit * 0.7, 0.28, 0.28, BONE_DK)
 				end
 				if k % 3 == 0 then
-					berries(vp[k] + Vector3.new(0, -0.5, 0), 1)
+					berries(vp[k] + Vector3.new(0, -0.6, 0), 1.3)
 				end
 				if k % 4 == 2 then
 					B:block(R, v(1.2, 0.25, 0.8), CFrame.new(vp[k] + Vector3.new(0, 0.3, 0.4)) * ang(20, 40 * k, 15), (k % 8 == 2) and LEAF or LEAF_DK)
@@ -349,6 +390,22 @@ return {
 		vineOnRib(ribPaths["3R"], 1, 5, 12.6, 2.2, 0.4)
 		vineOnRib(ribPaths["7L"], -1, 6, 12.6, 1.8, 2.0)
 		vineOnRib(ribPaths["5L"], -1, 2, 5.5, 1.0, 1.0)
+
+		-- bramble tufts around a few rib feet on the cliff top
+		local function tuft(p, sx)
+			local c = Vector3.new(p.X + sx * 1.2, 14, p.Z)
+			B:block(R, v(3.0, 1.6, 2.6), CFrame.new(c + Vector3.new(0, 0.8, 0)) * ang(0, jit(30), 0), BR)
+			B:block(R, v(2.2, 1.4, 2.0), CFrame.new(c + Vector3.new(sx * 0.6, 1.9, 0.4)) * ang(jit(10), 30 + jit(20), jit(10)), BR_LT)
+			B:bar(R, c + Vector3.new(0, 1.4, 0), c + Vector3.new(-sx * 1.6, 4.2, -0.8), 0.6, 0.6, BR)
+			B:bar(R, c + Vector3.new(0, 1.4, 0.5), c + Vector3.new(sx * 1.0, 3.6, 1.8), 0.6, 0.6, BR_LT)
+			berries(c + Vector3.new(-sx * 1.0, 2.4, -1.3), 1.3)
+			berries(c + Vector3.new(sx * 1.4, 2.0, 1.0), 1.1)
+			B:block(R, v(1.3, 0.3, 0.9), CFrame.new(c + Vector3.new(0.2, 2.7, 0.6)) * ang(15, 40, 10), LEAF)
+		end
+		for _, key in { "1R", "4L", "6R", "8L" } do
+			local pts = ribPaths[key]
+			tuft(pts[N + 1], (key:sub(-1) == "R") and 1 or -1)
+		end
 
 		------------------------------------------------------------------
 		-- BRAMBLE STRANDS dangling from the backbone (bottom >= y 26)
@@ -360,13 +417,13 @@ return {
 			for k = 1, segs do
 				local p = top + Vector3.new(math.sin(phase + k * 1.1) * 0.8, -len * k / segs, math.cos(phase + k * 0.9) * 0.6)
 				local d = (p - prev).Unit
-				B:bar(R, prev - d * 0.15, p + d * 0.15, 0.55, 0.55, (k % 2 == 0) and BR_LT or BR)
+				B:bar(R, prev - d * 0.2, p + d * 0.2, 0.75, 0.75, (k % 2 == 0) and BR_LT or BR)
 				if k % 2 == 0 then
 					B:bar(R, p, p + Vector3.new(0.7, 0.3, 0), 0.25, 0.25, BONE_DK)
 				end
 				prev = p
 			end
-			berries(prev + Vector3.new(0, -0.5, 0), 1.1)
+			berries(prev + Vector3.new(0, -0.6, 0), 1.4)
 			B:block(R, v(1.2, 0.25, 0.9), CFrame.new(top + Vector3.new(0.4, -len * 0.45, 0)) * ang(15, 30, 20), LEAF)
 		end
 		strand(-20, 2.2, 9, 0.3)

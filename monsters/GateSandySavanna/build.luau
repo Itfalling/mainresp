@@ -298,7 +298,7 @@ return {
 		for k = -4, 4 do
 			local a = k * 22.5
 			local long = (k % 2 == 0)
-			local c = CFrame.new(0, SUNY, 0) * ang(0, 0, a) * CFrame.new(0, long and 5.9 or 5.4, 0)
+			local c = CFrame.new(0, SUNY, 0) * ang(0, 0, a) * CFrame.new(0, long and 5.7 or 5.3, 0)
 			B:block(R, v(long and 1.5 or 1.0, long and 2.4 or 1.6, 2.6), c, long and SUN_LT or RED)
 			if long then
 				B:block(R, v(0.9, 0.9, 2.8), c * CFrame.new(0, 0.2, 0) * ang(0, 0, 45), SUN)
