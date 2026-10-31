@@ -8,6 +8,7 @@
 -- * a tipped cornice block with a gold trim edge and a gold star inlay
 -- * a short standing fluted stub with a snapped top and a thin rune glow
 -- * a small chipped cube with a stepped broken top, loose stone chips
+-- * a little violet crystal sprout pushing up between the stones
 -- * teal moss draped over the stones (three tones)
 -- * footing: low indigo night-soil patch, a cracked paving slab with a gold
 --   inlay line, silver-blue grass tufts and gold/cyan star-dust specks
@@ -122,6 +123,17 @@ return {
 		B:block(R, v(0.45, 0.3, 0.6), T * CFrame.new(0.25, 2.0, -0.25), STONE_HI)
 		B:block(R, v(0.5, 0.6, 0.14), T * CFrame.new(0.25, 1.4, 0.64), MOSS_DK)
 		B:block(R, v(0.12, 0.8, 0.12), T * CFrame.new(0, 1.2, -0.66), RUNE, NEON)
+
+		------------------------------------------------------------ crystal sprout
+		-- a little violet crystal pushing out between the drum and cornice
+		local VIO_DK, VIO, VIO_LT = "#7a58ea", "#9b7cff", "#c6b4ff"
+		local X = cf(0.75, 0.15, -1.15, -15, 30, 20)
+		B:block(R, v(0.32, 0.8, 0.32), X * CFrame.new(0, 0.4, 0), VIO_DK)
+		B:block(R, v(0.3, 0.78, 0.3), X * CFrame.new(0, 0.4, 0) * ang(0, 45, 0), VIO)
+		B:block(R, v(0.2, 0.25, 0.2), X * CFrame.new(0, 0.9, 0) * ang(0, 45, 0), VIO_LT)
+		local X2 = cf(0.95, 0.15, -1.0, 10, 0, -30)
+		B:block(R, v(0.22, 0.5, 0.22), X2 * CFrame.new(0, 0.25, 0) * ang(0, 45, 0), VIO)
+		B:block(R, v(0.14, 0.16, 0.14), X2 * CFrame.new(0, 0.56, 0) * ang(0, 45, 0), VIO_LT)
 
 		------------------------------------------------------------ chips
 		local function chip(x, z, s, yaw, col, top)

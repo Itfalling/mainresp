@@ -88,6 +88,11 @@ return {
 			B:block(R, v(0.68 * s, 0.34 * s, 0.68 * s), c * CFrame.new(0, 0.52 * s, 0) * ang(0, 20, 0), CLV_FL)
 			B:block(R, v(0.56 * s, 0.32 * s, 0.56 * s), c * CFrame.new(0, 0.52 * s, 0) * ang(0, 65, 0), CLV_FL)
 			B:block(R, v(0.36 * s, 0.18 * s, 0.36 * s), c * CFrame.new(0, 0.78 * s, 0) * ang(0, 45, 0), "#ffffff")
+			-- floret nubs bulging out so the head reads round, pink-tipped low
+			for k = 0, 3 do
+				local q = c * ang(0, k * 90 + 42, 0) * CFrame.new(0, 0.42 * s, -0.36 * s) * ang(-25, 0, 0)
+				B:block(R, v(0.26 * s, 0.24 * s, 0.22 * s), q, (k % 2 == 0) and CLV_FL or CLV_TIP)
+			end
 		end
 		blossom(0.35, -0.2, 1.75, v(0.3, 0, -0.2), 1.0)
 		blossom(-0.45, 0.45, 1.4, v(-0.3, 0, 0.2), 0.9)

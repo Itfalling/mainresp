@@ -99,7 +99,7 @@ return {
 				B:bar(R, a - d * w * 0.5, b + d * w * 0.5, w, 0.08, col)
 			end
 		end
-		diamond(1.48, 0.12, H + 0.07, SILVER)
+		diamond(1.5, 0.14, H + 0.07, SILVER)
 		diamond(1.2, 0.2, ry, GOLD)
 		-- long rays along the axes, short rays on the diagonals
 		for _, d in { v(0, 0, -1), v(1, 0, 0), v(0, 0, 1), v(-1, 0, 0) } do

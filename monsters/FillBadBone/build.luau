@@ -7,6 +7,7 @@
 --   them; rounded shafts (square + 45° square), double-lobed rounded knobs
 --   with a darker collar, a cream highlight ridge, cracks and a fossil stain
 -- * a loose vertebra and a short curved rib poking out of the ash
+-- * a thin dried bramble runner with cream thorns trailing over the bones
 -- Exact Bone Pile / Ribcage Gourd palette. Sits straight on Y=0.
 -- Filler: anchored, weld-free, no scripts, no effects.
 return {
@@ -101,5 +102,16 @@ return {
 			B:bar(R, rib[i] - d * 0.08, rib[i + 1] + d * 0.08, 0.36 - 0.05 * i, 0.3 - 0.04 * i, (i == 2) and BONE_LT or BONE)
 		end
 		B:block(R, v(0.3, 0.3, 0.3), CFrame.new(rib[4]) * ang(0, 30, 0), BONE_DK)
+
+		-- a dried bramble runner trailing over the bones (maroon stem, thorns)
+		local STEM_DK, STEM, THORN = "#4a2030", "#6a2e3c", "#e8d6ae"
+		local run = { v(2.3, 0.15, -0.6), v(1.6, 0.75, -0.1), v(0.6, 1.05, 0.35), v(-0.2, 0.95, 0.9), v(-0.6, 0.3, 1.3) }
+		for i = 1, #run - 1 do
+			local d = (run[i + 1] - run[i]).Unit
+			B:bar(R, run[i] - d * 0.06, run[i + 1] + d * 0.06, 0.2, 0.2, (i % 2 == 0) and STEM or STEM_DK)
+			local m = (run[i] + run[i + 1]) / 2
+			local sd = d:Cross(v(0, 1, 0)).Unit * ((i % 2 == 0) and 1 or -1)
+			B:bar(R, m, m + sd * 0.32 + v(0, 0.18, 0), 0.12, 0.12, THORN)
+		end
 	end,
 }

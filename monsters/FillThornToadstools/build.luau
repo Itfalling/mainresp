@@ -55,7 +55,7 @@ return {
 			B:block(R, v(1.65 * k, 0.12, 1.65 * k), top * CFrame.new(0, 0.04, 0) * Y45, GILL_DK)
 			B:block(R, v(1.2 * k, 0.1, 1.2 * k), top * CFrame.new(0, -0.03, 0), GILL)
 			-- domed cap: brim, middle tier, top, crown
-			local bh, mh, th = 0.42 * k, 0.38 * k, 0.3 * k
+			local bh, mh, th = 0.38 * k, 0.44 * k, 0.36 * k
 			local yb = 0.1 + bh / 2
 			local ym = 0.1 + bh + mh / 2 - 0.03
 			local yt = 0.1 + bh + mh + th / 2 - 0.06
@@ -65,10 +65,10 @@ return {
 			local yc = 0.1 + bh + mh + th - 0.06
 			B:block(R, v(0.55 * k, 0.12, 0.55 * k), top * CFrame.new(0.05 * k, yc + 0.04, 0), RED_HI)
 			-- spots: top, ledges, brim sides
-			B:block(R, v(0.42 * k, 0.1, 0.42 * k), top * CFrame.new(-0.18 * k, yc + 0.08, 0.15 * k) * CFrame.Angles(0, rad(30), 0), SPOT)
+			B:block(R, v(0.46 * k, 0.1, 0.46 * k), top * CFrame.new(-0.18 * k, yc + 0.08, 0.15 * k) * CFrame.Angles(0, rad(30), 0), SPOT)
 			for _, c in ledge do
 				local yl = c[3] and (0.1 + bh + mh - 0.03) or (0.1 + bh)
-				B:block(R, v(0.4 * k, 0.1, 0.4 * k), top * CFrame.new(c[1] * k, yl + 0.03, c[2] * k) * Y45, SPOT)
+				B:block(R, v(0.46 * k, 0.1, 0.46 * k), top * CFrame.new(c[1] * k, yl + 0.03, c[2] * k) * Y45, SPOT)
 			end
 			for i, a in side do
 				B:block(R, v(0.46 * k, 0.26 * k, 0.1), top * CFrame.Angles(0, rad(a), 0) * CFrame.new(0.1 * k, yb, -(1.025 * k + 0.03)), (i % 2 == 0) and SPOT2 or SPOT)
@@ -76,7 +76,7 @@ return {
 		end
 
 		toadstool(-0.55, 0.3, 1.2, 1.8, 15, 5, true, { { 0.8, 0.8 }, { -0.8, -0.75 }, { 0.55, -0.35, true } }, { 0, 90, 215 })
-		toadstool(1.4, -0.35, 0.85, 1.15, -25, -11, true, { { -0.8, 0.8 }, { 0.75, -0.8 } }, { 0, 160 })
+		toadstool(1.6, -0.3, 0.85, 1.15, -25, -12, true, { { -0.8, 0.8 }, { 0.75, -0.8 } }, { 0, 160 })
 		toadstool(0.15, -1.3, 0.55, 0.6, 40, 9, false, { { 0.8, 0.75 } }, { 20 })
 		-- tiny button toadstool
 		local tb = cf(-1.75, 0, -0.75, 0, 30, -8)

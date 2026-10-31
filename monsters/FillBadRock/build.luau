@@ -69,8 +69,9 @@ return {
 		tier(-0.2, 0.25, 1.0, 2.5, 0.9, 25, ROCK_LT, ROCK)
 		tier(-0.35, 0.4, 1.85, 1.6, 0.6, 5, ROCK_HI, ROCK_LT)
 		-- ash dusting on top
-		B:block(R, v(0.9, 0.14, 0.8), cf(-0.4, 2.48, 0.35, 0, 20, 0), ASH)
-		B:block(R, v(0.5, 0.16, 0.45), cf(-0.6, 2.52, 0.5, 0, 50, 0), ASH_LT)
+		B:block(R, v(0.9, 0.14, 0.8), cf(-0.4, 2.48, 0.45, 0, 20, 0), ASH)
+		B:block(R, v(0.5, 0.16, 0.45), cf(-0.55, 2.52, 0.6, 0, 50, 0), ASH_LT)
+		B:block(R, v(0.6, 0.12, 0.5), cf(-1.15, 1.92, 0.75, 0, 10, 0), ASH)
 		B:block(R, v(0.7, 0.12, 0.6), cf(0.65, 1.92, -0.35, 0, 30, 0), ASH_DK)
 
 		-- stepped ledge chunks round the base (alternating tones)

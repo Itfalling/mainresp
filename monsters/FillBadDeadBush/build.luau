@@ -127,8 +127,8 @@ return {
 		leaf(v(-0.9, 0.17, -0.5), 110, 0, LEAF_DRY) -- fallen leaf on the soil
 
 		local function husk(p)
-			B:block(R, v(0.34, 0.34, 0.34), CFrame.new(p) * ang(0, 45, 0), BERRY_DK)
-			B:block(R, v(0.2, 0.12, 0.2), CFrame.new(p + v(0, 0.2, 0)), BERRY)
+			B:block(R, v(0.28, 0.28, 0.28), CFrame.new(p + v(0, -0.12, 0)) * ang(0, 45, 0), BERRY_DK)
+			B:block(R, v(0.17, 0.1, 0.17), CFrame.new(p + v(0, 0.06, 0)), BERRY)
 		end
 		husk(dir(95) * 1.25 + v(0, 1.75, 0))
 		husk(dir(305) * 0.95 + v(0.1, 2.15, 0))

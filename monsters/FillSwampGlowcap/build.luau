@@ -100,7 +100,7 @@ return {
 			B:block(R, v(sp[3], math.min(t[3] - 0.08, sp[3] * 0.75), 0.14), q, VIO[5])
 		end
 		-- ledge spots seen from above
-		for _, sp in { { 1, 75, 0.45 }, { 1, 235, 0.4 }, { 2, 140, 0.34 } } do
+		for _, sp in { { 1, 75, 0.45 }, { 1, 235, 0.4 }, { 2, 140, 0.34 }, { 2, 320, 0.3 }, { 3, 40, 0.26 } } do
 			local t = tierY[sp[1]]
 			local q = t[1] * ang(0, sp[2], 0) * CFrame.new(0, t[3] / 2 + 0.03, -t[2] * 0.88)
 			B:block(R, v(sp[3], 0.1, sp[3]), q * ang(0, 30, 0), VIO[5])

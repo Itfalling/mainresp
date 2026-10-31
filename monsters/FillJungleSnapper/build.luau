@@ -35,6 +35,11 @@ return {
 		B:block(R, v(2.3, 0.21, 3.6), cf(0, 0.105, 0), DIRT_DK)
 		B:block(R, v(3.0, 0.2, 3.0), cf(0, 0.1, 0, 0, 45, 0), DIRT_DK2)
 		B:block(R, v(2.4, 0.16, 1.6), cf(-0.2, 0.28, 0.2, 0, 15, 0), DIRT)
+		-- a few chunky edge clods so the rim isn't a perfect outline
+		for _, e in { { 30, 1.75, DIRT_DK2 }, { 140, 1.8, DIRT_DK }, { 215, 1.7, DIRT }, { 300, 1.8, DIRT_DK2 } } do
+			local a = rad(e[1])
+			B:block(R, v(0.9, 0.3, 0.6), CFrame.new(math.sin(a) * e[2], 0.15, -math.cos(a) * e[2]) * CFrame.Angles(0, -a + rad(8), 0), e[3])
+		end
 		-- moss layer (two tones)
 		B:block(R, v(1.8, 0.14, 1.3), cf(0.5, 0.3, -0.5, 0, -20, 0), MOSS)
 		B:block(R, v(1.1, 0.14, 0.9), cf(-0.9, 0.29, 0.8, 0, 30, 0), MOSS_DK)
