@@ -373,6 +373,30 @@ local function buildMonster(id, L)
 	fs.writeFile("out/preview/" .. id .. ".json", serde.encode("json", preview))
 
 	fs.writeDir("out/models")
+	-- Filler props (spec.Filler): built to be copy-pasted many times. No scripts,
+	-- no effects, every part anchored, no welds and no invisible bone parts.
+	if spec.Filler then
+		if motionSrc then problem("Filler props can't have a motion.luau") end
+		if #B.effects > 0 then problem("Filler props can't have emitters, lights or trails") end
+		for _, d in model:GetDescendants() do
+			if d:IsA("BasePart") then
+				local w = d:FindFirstChild("W")
+				if w then
+					w:Destroy()
+				end
+				if d.Transparency >= 1 then
+					d:Destroy() -- bone helpers (Root, Soil, Crop ...)
+				else
+					d.Anchored = true
+					d.CanCollide = true
+					d.CanQuery = true
+					d.CanTouch = false
+				end
+			end
+		end
+		-- (PrimaryPart pointed at the removed Root; Lune clears the ref on destroy)
+		model:SetAttribute("Filler", true)
+	end
 	fs.writeFile("out/models/" .. id .. ".rbxm", roblox.serializeModel({ model }))
 
 	-- Hand-held tools: spec.Tool turns the (static) model into a Roblox Tool.
@@ -460,7 +484,7 @@ local function buildMonster(id, L)
 	if maxBright > 1.5 then problem(("PointLight brightness %.1f too high (max 1.5)"):format(maxBright)) end
 	if maxCtxLight > 2 then problem(("ctx.light brightness %.1f too high (max 2)"):format(maxCtxLight)) end
 	-- part cap scales with rarity: high tiers must be the most detailed pets
-	local CAPS = { Common = 260, Uncommon = 280, Rare = 320, Epic = 360, Legendary = 440, Mythic = 460, Secret = 460, Cosmic = 480, Divine = 520, Apex = 680, Decor = 400 }
+	local CAPS = { Common = 260, Uncommon = 280, Rare = 320, Epic = 360, Legendary = 440, Mythic = 460, Secret = 460, Cosmic = 480, Divine = 520, Apex = 680, Decor = 400, Filler = 70 }
 	local cap = CAPS[spec.Rarity or "Legendary"] or 360
 	if B.partCount > cap then problem(("too many parts: %d (max %d for %s) - get detail from color blocking, not part spam"):format(B.partCount, cap, spec.Rarity or "?")) end
 	local maxH = spec.Rarity == "Apex" and 56 or 24
@@ -534,6 +558,7 @@ local RARITY_GRADIENTS = {
 	Divine = { "#ff8fd8", "#ffe36b", "#8dff8a", "#7fd4ff" },
 	Apex = { "#ff3b3b", "#ffb21a", "#ff3b3b" },
 	Decor = { "#9ee7ff", "#c8a6ff" },
+	Filler = { "#c9f7a8", "#8fd6ff" },
 }
 
 local function colorSeq(list)

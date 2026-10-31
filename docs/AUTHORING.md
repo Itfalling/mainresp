@@ -250,3 +250,9 @@ up: handle along +Y, blade/business end facing +X; name the gripped part `Handle
 two-handed overhead swing: SwingAnim (ModuleScript, R15 only, poses via C0 so the Animator never overrides it), SwingClient (LocalScript, the holder's
 click), SwingServer (grip fit + cooldown) and SwingReplicate (RunContext Client: other players see it via
 the tool's `SwingCount` attribute).
+
+## Filler props (`Filler = true`, `Rarity = "Filler"`)
+
+For scenery meant to be copy-pasted many times (bushes, rocks, fences, flowers). Max 70 parts, no
+motion.luau, no emitters/lights/trails (the build flags them). The exported model is flattened: every
+visible part anchored, no welds, invisible bone parts removed, no scripts.
