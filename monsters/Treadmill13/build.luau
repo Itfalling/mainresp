@@ -127,8 +127,17 @@ return {
 			B:block("Root", v(0.8, 1.0, 0.9), c, SP)
 			B:block("Root", v(0.18, 0.95, 1.0), c * CFrame.new(-0.42, 0, 0), GOLD)
 			B:block("Root", v(0.2, 0.9, 0.6), c * CFrame.new(0.42, 0, 0), SP_L)
+			if i % 2 == 0 then -- stepped outer crenellation with a gold stud
+				B:block("Root", v(0.35, 0.7, 1.05), c * CFrame.new(0.55, 0, 0), SP_L)
+				B:block("Root", v(0.2, 0.3, 0.3), c * CFrame.new(0.8, 0, 0), GOLD)
+			end
 			B:block("Root", v(0.2, 0.2, 0.06), c * CFrame.new(0.05, 0, -0.47), i % 2 == 0 and PINK or CYAN, { mat = "Neon", name = "ArchF" .. i })
 			B:block("Root", v(0.2, 0.2, 0.06), c * CFrame.new(0.05, 0, 0.47), i % 2 == 0 and CYAN or PINK, { mat = "Neon", name = "ArchB" .. i })
+		end
+		-- translucent nebula puffs hugging the arch springs
+		for _, s in { 1, -1 } do
+			B:block("Root", v(1.3, 0.9, 1.4), cf(AR * s + 0.2 * s, AY + 0.4, ZA), PINK, { tr = 0.55 })
+			B:block("Root", v(1.0, 0.8, 1.2), cf(AR * s - 0.1 * s, AY + 1.1, ZA + 0.2), VIO, { tr = 0.5 })
 		end
 		-- keystone
 		B:block("Root", v(1.3, 0.9, 1.2), cf(0, AY + AR + 0.25, ZA), SP_L)
