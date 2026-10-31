@@ -83,6 +83,11 @@ function M.Update(t, pose, ctx)
 	ctx.transparency("Emblem", 0.2 + 0.2 * L.wave(t, 2))
 	ctx.transparency("TipR", ((t * 2) % 1) < 0.3 and 0 or 0.7)
 	ctx.transparency("TipL", ((t * 2 + 0.5) % 1) < 0.3 and 0 or 0.7)
+	-- data cubes stream up the gate (1 stud gap per 0.5 s), spinning
+	local up = (t * 2) % 1
+	pose.DataR = L.pa(0, up, 0, 0, (t * 180) % 360, 0)
+	pose.DataL = L.pa(0, up, 0, 0, (-t * 180) % 360, 0)
+
 	-- gate progress bar fills up twice per cycle
 	local fill = math.floor((c % 2) / 2 * 10)
 	for k = 1, 8 do

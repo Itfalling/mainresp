@@ -49,6 +49,14 @@ function M.Update(t, pose, ctx)
 	for i = 1, 3 do
 		ctx.transparency("CrownGem" .. i, ((t * 1.5 + i / 3) % 1) < 0.5 and 0 or 0.4)
 	end
+	-- rail gems: a sparkle runs toward the back along both rails
+	local g = math.floor((t * 5) % 5) + 1
+	for k = 1, 5 do
+		local tr = (k == g) and 0 or 0.5
+		ctx.transparency("RailGemR" .. k, tr)
+		ctx.transparency("RailGemL" .. k, tr)
+	end
+	ctx.transparency("FaceGem", 0.3 + 0.3 * L.wave(t, 1, 0.5))
 	ctx.transparency("Crest", 0.25 - 0.25 * L.wave(t, 1))
 end
 

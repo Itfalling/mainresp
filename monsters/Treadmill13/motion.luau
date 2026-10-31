@@ -27,6 +27,7 @@ function M.Update(t, pose, ctx)
 	pose.Planet1 = CFrame.new(0, 0.15 * L.wave(t, 1 / 3), 0) * L.ang(0, (t * 120) % 360, 0)
 	pose.Planet2 = CFrame.new(0, 0.15 * L.wave(t, 1 / 3, 0.33), 0) * L.ang(0, (t * 180) % 360, 0)
 	pose.Planet3 = CFrame.new(0, 0.15 * L.wave(t, 1 / 3, 0.66), 0) * L.ang(0, -(t * 120) % 360, 0)
+	pose.Asteroids = L.ang(0, (t * 120) % 360, 0)
 	pose.Moon = L.ang(0, (t * 360) % 360, 0)
 
 	-- keystone star: steady spin, winds back, then whirls on the supernova
@@ -47,6 +48,11 @@ function M.Update(t, pose, ctx)
 	ctx.transparency("Nova2", 1 - fl)
 	ctx.transparency("Nova3", 1 - fl * 0.8)
 	ctx.transparency("Nova4", 1 - fl * 0.8)
+	-- shock ring blinks on, ray by ray, then fades with the nova
+	for k = 1, 8 do
+		local on = nova > 0.1 and (c - NOVA) * 24 >= k * 0.5
+		ctx.transparency("NovaR" .. k, on and (1 - nova) * 0.8 or 1)
+	end
 	ctx.transparency("StarCore", 0.25 * (1 - nova) * L.wave01(t, 2))
 	ctx.light("StarLight", 0.7 + 1.3 * nova)
 

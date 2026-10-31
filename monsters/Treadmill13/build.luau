@@ -105,7 +105,7 @@ return {
 		hub("HubRL", -2.62, 1.3, 4.5, 0.6)
 
 		-------------------------------------------------- the ring arch
-		local AR, AY = 3.3, 4.7 -- arch radius / spring height
+		local AR, AY = 3.3, 4.6 -- arch radius / spring height
 		for _, s in { 1, -1 } do
 			local x = AR * s
 			B:block("Root", v(1.3, 0.8, 1.3), cf(x, 1.05, ZA), SP_L)
@@ -135,17 +135,22 @@ return {
 		B:block("Root", v(1.4, 0.15, 1.3), cf(0, AY + AR + 0.75, ZA), GOLD)
 
 		-- spinning star on the keystone (+ hidden supernova flare)
-		local SY = AY + AR + 1.4
+		local SY = AY + AR + 1.6
 		local star = B:bone("Star", "Root", v(0, SY, ZA))
-		B:block(star, v(0.4, 1.5, 0.3), cf(0, SY, ZA), GOLD)
-		B:block(star, v(1.5, 0.4, 0.3), cf(0, SY, ZA), GOLD)
-		B:block(star, v(0.3, 1.0, 0.25), cf(0, SY, ZA, 0, 0, 45), GOLD_L)
-		B:block(star, v(1.0, 0.3, 0.25), cf(0, SY, ZA, 0, 0, 45), GOLD_L)
+		B:block(star, v(0.42, 1.6, 0.35), cf(0, SY, ZA), GOLD)
+		B:block(star, v(1.6, 0.42, 0.35), cf(0, SY, ZA), GOLD)
+		B:block(star, v(0.3, 1.1, 0.28), cf(0, SY, ZA, 0, 0, 45), GOLD_L)
+		B:block(star, v(1.1, 0.3, 0.28), cf(0, SY, ZA, 0, 0, 45), GOLD_L)
 		local starCore = B:block(star, v(0.45, 0.45, 0.4), cf(0, SY, ZA, 0, 0, 45), STAR, { mat = "Neon", name = "StarCore" })
-		B:block(star, v(0.2, 2.2, 0.12), cf(0, SY, ZA), STAR, { mat = "Neon", tr = 1, name = "Nova1" })
-		B:block(star, v(2.2, 0.2, 0.12), cf(0, SY, ZA), STAR, { mat = "Neon", tr = 1, name = "Nova2" })
+		B:block(star, v(0.2, 2.4, 0.12), cf(0, SY, ZA), STAR, { mat = "Neon", tr = 1, name = "Nova1" })
+		B:block(star, v(2.4, 0.2, 0.12), cf(0, SY, ZA), STAR, { mat = "Neon", tr = 1, name = "Nova2" })
 		B:block(star, v(0.14, 1.6, 0.1), cf(0, SY, ZA, 0, 0, 45), PINK, { mat = "Neon", tr = 1, name = "Nova3" })
 		B:block(star, v(1.6, 0.14, 0.1), cf(0, SY, ZA, 0, 0, 45), CYAN, { mat = "Neon", tr = 1, name = "Nova4" })
+		-- hidden supernova shock ring (8 rays around the star, faces the runner)
+		for k = 1, 8 do
+			local rc = CFrame.new(0, SY, ZA) * CFrame.Angles(0, 0, math.rad(k * 45 + 22.5)) * CFrame.new(0, 1.45, 0)
+			B:block(star, v(0.5, 0.18, 0.12), rc, k % 2 == 0 and PINK or CYAN, { mat = "Neon", tr = 1, name = "NovaR" .. k })
+		end
 		B:light(starCore, { color = "#ffb8f0", brightness = 1.0, range = 14, name = "StarLight" })
 		B:emitter(starCore, "burst", { color = { STAR, PINK, CYAN }, size = { 0.7, 0.4, 0 }, speed = { 8, 15 }, name = "Supernova" })
 		B:emitter(starCore, "sparkle", { color = { STAR, GOLD_L }, rate = 8, size = { 0.15, 0.45, 0 }, name = "StarSparkle" })
@@ -175,21 +180,21 @@ return {
 		-- 1: ringed gold/orange gas giant
 		local p1c = CFrame.new(planetPos[1].Position)
 		local p1 = B:bone("Planet1", orbit, p1c * ang(0, 0, 20))
-		voxelSphere(p1, p1c, 1.3, "#ff9a3c", "#ffc46b", "#d96a1e")
-		B:block(p1, v(1.34, 0.18, 1.34), p1c, "#fff0c0")
-		B:ring(p1, p1c * ang(0, 0, 20), 1.05, 10, v(0.42, 0.12, 0.3), GOLD_L)
-		B:ring(p1, p1c * ang(0, 18, 20), 1.25, 10, v(0.36, 0.08, 0.2), "#f7d9a0")
+		voxelSphere(p1, p1c, 1.7, "#ff9a3c", "#ffc46b", "#d96a1e")
+		B:block(p1, v(1.74, 0.2, 1.74), p1c, "#fff0c0")
+		B:ring(p1, p1c * ang(0, 0, 20), 1.4, 12, v(0.5, 0.14, 0.36), GOLD_L)
+		B:ring(p1, p1c * ang(0, 15, 20), 1.68, 12, v(0.46, 0.1, 0.24), "#f7d9a0")
 		B:trail(orbit, p1c.Position + v(0, 0.35, 0), p1c.Position - v(0, 0.35, 0), { color = { GOLD_L, "#ff9a3c" }, life = 0.9, trans = { 0.45, 1 }, name = "OrbitTrail1" })
 		-- 2: ocean world with green land and a moon
 		local p2c = CFrame.new(planetPos[2].Position)
 		local p2 = B:bone("Planet2", orbit, p2c)
-		voxelSphere(p2, p2c, 1.2, "#2e8bff", "#6fc3ff", "#1d5ed0")
-		B:block(p2, v(0.5, 0.35, 0.3), p2c * CFrame.new(0.2, 0.25, -0.5), "#52d66a")
-		B:block(p2, v(0.3, 0.4, 0.45), p2c * CFrame.new(-0.5, -0.1, 0.15), "#3bbf56")
-		B:block(p2, v(0.45, 0.3, 0.3), p2c * CFrame.new(0.1, -0.3, 0.5), "#52d66a")
-		B:block(p2, v(0.62, 0.14, 0.62), p2c * CFrame.new(0, 0.58, 0), "#ffffff")
+		voxelSphere(p2, p2c, 1.55, "#2e8bff", "#6fc3ff", "#1d5ed0")
+		B:block(p2, v(0.5, 0.35, 0.3), p2c * CFrame.new(0.25, 0.3, -0.65), "#52d66a")
+		B:block(p2, v(0.3, 0.4, 0.45), p2c * CFrame.new(-0.65, -0.1, 0.2), "#3bbf56")
+		B:block(p2, v(0.45, 0.3, 0.3), p2c * CFrame.new(0.1, -0.35, 0.65), "#52d66a")
+		B:block(p2, v(0.8, 0.16, 0.8), p2c * CFrame.new(0, 0.75, 0), "#ffffff")
 		local moon = B:bone("Moon", p2, p2c)
-		local mp = p2c * CFrame.new(1.05, 0.2, 0)
+		local mp = p2c * CFrame.new(1.4, 0.25, 0)
 		B:block(moon, v(0.34, 0.34, 0.34), mp, SILVER)
 		B:block(moon, v(0.24, 0.42, 0.24), mp, "#b4b0d0")
 		B:trail(moon, mp.Position + v(0, 0.12, 0), mp.Position - v(0, 0.12, 0), { color = { SILVER, CYAN }, life = 0.5, trans = { 0.5, 1 }, name = "MoonTrail" })
@@ -197,11 +202,25 @@ return {
 		-- 3: banded pink/violet giant with a glowing storm spot
 		local p3c = CFrame.new(planetPos[3].Position)
 		local p3 = B:bone("Planet3", orbit, p3c)
-		voxelSphere(p3, p3c, 1.4, "#c04fe0", "#ff8fe8", "#7a2fb8")
-		B:block(p3, v(1.45, 0.2, 1.06), p3c * CFrame.new(0, 0.3, 0), "#ffb3f0")
-		B:block(p3, v(1.06, 0.18, 1.45), p3c * CFrame.new(0, -0.28, 0), "#9a3dd0")
-		B:block(p3, v(0.3, 0.22, 0.08), p3c * CFrame.new(0.25, -0.02, -0.72), PINK, { mat = "Neon", name = "StormSpot" })
+		voxelSphere(p3, p3c, 1.85, "#c04fe0", "#ff8fe8", "#7a2fb8")
+		B:block(p3, v(1.9, 0.24, 1.4), p3c * CFrame.new(0, 0.4, 0), "#ffb3f0")
+		B:block(p3, v(1.4, 0.22, 1.9), p3c * CFrame.new(0, -0.36, 0), "#9a3dd0")
+		B:block(p3, v(0.4, 0.28, 0.1), p3c * CFrame.new(0.3, -0.02, -0.95), PINK, { mat = "Neon", name = "StormSpot" })
 		B:trail(orbit, p3c.Position + v(0, 0.4, 0), p3c.Position - v(0, 0.4, 0), { color = { PINK, VIO }, life = 0.9, trans = { 0.45, 1 }, name = "OrbitTrail3" })
+
+		-- tilted asteroid belt circling the keystone (counter-orbit)
+		local belt2CF = CFrame.new(0, 7.9, ZA) * ang(0, 0, -18)
+		local ast = B:bone("Asteroids", "Root", belt2CF)
+		for k = 0, 9 do
+			local c = belt2CF * CFrame.Angles(0, math.rad(k * 36), 0) * CFrame.new(0, 0, -3.5)
+			local big = k % 2 == 0
+			if k % 5 == 2 then
+				B:block(ast, v(0.26, 0.26, 0.26), c * ang(45, 45, 0), k < 5 and CYAN or PINK, { mat = "Neon" })
+			else
+				B:block(ast, v(big and 0.45 or 0.32, big and 0.38 or 0.3, big and 0.42 or 0.3), c * ang(k * 23, k * 41, 0), k % 3 == 0 and "#7a6f9c" or "#5d5578")
+				B:block(ast, v(0.22, 0.22, 0.22), c * CFrame.new(0.15, 0.17, 0) * ang(k * 31, 0, 20), "#9b92bd")
+			end
+		end
 
 		------------------------------------------------------ uprights
 		B:sym(function()

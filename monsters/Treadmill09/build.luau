@@ -225,6 +225,29 @@ return {
 		end
 		B:block("Root", v(1.4, 0.3, 0.06), cf(0, 6.95, 4.8), D1)
 		B:block("Root", v(1.0, 0.1, 0.05), cf(0, 6.95, 4.84), MG, { mat = "Neon", name = "GateBack" })
+		-- data cubes streaming up the inner faces of the gate pylons
+		for _, s in { 1, -1 } do
+			local db = B:bone(s == 1 and "DataR" or "DataL", "Root", v(s * 1.82, 2.4, 4.4))
+			for k = 0, 3 do
+				local col = (k % 2 == 0) and CY or MG
+				B:block(db, v(0.2, 0.2, 0.2), cf(s * 1.84, 2.45 + k * 1.0, 4.4 + ((k % 2) - 0.5) * 0.2) * ang(0, 45, 0), col, { mat = "Neon" })
+			end
+			B:block("Root", v(0.06, 3.9, 0.3), cf(s * 1.89, 4.45, 4.4), D1)
+		end
+		-- circuit traces on the plinth sides
+		B:sym(function()
+			for _, tr in { { -2.4, 0.95, 1.4 }, { -0.2, 0.68, 1.0 }, { 1.3, 0.95, 1.6 }, { 3.2, 0.68, 0.9 } } do
+				B:block("Root", v(0.06, 0.06, tr[3]), cf(2.56, tr[2], tr[1]), S1)
+				B:block("Root", v(0.06, 0.3, 0.06), cf(2.56, 0.82, tr[1] + tr[3] / 2), S1)
+				B:block("Root", v(0.08, 0.12, 0.12), cf(2.57, tr[2], tr[1] - tr[3] / 2), S2)
+			end
+		end)
+		-- gate back face: cyber logo plate
+		B:block("Root", v(0.5, 0.5, 0.06), cf(-1.6, 6.95, 4.8), D3)
+		B:block("Root", v(0.5, 0.5, 0.06), cf(1.6, 6.95, 4.8), D3)
+		B:block("Root", v(0.3, 0.3, 0.05), cf(-1.6, 6.95, 4.84) * ang(0, 0, 45), CY, { mat = "Neon" })
+		B:block("Root", v(0.3, 0.3, 0.05), cf(1.6, 6.95, 4.84) * ang(0, 0, 45), CY, { mat = "Neon" })
+
 		-- projection beams from the lens up to the centre panel
 		for _, bx in { -0.4, 0, 0.4 } do
 			B:block("Root", v(0.04, 0.32, 0.04), cf(bx, 7.28, -3.9), CY, { mat = "Neon", tr = 0.5 })
