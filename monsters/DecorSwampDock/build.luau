@@ -123,9 +123,9 @@ return {
 			for _, s in { -1, 1 } do
 				local top = deckY(x) - 0.2
 				local lean = v(rnd(-0.25, 0.25), 0, rnd(-0.2, 0.2))
-				local foot = v(x, 0, s * SZ) + lean
+				local foot = v(x, 0.1, s * SZ) + lean
 				B:bar(R, foot, v(x, top, s * SZ), 0.7, 0.7, (i % 2 == 0) and WOOD_DK or WOOD)
-				B:bar(R, foot - v(0, 0.05, 0), foot + (v(x, top, s * SZ) - foot).Unit * 0.9, 0.78, 0.78, WET)
+				B:bar(R, foot, foot + (v(x, top, s * SZ) - foot).Unit * 0.9, 0.78, 0.78, WET)
 				B:block(R, v(1.0, 0.22, 1.0), CFrame.new(foot + v(0, 0.45, 0)) * ang(0, 45 * i, 0), MOSS_DK)
 			end
 			-- cross beam under the planks
