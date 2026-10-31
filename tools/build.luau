@@ -484,7 +484,7 @@ local function buildMonster(id, L)
 	if maxBright > 1.5 then problem(("PointLight brightness %.1f too high (max 1.5)"):format(maxBright)) end
 	if maxCtxLight > 2 then problem(("ctx.light brightness %.1f too high (max 2)"):format(maxCtxLight)) end
 	-- part cap scales with rarity: high tiers must be the most detailed pets
-	local CAPS = { Common = 260, Uncommon = 280, Rare = 320, Epic = 360, Legendary = 440, Mythic = 460, Secret = 460, Cosmic = 480, Divine = 520, Apex = 680, Decor = 400, Filler = 70 }
+	local CAPS = { Common = 260, Uncommon = 280, Rare = 320, Epic = 360, Legendary = 440, Mythic = 460, Secret = 460, Cosmic = 480, Divine = 520, Apex = 680, Decor = 400, Filler = 150 }
 	local cap = CAPS[spec.Rarity or "Legendary"] or 360
 	if B.partCount > cap then problem(("too many parts: %d (max %d for %s) - get detail from color blocking, not part spam"):format(B.partCount, cap, spec.Rarity or "?")) end
 	local maxH = spec.Rarity == "Apex" and 56 or 24

@@ -253,6 +253,6 @@ the tool's `SwingCount` attribute).
 
 ## Filler props (`Filler = true`, `Rarity = "Filler"`)
 
-For scenery meant to be copy-pasted many times (bushes, rocks, fences, flowers). Max 70 parts, no
+For scenery meant to be copy-pasted many times (bushes, rocks, fences, flowers). Max 150 parts, no
 motion.luau, no emitters/lights/trails (the build flags them). The exported model is flattened: every
 visible part anchored, no welds, invisible bone parts removed, no scripts.
