@@ -345,12 +345,14 @@ return {
 			return CFrame.new(c) * CFrame.Angles(0, -rad(deg), 0) * ang(tlt, 0, 0) * CFrame.Angles(0, rad(deg), 0)
 		end
 		-- name, centre, radius, start angle, tilt dir, tilt, scale
-		bee("Bee1", tilted(v(AX, DECK + 5.8, AZ), 30, 10), 4.4, 20, 1.0)
-		bee("Bee2", tilted(v(AX, DECK + 10.0, AZ), 200, 12), 4.2, 200, 0.95)
-		bee("Bee3", tilted(v(BX, DECK + 4.4, BZ), 120, 9), 4.0, 110, 0.95)
-		bee("Bee4", tilted(v(BX, DECK + 6.6, BZ), 300, 14), 3.6, 290, 0.9)
-		bee("Bee5", tilted(v(0, DECK + 11.5, 0), 60, 8), 7.0, 150, 1.05)
-		bee("Bee6", tilted(v(0, DECK + 7.6, 0), 240, 10), 7.8, 330, 1.0)
+		-- (orbits keep clear of both stacks: the tall-stack bees fly above the
+		-- short stack, the short-stack bee circles just over its comb)
+		bee("Bee1", tilted(v(AX, DECK + 9.0, AZ), 30, 6), 4.1, 20, 1.0)
+		bee("Bee2", tilted(v(AX, DECK + 11.4, AZ), 200, 7), 4.5, 200, 0.95)
+		bee("Bee3", tilted(v(BX, DECK + 7.8, BZ), 120, 5), 2.8, 110, 0.9)
+		bee("Bee4", tilted(v(0, DECK + 3.0, 0), 90, 5), 8.6, 250, 1.0)
+		bee("Bee5", tilted(v(0, DECK + 11.8, 0), 60, 8), 7.2, 150, 1.05)
+		bee("Bee6", tilted(v(0, DECK + 7.4, 0), 240, 8), 8.0, 330, 1.0)
 
 		------------------------------------------------------------------
 		-- VFX
