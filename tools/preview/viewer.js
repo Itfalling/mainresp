@@ -573,7 +573,80 @@ async function showcase() {
   window.__done = true;
 }
 
-(mode === 'showcase' ? showcase() : load().then((data) => (mode === 'sheet' ? sheet(data) : live(data)))).catch((e) => {
+// ---------- map (thousands of placed models: instanced boxes, rest pose) ----------
+async function mapView() {
+  const scene0 = await (await fetch(`../../out/preview/${params.get('scene') || '_map'}.json`)).json();
+  const ids = [...new Set(scene0.instances.map((i) => i.id))];
+  const datas = new Map();
+  await Promise.all(ids.map(async (mid) => datas.set(mid, fixData(await (await fetch(`../../out/preview/${mid}.json`)).json()))));
+  // per-model part list in model space (bone rest * part cf)
+  const local = new Map();
+  for (const [mid, d] of datas) {
+    const rest = new Map(d.bones.map((b) => [b.name, cfToMatrix(b.cf)]));
+    local.set(mid, d.parts.filter((p) => !p.neg && p.tr < 0.95).map((p) => ({ p, m: (rest.get(p.bone) || new THREE.Matrix4()).clone().multiply(cfToMatrix(p.cf)) })));
+  }
+  const groups = { opaque: [], neon: [], trans: [] };
+  const add = (p, m) => {
+    const g = p.mat === 'Neon' ? groups.neon : p.tr > 0.02 || p.mat === 'Glass' || p.mat === 'ForceField' ? groups.trans : groups.opaque;
+    g.push({ m: m.clone().scale(new THREE.Vector3(...p.size)), color: p.color, tr: p.tr });
+  };
+  for (const inst of scene0.instances) {
+    const w = cfToMatrix(inst.cf);
+    for (const { p, m } of local.get(inst.id)) add(p, w.clone().multiply(m));
+  }
+  for (const p of scene0.parts) if (p.tr < 0.95) add(p, cfToMatrix(p.cf));
+
+  const cw = Number(params.get('cw') || 1600), ch = Number(params.get('ch') || 900);
+  const renderer = makeRenderer(cw, ch);
+  document.body.appendChild(renderer.domElement);
+  renderer.domElement.id = 'sheet';
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color('#9fd6ff');
+  scene.fog = new THREE.Fog('#bfe3ff', 260, Number(params.get('fog') || 1400));
+  scene.add(new THREE.HemisphereLight('#e3f2ff', '#6f9a5a', 1.3));
+  const unit = new THREE.BoxGeometry(1, 1, 1);
+  const mats = {
+    opaque: new THREE.MeshStandardMaterial({ roughness: 0.8 }),
+    neon: new THREE.MeshBasicMaterial({}),
+    trans: new THREE.MeshStandardMaterial({ roughness: 0.2, transparent: true, opacity: 0.6, depthWrite: false }),
+  };
+  for (const [k, list] of Object.entries(groups)) {
+    if (!list.length) continue;
+    const im = new THREE.InstancedMesh(unit, mats[k], list.length);
+    const c = new THREE.Color();
+    list.forEach((e, i) => {
+      im.setMatrixAt(i, e.m);
+      c.set(e.color);
+      if (k === 'neon') c.multiplyScalar(1.6);
+      im.setColorAt(i, c);
+    });
+    im.castShadow = k === 'opaque';
+    im.receiveShadow = k !== 'neon';
+    if (k === 'trans') im.renderOrder = 2;
+    scene.add(im);
+  }
+  const camera = new THREE.PerspectiveCamera(Number(params.get('fov') || 60), cw / ch, 0.5, 6000);
+  const v = params.get('cam') ? params.get('cam').split(',').map(Number) : scene0.cams[params.get('view') || 'start'];
+  camera.position.set(v[0], v[1], v[2]);
+  const target = new THREE.Vector3(v[3], v[4], v[5]);
+  camera.lookAt(target);
+  const sun = new THREE.DirectionalLight('#fff6e6', 2.1);
+  const R = Math.min(500, camera.position.distanceTo(target) * 1.6 + 60);
+  sun.position.copy(target).add(new THREE.Vector3(R * 0.5, R * 1.2, -R * 0.35));
+  sun.target.position.copy(target);
+  scene.add(sun.target);
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(4096, 4096);
+  const sc = sun.shadow.camera;
+  sc.left = sc.bottom = -R; sc.right = sc.top = R; sc.near = 1; sc.far = R * 4;
+  sun.shadow.bias = -0.0006;
+  scene.add(sun);
+  const composer = makeComposer(renderer, scene, camera, cw, ch);
+  composer.render();
+  window.__done = true;
+}
+
+(mode === 'map' ? mapView() : mode === 'showcase' ? showcase() : load().then((data) => (mode === 'sheet' ? sheet(data) : live(data)))).catch((e) => {
   document.body.innerHTML = `<pre style="color:#f66">${e.stack || e}</pre>`;
   window.__error = String(e);
   window.__done = true;

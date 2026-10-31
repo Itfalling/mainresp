@@ -38,8 +38,11 @@ const browser = await chromium.launch({
   args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'],
 });
 
-const SHOWCASE = ids[0].startsWith('_showcase');
-const SHEETS = SHOWCASE
+const SHOWCASE = ids[0].startsWith('_showcase') || ids[0].startsWith('_map');
+const MAP = ids[0].startsWith('_map');
+const SHEETS = MAP
+  ? (opt.view || 'start,sky').split(',').map((v) => ({ name: v, q: { mode: 'map', scene: ids[0], view: v, cam: opt.cam || '', fov: opt.fov || '', cw: opt.cw || '1600', ch: opt.ch || '900' } }))
+  : SHOWCASE
   ? (opt.view || 'aisle,overview').split(',').map((v) => ({ name: v, q: { mode: 'showcase', scene: ids[0], view: v, t: opt.t || '1.5', cw: opt.cw || '1600', ch: opt.ch || '900' } }))
   : opt.views || opt.times || opt.nt
   ? [{ name: opt.name || 'custom', q: { views: opt.views || '34', times: opt.times || '', nt: opt.nt || '', cols: opt.cols || '', zoom: opt.zoom || '1', focus: opt.focus || '', cw: opt.cw || '', ch: opt.ch || '' } }]
