@@ -213,7 +213,7 @@ return {
 		local EB = BY1 + 0.4 -- ear base y
 		local function ear(s)
 			local base = CFrame.new(s * 2.0, EB, 0.3) * ang(0, 0, -s * 32)
-			local segs = { { 2.8, 1.3 }, { 3.6, 1.6 }, { 4.0, 1.7 }, { 4.0, 1.6 }, { 3.6, 1.4 }, { 2.8, 1.0 }, { 1.8, 0.7 } }
+			local segs = { { 2.8, 1.3 }, { 3.6, 1.6 }, { 4.0, 1.7 }, { 4.0, 1.6 }, { 3.6, 1.4 }, { 2.8, 1.0 }, { 1.8, 0.55 } }
 			local y = 0
 			for i, sg in segs do
 				local w, h = sg[1], sg[2]
@@ -249,7 +249,7 @@ return {
 
 		---------------------------------------------------------------- side crown: topiary bunnies in gold pots + stars
 		local function topiaryBunny(x, ry)
-			local base = CFrame.new(x, BY1 + 0.85, 0) * ang(0, ry, 0)
+			local base = CFrame.new(x, BY1 + 0.7, 0) * ang(0, ry, 0)
 			-- gold pot
 			B:block(R, v(3.2, 1.4, 3.2), base * CFrame.new(0, 0.7, 0), GOLD)
 			B:block(R, v(3.6, 0.5, 3.6), base * CFrame.new(0, 1.55, 0), GOLD_DK)

@@ -20,19 +20,19 @@ end
 
 -- MUST match build.luau
 local FLOWS = {
-	{ bone = "MainA", pre = "MA", S = 8, k = 1, yBot = 1.4, yTop = 23.4, n = 12, subs = 1, fT = 1.6, fB = 1.8, base = 0.1 },
-	{ bone = "MainB", pre = "MB", S = 8, k = 2, yBot = 1.4, yTop = 23.4, n = 9, subs = 2, fT = 1.4, fB = 1.6, base = 0 },
-	{ bone = "Upper", pre = "UP", S = 6, k = 2, yBot = 24.6, yTop = 40.2, n = 7, subs = 2, fT = 1.2, fB = 1.0, base = 0 },
+	{ bone = "MainA", pre = "MA", S = 4, k = 2, yBot = 5.6, yTop = 23.4, n = 14, subs = 1, fT = 1.6, fB = 1.6, base = 0.1 },
+	{ bone = "MainB", pre = "MB", S = 4, k = 3, yBot = 5.6, yTop = 23.4, n = 6, subs = 1, fT = 1.4, fB = 1.4, base = 0 },
+	{ bone = "Upper", pre = "UP", S = 4, k = 3, yBot = 24.8, yTop = 39.8, n = 7, subs = 2, fT = 1.2, fB = 1.0, base = 0 },
 }
 local function dashSpec(Lr, c, s)
 	if Lr.pre == "MA" then
-		return -5.5 + (c - 1) * 1.0, 0.55 + 0.3 * frac(c * 0.71), Lr.S * frac(c * 0.618 + 0.1), 2.5 + 2.5 * frac(c * 0.377 + 0.2)
+		return -5.55 + (c - 1) * 0.85 + 0.25 * (frac(c * 0.71) - 0.5), 0.3 + 0.25 * frac(c * 0.37), Lr.S * frac(c * 0.618 + 0.1), 2.2 + 1.3 * frac(c * 0.377 + 0.2)
 	elseif Lr.pre == "MB" then
 		local ph = Lr.S * frac(c * 0.414 + 0.3) + (s - 1) * (Lr.S / 2 + 1.2 * (frac(c * 0.83) - 0.5))
-		return -5.2 + (c - 1) * 1.3 + 0.3 * (frac(c * 0.53) - 0.5), 0.8 + 0.45 * frac(c * 0.29), ph % Lr.S, 1.3 + 1.5 * frac(c * 0.61 + s * 0.27)
+		return -4.6 + (c - 1) * 1.85 + 0.5 * (frac(c * 0.53) - 0.5), 0.45 + 0.3 * frac(c * 0.29), ph % Lr.S, 0.8 + 0.9 * frac(c * 0.61 + s * 0.27)
 	else
 		local ph = Lr.S * frac(c * 0.57 + 0.2) + (s - 1) * Lr.S * 0.5
-		return -3.0 + (c - 1) * 1.0, (s == 1) and 0.55 or 0.85, ph % Lr.S, (s == 1) and (2 + 1.5 * frac(c * 0.33)) or (1.1 + 1.0 * frac(c * 0.71))
+		return -3.1 + (c - 1) * 1.03 + 0.2 * (frac(c * 0.47) - 0.5), (s == 1) and (0.3 + 0.2 * frac(c * 0.37)) or (0.45 + 0.25 * frac(c * 0.59)), ph % Lr.S, (s == 1) and (1.6 + 1.0 * frac(c * 0.33)) or (0.9 + 0.7 * frac(c * 0.71))
 	end
 end
 
@@ -46,6 +46,9 @@ for _, Lr in FLOWS do
 			local _, _, ph, len = dashSpec(Lr, c, s)
 			for j = 0, rows do
 				local y = Lr.yBot + ph + j * Lr.S
+				if y + len / 2 - Lr.S >= Lr.yTop then
+					continue
+				end
 				local alwaysIn = (y + len / 2 <= Lr.yTop - Lr.fT) and (y - Lr.S - len / 2 >= Lr.yBot + Lr.fB)
 				if not alwaysIn then
 					table.insert(Lr.list, { ("%s%d_%d_%d"):format(Lr.pre, c, s, j), y, len })

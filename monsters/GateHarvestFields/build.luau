@@ -298,20 +298,27 @@ return {
 		end
 		-- twig perch beside the stack
 		local PXC = -16.2
-		B:block(R, v(0.7, 5.2, 0.7), cf(PXC, BY1 + 2.6 + 0.4, 0), WOOD_DK)
-		B:block(R, v(4.4, 0.6, 0.6), cf(PXC, BY1 + 5.4, 0), WOOD)
-		B:block(R, v(1.6, 0.4, 0.4), cf(PXC + 2.2, BY1 + 5.9, 0, 0, 0, 30), WOOD)
-		B:block(R, v(0.9, 0.3, 0.2), cf(PXC + 2.8, BY1 + 6.4, 0, 0, 0, 10), LF_RED)
+		B:block(R, v(0.7, 4.8, 0.7), cf(PXC, BY1 + 2.8, 0), WOOD_DK)
+		B:block(R, v(4.4, 0.6, 0.6), cf(PXC, BY1 + 5.0, 0), WOOD)
+		B:block(R, v(1.6, 0.4, 0.4), cf(PXC + 2.2, BY1 + 5.5, 0, 0, 0, 30), WOOD)
+		B:block(R, v(0.9, 0.3, 0.2), cf(PXC + 2.8, BY1 + 6.0, 0, 0, 0, 10), LF_RED)
 		B:block(R, v(2.0, 1.4, 2.0), cf(PXC, BY1 + 0.9, 0), WOOD_DK)
-		crow(v(PXC - 0.9, BY1 + 5.7, 0), 25, 1)
+		crow(v(PXC - 0.9, BY1 + 5.3, 0), 25, 1)
 		-- crow on top of the right corn shock
 		crow(v(PX - 0.5, 30.4, 0.2), -60, 1.0)
 
-		-- scattered leaves along the lintel top
-		for i = 1, 8 do
-			local x = (i % 2 == 0 and 1 or -1) * rnd(17, 31)
-			maple(v(x, BY1 + 0.25, rnd(-1.8, 1.8)), rnd(1.2, 1.8), rnd(0, 90), leafPal[i % 6 + 1], ang(-90, 0, 0))
-		end
+		-- small corn sheaves fanning up behind the pumpkin stack
+		B:sym(function()
+			local base = v(11.6, BY1 + 0.4, 1.3)
+			for k = -2, 2 do
+				local tip = base + v(1.0 + k * 1.3, 7.2 - math.abs(k) * 0.8, k * 0.25)
+				B:bar(R, base, tip, 0.8, 0.8, stalkCols[k + 3], { up = v(0, 0, 1) })
+				B:bar(R, tip, tip + v(0.5 + k * 0.3, 0.9, 0), 0.4, 0.4, CS_LT)
+			end
+			B:bar(R, base + v(0, 2.2, 0), base + v(-1.6, 1.0, -0.6), 0.9, 0.2, CS)
+			B:block(R, v(2.6, 0.8, 1.6), CFrame.new(base + v(0.3, 2.0, 0)), TWINE)
+			maple(base + v(-0.8, 2.0, -0.9), 1.5, 25, LF_RED)
+		end)
 		-- pumpkins sitting on the lintel near the pillars
 		for _, x in { -24, 24 } do
 			B:block(R, v(2.8, 2.0, 2.6), cf(x, BY1 + 1.0, 0.2), PUMP)

@@ -204,20 +204,30 @@ return {
 		------------------------------------------------------------------
 		local BASIN_Y = 24.3
 		box(R, -7, 7, 23.4, BASIN_Y, -2.9, 5.2, WATER, { tr = 0.2 })
-		-- basin side rims (stones) and the shoulders of the spill lip
+		-- basin side rims: chunky stacked stones with grass, both sides
 		for _, s in { 1, -1 } do
-			box(R, s * 6.6 - 0.9 * s, s * 9.6, 23.3, 25.0, -3.3, 5.5, STONE)
-			box(R, s * 7.2 - 0.6 * s, s * 9.2, 24.9, 25.6, -2.6, 2.0, STONE_LT)
-			box(R, s * 6.0 - 0.0, s * 7.4, 23.2, 24.8, -3.5, -1.6, STONE_DK)
-			tuft(s * 8.6, 25.0, 3.6, 1.0, (s == 1) and PINK or WHITE)
-			flower(s * 8.4, 25.6, -1.6, (s == 1) and YELLOW or PINK)
+			B:block(R, v(3.0, 2.0, 3.4), cf(s * 8.1, 24.0, -1.4, 0, s * 8, 0), STONE)
+			B:block(R, v(2.6, 1.8, 3.0), cf(s * 8.3, 23.9, 2.6, 0, -s * 6, 0), STONE_DK)
+			B:block(R, v(2.0, 1.0, 2.2), cf(s * 8.4, 25.3, -1.0, 0, s * 20, 0), STONE_LT)
+			B:block(R, v(1.6, 0.25, 1.6), cf(s * 8.4, 25.9, -1.0, 0, s * 20, 0), GRASS)
+			B:block(R, v(1.7, 1.5, 1.8), cf(s * 6.9, 23.9, -3.0, 0, s * 30, 0), STONE_LT)
+			B:block(R, v(1.2, 0.9, 1.3), cf(s * 7.4, 23.5, 4.8, 0, s * 15, 0), STONE)
+			tuft(s * 8.9, 24.8, 4.1, 1.0, (s == 1) and PINK or WHITE)
+			flower(s * 9.0, 24.8, 0.6, (s == 1) and YELLOW or PINK)
 		end
-		-- lip roll where the basin spills over (hides the dashes entering)
-		box(R, -6.1, 6.1, 22.7, 24.25, -4.35, -2.85, WATER_LT, { tr = 0.1 })
-		box(R, -5.6, 5.6, 24.0, 24.45, -4.2, -2.6, FOAM2)
-		-- top fall lip roll (stream spills over)
-		box(R, -3.7, 3.7, 39.3, 40.9, 3.65, 5.2, WATER_LT, { tr = 0.1 })
-		box(R, -3.3, 3.3, 40.7, 41.0, 3.8, 5.5, FOAM2)
+		-- lip curl where the basin spills over (hides the dashes entering)
+		local function curl(x0, x1, yTop, zFront, zBack)
+			box(R, x0, x1, yTop - 0.5, yTop, zFront + 0.4, zBack, "#c4f3ff")
+			box(R, x0 - 0.1, x1 + 0.1, yTop - 1.85, yTop - 0.45, zFront, zFront + 1.5, "#9fe6ff", { tr = 0.05 })
+			box(R, x0 + 0.1, x1 - 0.1, yTop - 2.6, yTop - 1.8, zFront + 0.2, zFront + 1.3, "#7fd8ff", { tr = 0.1 })
+			local n = math.floor((x1 - x0) / 1.6)
+			for k = 0, n - 1 do
+				local x = x0 + 0.8 + k * (x1 - x0 - 1.6) / math.max(1, n - 1) + rnd(-0.3, 0.3)
+				B:block(R, v(rnd(0.7, 1.1), rnd(0.35, 0.55), 0.3), cf(x, yTop - rnd(0.6, 1.3), zFront - 0.05), (k % 2 == 0) and FOAM or FOAM2)
+			end
+		end
+		curl(-6.1, 6.1, 24.4, -4.45, -2.6)
+		curl(-3.6, 3.6, 40.9, 3.6, 5.6)
 		-- stream water at the top
 		box(R, -4.1, 4.1, 40.05, 40.8, 4.6, 16, WATER, { tr = 0.2 })
 		for _, z in { 7.2, 11.6, 14.6 } do
@@ -228,11 +238,13 @@ return {
 		-- falling water sheets (static, slightly see-through)
 		------------------------------------------------------------------
 		-- main fall: y 0.9 .. 24, front of the basin lip
-		box(R, -5, 5, 0.9, 23.2, -3.6, -3.1, WATER, { tr = 0.18 })
+		box(R, -6, 6, 0.9, 22.0, -3.1, -3.02, "#2fa6ee")
+		box(R, -5, 5, 0.9, 23.2, -3.6, -3.1, WATER, { tr = 0.25 })
 		box(R, -6, -5, 0.9, 23.0, -3.5, -3.15, WATER_DK, { tr = 0.18 })
 		box(R, 5, 6, 0.9, 23.0, -3.5, -3.15, WATER_DK, { tr = 0.18 })
 		-- top fall: y 24.3 .. 40.8, in front of the wet face
-		box(R, -3.5, 3.5, BASIN_Y, 39.6, 4.4, 4.85, WATER, { tr = 0.18 })
+		box(R, -3.5, 3.5, BASIN_Y, 39.0, 4.85, 4.95, "#2fa6ee")
+		box(R, -3.5, 3.5, BASIN_Y, 39.6, 4.4, 4.85, WATER, { tr = 0.25 })
 
 		------------------------------------------------------------------
 		-- moving dashes (MUST match the generator in motion.luau)
@@ -241,20 +253,20 @@ return {
 			return x - math.floor(x)
 		end
 		local FLOWS = {
-			{ bone = "MainA", pre = "MA", S = 8, yBot = 1.4, yTop = 23.4, n = 12, subs = 1, z = -3.72, th = 0.2 },
-			{ bone = "MainB", pre = "MB", S = 8, yBot = 1.4, yTop = 23.4, n = 9, subs = 2, z = -4.0, th = 0.3 },
-			{ bone = "Upper", pre = "UP", S = 6, yBot = 24.6, yTop = 40.2, n = 7, subs = 2, z = 4.15, th = 0.25 },
+			{ bone = "MainA", pre = "MA", S = 4, yBot = 5.6, yTop = 23.4, n = 14, subs = 1, z = -3.72, th = 0.2, fT = 1.6, fB = 1.6 },
+			{ bone = "MainB", pre = "MB", S = 4, yBot = 5.6, yTop = 23.4, n = 6, subs = 1, z = -4.0, th = 0.3, fT = 1.4, fB = 1.4 },
+			{ bone = "Upper", pre = "UP", S = 4, yBot = 24.8, yTop = 39.8, n = 7, subs = 2, z = 4.15, th = 0.25, fT = 1.2, fB = 1.0 },
 		}
 		local function dashSpec(L, c, s)
 			-- x, width, rest phase, length
 			if L.pre == "MA" then
-				return -5.5 + (c - 1) * 1.0, 0.55 + 0.3 * frac(c * 0.71), L.S * frac(c * 0.618 + 0.1), 2.5 + 2.5 * frac(c * 0.377 + 0.2)
+				return -5.55 + (c - 1) * 0.85 + 0.25 * (frac(c * 0.71) - 0.5), 0.3 + 0.25 * frac(c * 0.37), L.S * frac(c * 0.618 + 0.1), 2.2 + 1.3 * frac(c * 0.377 + 0.2)
 			elseif L.pre == "MB" then
 				local ph = L.S * frac(c * 0.414 + 0.3) + (s - 1) * (L.S / 2 + 1.2 * (frac(c * 0.83) - 0.5))
-				return -5.2 + (c - 1) * 1.3 + 0.3 * (frac(c * 0.53) - 0.5), 0.8 + 0.45 * frac(c * 0.29), ph % L.S, 1.3 + 1.5 * frac(c * 0.61 + s * 0.27)
+				return -4.6 + (c - 1) * 1.85 + 0.5 * (frac(c * 0.53) - 0.5), 0.45 + 0.3 * frac(c * 0.29), ph % L.S, 0.8 + 0.9 * frac(c * 0.61 + s * 0.27)
 			else
 				local ph = L.S * frac(c * 0.57 + 0.2) + (s - 1) * L.S * 0.5
-				return -3.0 + (c - 1) * 1.0, (s == 1) and 0.55 or 0.85, ph % L.S, (s == 1) and (2 + 1.5 * frac(c * 0.33)) or (1.1 + 1.0 * frac(c * 0.71))
+				return -3.1 + (c - 1) * 1.03 + 0.2 * (frac(c * 0.47) - 0.5), (s == 1) and (0.3 + 0.2 * frac(c * 0.37)) or (0.45 + 0.25 * frac(c * 0.59)), ph % L.S, (s == 1) and (1.6 + 1.0 * frac(c * 0.33)) or (0.9 + 0.7 * frac(c * 0.71))
 			end
 		end
 		for _, L in FLOWS do
@@ -265,14 +277,20 @@ return {
 					local x, w, ph, len = dashSpec(L, c, s)
 					for j = 0, rows do
 						local yc = L.yBot + ph + j * L.S
+						if yc + len / 2 - L.S >= L.yTop then
+							continue -- never reaches the visible window
+						end
+						-- rest-pose visibility (same fade as motion.luau at offset 0)
+						local a = math.clamp((L.yTop - (yc + len / 2)) / L.fT, 0, 1) * math.clamp(((yc - len / 2) - L.yBot) / L.fB, 0, 1)
 						local col, z, th, tr
 						if L.pre == "MA" then
-							col, z, th, tr = (c % 2 == 0) and STREAK or STREAK2, L.z, L.th, 0.1
+							col, z, th, tr = ({ STREAK, "#7fd6ff", STREAK2 })[c % 3 + 1], L.z, L.th, 0.1
 						elseif L.pre == "MB" then
 							col, z, th, tr = (s == 1) and FOAM or FOAM2, L.z - (c % 2) * 0.04, L.th, 0
 						else
 							col, z, th, tr = (s == 1) and STREAK or FOAM, L.z - (s - 1) * 0.3, L.th, (s == 1) and 0.1 or 0
 						end
+						tr = tr + (1 - tr) * (1 - a)
 						B:block(bone, v(w, len, th), cf(x, yc, z), col, { tr = tr, name = ("%s%d_%d_%d"):format(L.pre, c, s, j) })
 					end
 				end
@@ -286,19 +304,30 @@ return {
 		box(R, -14.5, 13, 0, 0.25, -15, -1, POOL_SAND)
 		box(R, -9, 9, 0.25, 0.32, -11, -1, POOL_DEEP)
 		box(R, -14.5, 13, 0.25, PY, -15.2, -1, WATER, { tr = 0.3 })
-		-- splash foam at the base of the main fall (static mound)
-		box(R, -6.4, 6.4, PY - 0.1, 1.6, -5.2, -2.6, FOAM2)
-		box(R, -5.2, 5.2, 1.4, 2.1, -4.6, -2.9, FOAM)
-		box(R, -7.2, -5.4, PY - 0.1, 1.3, -4.6, -2.4, FOAM)
-		box(R, 5.4, 7.2, PY - 0.1, 1.3, -4.6, -2.4, FOAM)
-		-- churning foam chunks (bob)
+		-- foam plume at the base of the main fall (stepped, static) - it also
+		-- hides where the falling dashes fade out
+		box(R, -7.2, 7.2, PY - 0.1, 2.2, -6.0, -2.4, FOAM2)
+		box(R, -6.6, 6.6, 2.2, 3.8, -5.4, -2.6, FOAM)
+		box(R, -6.0, 6.0, 3.8, 5.2, -5.0, -2.8, FOAM2)
+		for k = 0, 5 do
+			local x = -5.4 + k * 2.15 + rnd(-0.3, 0.3)
+			B:block(R, v(rnd(1.4, 2.0), rnd(0.8, 1.3), 1.6), cf(x, 5.3, rnd(-4.6, -4.2), 0, rnd(-20, 20), 0), (k % 2 == 0) and FOAM or FOAM2)
+		end
+		for _, s in { 1, -1 } do
+			B:block(R, v(1.8, 1.2, 1.8), cf(s * 7.6, 1.4, -4.6, 0, 25, 0), FOAM)
+			B:block(R, v(1.4, 0.9, 1.4), cf(s * 6.4, 1.2, -6.6, 0, 10, 0), FOAM2)
+			B:block(R, v(1.2, 0.8, 1.2), cf(s * 3.2, 1.1, -6.8, 0, 40, 0), FOAM)
+		end
+		-- churning foam chunks (bob) along the plume top and sides
 		for k = 1, 3 do
-			local ch = B:bone("Churn" .. k, R, v(-4.5 + (k - 1) * 4.5, 1.6, -4))
+			local ch = B:bone("Churn" .. k, R, v(-4.5 + (k - 1) * 4.5, 5.6, -4.4))
 			for m = 1, 3 do
-				local x = -6 + (k - 1) * 4.5 + m * 1.1 + rnd(-0.3, 0.3)
-				local sz = rnd(0.9, 1.5)
-				B:block(ch, v(sz, sz * 0.8, sz), cf(x, 1.5 + rnd(0, 0.6), rnd(-5.0, -3.2), 0, rnd(0, 45), 0), (m % 2 == 0) and FOAM or FOAM2)
+				local x = -6.2 + (k - 1) * 4.4 + m * 1.15 + rnd(-0.3, 0.3)
+				local sz = rnd(1.0, 1.5)
+				B:block(ch, v(sz, sz * 0.8, sz), cf(x, 5.6 + rnd(0, 0.7), rnd(-5.0, -4.5), 0, rnd(0, 45), 0), (m % 2 == 0) and FOAM or FOAM2)
 			end
+			local sz = rnd(1.0, 1.4)
+			B:block(ch, v(sz, sz * 0.8, sz), cf(-5.5 + (k - 1) * 5.5, rnd(2.6, 3.6), -5.7, 0, rnd(0, 45), 0), FOAM)
 		end
 		-- basin splash at the foot of the top fall
 		box(R, -4.2, 4.2, BASIN_Y - 0.1, 24.8, 2.6, 4.5, FOAM2)
@@ -364,6 +393,9 @@ return {
 			local k = 0
 			while x < 13 do
 				local w = math.min(rnd(1.6, 2.8), 13 - x)
+				if w < 0.6 then
+					break
+				end
 				local h = rnd(0.7, 1.15)
 				local d = rnd(1.2, 1.5)
 				k += 1
@@ -503,13 +535,13 @@ return {
 		local function fx(x0, x1, y0, y1, z0, z1)
 			return box(R, x0, x1, y0, y1, z0, z1, WHITE, { tr = 1 })
 		end
-		local base = fx(-5.5, 5.5, 1.2, 1.8, -4.8, -3)
+		local base = fx(-5.5, 5.5, 3.5, 5.0, -5.4, -4.2)
 		B:emitter(base, "smoke", { name = "MistMain", color = { "#ffffff", "#dff6ff" }, rate = 7, size = { 2, 4, 6 }, life = { 1.6, 2.8 }, speed = { 1, 2.5 }, spread = 70 })
 		B:emitter(base, "sparkle", { name = "SprayMain", color = { "#ffffff", "#bff0ff" }, rate = 16, size = { 0.35, 0.5, 0 }, life = { 0.6, 1.1 }, speed = { 4, 7 }, spread = 55, accel = { 0, -14, 0 } })
 		local bfx = fx(-3, 3, 24.6, 25, 2.8, 4.2)
 		B:emitter(bfx, "smoke", { name = "MistBasin", color = "#ffffff", rate = 4, size = { 1.2, 2.5, 3.5 }, life = { 1.2, 2 }, speed = { 0.8, 1.6 }, spread = 60 })
 		B:emitter(bfx, "sparkle", { name = "SprayBasin", color = { "#ffffff", "#bff0ff" }, rate = 8, size = { 0.3, 0.4, 0 }, life = { 0.5, 0.9 }, speed = { 3, 5 }, spread = 50, accel = { 0, -12, 0 } })
-		local sheetFx = fx(-5.5, 5.5, 3, 22, -4.4, -4.2)
+		local sheetFx = fx(-5.5, 5.5, 6, 22, -4.4, -4.2)
 		B:emitter(sheetFx, "sparkle", { name = "FallSparkle", color = { "#ffffff", "#9fe8ff" }, rate = 6, size = { 0.2, 0.5, 0 }, life = { 0.8, 1.4 }, speed = { 0.2, 0.8 }, spread = 180 })
 		B:emitter(flumeEnd, "drip", { name = "FlumeDrip", color = { "#ffffff", "#9fe8ff" }, rate = 12, size = { 0.3, 0.25, 0.1 } })
 		local petals = fx(-12, 12, 38, 42, 6, 14)
