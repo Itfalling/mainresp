@@ -97,6 +97,7 @@ local function bag(list)
 end
 
 local previewParts = {}
+local previewLabels = {}
 local previewInstances = {}
 
 local SURFACES = { "TopSurface", "BottomSurface", "FrontSurface", "BackSurface", "LeftSurface", "RightSurface" }
@@ -1080,6 +1081,8 @@ for k, b in BIOMES do
 		for _, d in m:GetDescendants() do
 			if d:IsA("BasePart") and d.Name == "Sign" then
 				signText(d, b.name, b.accent)
+				local front = d.CFrame * CFrame.new(0, 0, -d.Size.Z / 2 - 0.05)
+				table.insert(previewLabels, { text = b.name, accent = b.accent, cf = cfArr(front), w = d.Size.X, h = d.Size.Y })
 			end
 		end
 	end
@@ -1265,12 +1268,13 @@ for k, b in BIOMES do
 	local zs = stageZ(k)
 	cams["s" .. k] = { 0, 10, zs - 6, 0, 8, zs + 70 } -- run view entering the stage
 	cams["a" .. k] = { 90, 75, zs - 30, 0, 6, zs + 70 } -- aerial
+	cams["g" .. k] = { 6, 8, zs - 46, 0, 18, zs + 6 } -- approaching the gate
 end
 cams.ribs = { 0, 6, stageZ(RIBCAGE_STAGE) + 20, 0, 22, stageZ(RIBCAGE_STAGE) + 110 }
 cams.falls1 = { -20, 10, stageZ(1) + 26, 40, 14, stageZ(1) + 66 }
 cams.falls4 = { 20, 10, stageZ(4) + 42, -40, 14, stageZ(4) + 82 }
 cams.finale = { 0, 10, ZEND - 70, 0, 22, ZEND + 10 }
-fs.writeFile("out/preview/_map.json", serde.encode("json", { instances = previewInstances, parts = previewParts, cams = cams, length = ZEND + 50 }))
+fs.writeFile("out/preview/_map.json", serde.encode("json", { instances = previewInstances, parts = previewParts, labels = previewLabels, cams = cams, length = ZEND + 50 }))
 
 print(("Wrote out/GardenMap.rbxm + out/GardenMap.rbxl: %d parts, %d models placed, length %d studs"):format(count, #previewInstances, ZEND + 50))
 if #missing > 0 then

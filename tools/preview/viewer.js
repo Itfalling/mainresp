@@ -625,6 +625,25 @@ async function mapView() {
     if (k === 'trans') im.renderOrder = 2;
     scene.add(im);
   }
+  // stage-name signs (SurfaceGui text in Roblox)
+  for (const lb of scene0.labels || []) {
+    const cv = document.createElement('canvas');
+    cv.width = 1024; cv.height = Math.round(1024 * lb.h / lb.w);
+    const g = cv.getContext('2d');
+    g.textAlign = 'center'; g.textBaseline = 'middle'; g.lineJoin = 'round';
+    let fs = cv.height * 0.72;
+    g.font = `bold ${fs}px system-ui`;
+    while (g.measureText(lb.text).width > cv.width * 0.9) { fs *= 0.92; g.font = `bold ${fs}px system-ui`; }
+    const grad = g.createLinearGradient(0, cv.height * 0.2, 0, cv.height * 0.8);
+    grad.addColorStop(0, '#ffffff'); grad.addColorStop(1, lb.accent);
+    g.lineWidth = fs * 0.14; g.strokeStyle = '#1c1c28'; g.strokeText(lb.text, cv.width / 2, cv.height / 2);
+    g.fillStyle = grad; g.fillText(lb.text, cv.width / 2, cv.height / 2);
+    const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace;
+    const pl = new THREE.Mesh(new THREE.PlaneGeometry(lb.w, lb.h), new THREE.MeshBasicMaterial({ map: tex, transparent: true }));
+    pl.matrixAutoUpdate = false;
+    pl.matrix.copy(cfToMatrix(lb.cf).multiply(new THREE.Matrix4().makeRotationY(Math.PI)));
+    scene.add(pl);
+  }
   const camera = new THREE.PerspectiveCamera(Number(params.get('fov') || 60), cw / ch, 0.5, 6000);
   const v = params.get('cam') ? params.get('cam').split(',').map(Number) : scene0.cams[params.get('view') || 'start'];
   camera.position.set(v[0], v[1], v[2]);

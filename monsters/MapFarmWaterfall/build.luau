@@ -396,7 +396,7 @@ return {
 				if w < 0.6 then
 					break
 				end
-				local h = rnd(0.7, 1.15)
+				local h = rnd(0.6, 1.0)
 				local d = rnd(1.2, 1.5)
 				k += 1
 				local col = (k % 3 == 0) and STONE_DK or ((k % 3 == 1) and STONE or STONE_LT)
@@ -412,10 +412,10 @@ return {
 				B:block(R, v(1.6, h, 2.0), cf(p[1], h / 2, p[2], 0, rnd(-15, 15), 0), pick({ STONE, STONE_LT, STONE_DK }))
 			end
 			-- grass and flowers dotted on the rim
-			tuft(-10.5, 0.6, -15.3, 0.8, PINK)
-			tuft(-3.5, 0.6, -15.4, 0.7, nil)
-			tuft(2.5, 0.6, -15.3, 0.8, WHITE)
-			tuft(9.2, 0.6, -15.4, 0.75, YELLOW)
+			tuft(-10.5, 0.5, -15.3, 0.55, nil)
+			tuft(-3.5, 0.5, -15.4, 0.55, nil)
+			tuft(2.5, 0.5, -15.3, 0.55, nil)
+			tuft(9.2, 0.5, -15.4, 0.55, nil)
 		end
 
 		------------------------------------------------------------------

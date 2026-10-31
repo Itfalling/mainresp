@@ -405,7 +405,7 @@ return {
 				if w < 0.6 then
 					break
 				end
-				local h = rnd(0.7, 1.15)
+				local h = rnd(0.6, 1.0)
 				local d = rnd(1.2, 1.5)
 				k += 1
 				local col = (k % 3 == 0) and STONE_DK or ((k % 3 == 1) and STONE or STONE_LT)
@@ -421,10 +421,10 @@ return {
 				B:block(R, v(1.6, h, 2.0), cf(p[1], h / 2, p[2], 0, rnd(-15, 15), 0), pick({ STONE, STONE_LT, STONE_DK }))
 			end
 			-- grass and flowers dotted on the rim
-			tuft(-10.5, 0.6, -15.3, 0.8, nil)
-			tuft(-3.5, 0.6, -15.4, 0.7, nil)
-			tuft(2.5, 0.6, -15.3, 0.8, nil)
-			tuft(9.2, 0.6, -15.4, 0.75, nil)
+			tuft(-10.5, 0.5, -15.3, 0.55, nil)
+			tuft(-3.5, 0.5, -15.4, 0.55, nil)
+			tuft(2.5, 0.5, -15.3, 0.55, nil)
+			tuft(9.2, 0.5, -15.4, 0.55, nil)
 		end
 
 
@@ -470,7 +470,6 @@ return {
 			B:block(R, v(1.3 * k, 0.4 * k, 1.3 * k), base * CFrame.new(0, 1.1 * k, 0), col, { mat = "Neon", name = (glowN <= 8) and ("Glow" .. glowN) or nil })
 			B:block(R, v(0.85 * k, 0.32 * k, 0.85 * k), base * CFrame.new(0, 1.42 * k, 0) * ang(0, 45, 0), col)
 			B:block(R, v(0.24 * k, 0.1, 0.24 * k), base * CFrame.new(0.32 * k, 1.34 * k, 0.22 * k), SPOT)
-			B:block(R, v(0.22 * k, 0.1, 0.22 * k), base * CFrame.new(-0.2 * k, 1.62 * k, -0.1 * k), SPOT)
 		end
 		local function frond(base, yaw, len, lift, col)
 			local dir = v(sin(rad(yaw)), 0, -cos(rad(yaw)))
@@ -485,8 +484,8 @@ return {
 		end
 		local function fern(x, y, z, sz, rot)
 			local base = v(x, y, z)
-			for j = 0, 4 do
-				frond(base, rot + j * 72 + rnd(-12, 12), sz * rnd(0.85, 1.1), rnd(-0.25, -0.05), (j % 2 == 0) and FERN_LT or FERN)
+			for j = 0, 3 do
+				frond(base, rot + j * 90 + rnd(-12, 12), sz * rnd(0.85, 1.1), rnd(-0.25, -0.05), (j % 2 == 0) and FERN_LT or FERN)
 			end
 			B:block(R, v(0.6, 0.4, 0.6), CFrame.new(base + v(0, 0.1, 0)), FERN_DK)
 		end
@@ -520,9 +519,11 @@ return {
 			B:block(R, v(3.2 * sc, 0.4, 1.9 * sc), cf(x, y + 0.85 * sc, z - 0.7 * sc), MOSS)
 			B:block(R, v(1.0, 0.8, 0.3), cf(x - 0.9 * sc, y + 0.35 * sc, z - 1.62 * sc), MOSS_DK)
 		end
+		-- moss drape hanging from an edge at height y on a face at z
 		local function moss(x, y, z, w, h)
-			B:block(R, v(w, h, 0.3), cf(x, y, z - 0.12), MOSS_DK)
-			B:block(R, v(w * 0.6, h * 0.6, 0.3), cf(x + w * 0.15, y + h * 0.1, z - 0.22), pick({ MOSS, MOSS_LT }))
+			B:block(R, v(w, 0.7, 0.35), cf(x, y - 0.35, z - 0.12), MOSS)
+			B:block(R, v(w * 0.4, h, 0.3), cf(x - w * 0.25, y - h / 2, z - 0.1), MOSS_DK)
+			B:block(R, v(w * 0.3, h * 0.6, 0.3), cf(x + w * 0.28, y - h * 0.3, z - 0.1), MOSS_LT)
 		end
 		local function strand(x, y, z, n)
 			for k = 0, n - 1 do
@@ -545,9 +546,9 @@ return {
 		local logTop = function(xl, zl)
 			return (lf * CFrame.new(xl, 1.32, zl)).Position
 		end
-		gtoad(logTop(0.2, -2.8), 1.0, GLOW_T, 4)
-		gtoad(logTop(-0.3, -1.6), 0.7, GLOW_V, -8)
-		gtoad(logTop(0.1, 2.6), 0.85, GLOW_T, 6)
+		gtoad(logTop(0.2, -2.8), 1.3, GLOW_T, 4)
+		gtoad(logTop(-0.3, -1.3), 0.85, GLOW_V, -8)
+		gtoad(logTop(0.1, 2.6), 1.1, GLOW_T, 6)
 		-- shelf fungus on the side
 		B:block(R, v(0.5, 0.25, 1.2), lf * CFrame.new(1.35, 0.0, -1.0), "#d77a2c")
 		B:block(R, v(0.4, 0.22, 0.9), lf * CFrame.new(1.3, -0.45, -0.2), "#eda04a")
@@ -611,23 +612,21 @@ return {
 		bramble(17.0, 26.45, 11.0, 1.0, 3)
 		bramble(-17.4, 26.45, 9.0, 0.95, 2)
 		bramble(12.0, 34.45, 12.0, 0.8, 2)
-		bramble(-8.0, 44.45, 13.5, 0.85, 2)
-		bramble(7.6, 43.45, 13.6, 0.8, 2)
+		bramble(-8.0, 44.45, 13.5, 0.6, 2)
 		bramble(18.6, 14.45, -4.0, 0.75, 2)
-		bramble(-18.8, 14.45, -11.0, 0.75, 2)
 		fern(14.0, 5.4, -5.0, 2.0, 10)
 		fern(-14.6, 5.4, -12.0, 2.0, 40)
 		fern(-15.5, 26.4, 13.0, 2.4, 20)
 		fern(11.3, 18.4, 1.0, 1.8, 60)
 		fern(-11.5, 34.4, 9.0, 2.0, 30)
-		fern(16.0, 10.4, -12.5, 1.8, 50)
-		gtoad(v(14.0, 5.45, -11.0), 0.8, GLOW_V, 0)
-		gtoad(v(-16.6, 10.45, -8.0), 0.8, GLOW_T, 0)
-		gtoad(v(11.6, 18.45, -2.4), 0.75, GLOW_V, 0)
-		gtoad(v(-8.6, 24.8, 3.0), 0.7, GLOW_T, 0)
-		gtoad(v(12.4, 34.45, 7.0), 0.8, GLOW_T, 0)
-		gtoad(v(-16.4, 26.45, 6.0), 0.85, GLOW_V, 0)
-		gtoad(v(18.6, 14.45, -13.0), 0.7, GLOW_T, 0)
+		gtoad(v(14.0, 5.45, -11.0), 1.1, GLOW_V, 0)
+		gtoad(v(-16.6, 10.45, -8.0), 1.1, GLOW_T, 0)
+		gtoad(v(11.6, 18.45, -2.4), 1.0, GLOW_V, 0)
+		gtoad(v(-8.6, 24.8, 3.0), 0.9, GLOW_T, 0)
+		gtoad(v(12.4, 34.45, 7.0), 1.1, GLOW_T, 0)
+		gtoad(v(-16.4, 26.45, 6.0), 1.2, GLOW_V, 0)
+		gtoad(v(18.6, 14.45, -13.0), 1.0, GLOW_T, 0)
+		gtoad(v(7.6, 43.45, 13.0), 1.0, GLOW_V, 0)
 		outcrop(-7.6, 29.5, 5, 1.0)
 		outcrop(7.4, 31.0, 5, 0.9)
 		outcrop(12.0, 25.5, 3, 0.9)
@@ -637,18 +636,14 @@ return {
 		outcrop(-10.4, 13.0, -4, 0.8)
 		gtoad(v(-10.6, 13.7, -4.95), 0.55, GLOW_V, 0)
 		for _, m in {
-			{ 9.0, 6.0, -5 }, { -9.6, 3.2, -5 }, { 11.5, 15.0, -4 }, { -8.4, 10.6, -4 }, { 6.5, 27.0, 5 }, { -6.0, 32.5, 5 },
-			{ 12.5, 30.5, 3 }, { -12.6, 22.5, 3 }, { 18.2, 22.5, 4 }, { -16.5, 17.0, 4 }, { 8.0, 40.0, 7 }, { -7.5, 41.0, 7 },
-			{ 18.5, 8.0, -16 }, { -19.0, 4.0, -16 }, { 16.0, 3.0, -16 }, { -17.0, 11.5, -16 },
+			{ 10.0, 8.0, -5 }, { -10.0, 8.0, -5 }, { 6.8, 34.0, 5 }, { -12.4, 34.0, 3 }, { 17.6, 26.0, 4 }, { -17.0, 26.0, 4 },
 		} do
-			moss(m[1], m[2], m[3], rnd(1.4, 2.4), rnd(1.0, 1.8))
+			moss(m[1], m[2], m[3], rnd(1.8, 2.6), rnd(1.4, 2.4))
 		end
 		strand(-5.3, 34, 4.75, 4)
 		strand(9.3, 34, 4.75, 3)
 		strand(11.2, 18, -4.25, 4)
 		strand(-12.2, 18, -4.25, 4)
-		strand(15.8, 26, 3.75, 3)
-		strand(-15.0, 26, 3.75, 4)
 		-- grass tufts on ledges
 		tuft(14.2, 5.4, -8, 0.8, nil)
 		tuft(-14.6, 5.4, -4, 0.9, nil)
