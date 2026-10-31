@@ -40,7 +40,7 @@ return {
 		------------------------------------------------------------ arm
 		-- horizontal elbow out to +X, then an upturned forearm
 		B:block(R, v(1.5, 1.0, 1.0), cf(1.2, 2.4, 0), CAC)
-		B:block(R, v(1.4, 0.92, 0.92), cf(1.2, 2.4, 0, 45, 0, 0), CAC_LT)
+		B:block(R, v(1.4, 0.92, 0.92), cf(1.2, 2.4, 0, 45, 0, 0), CAC_DK)
 		column(1.95, 0, 1.9, 2.3, 1.0, CAC, CAC_DK)
 		column(1.95, 0, 4.15, 0.35, 0.75, CAC_LT, CAC)
 

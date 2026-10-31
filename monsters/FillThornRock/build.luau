@@ -32,12 +32,12 @@ return {
 		-- moss cap over the top, dripping down the back
 		B:block(R, v(2.0, 0.28, 1.7), top * CFrame.new(-0.1, 0.55, 0.1), MOSS)
 		B:block(R, v(1.4, 0.26, 1.2), cf(-1.25, 2.15, 0.45, -4, -14, 6), MOSS_DK)
-		B:block(R, v(2.2, 0.26, 1.2), cf(0.3, 1.86, 1.05, 0, 10, 0), MOSS_DK)
-		B:block(R, v(1.6, 1.0, 0.26), cf(0.1, 1.35, 1.52, 0, 10, 0), MOSS)
-		B:block(R, v(0.8, 0.6, 0.26), cf(-0.75, 1.0, 1.6, 0, 10, 0), MOSS_DK)
+		B:block(R, v(2.2, 0.26, 1.2), body * CFrame.new(0.3, 0.95, 0.9), MOSS_DK)
+		B:block(R, v(1.6, 1.0, 0.26), body * CFrame.new(0.1, 0.5, 1.48), MOSS)
+		B:block(R, v(0.8, 0.6, 0.26), body * CFrame.new(-0.75, 0.1, 1.5), MOSS_DK)
 		-- moss creeping over the front edge and onto the low ledge
-		B:block(R, v(1.2, 0.8, 0.26), body * CFrame.new(-0.75, 0.55, -1.48), MOSS)
-		B:block(R, v(0.6, 0.45, 0.26), body * CFrame.new(-0.35, 0.05, -1.5), MOSS_DK)
+		B:block(R, v(1.3, 0.26, 0.9), body * CFrame.new(-0.85, 0.95, -1.0), MOSS)
+		B:block(R, v(1.2, 0.8, 0.26), body * CFrame.new(-0.85, 0.6, -1.48), MOSS)
 		B:block(R, v(1.3, 0.22, 1.1), low * CFrame.new(0.05, 0.62, 0.05), MOSS_DK)
 		-- light moss tufts
 		B:block(R, v(0.7, 0.4, 0.7), top * CFrame.new(0.45, 0.8, -0.2) * CFrame.Angles(0, 0.6, 0), MOSS_LT)

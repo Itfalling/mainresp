@@ -41,16 +41,16 @@ return {
 		end
 
 		------------------------------------------------------------ stem
-		local H = v(0.1, 2.3, 0.35) -- hinge at the back of the head
+		local H = v(0.15, 2.2, 0.4) -- hinge at the back of the head
 		bar(v(0, 0.25, 0), v(0.05, 1.3, 0.15), 0.55, 0.55, GREEN_DK, 0.1)
 		bar(v(0.05, 1.3, 0.15), H + v(0, -0.2, 0), 0.5, 0.5, GREEN_DK, 0.15)
 
 		------------------------------------------------------------ head
 		-- jaw frames: hinge at origin, jaw reaching toward local -Z
-		local base = CFrame.new(H) * ang(0, 12, 0)
+		local base = CFrame.new(H) * ang(0, 12, 0) * ang(8, 0, 0)
 		local lower = base * ang(-6, 0, 0)
 		local upper = base * ang(38, 0, 0)
-		local L, W = 1.7, 1.9
+		local L, W = 1.6, 1.8
 
 		-- hinge knot
 		B:block(R, v(1.1, 0.7, 0.6), base * CFrame.new(0, 0, 0.05), GREEN_DK)
