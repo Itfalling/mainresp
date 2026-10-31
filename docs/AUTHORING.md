@@ -256,3 +256,5 @@ the tool's `SwingCount` attribute).
 For scenery meant to be copy-pasted many times (bushes, rocks, fences, flowers). Max 150 parts, no
 motion.luau, no emitters/lights/trails (the build flags them). The exported model is flattened: every
 visible part anchored, no welds, invisible bone parts removed, no scripts.
+`Rarity = "Scenery"` (cap 260 parts) is the big version: same `Filler = true` flattening, for large
+copy-paste scenery (trees, rock formations, hedges) that should be noticeable across a biome.
