@@ -226,9 +226,9 @@ return {
 		-- crescent: arc of blocks on the left of the circle, opening to the right
 		for k = 0, 8 do
 			local a = rad(40 + k * 35) -- 40..320 deg
-			local w = 1.4 + 0.9 * math.sin(rad(k / 8 * 180))
+			local w = 1.5 + 1.3 * math.sin(rad(k / 8 * 180))
 			local px, py = math.cos(a) * (MR - w / 2), math.sin(a) * (MR - w / 2)
-			B:block(R, v(2.1, w, 4.0), CFrame.new(px, MY + py, 0) * ang(0, 0, math.deg(a) + 90), (k % 2 == 0) and MOON or MOON_LT)
+			B:block(R, v(2.5, w, 4.0), CFrame.new(px, MY + py, 0) * ang(0, 0, math.deg(a) + 90), (k % 2 == 0) and MOON or MOON_LT)
 		end
 		-- gold rim along the outer edge
 		for k = 0, 9 do
@@ -241,10 +241,24 @@ return {
 		B:block(R, v(0.5, 0.5, 4.6), cf(1.5, MY + 0.2, 0, 0, 0, 45), RUNE, NEON)
 
 		------------------------------------------------------------ floating crystals + stars
-		crystal(-40.0, 31.0, -0.4, 1.2, VIO, VIO_LT, 10)
+		-- pedestal stubs on the architrave ends, each with a hovering crystal
+		for _, sx in { 1, -1 } do
+			local x = sx * 39.6
+			B:block(R, v(5.0, 0.6, 5.0), cf(x, AY1 + 1.3, 0), STONE_DK)
+			B:block(R, v(3.6, 1.6, 3.6), cf(x, AY1 + 2.4, 0), STONE_LT)
+			B:block(R, v(3.0, 1.62, 3.0), cf(x, AY1 + 2.4, 0, 0, 45, 0), STONE2)
+			if sx == 1 then
+				B:block(R, v(1.4, 0.8, 1.6), cf(x - 0.8, AY1 + 3.5, 0.6, 0, 20, 10), STONE) -- broken
+				B:block(R, v(1.0, 0.5, 1.0), cf(x + 0.9, AY1 + 3.3, -0.7, 0, 40, -8), STONE_HI)
+			else
+				B:block(R, v(4.0, 0.4, 4.0), cf(x, AY1 + 3.4, 0), GOLD)
+			end
+		end
+		crystal(-39.6, 32.0, 0.0, 0.85, VIO, VIO_LT, 0)
+		crystal(39.6, 32.0, 0.0, 0.85, CY, CY_LT, 12)
 		crystal(47.0, 23.0, 0.6, 1.0, CY, CY_LT, -12)
 		crystal(-47.0, 22.0, -0.8, 0.9, CY, CY_LT, 8)
-		crystal(40.0, 31.0, 0.2, 1.3, VIO, VIO_LT, -6)
+		crystal(45.6, 31.0, 0.2, 1.0, VIO, VIO_LT, -6)
 		crystal(-14.6, 29.6, 0.4, 0.62, VIO_DK, VIO_LT, 15)
 		crystal(14.6, 29.6, -0.6, 0.62, CY_DK, CY_LT, -15)
 		crystal(43.0, 13.0, -5.0, 0.8, VIO, VIO_LT, 5)

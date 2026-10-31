@@ -408,7 +408,8 @@ return {
 			end
 			-- stones along the base of the side walls
 			for _, p in { { -14.2, -12 }, { -14.0, -8.5 }, { -14.3, -5.5 }, { 12.7, -11 }, { 12.5, -8 }, { 12.8, -2.5 } } do
-				B:block(R, v(1.6, rnd(1.0, 1.4), 2.0), cf(p[1], 0.6, p[2], 0, rnd(-15, 15), 0), pick({ STONE, STONE_LT, STONE_DK }))
+				local h = rnd(1.0, 1.4)
+				B:block(R, v(1.6, h, 2.0), cf(p[1], h / 2, p[2], 0, rnd(-15, 15), 0), pick({ STONE, STONE_LT, STONE_DK }))
 			end
 			-- grass and flowers dotted on the rim
 			tuft(-10.5, 0.6, -15.3, 0.8, PINK)
