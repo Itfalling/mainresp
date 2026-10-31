@@ -96,7 +96,9 @@ return {
 			B:bar(R, fb, p1, 0.16, 0.16, FERN_DK)
 			B:bar(R, p1, p2, 0.14, 0.14, FERN_DK)
 			local fr = P.aim(p1, p2)
-			B:block(R, v(0.75 * f[2], 0.1, 0.4), CFrame.new(p1:Lerp(p2, 0.5)) * (fr - fr.Position) * CFrame.Angles(0, rad(90), 0), (i % 2 == 0) and FERN or FERN_LT)
+			B:block(R, v(0.9 * f[2], 0.1, 0.45), CFrame.new(p1:Lerp(p2, 0.45)) * (fr - fr.Position) * CFrame.Angles(0, rad(90), 0), (i % 2 == 0) and FERN or FERN_LT)
+			B:block(R, v(0.7 * f[2], 0.1, 0.35), CFrame.new(fb:Lerp(p1, 0.6)) * (fr - fr.Position) * CFrame.Angles(0, rad(90), 0), FERN)
+			B:block(R, v(0.28, 0.1, 0.28), CFrame.new(p2) * CFrame.Angles(0, a, 0), FERN_LT)
 		end
 		B:block(R, v(0.45, 0.3, 0.45), CFrame.new(fb + v(0, 0.05, 0)), FERN_DK)
 

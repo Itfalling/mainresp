@@ -41,6 +41,7 @@ return {
 		oct3(cf(0, 0.05, 0), 2.75, 2.15, 0.1, WATER_DK) -- dark rim
 		oct3(cf(0, 0.08, 0), 2.45, 1.9, 0.14, WATER) -- main surface
 		oct3(cf(-0.35, 0.09, 0.3, 0, 20, 0), 1.05, 0.8, 0.16, WATER_XD) -- deep middle
+		B:block(R, v(0.7, 0.17, 0.12), cf(-1.1, 0.09, -0.35, 0, 35, 0), WATER) -- sheen on the deep part
 		for _, rp in { { 1.1, -0.95, 1.5, -15 }, { -1.5, 0.95, 1.1, 25 }, { 0.3, 1.45, 0.8, 5 } } do
 			B:block(R, v(rp[3], 0.17, 0.14), cf(rp[1], 0.085, rp[2], 0, rp[4], 0), WATER_LT)
 		end

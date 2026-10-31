@@ -88,6 +88,7 @@ return {
 		B:block(R, v(0.9, 0.16, 1.1), D * CFrame.new(-0.35, 0.82, 0.05), MOSS)
 		B:block(R, v(0.5, 0.18, 0.7), D * CFrame.new(-0.25, 0.88, 0.1), MOSS_LT)
 		B:block(R, v(0.4, 0.6, 0.14), D * CFrame.new(-0.4, 0.45, 0.82), MOSS_DK) -- drip down the back
+		B:block(R, v(0.3, 0.4, 0.14), D * CFrame.new(-0.3, 0.5, -0.82), MOSS_DK) -- and the front
 
 		------------------------------------------------------------ cornice block
 		local C = cf(1.45, 0.62, -0.75, 0, -28, 9)

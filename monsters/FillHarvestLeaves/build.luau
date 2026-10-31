@@ -50,12 +50,12 @@ return {
 		end
 		-- leaves shingled on the slope {angle, radius, y, tilt, spin, k, c1, c2}
 		local shingles = {
-			{ 15, 2.15, 0.6, 18, 10, 1.0, RED, RED_LT },
+			{ 15, 1.95, 0.6, 18, 10, 1.0, RED, RED_LT },
 			{ 75, 1.45, 0.58, 22, -15, 0.95, GOLD, GOLD_LT },
-			{ 140, 2.0, 0.6, 16, 20, 1.0, OR, OR_LT },
-			{ 205, 2.2, 0.6, 20, -10, 1.05, GOLD_DK, GOLD },
+			{ 140, 1.85, 0.6, 16, 20, 1.0, OR, OR_LT },
+			{ 205, 1.95, 0.6, 20, -10, 1.05, GOLD_DK, GOLD },
 			{ 260, 1.5, 0.6, 24, 15, 0.95, RED, RED_LT },
-			{ 320, 2.1, 0.6, 18, -20, 1.0, BROWN, OR_DK },
+			{ 320, 1.9, 0.6, 18, -20, 1.0, BROWN, OR_DK },
 			{ 40, 1.55, 0.98, 20, 25, 0.9, OR, GOLD },
 			{ 110, 1.15, 0.98, 24, -10, 0.85, RED_LT, RED },
 			{ 180, 1.55, 0.98, 18, 5, 0.9, GOLD, GOLD_LT },

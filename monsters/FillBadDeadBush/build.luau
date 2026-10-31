@@ -77,8 +77,10 @@ return {
 		local function knuckle(p, w, col)
 			B:block(R, v(w + 0.07, 0.2, w + 0.07), CFrame.new(p) * ang(0, 45, 0), col)
 		end
+		local nth = 0
 		local function thorn(p, d)
-			B:bar(R, p, p + d * 0.42, 0.15, 0.15, THORN)
+			nth += 1
+			B:bar(R, p, p + d * 0.42, 0.15, 0.15, (nth % 3 == 0) and THORN_DK or THORN)
 		end
 
 		-- { yaw, p1 r, p1 h, p2 r, p2 h, tip r, tip h, side }

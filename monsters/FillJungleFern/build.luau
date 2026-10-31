@@ -42,6 +42,11 @@ return {
 		B:block(R, v(2.8, 0.16, 1.9), cf(0.3, 0.28, -0.2, 0, 12, 0), MOSS)
 		B:block(R, v(1.6, 0.15, 1.5), cf(-0.8, 0.27, 0.9, 0, -25, 0), MOSS_DK)
 		B:block(R, v(1.0, 0.14, 0.8), cf(1.2, 0.26, 1.1, 0, 30, 0), DIRT)
+		-- chunky edge clods so the rim isn't a perfect outline
+		for _, e in { { 50, 2.05, DIRT_DK2 }, { 165, 2.1, DIRT_DK }, { 245, 2.0, DIRT }, { 320, 2.1, DIRT_DK2 } } do
+			local a = rad(e[1])
+			B:block(R, v(1.0, 0.3, 0.65), CFrame.new(math.sin(a) * e[2], 0.15, -math.cos(a) * e[2]) * CFrame.Angles(0, -a + rad(8), 0), e[3])
+		end
 		-- flat stones
 		B:block(R, v(0.9, 0.35, 0.75), cf(1.9, 0.25, 0.5, 0, 25, 0), STONE)
 		B:block(R, v(0.5, 0.2, 0.45), cf(1.95, 0.5, 0.45, 0, 50, 0), STONE_LT)

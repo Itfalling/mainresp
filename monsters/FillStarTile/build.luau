@@ -24,7 +24,7 @@ return {
 
 		-- palette (Starlight Ruins)
 		local EARTH_XD, EARTH_DK, EARTH, EARTH_LT = "#211d42", "#2a2550", "#3b3566", "#4d4684"
-		local STONE, STONE2, STONE_DK, STONE_LT, STONE_HI = "#e3dcef", "#d0c7e2", "#a99fc2", "#f4f0fb", "#fbf9ff"
+		local STONE, STONE2, STONE_DK, STONE_HI = "#e3dcef", "#d0c7e2", "#a99fc2", "#fbf9ff"
 		local GOLD, GOLD_DK, GOLD_LT = "#f2c24f", "#c9952e", "#ffe08a"
 		local SILVER = "#b8c4f0"
 		local RUNE = "#7fe8ff"
@@ -54,7 +54,7 @@ return {
 					B:block(R, v(len - gap - 0.12, 0.04, BW * 0.45), cf(c, H + BH + 0.02, sgn * (hs - BW / 2) - sgn * 0.08), STONE_HI)
 				else
 					B:block(R, v(BW, BH, len - gap), cf(sgn * (hs - BW / 2), by, c), col)
-					B:block(R, v(BW * 0.45, 0.04, len - gap - 0.12), cf(sgn * (hs - BW / 2) - sgn * 0.08, H + BH + 0.02, c), STONE_LT)
+					B:block(R, v(BW * 0.45, 0.04, len - gap - 0.12), cf(sgn * (hs - BW / 2) - sgn * 0.08, H + BH + 0.02, c), STONE_HI)
 				end
 				t += len
 			end

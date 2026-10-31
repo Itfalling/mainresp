@@ -53,7 +53,7 @@ return {
 
 		------------------------------------------------------------ basal leaves
 		for i, l in { { 10, 1.35, LEAF }, { 80, 1.15, LEAF_DK }, { 150, 1.3, LEAF_LT }, { 220, 1.2, LEAF }, { 290, 1.25, LEAF_DK } } do
-			local c = CFrame.new(0, 0.18, 0) * ang(0, l[1], 0) * ang(16, 0, 0)
+			local c = CFrame.new(0, 0.18, 0) * ang(0, l[1], 0) * ang(20, 0, 0)
 			B:block(R, v(0.32, 0.12, l[2]), c * CFrame.new(0, 0, -l[2] / 2 - 0.1), l[3]) -- stalk
 			B:block(R, v(0.62, 0.13, 0.62), c * CFrame.new(0, 0.01, -l[2] - 0.15) * ang(0, 45, 0), l[3]) -- spoon tip
 			if i % 2 == 1 then

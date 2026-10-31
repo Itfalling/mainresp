@@ -106,8 +106,8 @@ return {
 			local p1 = p0 + d * b[3] * 0.3 + v(0, b[2] * 0.62, 0)
 			local p2 = p0 + d * b[3] + v(0, b[2], 0)
 			local p3 = p2 + d * 0.4 + v(0, -0.1, 0) -- tip bending over
-			B:bar(R, p0, p1, b[4], 0.12, b[5], { up = d })
-			B:bar(R, p1, p2, b[4] * 0.85, 0.11, b[6], { up = d })
+			B:bar(R, p0, p1, b[4] * 1.1, 0.12, b[5], { up = d })
+			B:bar(R, p1, p2, b[4] * 0.92, 0.11, b[6], { up = d })
 			B:bar(R, p2 - (p2 - p1).Unit * 0.12, p3, b[4] * 0.6, 0.1, b[6], { up = d })
 		end
 	end,
