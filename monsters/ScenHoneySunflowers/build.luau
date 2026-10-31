@@ -92,11 +92,11 @@ return {
 				local c = CFrame.new(p) * ang(0, L[2], 0) * ang(14, 0, 0)
 				-- short leaf stalk, then a wide stepped heart-shaped blade drooping at the tip
 				B:block(R, v(0.35, 0.3, 0.9 * s), c * CFrame.new(0, 0, -0.45 * s), STEM)
-				B:block(R, v(2.0 * s, 0.3, 1.6 * s), c * CFrame.new(0, 0, -1.6 * s), LEAF)
-				B:block(R, v(1.4 * s, 0.3, 1.4 * s), c * CFrame.new(0, -0.02, -2.9 * s) * ang(-12, 0, 0), LEAF_DK)
+				B:block(R, v(2.0 * s, 0.4, 1.6 * s), c * CFrame.new(0, 0, -1.6 * s), LEAF)
+				B:block(R, v(1.4 * s, 0.38, 1.4 * s), c * CFrame.new(0, -0.02, -2.9 * s) * ang(-12, 0, 0), LEAF_DK)
 				B:block(R, v(0.7 * s, 0.3, 0.8 * s), c * CFrame.new(0, -0.25, -3.8 * s) * ang(-24, 0, 0), LEAF_DK)
-				B:block(R, v(1.2 * s, 0.32, 1.0 * s), c * CFrame.new(0.2 * s, 0.03, -1.7 * s), LEAF_LT)
-				B:block(R, v(0.22, 0.36, 2.4 * s), c * CFrame.new(0, 0.05, -1.9 * s), MIDRIB)
+				B:block(R, v(1.2 * s, 0.44, 1.0 * s), c * CFrame.new(0.2 * s, 0.03, -1.7 * s), LEAF_LT)
+				B:block(R, v(0.22, 0.48, 2.4 * s), c * CFrame.new(0, 0.05, -1.9 * s), MIDRIB)
 			end
 			-- head: local -Z = face direction, tilted up
 			local F = CFrame.new(top) * ang(0, yaw, 0) * ang(22, 0, 0)
