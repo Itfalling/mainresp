@@ -149,14 +149,18 @@ return {
 				local _ = k
 			end
 		end
-		-- back side: a single painted daisy so the back is not blank
+		-- back side: a painted honeycomb trio so the back is not blank
 		do
 			local zb = 0.29
-			for k = 0, 1 do
-				B:block(sign, v(1.1, 0.32, 0.08), cf(0, BY0 + 1.5, zb, 0, 0, k * 90 + 45), DAISY)
-				B:block(sign, v(1.1, 0.32, 0.08), cf(0, BY0 + 1.5, zb + 0.01, 0, 0, k * 90), DAISY_SH)
+			for k, o in { { 0, 0.45 }, { -0.62, -0.1 }, { 0.62, -0.1 } } do
+				local x, y = o[1] * 1.1, BY0 + 1.5 + o[2] * 1.1
+				for r = 0, 2 do
+					B:block(sign, v(0.62, 1.07, 0.08), cf(x, y, zb, 0, 0, r * 60), "#ffc93c")
+				end
+				for r = 0, 2 do
+					B:block(sign, v(0.34, 0.59, 0.08), cf(x, y, zb + 0.02, 0, 0, r * 60), (k == 1) and "#ffa318" or "#c87410")
+				end
 			end
-			B:block(sign, v(0.4, 0.4, 0.08), cf(0, BY0 + 1.5, zb + 0.03, 0, 0, 45), DAISY_EYE)
 		end
 
 		------------------------------------------------------------------

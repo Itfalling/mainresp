@@ -390,9 +390,9 @@ return {
 			return prev
 		end
 		branch(trunk[3], { v(TX + 2.0, 6.4, TZ - 0.4), v(TX + 3.2, 7.8, TZ - 0.2), v(TX + 3.6, 9.2, TZ + 0.3) }, 0.75)
-		branch(trunk[4], { v(TX - 1.8, 9.0, TZ - 0.8), v(TX - 3.0, 10.6, TZ - 1.0), v(TX - 3.4, 12.0, TZ - 0.6) }, 0.7)
+		branch(trunk[4], { v(TX - 1.4, 9.0, TZ - 1.2), v(TX - 2.0, 10.6, TZ - 2.2), v(TX - 2.2, 12.0, TZ - 2.8) }, 0.7)
 		branch(trunk[5], { v(TX + 1.8, 11.2, TZ + 1.0), v(TX + 2.4, 12.8, TZ + 1.8) }, 0.6)
-		branch(trunk[6], { v(TX - 1.4, 13.6, TZ + 0.6), v(TX - 2.6, 14.4, TZ + 0.4), v(TX - 3.6, 14.1, TZ + 0.2) }, 0.5)
+		branch(trunk[6], { v(TX - 1.2, 13.6, TZ + 1.0), v(TX - 2.0, 14.6, TZ + 1.8), v(TX - 2.4, 15.6, TZ + 2.2) }, 0.5)
 		branch(trunk[7], { v(TX + 0.8, 15.0, TZ - 0.4), v(TX + 0.5, 16.2, TZ - 0.9) }, 0.45)
 		branch(trunk[2], { v(TX + 1.6, 3.6, TZ + 1.2), v(TX + 2.4, 4.6, TZ + 1.8) }, 0.5)
 		-- a hollow knot in the trunk

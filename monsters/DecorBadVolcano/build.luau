@@ -56,6 +56,7 @@ return {
 		end
 
 		local DRIP = 35 -- angle of the rim notch / lava drip (front-right)
+		local CRACKS = { { 180, 0, 4 }, { 270, 2, 5 }, { 90, 0, 2 } } -- glowing slope cracks: angle, tiers
 
 		------------------------------------------------------------------
 		-- FOOTING (bone "Soil")
@@ -129,7 +130,13 @@ return {
 			local n = math.max(6, math.floor(r * 2.4))
 			for i = 0, n - 1 do
 				local a = (i + 0.5 + jit(0.25)) / n * 360 + k * 17
-				if math.abs(((a - DRIP + 180) % 360) - 180) > 16 then
+				local clear = math.abs(((a - DRIP + 180) % 360) - 180) > 16
+				for _, ca in CRACKS do
+					if math.abs(((a - ca[1] + 180) % 360) - 180) < 11 and k >= ca[2] and k <= ca[3] then
+						clear = false
+					end
+				end
+				if clear then
 					local hh = TH + rnd() * 0.35 - 0.05
 					local w = 1.0 + rnd() * 0.8
 					B:block(R, v(w, hh, 0.9 + rnd() * 0.4), facing(pv(r - 0.15 + jit(0.12), a, y0 + hh / 2), a) * ang(jit(4), jit(10), jit(4)), pick(bands[k + 1][2]))
@@ -196,21 +203,22 @@ return {
 			for k = k0, k1 do
 				local r = tierR(k)
 				local a = deg + ((k % 2 == 0) and 4 or -4)
-				B:block(R, v(0.22, TH * 0.8, 0.2), facing(pv(r + 0.02, a, Y0 + k * TH + TH / 2), a), (k % 2 == 0) and LAVA or LAVA_LT, NEON)
+				B:block(R, v(0.34, TH * 0.9, 0.2), facing(pv(r + 0.02, a, Y0 + k * TH + TH / 2), a), (k % 2 == 0) and LAVA or LAVA_LT, NEON)
 			end
 		end
-		crack(160, 1, 3)
-		crack(255, 3, 5)
-		crack(-70, 0, 1)
+		for _, c in CRACKS do
+			crack(c[1], c[2], c[3])
+		end
 
 		-- a dino bone stuck in the side of the volcano
 		local ba = 210
-		local bb = pv(tierR(2) - 0.4, ba, Y0 + 2.6)
-		local bt = pv(tierR(2) + 1.6, ba - 8, Y0 + 3.6)
-		B:bar(R, bb, bt, 0.45, 0.45, BONE)
+		local bb = pv(tierR(2) - 0.6, ba, Y0 + 2.6)
+		local bt = pv(tierR(2) + 2.0, ba - 8, Y0 + 3.9)
+		B:bar(R, bb, bt, 0.62, 0.62, BONE)
 		local bo = CFrame.lookAt(bt, bt + (bt - bb).Unit)
-		B:block(R, v(0.62, 0.62, 0.62), bo * CFrame.new(0.24, 0, 0), BONE_LT)
-		B:block(R, v(0.62, 0.62, 0.62), bo * CFrame.new(-0.24, 0, 0.05), BONE)
+		B:block(R, v(0.8, 0.8, 0.8), bo * CFrame.new(0.32, 0, 0), BONE_LT)
+		B:block(R, v(0.8, 0.8, 0.8), bo * CFrame.new(-0.32, 0, 0.05), BONE)
+		B:block(R, v(1.0, 0.45, 0.5), bo * CFrame.new(0, -0.25, 0.2), BONE_DK)
 		-- a few loose boulders sitting on the ledges
 		for _, b in { { 2, 120, 0.7, RK_LT }, { 4, 300, 0.6, ASH }, { 1, 260, 0.8, RUST_LT } } do
 			local k = b[1]
@@ -221,7 +229,7 @@ return {
 		-- VFX
 		------------------------------------------------------------------
 		local cz = B:block(R, v(2.2, 0.6, 2.2), cf(0, TOP + 0.8, 0), LAVA, { tr = 1, name = "CraterZone" })
-		B:emitter(cz, "smoke", { name = "CraterSmoke", color = { "#6a6462", "#9a9490", "#bdb8b4" }, rate = 2.2, size = { 0.9, 2.2, 3.4 }, speed = { 1.4, 2.2 }, life = { 2.6, 3.8 }, spread = 14, accel = { 0.25, 0.4, 0 } })
+		B:emitter(cz, "smoke", { name = "CraterSmoke", color = { "#6a6462", "#9a9490", "#bdb8b4" }, rate = 2.8, size = { 1.0, 2.4, 3.6 }, speed = { 1.4, 2.2 }, life = { 2.6, 3.8 }, spread = 14, accel = { 0.25, 0.4, 0 } })
 		B:emitter(cz, "ember", { name = "CraterEmbers", color = { "#ffe27a", "#ff8a24", "#e8401f" }, rate = 5, size = { 0.22, 0.14, 0 }, speed = { 1.6, 3.0 }, life = { 1.2, 2.2 }, spread = 28, accel = { 0, 0.6, 0 } })
 		B:emitter(cz, "glow", { name = "CraterGlow", color = { "#ffa040", "#ff6a2a" }, rate = 1.2, size = { 2.4, 3.2, 0.6 }, life = { 0.8, 1.4 }, speed = { 0.2, 0.5 } })
 		B:light(cz, { name = "CraterLight", color = "#ff8a3a", brightness = 1.1, range = 16 })

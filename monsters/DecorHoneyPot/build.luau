@@ -30,7 +30,7 @@ return {
 		local STONE, STONE_LT = "#a49a8c", "#c4bcae"
 		local DAISY, DAISY_EYE = "#fffaf2", "#ffc93a"
 		local FL_PINK = "#ff9cc4"
-		local POT_DK, POT, POT_LT, LIP = "#a8522a", "#cf713a", "#e38c4c", "#f2a35e"
+		local POT_DK, POT, POT_LT, LIP = "#b8602e", "#dc8240", "#eea052", "#f7b86a"
 		local LABEL, LABEL_DK = "#ffdc78", "#e8a83a"
 		local ROPE, ROPE_DK = "#e0bf7e", "#b8945a"
 		local INSIDE = "#5c2e0c"

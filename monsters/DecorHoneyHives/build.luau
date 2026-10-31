@@ -207,7 +207,7 @@ return {
 			if notch then
 				for _, face in { 0, 90, -90, 180 } do
 					local c = cf(x, y0 + h * 0.62, z, 0, face, 0) * CFrame.new(0, 0, -W / 2 - 0.02)
-					B:block(hb, v(1.5, 0.36, 0.1), c, colDk)
+					B:block(hb, v(1.5, 0.36, 0.1), c, WOOD)
 				end
 			end
 		end
@@ -289,6 +289,15 @@ return {
 			B:block(hb, v(1.4, 0.12, 1.0), cf(e.X + 0.4, DECK + 0.52, e.Z - 0.4), HONEY)
 			B:block(hb, v(0.4, 0.8, 0.4), cf(e.X + 0.9, DECK + 0.1, e.Z - 1.15), HONEY)
 			B:block(hb, v(0.6, 0.14, 0.6), cf(e.X - 0.5, DECK + 0.53, e.Z - 0.7, 0, 30, 0), HONEY_LT)
+		end
+		-- two honey jars on the deck between the stacks
+		for k, j in { { 0.1, -2.75, 1.0 }, { 0.25, -1.45, 0.8 } } do
+			local sc = j[3]
+			local c = cf(j[1], DECK + 0.6 * sc, j[2], 0, 15 + k * 25, 0)
+			B:block(hb, v(1.0 * sc, 1.2 * sc, 1.0 * sc), c, HONEY)
+			B:block(hb, v(0.9 * sc, 0.25, 0.9 * sc), c * CFrame.new(0, 0.6 * sc + 0.1, 0), JAR_LID)
+			B:block(hb, v(1.15 * sc, 0.12, 1.15 * sc), c * CFrame.new(0, 0.6 * sc + 0.2, 0) * ang(0, 45, 0), CLOTH)
+			B:block(hb, v(0.6 * sc, 0.5 * sc, 0.08), c * CFrame.new(0, -0.05, -0.5 * sc - 0.03), JAR_LID)
 		end
 		-- glow in the tall stack's entrance (tiny neon accent)
 		B:gem(hb, v(1.6, 0.2, 0.08), cf(AX, DECK + 0.72, AZ - W / 2 - 0.06), "#ffb52e", { name = "HiveGlow" })

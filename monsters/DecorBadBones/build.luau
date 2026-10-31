@@ -47,8 +47,8 @@ return {
 		local soil = B:bone("Soil", "Root", v(0, 0, 0))
 		local S = { name = "Soil" }
 		-- rust earth patch
-		B:block(soil, v(6.6, 0.2, 4.6), cf(0, 0.1, 0.2, 0, 8, 0), RUST_DK, S)
-		B:block(soil, v(4.8, 0.22, 6.0), cf(0.2, 0.11, 0.1, 0, -14, 0), RUST, S)
+		B:block(soil, v(7.4, 0.2, 5.0), cf(0, 0.1, 0.0, 0, 8, 0), RUST_DK, S)
+		B:block(soil, v(5.2, 0.22, 6.8), cf(0.2, 0.11, -0.2, 0, -14, 0), RUST, S)
 		-- flat flagstones
 		for _, s in {
 			{ -2.3, -1.2, 2.4, 1.9, 20, RK }, { 1.9, -1.5, 2.2, 1.7, -15, ASH_DK },
@@ -231,11 +231,11 @@ return {
 			B:block(R, v(0.45 * s, 0.16, 1.3 * s), o * CFrame.new(0, 0.03, -0.1 * s), col)
 			B:block(R, v(0.1, 0.2, 1.0 * s), o * CFrame.new(0, 0.05, 0), LEAF_DK)
 		end
-		leaf(pts[4], v(1, 0, -0.4), 1.1, LEAF)
-		leaf(pts[6], v(-1, 0, 0.3), 1.0, LEAF_LT)
-		leaf(pts[8], v(0.4, 0, 1), 0.9, LEAF)
-		leaf(run[3], v(-0.3, 0, 1), 0.9, LEAF_LT)
-		leaf(run[5], v(-1, 0, -0.4), 0.8, LEAF)
+		leaf(pts[4], v(1, 0, -0.4), 1.4, LEAF)
+		leaf(pts[6], v(-1, 0, 0.3), 1.3, LEAF_LT)
+		leaf(pts[8], v(0.4, 0, 1), 1.2, LEAF)
+		leaf(run[3], v(-0.3, 0, 1), 1.2, LEAF_LT)
+		leaf(run[5], v(-1, 0, -0.4), 1.1, LEAF)
 
 		-- blackberry clusters
 		local function berries(c)
