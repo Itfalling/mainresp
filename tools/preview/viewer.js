@@ -601,9 +601,9 @@ async function mapView() {
   document.body.appendChild(renderer.domElement);
   renderer.domElement.id = 'sheet';
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color('#9fd6ff');
-  scene.fog = new THREE.Fog('#bfe3ff', 260, Number(params.get('fog') || 1400));
-  scene.add(new THREE.HemisphereLight('#e3f2ff', '#6f9a5a', 1.3));
+  scene.background = new THREE.Color(params.get('bg') ? '#' + params.get('bg') : '#9fd6ff');
+  if (!params.get('bg')) scene.fog = new THREE.Fog('#bfe3ff', 260, Number(params.get('fog') || 1400));
+  scene.add(params.get('bg') ? new THREE.HemisphereLight('#c8d0ff', '#30305a', 1.0) : new THREE.HemisphereLight('#e3f2ff', '#6f9a5a', 1.3));
   const unit = new THREE.BoxGeometry(1, 1, 1);
   const mats = {
     opaque: new THREE.MeshStandardMaterial({ roughness: 0.8 }),
