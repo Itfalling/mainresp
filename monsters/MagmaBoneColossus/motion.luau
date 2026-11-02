@@ -109,7 +109,7 @@ function M.Update(t, pose, ctx)
 	-- ribs breathe; draw in on the build-up, flare on the roar
 	local rb = 3 * breath - 6 * gather + 9 * roar + 3 * kick
 	for lv = 0, 3 do
-		local k = 1 - 0.12 * lv
+		local k = (lv == 0) and 0.35 or (1 - 0.12 * lv)
 		L.both(pose, "Rib" .. lv, ang(0, -rb * k, 1.5 * rb * k + 0.4 * sh1))
 	end
 
@@ -165,7 +165,7 @@ function M.Update(t, pose, ctx)
 		for _, ph in { 0, 0.5 } do
 			local u = (2 * c / M.Cycle + ph) % 1
 			local yc = 3 + 33 * u
-			g += exp(-((y - yc) / 3.4) ^ 2)
+			g += exp(-((y - yc) / 4.0) ^ 2)
 		end
 		return clamp(g, 0, 1)
 	end
@@ -237,6 +237,10 @@ function M.Update(t, pose, ctx)
 	end
 	for i = 1, 5 do
 		ctx.transparency("FingerGlow" .. i, clamp(0.4 - 0.3 * hb - 0.45 * flare + 0.15 * w(t, 2, i * 0.2), 0, 0.75))
+	end
+	for _, sd in { "R", "L" } do
+		ctx.transparency("Horn" .. sd, clamp(0.2 + 0.2 * w(t, 2, 0.3) - 0.3 * flare, 0, 0.6))
+		ctx.transparency("HornGlow" .. sd, clamp(0.35 + 0.25 * w(t, 2, 0.1) - 0.5 * flare - 0.3 * crest(36), 0, 0.75))
 	end
 	for i = 1, 4 do
 		ctx.transparency("ShardGlow" .. i, clamp(0.25 + 0.2 * w(t, 3, i * 0.25) - 0.3 * flare, 0, 0.7))

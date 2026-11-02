@@ -130,6 +130,14 @@ return {
 		crack(8.6, 10.6, 310, 2.62, 6)
 		crack(7.0, 8.6, 250, 3.92, 7)
 		crack(7.0, 8.6, 45, 3.92, 7)
+		-- glowing magma seams down the tier risers
+		for _, sm in { { 2, 50 }, { 2, 230 }, { 3, 125 }, { 3, 295 }, { 4, 70 }, { 4, 250 }, { 1, 150 }, { 1, 330 } } do
+			local t = TIERS[sm[1]]
+			local e = edgeR(t[3], sm[2]) + 0.04
+			local h = t[2] - t[1]
+			B:block(soil, v(0.6, h - 0.15, 0.2), facing(at(e, sm[2], t[1] + h / 2), sm[2]) * ang(0, 0, 8), CRUST_DK, S)
+			B:block(soil, v(0.24, h - 0.3, 0.24), facing(at(e + 0.04, sm[2], t[1] + h / 2), sm[2]) * ang(0, 0, 8), N_OR, SN)
+		end
 		-- ember rocks (dark rock with a glowing hot top)
 		for _, e in { { 11.6, 95, 1.2, 1.0 }, { 11.2, 205, 1.2, 0.9 }, { 12.2, 330, 1.2, 0.8 }, { 9.8, 165, 2.6, 0.8 }, { 8.4, 260, 3.9, 0.7 } } do
 			local p = at(e[1], e[2], e[3])
@@ -310,14 +318,14 @@ return {
 			local cw = (s % 2 == 0) and 1.74 or 1.7
 			local y0 = (s == 1) and PY - 1.5 or lo - 0.2
 			local y1 = (s == 4) and hi or hi + 0.2
-			B:block(spine[s], v(cw, y1 - y0, cw), cf(0, (y0 + y1) / 2, 0), LAVA_DP)
+			B:block(spine[s], v(cw, y1 - y0, cw), cf(0, (y0 + y1) / 2, 0), LAVA)
 			local flow = B:bone("Flow" .. s, "Spine" .. s, v(0, SPB[s], 0))
 			local j = 0
 			local y = 3.0
 			while y < hi and y < TOPCOL - 0.9 do
 				if y >= lo then
 					j = math.floor((y - 3.0) / BS + 0.5) + 1
-					B:block(flow, v(1.82, 0.9, 1.82), cf(0, y, 0), LAVA)
+					B:block(flow, v(1.82, 0.9, 1.82), cf(0, y, 0), "#b8321a")
 					B:block(flow, v(1.88, 0.94, 1.88), cf(0, y, 0), N_HOT, nm("ColBand" .. j))
 				end
 				y += BS
@@ -419,7 +427,6 @@ return {
 				B:block(fall, v(1.12, 0.79, 0.92), cf(fx, yy, fz), N_HOT, nm(("FallBand%s%d"):format(sd, fj)))
 				yy -= FS
 			end
-			print(("   [fall %s] top %.2f bands %d"):format(sd, FALL_TOP + 0.4, fj))
 			-- splash where it lands
 			B:block(soil, v(2.2, 0.2, 2.2), cf(fx, PY + 0.05, fz, 0, 45, 0), LAVA_LT, S)
 			B:block(soil, v(1.4, 0.24, 1.4), cf(fx, PY + 0.08, fz), N_HOT, nm("Splash" .. sd))
@@ -530,10 +537,22 @@ return {
 			B:bar(fb, q0 + v(0, 0.5, 0), q1 + v(0, 0.5, 0), 0.28, 0.2, N_YL, nm("FingerGlow" .. i))
 		end
 		local KS = 4.2
-		local KC = v(0, PAL + 3.4, -0.1)
+		local KC = v(0, PAL + 3.25, -0.1)
 		local king = B:bone("King", "Spine4", v(0, PAL + 0.8, 0))
 		local KF = CFrame.new(KC)
 		skull(king, "KingJaw", "King", KF, KS, "K")
+		-- great curved bone horns on the King skull
+		for _, sx in { 1, -1 } do
+			local h0 = KF * v(sx * 0.46 * KS, 0.36 * KS, 0.05 * KS)
+			local h1 = KF * v(sx * 0.8 * KS, 0.55 * KS, 0.15 * KS)
+			local h2 = KF * v(sx * 0.98 * KS, 0.86 * KS, 0.1 * KS)
+			local h3 = KF * v(sx * 0.86 * KS, 1.0 * KS, -0.05 * KS)
+			B:bar(king, h0, h1 + (h1 - h0).Unit * 0.2, 1.25, 1.15, BONE)
+			B:bar(king, h1, h2 + (h2 - h1).Unit * 0.2, 0.95, 0.9, BONE_LT)
+			B:bar(king, h2, h3, 0.6, 0.55, BONE_DK)
+			B:block(king, v(0.5, 0.5, 0.5), CFrame.new(h3) * ang(45, 0, 45), N_HOT, nm("Horn" .. (sx > 0 and "R" or "L")))
+			B:bar(king, h0 + v(0, 0.5, 0), h1 + v(0, 0.45, 0), 0.26, 0.2, N_YL, nm("HornGlow" .. (sx > 0 and "R" or "L")))
+		end
 
 		------------------------------------------------------------------
 		-- EMBER SHARDS orbiting the ribcage (trails)
