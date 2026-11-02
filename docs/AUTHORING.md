@@ -258,3 +258,9 @@ motion.luau, no emitters/lights/trails (the build flags them). The exported mode
 visible part anchored, no welds, invisible bone parts removed, no scripts.
 `Rarity = "Scenery"` (cap 260 parts) is the big version: same `Filler = true` flattening, for large
 copy-paste scenery (trees, rock formations, hedges) that should be noticeable across a biome.
+
+## Long loops and light sources (`PreviewFps`, `NeonCap`)
+
+`PreviewFps = 2` bakes the preview of a very long loop (e.g. a 600 s orbit cycle) at 2 frames/s so the
+preview JSON stays small; in Roblox the motion still runs live every frame. A `Landmark` whose subject is
+a light source (a sun) may set `NeonCap` (max 15) to raise the 7% neon limit.

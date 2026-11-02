@@ -254,14 +254,17 @@ local function buildMonster(id, L)
 		transTracks[name][frameIdx + 1] = r4(v)
 	end
 
-	local nFrames = math.max(1, math.floor(cycle * FPS + 0.5))
+	-- very long loops (spec.PreviewFps) bake the preview at a lower frame rate;
+	-- in Roblox the motion still runs live every frame
+	local fps = spec.PreviewFps or FPS
+	local nFrames = math.max(1, math.floor(cycle * fps + 0.5))
 	local frames = {}
 	local maxAng, maxPos, used = {}, {}, {}
 	-- run one full warm-up cycle first so stateful motions settle, then record
 	for pass = 1, 2 do
 		for f = 0, nFrames - 1 do
 			frameIdx = f
-			local t = f / FPS + (pass - 1) * cycle
+			local t = f / fps + (pass - 1) * cycle
 			prevC = curC
 			curC = t % cycle
 			local pose = {}
@@ -367,7 +370,7 @@ local function buildMonster(id, L)
 		bones = bones,
 		parts = parts,
 		effects = effects,
-		anim = { fps = FPS, cycle = cycle, joints = jointNames, frames = frames, events = events, trans = transTracks },
+		anim = { fps = fps, cycle = cycle, joints = jointNames, frames = frames, events = events, trans = transTracks },
 	}
 	fs.writeDir("out/preview")
 	fs.writeFile("out/preview/" .. id .. ".json", serde.encode("json", preview))
@@ -477,8 +480,10 @@ local function buildMonster(id, L)
 		end
 	end
 	local neonPct = B.totalArea > 0 and (B.neonArea / B.totalArea * 100) or 0
-	if neonPct > 7 then
-		problem(("too much glow: Neon is %.1f%% of the visible surface (max 7%%) - keep neon to small tips, eyes, thin strips"):format(neonPct))
+	-- Landmarks with a light source as the subject (a sun) may raise the cap to 15%
+	local neonCap = (spec.Rarity == "Landmark" and spec.NeonCap) and math.min(15, spec.NeonCap) or 7
+	if neonPct > neonCap then
+		problem(("too much glow: Neon is %.1f%% of the visible surface (max %d%%) - keep neon to small tips, eyes, thin strips"):format(neonPct, neonCap))
 	end
 	if nLights > 4 then problem(("too many PointLights: %d (max 4)"):format(nLights)) end
 	if maxBright > 1.5 then problem(("PointLight brightness %.1f too high (max 1.5)"):format(maxBright)) end
